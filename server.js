@@ -9,6 +9,7 @@ const DATABASE_URL = 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea
 
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
 
+/* ---------- ЗАЩИТА ---------- */
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 3;
 const BAN_TIME_MS = 15 * 60 * 1000; 
@@ -29,10 +30,10 @@ const RANKS = {
 };
 const RANK_ORDER = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
 
-/* ---------- ДЖЕКПОТ (ДО 10 000) ---------- */
-const JACKPOT_MAX = 10000;
-const JACKPOT_TICK_MS = 5000; // авто-рост каждые 5 секунд
-const JACKPOT_PER_TICK = 0.50; // +50 копеек каждые 5 сек
+/* ---------- ДЖЕКПОТ (ДО 1000 ЗА 10 ЧАСОВ) ---------- */
+const JACKPOT_MAX = 1000;
+const JACKPOT_TICK_MS = 1000;    // тик каждую секунду
+const JACKPOT_PER_TICK = 0.028;  // +2.8 копейки в секунду
 
 const DEALER_TASKS = [
   { id: 'bj10',  type: 'bj',  goal: 10,  reward: 15, title: 'Сыграй 10 раундов блэкджека' },
@@ -382,17 +383,13 @@ const server = http.createServer(async (req, res) => {
       
       if(!safeNick || amt <= 0) return sendJSON(res, 400, { error: 'Неверные данные' });
       
-      // Записываем победителя
       await pool.query(`INSERT INTO jackpot_winners (nick, amount) VALUES ($1, $2)`, [safeNick, amt]);
-      
-      // Сбрасываем джекпот в 0
       await pool.query(`UPDATE settings SET value = '0' WHERE key = 'jackpot'`);
       await pool.query(`UPDATE settings SET value = $1 WHERE key = 'jackpot_last_tick'`, [Date.now().toString()]);
       
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* --- ИСТОРИЯ ДЖЕКПОТА --- */
     if(url === '/api/jackpot/winners' && method === 'GET'){
       const r = await pool.query(`SELECT * FROM jackpot_winners ORDER BY id DESC LIMIT 10`);
       return sendJSON(res, 200, r.rows);
