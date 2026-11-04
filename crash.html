@@ -71,14 +71,12 @@
   .amount-input-wrap { flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 5px; }
   .amount-input-wrap button { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 20px; cursor: pointer; font-weight: 700; }
   .amount-input-wrap input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 20px; font-weight: 800; outline: none; }
-  
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
   .btn-action .subtext { font-size: 13px; font-weight: 700; margin-top: 4px; opacity: 0.9; }
   .btn-bet { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; box-shadow: 0 0 15px rgba(0,229,255,0.3); }
   .btn-cashout { background: var(--accent-green); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.5); animation: pulse-green 1s infinite; }
   .btn-wait { background: rgba(255,255,255,0.05); color: var(--text-muted); cursor: not-allowed; }
   @keyframes pulse-green { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-  
   .quick-bets { display: flex; gap: 8px; }
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
@@ -88,7 +86,6 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
-  /* АДАПТАЦИЯ ПОД ПЛАНШЕТ (1024px) И ТЕЛЕФОН (768px) */
   @media (max-width: 1024px) {
     .crash-layout { flex-direction: column; overflow-y: auto; padding: 10px; }
     .sidebar-bets { width: 100%; height: 250px; order: 2; }
@@ -116,7 +113,6 @@
 </div>
 
 <div class="crash-layout">
-  
   <aside class="sidebar-bets">
     <div class="tabs">
       <button class="tab-btn active">Все ставки</button>
@@ -143,7 +139,6 @@
     </div>
 
     <div class="control-panel">
-      <!-- BET 1 -->
       <div class="bet-box">
         <div class="bet-options">
           <div class="check-group">
@@ -165,7 +160,6 @@
         </div>
       </div>
 
-      <!-- BET 2 -->
       <div class="bet-box">
         <div class="bet-options">
           <div class="check-group">
@@ -304,6 +298,7 @@ function animate() {
     const elapsed = Date.now() - clientStartTime;
     displayMultiplier = Math.pow(1.00006, elapsed);
     
+    // Моментальный краш на клиенте
     if (displayMultiplier >= serverState.crashPoint) {
       displayMultiplier = serverState.crashPoint;
       gameState = 'crashed'; 
@@ -318,7 +313,6 @@ function animate() {
           explosionEl.classList.add('animate');
         }
         rocketEl.style.display = 'none';
-        fetch('/api/crash/round_end', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ multiplier: serverState.crashPoint }) });
       }
     }
 
@@ -471,15 +465,22 @@ async function cashOut(id) {
   
   if(currentPlayer) {
     try {
-      await fetch('/api/crash/cashout', {
+      const res = await fetch('/api/crash/cashout', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ id: currentPlayer.id, crash_id: bets[id].crashId, bet: bets[id].amount, multiplier: currentMultiplier })
+        body: JSON.stringify({ id: currentPlayer.id, crash_id: bets[id].crashId })
       });
-      currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance) + winAmount;
-      topBalanceEl.textContent = parseFloat(currentPlayer.bonus_balance).toFixed(2) + ' ₽';
-    } catch(e) {}
+      const data = await res.json();
+      if(res.ok) {
+        currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance) + winAmount;
+        topBalanceEl.textContent = parseFloat(currentPlayer.bonus_balance).toFixed(2) + ' ₽';
+        showToast(`Выведено: ${winAmount.toFixed(2)} ₽`, 'success');
+      } else {
+        showToast('Сервер отклонил вывод: ' + data.error, 'error');
+      }
+    } catch(e) { showToast('Ошибка соединения', 'error'); }
   }
-  showToast(`Выведено: ${winAmount.toFixed(2)} ₽`, 'success'); updateBetButtons();
+  
+  updateBetButtons();
 }
 
 function checkAutoCashout(id) {
