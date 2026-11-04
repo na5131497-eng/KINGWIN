@@ -21,7 +21,6 @@
   .user-id { font-size: 12px; color: var(--text-muted); font-weight: 600; }
   .balance { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 16px; font-weight: 800; color: var(--accent-green); }
 
-  /* LAYOUT */
   .crash-layout { display: flex; width: 100%; flex: 1; padding: 15px; gap: 15px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
   
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
@@ -54,13 +53,7 @@
   .multiplier-display { position: absolute; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
   .mult-value { font-size: 90px; font-weight: 900; color: #fff; text-shadow: 0 5px 30px rgba(0,229,255,0.4); line-height: 1; transition: color 0.3s; }
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.6); }
-  
-  .rocket { position: absolute; z-index: 9; font-size: 60px; transform: translate(-50%, -50%) rotate(-45deg); transition: transform 0.05s linear; filter: drop-shadow(0 0 20px rgba(0,229,255,0.6)); display: none; }
-  .explosion { position: absolute; z-index: 11; font-size: 100px; transform: translate(-50%, -50%) scale(0); opacity: 0; pointer-events: none; }
-  .explosion.animate { animation: boom 0.6s ease-out forwards; }
-  @keyframes boom { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
 
-  /* CONTROL PANEL */
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; display: flex; gap: 15px; }
   .bet-box { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
   .bet-options { display: flex; justify-content: space-between; align-items: center; }
@@ -136,8 +129,6 @@
       <div class="multiplier-display">
         <div class="mult-value" id="multValue">1.00x</div>
       </div>
-      <div class="rocket" id="rocket">🚀</div>
-      <div class="explosion" id="explosion">💥</div>
     </div>
 
     <div class="control-panel">
@@ -205,8 +196,6 @@ let displayMultiplier = 1.00;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const rocketEl = document.getElementById('rocket');
-const explosionEl = document.getElementById('explosion');
 const multValueEl = document.getElementById('multValue');
 const topBalanceEl = document.getElementById('topBalance');
 const userMaskedIdEl = document.getElementById('userMaskedId');
@@ -236,9 +225,7 @@ async function fetchServerState() {
       bets[2].active = false; bets[2].cashedOut = false; bets[2].crashId = null;
       document.getElementById('autoCashout1').disabled = false;
       document.getElementById('autoCashout2').disabled = false;
-      explosionEl.classList.remove('animate');
       multValueEl.classList.remove('crashed');
-      rocketEl.style.display = 'none';
       document.getElementById('betsList').innerHTML = ''; 
     }
 
@@ -309,18 +296,6 @@ function animate() {
     if (displayMultiplier >= serverState.crashPoint) {
       displayMultiplier = serverState.crashPoint;
       gameState = 'crashed'; 
-      
-      if (!explosionEl.classList.contains('animate')) {
-        const lastP = localPoints[localPoints.length - 1];
-        if (lastP) {
-          const maxX = lastP.x || 1, maxY = lastP.y || 1;
-          const drawW = canvas.width - 60, drawH = canvas.height - 60;
-          explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
-          explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
-          explosionEl.classList.add('animate');
-        }
-        rocketEl.style.display = 'none';
-      }
     }
 
     currentMultiplier = displayMultiplier;
@@ -338,17 +313,6 @@ function animate() {
     
   } else if (gameState === 'crashed') {
     multValueEl.classList.add('crashed');
-    if (!explosionEl.classList.contains('animate')) {
-      const lastP = localPoints[localPoints.length - 1];
-      if (lastP) {
-        const maxX = lastP.x || 1, maxY = lastP.y || 1;
-        const drawW = canvas.width - 60, drawH = canvas.height - 60;
-        explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
-        explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
-        explosionEl.classList.add('animate');
-      }
-      rocketEl.style.display = 'none';
-    }
   } else {
     multValueEl.textContent = '1.00x';
     if (gameState === 'waiting') drawGame();
@@ -402,15 +366,6 @@ function drawGame() {
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
     ctx.stroke();
-
-    const lastP = localPoints[localPoints.length - 1];
-    const rx = (lastP.x / Math.max(maxX, 10)) * drawW;
-    const ry = drawH - ((lastP.y / Math.max(maxY, 2)) * drawH);
-    
-    if (gameState === 'flying') {
-      rocketEl.style.display = 'block';
-      rocketEl.style.left = rx + 'px'; rocketEl.style.top = ry + 'px';
-    }
   }
 }
 
