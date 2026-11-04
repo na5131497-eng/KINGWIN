@@ -26,7 +26,7 @@ const JACKPOT_MAX = 1000;
 const JACKPOT_TICK_MS = 2300;
 const JACKPOT_PER_TICK = 0.064;
 
-/* ---------- Задания дилеров (еженедельные) ---------- */
+/* ---------- Задания дилеров (ежедневные, макс 50 ₽) ---------- */
 const DEALER_TASKS = [
   { id: 'bj10',  type: 'bj',  goal: 10,  reward: 15, title: 'Сыграй 10 раундов блэкджека' },
   { id: 'bj30',  type: 'bj',  goal: 30,  reward: 30, title: 'Сыграй 30 раундов блэкджека' },
@@ -36,13 +36,9 @@ const DEALER_TASKS = [
   { id: 'bac50', type: 'bac', goal: 50,  reward: 50, title: 'Сыграй 50 раздач баккары' }
 ];
 
-/* Понедельник текущей недели в YYYY-MM-DD */
-function weekKey(dateStr){
-  const d = new Date(dateStr);
-  const day = d.getDay() || 7; // 1..7, пн=1
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - (day - 1));
-  return monday.toISOString().slice(0,10);
+/* Текущий день в YYYY-MM-DD */
+function dayKey(dateStr){
+  return new Date(dateStr).toISOString().slice(0,10);
 }
 
 function rankByPoints(p){
@@ -279,26 +275,26 @@ async function accruePointsByNick(nick, rubAmount, source){
 }
 
 async function getDealerTasksProgress(dealerId){
-  const week = weekKey(new Date().toISOString().slice(0,10));
+  const day = dayKey(new Date().toISOString().slice(0,10));
 
   const dRes = await pool.query('SELECT name FROM dealers WHERE id=$1', [dealerId]);
-  if(dRes.rows.length === 0) return { week, tasks: [] };
+  if(dRes.rows.length === 0) return { day, tasks: [] };
   const dealerName = dRes.rows[0].name;
 
   const bjRes = await pool.query(
-    `SELECT COUNT(*)::int AS cnt FROM sessions WHERE dealer = $1 AND date >= $2`,
-    [dealerName, week]
+    `SELECT COUNT(*)::int AS cnt FROM sessions WHERE dealer = $1 AND date = $2`,
+    [dealerName, day]
   );
   const bacRes = await pool.query(
-    `SELECT COUNT(*)::int AS cnt FROM baccarat WHERE dealer = $1 AND date >= $2`,
-    [dealerName, week]
+    `SELECT COUNT(*)::int AS cnt FROM baccarat WHERE dealer = $1 AND date = $2`,
+    [dealerName, day]
   );
   const bjCount = bjRes.rows[0]?.cnt || 0;
   const bacCount = bacRes.rows[0]?.cnt || 0;
 
   const claimedRes = await pool.query(
     `SELECT task_id FROM dealer_tasks_claimed WHERE dealer_id=$1 AND week=$2`,
-    [dealerId, week]
+    [dealerId, day]
   );
   const claimed = new Set(claimedRes.rows.map(r => r.task_id));
 
@@ -312,7 +308,7 @@ async function getDealerTasksProgress(dealerId){
     };
   });
 
-  return { week, tasks };
+  return { day, tasks };
 }
 
 const server = http.createServer(async (req, res) => {
@@ -556,7 +552,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* ЗАДАНИЯ ДИЛЕРА (недельные) */
+    /* ЗАДАНИЯ ДИЛЕРА (ежедневные) */
     if(url === '/api/dealer/tasks' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -567,14 +563,14 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/dealer/tasks/claim' && method === 'POST'){
       const { dealer_id, task_id } = await parseBody(req);
       if(!dealer_id || !task_id) return sendJSON(res, 400, { error: 'no params' });
-      const week = weekKey(new Date().toISOString().slice(0,10));
+      const day = dayKey(new Date().toISOString().slice(0,10));
       const data = await getDealerTasksProgress(dealer_id);
       const task = data.tasks.find(t => t.id === task_id);
       if(!task) return sendJSON(res, 400, { error: 'Задание не найдено' });
       if(!task.canClaim) return sendJSON(res, 400, { error: 'Задание ещё не выполнено или уже получено' });
       await pool.query(
         `INSERT INTO dealer_tasks_claimed (dealer_id, task_id, week, reward) VALUES ($1,$2,$3,$4)`,
-        [dealer_id, task_id, week, task.reward]);
+        [dealer_id, task_id, day, task.reward]);
       await pool.query('UPDATE dealers SET balance = balance + $1 WHERE id=$2',
         [task.reward, dealer_id]);
       return sendJSON(res, 200, { ok: true, reward: task.reward });
@@ -604,7 +600,6 @@ const server = http.createServer(async (req, res) => {
         params = [];
       }
       const r = await pool.query(q, params);
-      // агрегат по дилерам
       const agg = await pool.query(
         `SELECT dealer_name, ROUND(AVG(stars)::numeric, 2) AS avg_stars, COUNT(*)::int AS cnt
          FROM dealer_ratings GROUP BY dealer_name ORDER BY avg_stars DESC NULLS LAST`
@@ -759,7 +754,8 @@ const server = http.createServer(async (req, res) => {
     }
 
     /* СТАТИКА */
-    let file = url === '/' ? '/admin.html' : url;
+    // Изменено: теперь по умолчанию открывается index.html
+    let file = url === '/' ? '/index.html' : url;
     const filePath = path.join(__dirname, file);
     if (!fs.existsSync(filePath)) {
       res.writeHead(404); res.end('Not found'); return;
@@ -777,10 +773,10 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('  Сервер запущен');
+  console.log('  Сайт:   http://localhost:' + PORT + '/');
   console.log('  Админ:  http://localhost:' + PORT + '/admin.html');
   console.log('  Дилер:  http://localhost:' + PORT + '/dealer.html');
   console.log('  Джекпот: http://localhost:' + PORT + '/jackpot.html');
-  console.log('  Гость:  http://localhost:' + PORT + '/profile2.html');
   console.log('');
   console.log('  Владелец: Owner / 56UpahoS');
   console.log('  5 ₽ = 1 балл');
