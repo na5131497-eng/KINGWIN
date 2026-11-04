@@ -9,7 +9,8 @@ const DATABASE_URL = 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
 
 /* ---------- Конфиг ---------- */
-const POINTS_PER_RUB = 0.2;   // 5 ₽ ставки = 1 балл
+const POINTS_PER_RUB = 0.2;   // Для дилера: 5 ₽ ставки = 1 балл
+const ONLINE_POINTS_PER_RUB = 0.1; // Для онлайн-казино (Краш): 10 ₽ = 1 балл
 
 const RANKS = {
   Bronze:   { min: 0,     gift: 0    },
@@ -347,6 +348,51 @@ async function accruePointsByNick(nick, rubAmount, source){
   return { guestId: guest.id, addPoints, newPoints, newRank, giftMoney, source };
 }
 
+/* ---------- Начисление баллов за онлайн-ставки (10 ₽ = 1 балл) ---------- */
+async function accruePointsOnline(guestId, rubAmount){
+  if(!guestId || !rubAmount || rubAmount <= 0) return;
+  
+  const g = await pool.query(`SELECT * FROM guests WHERE id=$1`, [guestId]);
+  if(g.rows.length === 0) return;
+  const guest = g.rows[0];
+
+  const addPoints = Math.floor(rubAmount * ONLINE_POINTS_PER_RUB);
+  if(addPoints <= 0) return;
+
+  const oldPoints = guest.points || 0;
+  const newPoints = oldPoints + addPoints;
+  const prevRank = guest.rank || 'Bronze';
+  const newRank = rankByPoints(newPoints);
+
+  let giftMoney = 0;
+  let giftText = guest.bonus_text || '';
+  let giftCode = guest.bonus_code || '';
+  const prevIdx = RANK_ORDER.indexOf(prevRank);
+  const newIdx = RANK_ORDER.indexOf(newRank);
+  
+  if (newIdx > prevIdx){
+    for (let i = prevIdx + 1; i <= newIdx; i++){
+      giftMoney += RANKS[RANK_ORDER[i]].gift;
+    }
+    giftText = `Поздравляем с достижением ранга ${newRank}! Вам подарок ${giftMoney} бонусных рублей.`;
+    giftCode = `GIFT-${newRank.toUpperCase()}-${Math.floor(Math.random()*9000+1000)}`;
+  }
+
+  const addWagerReq = giftMoney * 5;
+  
+  await pool.query(`
+    UPDATE guests SET
+      points = $1,
+      rank = $2,
+      last_rank = $3,
+      bonus_text = $4,
+      bonus_code = $5,
+      bonus_balance = bonus_balance + $6,
+      wagering_required = wagering_required + $7
+    WHERE id = $8
+  `, [newPoints, newRank, newRank, giftText, giftCode, giftMoney, addWagerReq, guest.id]);
+}
+
 async function getDealerTasksProgress(dealerId){
   const day = dayKey(new Date().toISOString().slice(0,10));
 
@@ -397,7 +443,6 @@ const server = http.createServer(async (req, res) => {
 
     /* --- КРАШ ИГРА --- */
     if(url === '/api/crash/status' && method === 'GET'){
-      // Отдаем статус игры + активные ставки ТЕКУЩЕГО раунда
       return sendJSON(res, 200, {
         ...crashState,
         activeBets: crashState.activeBets 
@@ -420,10 +465,12 @@ const server = http.createServer(async (req, res) => {
       if(amt > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
 
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2', [amt, id]);
+      
+      // НАЧИСЛЯЕМ ОЧКИ ЗА ОНЛАЙН-СТАВКУ (10 ₽ = 1 балл)
+      await accruePointsOnline(g.id, amt);
 
       const maskedId = g.id.length > 4 ? g.id.slice(0, 2) + '***' + g.id.slice(-2) : '****';
       
-      // Добавляем в список АКТИВНЫХ СТАВОК ТЕКУЩЕГО РАУНДА
       crashState.activeBets.push({
         guest_id: g.id,
         guest_masked: maskedId,
@@ -454,7 +501,6 @@ const server = http.createServer(async (req, res) => {
       
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
 
-      // Обновляем в списке активных для текущего раунда
       const activeBet = crashState.activeBets.find(b => b.guest_id === id && b.status === 'playing');
       if(activeBet) {
         activeBet.multiplier = mult;
@@ -473,7 +519,6 @@ const server = http.createServer(async (req, res) => {
     }
 
     if(url === '/api/crash/history' && method === 'GET'){
-      // Этот эндпоинт оставим, он отдает ленту сверху (последние кэфы), если понадобится
       const r = await pool.query(`SELECT * FROM crash_history ORDER BY id DESC LIMIT 50`);
       return sendJSON(res, 200, r.rows);
     }
@@ -953,6 +998,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Краш:   http://localhost:' + PORT + '/crash.html');
   console.log('');
   console.log('  Владелец: Owner / 56UpahoS');
-  console.log('  5 ₽ = 1 балл');
+  console.log('  5 ₽ = 1 балл (дилер), 10 ₽ = 1 балл (онлайн)');
   console.log('');
 });
