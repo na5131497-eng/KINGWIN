@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Прогрессивный Джекпот</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -30,23 +30,19 @@
 
   .container { 
     flex: 1; display: flex; justify-content: center; align-items: center; 
-    padding: 20px 40px; position: relative; z-index: 10; 
+    padding: 20px; position: relative; z-index: 10; 
     min-height: 0;
   }
   
   .layout { 
-    display: flex; width: 100%; max-width: 1600px; gap: 50px; 
+    display: flex; width: 100%; max-width: 1400px; gap: 40px; 
     align-items: center; justify-content: center; 
-    height: 100%;
   }
 
   /* Левая часть: Логотип и джекпот */
-  .left-side { 
-    flex: 1; display: flex; flex-direction: column; align-items: center; 
-    text-align: center; justify-content: center; height: 100%;
-  }
+  .left-side { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
   
-  .logo-area { margin-bottom: 25px; }
+  .logo-area { margin-bottom: 30px; }
   .sevens { 
     font-size: 120px; font-weight: 900; color: #f1c40f; 
     text-shadow: 0 0 30px rgba(241,196,15,.8), 0 0 60px rgba(255,69,0,.4); 
@@ -102,8 +98,7 @@
 
   /* Правая часть: Таблица выплат */
   .right-side { 
-    flex: 1; max-width: 560px; background: rgba(18,24,38,.9); 
-    border: 2px solid rgba(0,229,255,.3); 
+    flex: 1; max-width: 500px; background: rgba(18,24,38,.9); border: 2px solid rgba(0,229,255,.3); 
     border-radius: 20px; padding: 30px; box-shadow: 0 0 30px rgba(0,229,255,.1); 
   }
   .right-side h3 { 
@@ -116,7 +111,7 @@
   .pays-table td:last-child { text-align: right; color: #3fbf7f; font-weight: 800; font-size: 18px; }
   .pays-table tr:last-child td { border-bottom: none; }
 
-  /* ---------- МИН / МАКС СТАВКА (внизу, над бегущей строкой) ---------- */
+  /* ---------- МИН / МАКС (полоса над бегущей строкой) ---------- */
   .bet-limits {
     display: flex;
     justify-content: space-between;
@@ -170,41 +165,43 @@
   .winners-track b { color: #f1c40f; }
   @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-  /* ============ ПЛАНШЕТ / БОЛЬШОЙ ЭКРАН ============ */
-  @media (min-width: 1200px) {
-    .sevens { font-size: 160px; }
-    .kingwin-title { font-size: 64px; letter-spacing: 12px; }
-    .kingwin-sub { font-size: 26px; letter-spacing: 14px; }
-    .jackpot-title-main { font-size: 42px; letter-spacing: 8px; }
-    .jackpot-screen { padding: 40px 70px; }
-    .digits { font-size: 130px; }
-    .digit-box { width: 88px; height: 130px; }
-    .comma { font-size: 115px; }
-    .currency { font-size: 85px; }
-    .right-side { padding: 40px; }
-    .right-side h3 { font-size: 26px; }
-    .pays-table td { font-size: 20px; padding: 16px 0; }
-    .pays-table td:last-child { font-size: 22px; }
-    .bet-corner { padding: 14px 26px; }
-    .bet-corner .bet-label { font-size: 14px; }
-    .bet-corner .bet-val { font-size: 30px; }
-    .bet-limits { padding: 0 50px 14px; }
+  /* ---------- Кнопка fullscreen ---------- */
+  .fullscreen-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+    background: rgba(0, 229, 255, 0.15);
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: 0.3s;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
   }
+  .fullscreen-btn:hover { background: rgba(0, 229, 255, 0.3); }
+  .fullscreen-btn:active { transform: scale(0.96); }
+  :fullscreen .fullscreen-btn { display: none; }
+  :-webkit-full-screen .fullscreen-btn { display: none; }
 
-  /* ============ МОБИЛЬНЫЙ ============ */
+  /* Мобильный — компактно */
   @media (max-width: 900px) {
-    .container { padding: 10px 15px; }
+    .container { padding: 10px; }
     .layout { flex-direction: column; gap: 15px; }
-    .logo-area { margin-bottom: 15px; }
-    .sevens { font-size: 70px; }
-    .kingwin-title { font-size: 30px; letter-spacing: 5px; }
-    .kingwin-sub { font-size: 14px; letter-spacing: 6px; }
-    .jackpot-title-main { font-size: 18px; letter-spacing: 3px; margin-bottom: 12px; }
+    .sevens { font-size: 60px; }
+    .kingwin-title { font-size: 26px; letter-spacing: 4px; }
+    .kingwin-sub { font-size: 13px; letter-spacing: 5px; }
+    .jackpot-title-main { font-size: 18px; letter-spacing: 2px; margin-bottom: 12px; }
     .jackpot-screen { padding: 15px 25px; }
-    .digits { font-size: 55px; }
-    .digit-box { width: 38px; height: 55px; }
-    .comma { font-size: 45px; }
-    .currency { font-size: 35px; }
+    .digits { font-size: 50px; }
+    .digit-box { width: 35px; height: 50px; }
+    .comma { font-size: 40px; }
+    .currency { font-size: 30px; }
     .right-side { padding: 15px; width: 100%; max-width: none; }
     .right-side h3 { font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; }
     .pays-table td { font-size: 13px; padding: 8px 0; }
@@ -220,6 +217,8 @@
 <body>
 
 <div class="bg-coins" id="bgCoins"></div>
+
+<button class="fullscreen-btn" onclick="toggleFullScreen()">⛶ На весь экран</button>
 
 <div class="container">
   <div class="layout">
@@ -256,7 +255,7 @@
   </div>
 </div>
 
-<!-- МИН / МАКС СТАВКА — отдельная полоса над бегущей строкой -->
+<!-- МИН / МАКС -->
 <div class="bet-limits">
   <div class="bet-corner min">
     <div class="bet-label">Мин ставка</div>
@@ -385,6 +384,35 @@ function animate() {
   }
   requestAnimationFrame(animate);
 }
+
+/* ---------- FULLSCREEN (аналог F11 на планшете) ---------- */
+function toggleFullScreen() {
+  const elem = document.documentElement;
+  if (!document.fullscreenElement) {
+    const req = elem.requestFullscreen
+      || elem.webkitRequestFullscreen
+      || elem.msRequestFullscreen;
+    if (req) {
+      req.call(elem).catch(err => {
+        console.warn('Fullscreen error:', err);
+        alert('Не удалось войти в полноэкранный режим.\n\nНа iPad: открой страницу в Safari → «Поделиться» → «На экран Домой», и запусти с иконки — вкладок не будет.');
+      });
+    } else {
+      alert('Полноэкранный режим недоступен в этом браузере.\nНа iPad добавь страницу на экран Домой.');
+    }
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+}
+
+// Двойной тап/клик — выход из fullscreen
+document.addEventListener('dblclick', () => {
+  if (document.fullscreenElement) {
+    if (document.exitFullscreen) document.exitFullscreen();
+  }
+});
 
 initDisplay();
 fetchJackpot();
