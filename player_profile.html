@@ -40,7 +40,6 @@
   .history-table th { text-align: left; padding: 10px; color: #8fa2b8; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .history-table td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); }
 
-  /* МОДАЛКИ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
   .modal-overlay.show { display: flex; }
   .modal-box { background: #111625; border: 1px solid #2a2d3e; border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
@@ -68,7 +67,6 @@
 </div>
 
 <div class="container">
-  <!-- ЛЕВАЯ ПАНЕЛЬ -->
   <div class="sidebar">
     <div class="profile-card">
       <div class="avatar-row">
@@ -94,7 +92,6 @@
     </div>
   </div>
 
-  <!-- ПРАВАЯ ПАНЕЛЬ -->
   <div class="main-content">
     <div class="tabs-header">
       <button class="tab-btn active" onclick="switchTab('history')">Операции</button>
@@ -111,7 +108,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ВЫВОДА -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h2>Вывод средств</h2>
@@ -121,7 +117,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ВЫХОДА -->
 <div class="modal-overlay" id="logoutModal">
   <div class="modal-box">
     <h2>Выход из аккаунта</h2>
