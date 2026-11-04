@@ -322,6 +322,42 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
+    /* --- КРАШ ИГРА --- */
+    if(url === '/api/crash/bet' && method === 'POST'){
+      const { id, bet } = await parseBody(req);
+      const amt = parseFloat(bet) || 0;
+      
+      if(!id || amt <= 0) return sendJSON(res, 400, { error: 'Неверная ставка' });
+
+      const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
+      if(r.rows.length === 0) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const g = r.rows[0];
+      
+      const balance = parseFloat(g.bonus_balance) || 0;
+      if(amt > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+
+      // Списываем ставку
+      await pool.query('UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2', [amt, id]);
+
+      return sendJSON(res, 200, { ok: true });
+    }
+    
+    if(url === '/api/crash/cashout' && method === 'POST'){
+      const { id, bet, multiplier } = await parseBody(req);
+      const amt = parseFloat(bet) || 0;
+      const mult = parseFloat(multiplier) || 1;
+      
+      const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
+      if(r.rows.length === 0) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      
+      const winAmount = amt * mult;
+      
+      // Начисляем выигрыш
+      await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
+
+      return sendJSON(res, 200, { ok: true, winAmount });
+    }
+
     /* ГОСТИ */
     if(url === '/api/guests' && method === 'GET'){
       const r = await pool.query('SELECT * FROM guests ORDER BY id');
@@ -503,7 +539,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ВЫПЛАТЫ ДИЛЕРАМ (зарплата) — зачисляются на баланс дилера */
+    /* ВЫПЛАТЫ ДИЛЕРАМ (зарплата) */
     if(url === '/api/payouts' && method === 'GET'){
       const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
@@ -754,7 +790,6 @@ const server = http.createServer(async (req, res) => {
     }
 
     /* СТАТИКА */
-    // Изменено: теперь по умолчанию открывается index.html
     let file = url === '/' ? '/index.html' : url;
     const filePath = path.join(__dirname, file);
     if (!fs.existsSync(filePath)) {
@@ -777,6 +812,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Админ:  http://localhost:' + PORT + '/admin.html');
   console.log('  Дилер:  http://localhost:' + PORT + '/dealer.html');
   console.log('  Джекпот: http://localhost:' + PORT + '/jackpot.html');
+  console.log('  Краш:   http://localhost:' + PORT + '/crash.html');
   console.log('');
   console.log('  Владелец: Owner / 56UpahoS');
   console.log('  5 ₽ = 1 балл');
