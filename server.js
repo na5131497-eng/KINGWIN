@@ -16,7 +16,7 @@ const BAN_TIME_MS = 15 * 60 * 1000; // 15 минут
 
 /* ---------- ЗАЩИТА ОТ DDOS (RATE LIMITING) ---------- */
 const requestCounts = new Map();
-const MAX_REQUESTS_PER_MINUTE = 100; // 100 запросов в минуту с одного IP
+const MAX_REQUESTS_PER_MINUTE = 100;
 
 /* ---------- КОНФИГ ---------- */
 const POINTS_PER_RUB = 0.2;   
@@ -58,6 +58,14 @@ function rankByPoints(p){
   if (p >= RANKS.Gold.min)     return 'Gold';
   if (p >= RANKS.Silver.min)   return 'Silver';
   return 'Bronze';
+}
+
+// --- ОЧИСТКА ВВОДА (ЗАЩИТА ОТ XSS И ПЕРЕПОЛНЕНИЯ) ---
+function sanitizeString(str, maxLength = 50) {
+  if (!str || typeof str !== 'string') return '';
+  let cleaned = str.trim().slice(0, maxLength);
+  cleaned = cleaned.replace(/<[^>]*>?/gm, '');
+  return cleaned;
 }
 
 async function getActualJackpot() {
@@ -343,7 +351,6 @@ const server = http.createServer(async (req, res) => {
   }
   reqData.count++;
   
-  // Исключение для частых запросов игры (чтобы Краш не ломался)
   if (url.startsWith('/api/crash/status')) {
     reqData.count = Math.max(0, reqData.count - 1);
   }
@@ -418,12 +425,17 @@ const server = http.createServer(async (req, res) => {
     }
     if(url === '/api/guests' && method === 'POST'){
       const g = await parseBody(req);
+      const safeName = sanitizeString(g.name, 50);
+      if (!safeName) return sendJSON(res, 400, { error: 'Некорректное имя' });
+      const safeBonusText = sanitizeString(g.bonus_text || '', 100);
+      const safeBonusCode = sanitizeString(g.bonus_code || '', 30);
+
       const cardId = g.id || Math.floor(10000000 + Math.random() * 90000000).toString();
-      const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
+      const hashedPass = await bcrypt.hash(String(g.pass || '1234').slice(0, 30), 10);
       const r = await pool.query(
         `INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-        [cardId, g.name, g.rank || 'Bronze', g.points || 0, g.visits || 0, g.bonus_text || '', g.bonus_code || '', hashedPass]
+        [cardId, safeName, g.rank || 'Bronze', g.points || 0, g.visits || 0, safeBonusText, safeBonusCode, hashedPass]
       );
       return sendJSON(res, 200, { ok: true, guest: r.rows[0] });
     }
@@ -435,10 +447,15 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/guests/update' && method === 'POST'){
       const g = await parseBody(req);
       if(!g.id) return sendJSON(res, 400, { error: 'no id' });
+      const safeName = sanitizeString(g.name, 50);
+      if (!safeName) return sendJSON(res, 400, { error: 'Некорректное имя' });
+      const safeBonusText = sanitizeString(g.bonus_text || '', 100);
+      const safeBonusCode = sanitizeString(g.bonus_code || '', 30);
+      
       try {
-        const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
+        const hashedPass = await bcrypt.hash(String(g.pass || '1234').slice(0, 30), 10);
         await pool.query(`UPDATE guests SET name=$1, rank=$2, pass=$3, bonus_text=$4, bonus_code=$5, bonus_balance=$6 WHERE id=$7`, 
-          [g.name, g.rank, hashedPass, g.bonus_text, g.bonus_code, g.bonus_balance||0, g.id]);
+          [safeName, g.rank, hashedPass, safeBonusText, safeBonusCode, g.bonus_balance||0, g.id]);
         return sendJSON(res, 200, { ok: true });
       } catch(e){ return sendJSON(res, 500, { error: e.message }); }
     }
