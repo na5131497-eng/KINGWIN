@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINGWIN — Профиль гостя</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top, #1a2332, #0a0d14);
+    color: #fff; min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px; }
+  .wrap { width: 100%; max-width: 440px; }
+  .logo { text-align: center; font-size: 28px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .logo-sub { text-align: center; font-size: 10px; letter-spacing: 4px; color: #8fa2b8;
+    text-transform: uppercase; margin-bottom: 22px; }
+
+  .card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .name { font-size: 24px; font-weight: 800; }
+  .cid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 2px; margin-top: 4px; }
+  .rank-badge { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,.3); }
+  .rank-badge.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border-color: #cd7f32; }
+  .rank-badge.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border-color: #c0c0c0; }
+  .rank-badge.Gold     { background: rgba(241,196,15,.2); color: #f1c40f; border-color: #f1c40f; }
+  .rank-badge.Platinum { background: rgba(229,228,226,.2); color: #e5e4e2; border-color: #e5e4e2; }
+  .rank-badge.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border-color: #b9f2ff; }
+  .rank-badge.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border-color: #d4af37;
+    box-shadow: 0 0 12px rgba(212,175,55,.6); }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .stat { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 14px; }
+  .stat .lbl { font-size: 10px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .stat .val { font-size: 22px; font-weight: 800; color: #00e5ff; }
+  .stat .val.green { color: #3fbf7f; }
+
+  .progress-wrap { margin-bottom: 18px; }
+  .progress-lbl { font-size: 11px; color: #8fa2b8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress { height: 8px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; }
+  .progress > div { height: 100%; background: linear-gradient(90deg, #3fbf7f, #00e5ff); border-radius: 4px; transition: width .4s; }
+
+  .gift-block { background: linear-gradient(135deg, rgba(63,191,127,.12), rgba(0,229,255,.08));
+    border: 1px solid rgba(63,191,127,.35); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .gift-block .t { font-size: 11px; color: #3fbf7f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
+  .gift-block .txt { font-size: 15px; font-weight: 600; margin-bottom: 10px; line-height: 1.4; }
+  .gift-code { display: inline-block; font-family: 'Courier New', monospace; font-size: 14px;
+    font-weight: 800; color: #00e5ff; letter-spacing: 2px; background: rgba(0,0,0,.5);
+    padding: 6px 12px; border-radius: 8px; border: 1px dashed rgba(0,229,255,.4); }
+
+  .cond-block { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  .cond-block .t { font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px; font-weight: 700; }
+  .cond-block .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .cond-block .row b { color: #fff; }
+
+  .btn { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px;
+    padding: 14px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; font-family: inherit; transition: .3s; margin-top: 6px; }
+  .btn:hover { box-shadow: 0 0 20px rgba(0,229,255,.5); }
+  .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.15); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .footer { text-align: center; font-size: 11px; color: #6d819a; margin-top: 20px; line-height: 1.6; }
+  .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4); color: #ff8a8a;
+    border-radius: 12px; padding: 16px; text-align: center; font-weight: 600; margin-bottom: 14px; }
+  .ok { background: rgba(63,191,127,.12); border: 1px solid rgba(63,191,127,.4); color: #3fbf7f;
+    border-radius: 12px; padding: 12px; text-align: center; font-weight: 600; margin-bottom: 14px; font-size: 13px; }
+
+  .login-form label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1px; margin: 14px 0 6px; font-weight: 600; }
+  .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 14px; font-size: 16px; color: #fff; font-family: inherit; }
+  .login-form input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3fbf7f;
+    margin-right: 6px; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+  .live-label { font-size: 10px; color: #3fbf7f; text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">KINGWIN</div>
+  <div class="logo-sub">Guest Profile</div>
+  <div id="content"><div class="card">Загрузка…</div></div>
+  <div class="footer">© KINGWIN</div>
+</div>
+
+<script>
+const RANKS_INFO = {
+  Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
+  Silver:   { next: 300,  label: 'Gold',     gift: 50   },
+  Gold:     { next: 600,  label: 'Platinum', gift: 200  },
+  Platinum: { next: 1000, label: 'Diamond',  gift: 500  },
+  Diamond:  { next: 1500, label: 'VIP',      gift: 1000 },
+  VIP:      { next: null, label: null,       gift: 3000 }
+};
+
+let session = null;
+let refreshTimer = null;
+
+function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+function renderLogin(prefillId){
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <h2 style="font-size:20px; font-weight:800; margin-bottom:6px; text-align:center;">Вход по карте</h2>
+      <p style="font-size:12px;color:#8fa2b8;text-align:center;margin-bottom:8px;">Введите номер карты и пароль</p>
+      <div class="login-form">
+        <label>Номер карты</label>
+        <input type="text" id="loginId" placeholder="12345678" value="${esc(prefillId||'')}">
+        <label>Пароль</label>
+        <input type="password" id="loginPass" placeholder="••••">
+        <div class="err" id="loginErr" style="display:none;margin-top:14px;"></div>
+        <button class="btn" onclick="doLogin()" style="margin-top:18px;">Войти</button>
+      </div>
+    </div>`;
+  document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+}
+
+async function doLogin(){
+  const id = document.getElementById('loginId').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if(!id || !pass){ err.textContent = 'Введите номер и пароль'; err.style.display='block'; return; }
+  try {
+    const r = await fetch('/api/guest/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, pass })
+    });
+    const data = await r.json();
+    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display='block'; return; }
+    session = data.guest;
+    localStorage.setItem('kingwin_guest_id', id);
+    await loadMe();
+    startAutoRefresh();
+  } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
+}
+
+async function loadMe(){
+  if(!session) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(session.id));
+    const data = await r.json();
+    if(r.ok){ session = data.guest; renderProfile(); }
+  } catch(e){ /* тихо */ }
+}
+
+function startAutoRefresh(){
+  if(refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(loadMe, 5000);
+}
+
+function renderProfile(){
+  const g = session;
+  const info = RANKS_INFO[g.rank] || RANKS_INFO.Bronze;
+  const progress = info.next ? Math.min(100, Math.round((g.points / info.next) * 100)) : 100;
+  const bonusBalance = parseFloat(g.bonus_balance) || 0;
+  const wageringRequired = parseFloat(g.wagering_required) || 0;
+  const wageringDone = parseFloat(g.wagering_done) || 0;
+  const wageringLeft = Math.max(0, wageringRequired - wageringDone);
+  const canWithdraw = wageringRequired > 0 && wageringDone >= wageringRequired && bonusBalance > 0;
+
+  // поздравление вместо «покажите код»
+  const hasGift = g.bonus_text && g.bonus_text.trim() !== '';
+  const giftHtml = hasGift ? `
+    <div class="gift-block">
+      <div class="t">Ваш подарок</div>
+      <div class="txt">${esc(g.bonus_text)}</div>
+      ${g.bonus_code ? `<div class="gift-code">${esc(g.bonus_code)}</div>` : ''}
+    </div>` : '';
+
+  const condHtml = (wageringRequired > 0) ? `
+    <div class="cond-block">
+      <div class="t">Условие для вывода</div>
+      <div class="row"><span>Требуется</span><b>${fmt(wageringRequired)} баллов</b></div>
+      <div class="row"><span>Выполнено</span><b>${fmt(wageringDone)} баллов</b></div>
+      <div class="row"><span>Осталось</span><b>${fmt(wageringLeft)} баллов</b></div>
+    </div>` : '';
+
+  const withdrawBtn = (bonusBalance > 0)
+    ? `<button class="btn" onclick="withdrawBonus()" ${canWithdraw ? '' : 'disabled'}>
+         Вывести ${fmt(bonusBalance)} ₽ на баланс
+       </button>`
+    : '';
+
+  document.getElementById('content').innerHTML = `
+    <div class="live-label"><span class="live-dot"></span>Автообновление · каждые 5 сек</div>
+    <div class="card">
+      <div class="head">
+        <div>
+          <div class="name">${esc(g.name)}</div>
+          <div class="cid">№ ${esc(g.id)}</div>
+        </div>
+        <div class="rank-badge ${g.rank}">${g.rank}</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="lbl">Баллы</div><div class="val">${g.points || 0}</div></div>
+        <div class="stat"><div class="lbl">Визиты</div><div class="val">${g.visits || 0}</div></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="lbl">Бонусные рубли</div><div class="val green">${fmt(bonusBalance)} ₽</div></div>
+        <div class="stat"><div class="lbl">До ранга ${info.label || '—'}</div><div class="val">${info.next ? `${g.points} / ${info.next}` : 'MAX'}</div></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-lbl">
+          <span>Прогресс ранга</span>
+          <span>${info.next ? `${g.points} / ${info.next}` : 'Максимальный ранг'}</span>
+        </div>
+        <div class="progress"><div style="width:${progress}%"></div></div>
+      </div>
+
+      ${giftHtml}
+      ${condHtml}
+      <div id="withdrawMsg"></div>
+      ${withdrawBtn}
+
+      <button class="btn ghost" onclick="doLogout()">Выйти</button>
+    </div>`;
+}
+
+async function withdrawBonus(){
+  if(!session) return;
+  const g = session;
+  const amt = parseFloat(g.bonus_balance) || 0;
+  if(amt <= 0) return;
+  const box = document.getElementById('withdrawMsg');
+  box.innerHTML = '';
+  try {
+    const r = await fetch('/api/guest/withdraw', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: g.id, sum: amt })
+    });
+    const data = await r.json();
+    if(!r.ok){ box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`; return; }
+    box.innerHTML = `<div class="ok">Заявка создана! Админ подтвердит вывод.</div>`;
+    await loadMe();
+  } catch(e){
+    box.innerHTML = `<div class="err">Ошибка соединения</div>`;
+  }
+}
+
+function doLogout(){
+  if(refreshTimer) clearInterval(refreshTimer);
+  session = null;
+  localStorage.removeItem('kingwin_guest_id');
+  renderLogin('');
+}
+
+(function init(){
+  const params = new URLSearchParams(location.search);
+  const cardId = params.get('id');
+  const saved = localStorage.getItem('kingwin_guest_id');
+  if(cardId){ renderLogin(cardId); }
+  else if(saved){ renderLogin(saved); }
+  else { renderLogin(''); }
+})();
+</script>
+</body>
+</html>

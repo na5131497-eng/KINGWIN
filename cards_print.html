@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>KINGWIN — Печать карт гостя</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: #e9edf2; padding: 20px; }
+
+  /* ---------- Панель управления ---------- */
+  .toolbar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 10px;
+    flex-wrap: wrap; align-items: center; }
+  .toolbar button { background: #00b3c7; color: #fff; border: none; border-radius: 8px;
+    padding: 10px 16px; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .toolbar button:hover { filter: brightness(1.1); }
+  .toolbar button.alt { background: #2c3e50; }
+  .toolbar select, .toolbar input { padding: 9px 10px; border-radius: 8px;
+    border: 1px solid #c3ccd6; font-family: inherit; font-size: 13px; }
+  .toolbar label { font-size: 12px; color: #34495e; display: flex; align-items: center; gap: 6px; }
+  .toolbar input.base { width: 260px; font-family: 'Courier New', monospace; }
+  .toolbar input.search { width: 200px; }
+  .hint { color: #5b6b7c; font-size: 12.5px; max-width: 210mm; margin: 0 auto 14px; line-height: 1.5; }
+  .hint b { color: #00b3c7; }
+  .hint .warn { color: #e67e22; }
+
+  /* ---------- Лист A4: 2×3, симметрично ---------- */
+  .sheet {
+    width: 190mm;
+    margin: 0 auto 24px;
+    display: grid;
+    grid-template-columns: 85.6mm 85.6mm;
+    grid-template-rows: 54mm 54mm 54mm;
+    gap: 10mm;
+    justify-content: center;
+    align-content: start;
+  }
+  .sheet-title { max-width: 190mm; margin: 0 auto 8px; font-size: 13px; font-weight: 700;
+    color: #34495e; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ---------- Базовая карта ---------- */
+  .card { position: relative; width: 85.6mm; height: 54mm; border-radius: 4mm; overflow: hidden;
+    background: linear-gradient(135deg, #10192b 0%, #1c2b45 55%, #0a1220 100%);
+    color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); display: flex; flex-direction: column;
+    justify-content: space-between; padding: 4mm 4.5mm; page-break-inside: avoid;
+    break-inside: avoid; font-size: 3mm; }
+  .card::after { content: ''; position: absolute; right: -20mm; top: -20mm;
+    width: 60mm; height: 60mm; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,.25), transparent 70%);
+    pointer-events: none; }
+  .card.front::before { content: ''; position: absolute; left: -10mm; bottom: -20mm;
+    width: 70mm; height: 70mm; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,119,255,.18), transparent 70%);
+    pointer-events: none; }
+
+  /* --- Gold --- */
+  .card.gold-rank { background: linear-gradient(135deg, #1a1408 0%, #2b200c 45%, #0a0804 100%);
+    box-shadow: 0 2px 8px rgba(212,175,55,.25); }
+  .card.gold-rank::after { background: radial-gradient(circle, rgba(241,196,15,.3), transparent 70%); }
+  .card.gold-rank .gold-frame { position: absolute; top: 1.2mm; right: 1.2mm; bottom: 1.2mm;
+    width: 3mm; border-radius: 1.5mm;
+    background: linear-gradient(180deg, #f1c40f, #b8860b 50%, #f1c40f);
+    box-shadow: 0 0 2mm rgba(241,196,15,.5); z-index: 2; }
+  .card.gold-rank .card-content { padding-right: 4.5mm; }
+  .card.gold-rank .brand .logo,
+  .card.gold-rank .center-text .line1 { color: #f1c40f; -webkit-text-fill-color: #f1c40f; }
+  .card.gold-rank .brand .sub,
+  .card.gold-rank .center-text .line2,
+  .card.gold-rank .bottom-line { color: #a07a10; }
+
+  /* --- Platinum --- */
+  .card.platinum-rank { background: linear-gradient(135deg, #1a1a1e 0%, #2a2a30 45%, #0a0a0d 100%);
+    box-shadow: 0 2px 8px rgba(229,228,226,.25); }
+  .card.platinum-rank::after { background: radial-gradient(circle, rgba(229,228,226,.25), transparent 70%); }
+  .card.platinum-rank .gold-frame { position: absolute; top: 1.2mm; right: 1.2mm; bottom: 1.2mm;
+    width: 3mm; border-radius: 1.5mm;
+    background: linear-gradient(180deg, #ffffff, #b8b8b8 50%, #f4f4f4);
+    box-shadow: 0 0 2mm rgba(229,228,226,.55); z-index: 2; }
+  .card.platinum-rank .card-content { padding-right: 4.5mm; }
+  .card.platinum-rank .brand .logo,
+  .card.platinum-rank .center-text .line1 { color: #f4f4f4; -webkit-text-fill-color: #f4f4f4; }
+  .card.platinum-rank .brand .sub,
+  .card.platinum-rank .center-text .line2,
+  .card.platinum-rank .bottom-line { color: #b8b8b8; }
+
+  /* --- Diamond --- */
+  .card.diamond-rank { background: linear-gradient(135deg, #0a1a22 0%, #102a36 45%, #050a10 100%);
+    box-shadow: 0 2px 10px rgba(185,242,255,.35); }
+  .card.diamond-rank::after { background: radial-gradient(circle, rgba(185,242,255,.3), transparent 70%); }
+  .card.diamond-rank .gold-frame { position: absolute; top: 1.2mm; right: 1.2mm; bottom: 1.2mm;
+    width: 3.5mm; border-radius: 1.5mm;
+    background: linear-gradient(180deg, #e0f8ff, #b9f2ff 50%, #7fd9ef);
+    box-shadow: 0 0 3mm rgba(185,242,255,.6); z-index: 2; }
+  .card.diamond-rank .card-content { padding-right: 5mm; }
+  .card.diamond-rank .brand .logo,
+  .card.diamond-rank .center-text .line1 { color: #b9f2ff; -webkit-text-fill-color: #b9f2ff; }
+  .card.diamond-rank .brand .sub,
+  .card.diamond-rank .center-text .line2,
+  .card.diamond-rank .bottom-line { color: #7fd9ef; }
+
+  /* --- VIP --- */
+  .card.vip { background: linear-gradient(135deg, #1a1408 0%, #2b1f08 45%, #0a0804 100%);
+    box-shadow: 0 2px 10px rgba(212,175,55,.4); }
+  .card.vip::after { background: radial-gradient(circle, rgba(212,175,55,.4), transparent 70%); }
+  .card.vip .gold-frame { position: absolute; top: 1.2mm; right: 1.2mm; bottom: 1.2mm;
+    width: 4.5mm; border-radius: 2mm;
+    background: linear-gradient(180deg, #ffe066, #d4af37 40%, #b8860b 70%, #ffe066);
+    box-shadow: 0 0 3mm rgba(255,215,0,.7), inset 0 0 1mm rgba(255,255,255,.7);
+    z-index: 2; }
+  .card.vip .gold-frame::before { content: 'VIP'; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    font-size: 2.2mm; font-weight: 900; letter-spacing: 0.5mm;
+    color: #3a2a00; white-space: nowrap; }
+  .card.vip .card-content { padding-right: 6mm; }
+  .card.vip .brand .logo,
+  .card.vip .center-text .line1 { color: #ffe066; -webkit-text-fill-color: #ffe066; }
+  .card.vip .brand .sub,
+  .card.vip .center-text .line2,
+  .card.vip .bottom-line { color: #d4af37; }
+
+  .card-content { position: relative; z-index: 1; display: flex; flex-direction: column;
+    justify-content: space-between; width: 100%; height: 100%; }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .brand .logo { font-size: 7mm; font-weight: 900; letter-spacing: 1.2mm; line-height: 1;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .brand .sub { font-size: 2.2mm; letter-spacing: 0.9mm; color: #8fa2b8;
+    text-transform: uppercase; margin-top: 0.6mm; line-height: 1; }
+
+  .rank-badge { font-size: 2.8mm; font-weight: 800; letter-spacing: 0.4mm;
+    text-transform: uppercase; line-height: 1; padding: 1.7mm 3.2mm; border-radius: 4mm;
+    border: 0.3mm solid rgba(255,255,255,.35); white-space: nowrap; }
+  .rank-badge.Bronze   { background: rgba(205,127,50,.3); color: #ffcf9a; border-color: #cd7f32; }
+  .rank-badge.Silver   { background: rgba(192,192,192,.25); color: #f0f0f0; border-color: #c0c0c0; }
+  .rank-badge.Gold     { background: rgba(241,196,15,.25); color: #ffe066; border-color: #f1c40f; }
+  .rank-badge.Platinum { background: rgba(229,228,226,.25); color: #f4f4f4; border-color: #e5e4e2; }
+  .rank-badge.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border-color: #b9f2ff;
+    box-shadow: 0 0 2mm rgba(185,242,255,.5); }
+  .rank-badge.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border-color: #d4af37;
+    box-shadow: 0 0 2mm rgba(212,175,55,.6); }
+
+  .chip { width: 10mm; height: 7.5mm; border-radius: 1.2mm;
+    background: linear-gradient(135deg, #f1c40f, #b8860b 60%, #f1c40f);
+    box-shadow: inset 0 0 0 0.3mm rgba(255,255,255,.3); margin-top: 2mm;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0.3mm; padding: 1mm; }
+  .chip span { background: rgba(0,0,0,.25); border-radius: 0.3mm; }
+  .card.vip .chip,
+  .card.gold-rank .chip,
+  .card.diamond-rank .chip { background: linear-gradient(135deg, #ffe066, #d4af37 60%, #ffe066);
+    box-shadow: inset 0 0 0 0.3mm rgba(255,255,255,.5), 0 0 2mm rgba(212,175,55,.6); }
+
+  .center-text { text-align: center; margin-top: 1mm; }
+  .center-text .line1 { font-size: 3.4mm; font-weight: 800; letter-spacing: 1.6mm;
+    color: #fff; text-shadow: 0 0 2mm rgba(0,229,255,.6); }
+  .center-text .line2 { font-size: 2.2mm; letter-spacing: 1.2mm; color: #00e5ff;
+    text-transform: uppercase; margin-top: 0.8mm; }
+
+  .bottom-line { display: flex; justify-content: space-between; align-items: flex-end;
+    font-size: 1.8mm; letter-spacing: 0.4mm; color: #6d819a; text-transform: uppercase;
+    line-height: 1; gap: 2mm; }
+
+  /* ---------- Обратная ---------- */
+  .back .top { display: flex; justify-content: space-between; align-items: center; }
+  .back .brand .logo { font-size: 4.5mm; letter-spacing: 0.9mm; }
+  .back .brand .sub { font-size: 1.8mm; letter-spacing: 0.8mm; margin-top: 0.5mm; }
+  .back .rank-mini { font-size: 2.2mm; font-weight: 800; letter-spacing: 0.4mm;
+    text-transform: uppercase; line-height: 1; padding: 1.3mm 2.4mm; border-radius: 3mm;
+    border: 0.3mm solid rgba(255,255,255,.35); white-space: nowrap; }
+
+  .back .middle { display: flex; justify-content: space-between; align-items: center;
+    gap: 3mm; flex: 1; padding-top: 2mm; }
+  .back .info { min-width: 0; flex: 1; }
+  .back .guest-name { font-size: 4.6mm; font-weight: 800; line-height: 1.05;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card.vip .back .guest-name,
+  .card.gold-rank .back .guest-name,
+  .card.diamond-rank .back .guest-name { color: #ffe066; }
+  .card.platinum-rank .back .guest-name { color: #f4f4f4; }
+  .card.diamond-rank .back .guest-name { color: #b9f2ff; }
+  .back .card-num { font-size: 3mm; letter-spacing: 0.7mm; color: #9fb3c8;
+    font-family: 'Courier New', monospace; margin-top: 1.2mm; line-height: 1; }
+  .card.vip .back .card-num { color: #d4af37; }
+  .card.gold-rank .back .card-num { color: #f1c40f; }
+  .card.platinum-rank .back .card-num { color: #e5e4e2; }
+  .card.diamond-rank .back .card-num { color: #b9f2ff; }
+  .back .qr-box { background: #fff; padding: 1mm; border-radius: 1.5mm; flex-shrink: 0; }
+  .back .qr-box img { display: block; width: 22mm; height: 22mm; }
+
+  .back .bottom-line { font-size: 1.7mm; letter-spacing: 0.3mm; }
+  .back .bottom-line .url { overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; min-width: 0; }
+
+  @media print {
+    body { background: #fff; padding: 0; margin: 0; }
+    .toolbar, .hint, .sheet-title, .only-screen { display: none !important; }
+    .sheet { margin: 10mm auto; }
+    .card { box-shadow: none; border: 0.3mm solid #cfd6de;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card.vip { border-color: #b8860b; }
+    .card.gold-rank { border-color: #d4af37; }
+    .card.platinum-rank { border-color: #b8b8b8; }
+    .card.diamond-rank { border-color: #b9f2ff; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">🖨 Печать лицевой</button>
+  <button class="alt" onclick="printBack()">🖨 Печать обратной</button>
+  <label>Переворот:
+    <select id="flipMode">
+      <option value="long">Длинный край</option>
+      <option value="short">Короткий край</option>
+    </select>
+  </label>
+</div>
+
+<div class="toolbar">
+  <label>ID гостя:
+    <input type="text" id="guestId" class="search" placeholder="12345678">
+  </label>
+  <button onclick="loadById()">Загрузить</button>
+  <label>Базовый адрес для QR:
+    <input type="text" id="baseUrl" class="base" placeholder="http://192.168.0.11:3000">
+  </label>
+</div>
+
+<div class="hint">
+  Печатает <b>6 карт одного гостя</b>: Bronze, Silver, Gold, Platinum, Diamond, VIP — на одном A4, симметрично 2×3.
+  Сначала «Печать лицевой» → переверни стопку → «Печать обратной».
+  <span class="warn">Базовый адрес должен открываться с телефона (например, http://192.168.0.11:3000 в той же сети).</span>
+</div>
+
+<div class="sheet-title" id="frontTitle">Лицевая сторона</div>
+<div class="sheet" id="sheetFront"></div>
+
+<div class="sheet-title only-screen" id="backTitle">Обратная сторона</div>
+<div class="sheet" id="sheetBack" style="display:none"></div>
+
+<script>
+const RANKS = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
+
+function getBaseUrl(){
+  const input = document.getElementById('baseUrl');
+  let val = (input.value || '').trim().replace(/\/+$/, '');
+  if (!val){
+    if (location.protocol.startsWith('http')) val = location.origin;
+    else val = 'http://192.168.0.11:3000';
+  }
+  return val;
+}
+
+function cardClass(rank){
+  if (rank === 'VIP')      return 'vip';
+  if (rank === 'Diamond')  return 'diamond-rank';
+  if (rank === 'Platinum') return 'platinum-rank';
+  if (rank === 'Gold')     return 'gold-rank';
+  return '';
+}
+function goldFrame(rank){
+  if (rank === 'VIP' || rank === 'Gold' || rank === 'Platinum' || rank === 'Diamond') {
+    return '<div class="gold-frame"></div>';
+  }
+  return '';
+}
+
+async function loadById(){
+  const id = document.getElementById('guestId').value.trim();
+  if(!id){ alert('Введите ID гостя'); return; }
+  const res = await fetch('/api/guests');
+  const guests = await res.json();
+  const g = guests.find(x => String(x.id) === String(id));
+  if(!g){ alert('Гость с ID ' + id + ' не найден'); return; }
+  renderGuest(g);
+}
+
+async function loadFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  if(!id){
+    document.getElementById('frontTitle').textContent = 'Лицевая сторона — введите ID гостя';
+    return;
+  }
+  document.getElementById('guestId').value = id;
+  await loadById();
+}
+
+function renderGuest(g){
+  const list = RANKS.map(r => Object.assign({}, g, { rank: r }));
+  document.getElementById('frontTitle').textContent = `Лицевая сторона — ${g.name} (№ ${g.id}) — 6 карт`;
+  document.getElementById('backTitle').textContent = `Обратная сторона — ${g.name} (№ ${g.id}) — 6 карт`;
+  document.getElementById('sheetFront').innerHTML = list.map(frontHTML).join('');
+  document.getElementById('sheetBack').innerHTML = list.map(backHTML).join('');
+}
+
+function frontHTML(g){
+  return `
+  <div class="card front ${cardClass(g.rank)}">
+    ${goldFrame(g.rank)}
+    <div class="card-content">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">KINGWIN</div>
+          <div class="sub">Guest Card · Club</div>
+        </div>
+        <div class="rank-badge ${g.rank}">${g.rank}</div>
+      </div>
+      <div class="chip"><span></span><span></span><span></span><span></span></div>
+      <div class="center-text">
+        <div class="line1">GUEST CARD</div>
+        <div class="line2">Member</div>
+      </div>
+      <div class="bottom-line">
+        <span>KINGWIN · Club</span>
+        <span>Est. 2024</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function backHTML(g){
+  const base = getBaseUrl();
+  const profileUrl = `${base}/profile2.html?id=${encodeURIComponent(g.id)}`;
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=${encodeURIComponent(profileUrl)}`;
+  const shortUrl = profileUrl.replace(/^https?:\/\//, '');
+  return `
+  <div class="card back ${cardClass(g.rank)}">
+    ${goldFrame(g.rank)}
+    <div class="card-content">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">KINGWIN</div>
+          <div class="sub">Guest Card</div>
+        </div>
+        <div class="rank-badge rank-mini ${g.rank}">${g.rank}</div>
+      </div>
+      <div class="middle">
+        <div class="info">
+          <div class="guest-name">${escapeHtml(g.name)}</div>
+          <div class="card-num">№ ${g.id}</div>
+        </div>
+        <div class="qr-box"><img src="${qr}" alt="QR"></div>
+      </div>
+      <div class="bottom-line">
+        <span class="url">${escapeHtml(shortUrl)}</span>
+        <span>Сканируйте · Профиль</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function printBack(){
+  const front = document.getElementById('sheetFront');
+  const back = document.getElementById('sheetBack');
+  const mode = document.getElementById('flipMode').value;
+  front.style.display = 'none';
+  back.style.display = 'grid';
+  back.style.transform = mode === 'short' ? 'rotate(180deg)' : 'none';
+  const frontCount = front.children.length;
+  const backCards = back.children;
+  for (let i = 0; i < backCards.length; i++){
+    if (i >= frontCount) backCards[i].style.visibility = 'hidden';
+  }
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      front.style.display = '';
+      back.style.display = 'none';
+      back.style.transform = 'none';
+      for (const c of backCards) c.style.visibility = '';
+    }, 500);
+  }, 150);
+}
+
+(function initBase(){
+  const input = document.getElementById('baseUrl');
+  let saved = localStorage.getItem('kingwin_base_url');
+  if (!saved){
+    saved = location.protocol.startsWith('http') ? location.origin : 'http://192.168.0.11:3000';
+    localStorage.setItem('kingwin_base_url', saved);
+  }
+  input.value = saved;
+  input.addEventListener('input', () => {
+    localStorage.setItem('kingwin_base_url', input.value.trim());
+  });
+  input.addEventListener('change', () => {
+    localStorage.setItem('kingwin_base_url', input.value.trim());
+    const id = document.getElementById('guestId').value.trim();
+    if(id) loadById();
+  });
+})();
+
+loadFromUrl();
+</script>
+</body>
+</html>
