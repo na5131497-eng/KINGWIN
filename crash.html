@@ -309,9 +309,14 @@ async function fetchServerState() {
       clientStartTime = Date.now() - elapsedOnServer;
     }
     
-    gameState = serverState.status;
+    // Если сервер сказал, что уже краш - фиксируем это
+    if (serverState.status === 'crashed') {
+      gameState = 'crashed';
+    } else {
+      gameState = serverState.status;
+    }
     
-    // Обновляем таблицу ставок (только при изменении)
+    // Обновляем таблицу ставок
     renderActiveBets(serverState.activeBets);
 
     // Обновляем верхнюю ленту истории
@@ -379,19 +384,35 @@ setInterval(fetchServerState, 100);
 /* ---------------- ПЛАВНАЯ АНИМАЦИЯ (60 FPS) ---------------- */
 function animate() {
   if (gameState === 'flying' && serverState) {
-    // Вычисляем кэф локально на основе времени, чтобы было плавно
+    // Вычисляем кэф локально на основе времени
     const elapsed = Date.now() - clientStartTime;
     displayMultiplier = Math.pow(1.00006, elapsed);
     
-    // Защита от перелета (если сервер сказал, что краш, не рисуем дальше)
+    // --- МОМЕНТАЛЬНЫЙ КРАШ ЛОКАЛЬНО ---
+    // Если кэф достиг точки краша, моментально блокируем кнопки
     if (displayMultiplier >= serverState.crashPoint) {
       displayMultiplier = serverState.crashPoint;
+      gameState = 'crashed'; // Меняем статус прямо здесь
+      
+      if (!explosionEl.classList.contains('animate')) {
+        const lastP = localPoints[localPoints.length - 1];
+        if (lastP) {
+          const maxX = lastP.x || 1;
+          const maxY = lastP.y || 1;
+          const drawW = canvas.width - 60;
+          const drawH = canvas.height - 60;
+          explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
+          explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
+          explosionEl.classList.add('animate');
+        }
+        rocketEl.style.display = 'none';
+      }
     }
 
     currentMultiplier = displayMultiplier;
     multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
     
-    // Добавляем точки для графика (каждые 100 мс примерно)
+    // Добавляем точки для графика
     const now = Date.now();
     if (localPoints.length === 0 || now - localPoints[localPoints.length-1].time > 50) {
       localPoints.push({ x: elapsed / 1000, y: currentMultiplier, time: now });
@@ -446,7 +467,6 @@ window.onload = () => {
       .catch(() => {});
   }
   
-  // Запускаем циклы
   fetchServerState();
   requestAnimationFrame(animate);
 };
@@ -582,6 +602,8 @@ async function placeBet(id) {
 
 async function cashOut(id) {
   if (!bets[id].active || bets[id].cashedOut) return;
+  if (gameState !== 'flying') return; // Запрещаем вывод, если уже краш
+
   bets[id].cashedOut = true;
   bets[id].cashoutMultiplier = currentMultiplier;
   
@@ -610,6 +632,7 @@ async function cashOut(id) {
 
 function checkAutoCashout(id) {
   if (!bets[id].active || bets[id].cashedOut) return;
+  if (gameState !== 'flying') return; // Не срабатывает после краша
   const isAuto = document.getElementById('autoCashout' + id).checked;
   const targetMult = parseFloat(document.getElementById('autoMult' + id).value) || 0;
   if (isAuto && currentMultiplier >= targetMult) cashOut(id);
@@ -646,6 +669,7 @@ function updateBetButtons() {
         btn.disabled = true;
       }
     } else {
+      // Если краш - моментально меняем кнопку
       btn.className = 'btn-action btn-wait';
       btn.innerHTML = `Краш!`;
       btn.disabled = true;
