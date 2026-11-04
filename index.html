@@ -23,7 +23,7 @@
   button { font-family: inherit; }
   
   /* LEFT SIDEBAR */
-  .sidebar { width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 10; }
+  .sidebar { width: 250px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 10; }
   
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; padding-left: 10px; display: flex; align-items: center; gap: 10px; }
   .logo-mark { width: 24px; height: 24px; background: linear-gradient(135deg, #00e5ff, #0077ff); border-radius: 6px; position: relative; }
@@ -36,6 +36,10 @@
   .nav-item.active { color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
   
   .side-section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin: 15px 0 10px 15px; letter-spacing: 1px; }
+  
+  /* Стикеры в левом меню */
+  .nav-item-icon { font-size: 18px; width: 24px; text-align: center; }
+  
   .bottom-menu { display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
   .bottom-menu .nav-item { padding: 10px 15px; font-size: 13px; }
 
@@ -71,16 +75,15 @@
   .section-title { font-size: 20px; font-weight: 800; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
 
-  /* СЕТКА НАШИХ ИГР (КРАСИВЫЕ КАРТОЧКИ) */
-  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-  .our-game-card { background: linear-gradient(180deg, #1c1f2b, #11121a); border-radius: 16px; padding: 20px 15px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; aspect-ratio: 1; justify-content: center; }
+  /* СЕТКА НАШИХ ИГР В ЦЕНТРЕ (без стикеров, как ты просил) */
+  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; position: relative; overflow: hidden; }
   .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(0,229,255,0.1); }
-  .our-game-icon { font-size: 48px; line-height: 1; margin-bottom: 15px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
-  .our-game-title { font-size: 16px; font-weight: 800; margin-bottom: 5px; letter-spacing: 0.5px; }
-  .our-game-desc { font-size: 11px; color: var(--text-muted); }
+  .our-game-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+  .our-game-desc { font-size: 12px; color: var(--text-muted); }
 
   /* SLOTS GRID */
-  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
   .slot-card { border-radius: 16px; overflow: hidden; position: relative; aspect-ratio: 3/4; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; }
   .slot-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
   .slot-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%); z-index: 1; }
@@ -100,8 +103,8 @@
     .hero { padding: 30px 20px; flex-direction: column; text-align: center; }
     .hero h1 { font-size: 24px; }
     .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .our-game-icon { font-size: 36px; margin-bottom: 10px; }
-    .our-game-title { font-size: 14px; }
+    .our-game-card { padding: 15px; }
+    .our-game-title { font-size: 15px; }
     .slots-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .mobile-bottom-nav { display: flex; }
     .hero-btn { width: 100%; }
@@ -113,7 +116,7 @@
   .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
   .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
   
-  /* DEPOSIT FORM (как на фото) */
+  /* DEPOSIT FORM */
   .payment-methods { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
   .pm-btn { flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; }
   .pm-btn.active { background: rgba(0,229,255,0.1); border-color: #00e5ff; color: #00e5ff; }
@@ -166,14 +169,30 @@
 
   <div class="side-section-title">Наши игры</div>
   <div class="nav-menu">
-    <div class="nav-item" onclick="showToast('Игра Crash в разработке', 'error')">Crash</div>
-    <div class="nav-item" onclick="showToast('Игра Cases в разработке', 'error')">Cases</div>
-    <div class="nav-item" onclick="showToast('Игра Dice в разработке', 'error')">Dice</div>
-    <div class="nav-item" onclick="showToast('Игра Keno в разработке', 'error')">Keno</div>
-    <div class="nav-item" onclick="showToast('Игра Mines в разработке', 'error')">Mines</div>
-    <div class="nav-item" onclick="showToast('Игра Tower в разработке', 'error')">Tower</div>
-    <div class="nav-item" onclick="showToast('Игра Coinflip в разработке', 'error')">Coinflip</div>
-    <div class="nav-item" onclick="showToast('Игра Plinko в разработке', 'error')">Plinko</div>
+    <div class="nav-item" onclick="showToast('Игра Crash в разработке', 'error')">
+      <span class="nav-item-icon">🚀</span> Crash
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Cases в разработке', 'error')">
+      <span class="nav-item-icon">📦</span> Cases
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Dice в разработке', 'error')">
+      <span class="nav-item-icon">🎲</span> Dice
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Keno в разработке', 'error')">
+      <span class="nav-item-icon">🔢</span> Keno
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Mines в разработке', 'error')">
+      <span class="nav-item-icon">💣</span> Mines
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Tower в разработке', 'error')">
+      <span class="nav-item-icon">🏗️</span> Tower
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Coinflip в разработке', 'error')">
+      <span class="nav-item-icon">🪙</span> Coinflip
+    </div>
+    <div class="nav-item" onclick="showToast('Игра Plinko в разработке', 'error')">
+      <span class="nav-item-icon">🟣</span> Plinko
+    </div>
   </div>
 
   <div class="bottom-menu">
@@ -211,50 +230,42 @@
       </div>
     </div>
 
-    <!-- НАШИ ИГРЫ -->
+    <!-- НАШИ ИГРЫ (В ЦЕНТРЕ БЕЗ СТИКЕРОВ) -->
     <div class="section-head">
       <div class="section-title">Наши игры</div>
     </div>
     <div class="our-games-grid">
       <div class="our-game-card" onclick="showToast('Игра Crash в разработке', 'error')">
-        <div class="our-game-icon">🚀</div>
         <div class="our-game-title">Crash</div>
-        <div class="our-game-desc">Ракета летит</div>
+        <div class="our-game-desc">Ракета летит — забери вовремя</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Cases в разработке', 'error')">
-        <div class="our-game-icon">📦</div>
         <div class="our-game-title">Cases</div>
-        <div class="our-game-desc">Открывай призы</div>
+        <div class="our-game-desc">Открывай кейсы и получай призы</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Dice в разработке', 'error')">
-        <div class="our-game-icon">🎲</div>
         <div class="our-game-title">Dice</div>
-        <div class="our-game-desc">Угадай число</div>
+        <div class="our-game-desc">Угадай число на кубике</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Keno в разработке', 'error')">
-        <div class="our-game-icon">🔢</div>
         <div class="our-game-title">Keno</div>
-        <div class="our-game-desc">Выбери числа</div>
+        <div class="our-game-desc">Выбери числа и выиграй</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Mines в разработке', 'error')">
-        <div class="our-game-icon">💣</div>
         <div class="our-game-title">Mines</div>
-        <div class="our-game-desc">Ищи алмазы</div>
+        <div class="our-game-desc">Ищи алмазы, избегай бомб</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Tower в разработке', 'error')">
-        <div class="our-game-icon">🏗️</div>
         <div class="our-game-title">Tower</div>
-        <div class="our-game-desc">Строй башню</div>
+        <div class="our-game-desc">Поднимайся и умножай</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Coinflip в разработке', 'error')">
-        <div class="our-game-icon">🪙</div>
         <div class="our-game-title">Coinflip</div>
         <div class="our-game-desc">Орел или решка</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Plinko в разработке', 'error')">
-        <div class="our-game-icon">🟣</div>
         <div class="our-game-title">Plinko</div>
-        <div class="our-game-desc">Шарик и множитель</div>
+        <div class="our-game-desc">Сбрось шарик и поймай множитель</div>
       </div>
     </div>
 
@@ -314,7 +325,6 @@
   <div class="modal-box">
     <h2>Пополнить баланс</h2>
     
-    <!-- Как на фото: методы -->
     <div class="payment-methods">
       <button class="pm-btn active">СБП</button>
       <button class="pm-btn">Карта</button>
@@ -323,14 +333,12 @@
     
     <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px; text-align:center;">Введите сумму пополнения (₽)</div>
     
-    <!-- Управление суммой -->
     <div class="amount-input-wrap">
       <button onclick="changeAmount(-100)">−</button>
       <input type="number" id="depositAmount" value="200" min="200" max="1000">
       <button onclick="changeAmount(100)">+</button>
     </div>
     
-    <!-- Быстрые суммы -->
     <div class="quick-amounts">
       <button onclick="setAmount(200)">200</button>
       <button onclick="setAmount(500)">500</button>
@@ -417,7 +425,6 @@ function goToProfile() {
   else { openModal('loginModal'); }
 }
 
-/* --- ЛОГИКА ПОПОЛНЕНИЯ (БЕЗ МГНОВЕННОГО НАЧИСЛЕНИЯ) --- */
 function changeAmount(diff) {
   const input = document.getElementById('depositAmount');
   let val = parseInt(input.value) || 200;
@@ -439,29 +446,22 @@ async function doDeposit() {
   document.getElementById('waitingModal').classList.add('show');
 
   try {
-    // Создаем заявку. Баланс НЕ меняем локально!
     const res = await fetch('/api/deposits', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         date: new Date().toISOString().slice(0,10),
-        nick: currentPlayer.name,
-        email: 'player@kingwin.com',
-        sum: amount,
-        status: 'pending' // Ждет подтверждения в админке
+        nick: currentPlayer.name, email: 'player@kingwin.com', sum: amount, status: 'pending'
       })
     });
-
     setTimeout(() => {
       closeModal('waitingModal');
       if(res.ok) {
         showToast('Заявка отправлена! Ожидайте подтверждения администратора.', 'success');
-        // НЕ прибавляем баланс! Игрок увидит его только после подтверждения админом.
       } else {
         showToast('Ошибка при создании заявки', 'error');
       }
     }, 1500);
-
   } catch(e) {
     closeModal('waitingModal');
     showToast('Ошибка соединения', 'error');
