@@ -2,14 +2,15 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt'); // <--- ДОБАВИЛИ БИБЛИОТЕКУ
 
 const PORT = process.env.PORT || 3000;
 const DATABASE_URL = 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea-beqrez4i.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
 
-const POINTS_PER_RUB = 0.2;   // 5 ₽ ставки = 1 балл (дилер)
-const ONLINE_POINTS_PER_RUB = 0.1; // 10 ₽ = 1 балл (онлайн)
+const POINTS_PER_RUB = 0.2;   
+const ONLINE_POINTS_PER_RUB = 0.1; 
 
 const RANKS = {
   Bronze:   { min: 0,     gift: 0    },
@@ -211,17 +212,20 @@ async function initDB() {
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
+    // БЕЗОПАСНОЕ СОЗДАНИЕ ВЛАДЕЛЬЦА
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){
+      const hashedPass = await bcrypt.hash('56UpahoS', 10);
       await pool.query(`INSERT INTO employees (name, login, pass, role) VALUES ($1,$2,$3,$4)`,
-        ['Владелец', 'Owner', '56UpahoS', 'owner']);
-    } else {
-      await pool.query(`UPDATE employees SET login = $1, pass = $2 WHERE role = 'owner'`, ['Owner', '56UpahoS']);
+        ['Владелец', 'Owner', hashedPass, 'owner']);
     }
 
+    // БЕЗОПАСНОЕ СОЗДАНИЕ ДИЛЕРА
     const dlCount = await pool.query(`SELECT COUNT(*) FROM dealers`);
     if(parseInt(dlCount.rows[0].count,10) === 0){
-      await pool.query(`INSERT INTO dealers (name, login, pass, balance) VALUES ($1,$2,$3,$4)`, ['Дилер', 'dealer', '56UpahoS', 0]);
+      const hashedPass = await bcrypt.hash('56UpahoS', 10);
+      await pool.query(`INSERT INTO dealers (name, login, pass, balance) VALUES ($1,$2,$3,$4)`, 
+        ['Дилер', 'dealer', hashedPass, 0]);
     }
 
     const jpCheck = await pool.query(`SELECT * FROM settings WHERE key IN ('jackpot', 'jackpot_last_tick')`);
@@ -366,10 +370,14 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/guests' && method === 'POST'){
       const g = await parseBody(req);
       const cardId = g.id || Math.floor(10000000 + Math.random() * 90000000).toString();
+      
+      // Хэшируем пароль гостя (карты)
+      const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
+      
       const r = await pool.query(
         `INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-        [cardId, g.name, g.rank || 'Bronze', g.points || 0, g.visits || 0, g.bonus_text || '', g.bonus_code || '', g.pass || '1234']
+        [cardId, g.name, g.rank || 'Bronze', g.points || 0, g.visits || 0, g.bonus_text || '', g.bonus_code || '', hashedPass]
       );
       return sendJSON(res, 200, { ok: true, guest: r.rows[0] });
     }
@@ -382,8 +390,10 @@ const server = http.createServer(async (req, res) => {
       const g = await parseBody(req);
       if(!g.id) return sendJSON(res, 400, { error: 'no id' });
       try {
+        // Если админ меняет пароль гостя, его тоже нужно хэшировать
+        const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
         await pool.query(`UPDATE guests SET name=$1, rank=$2, pass=$3, bonus_text=$4, bonus_code=$5, bonus_balance=$6 WHERE id=$7`, 
-          [g.name, g.rank, g.pass, g.bonus_text, g.bonus_code, g.bonus_balance||0, g.id]);
+          [g.name, g.rank, hashedPass, g.bonus_text, g.bonus_code, g.bonus_balance||0, g.id]);
         return sendJSON(res, 200, { ok: true });
       } catch(e){ return sendJSON(res, 500, { error: e.message }); }
     }
@@ -394,14 +404,19 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН ГОСТЯ */
+    /* ЛОГИН ГОСТЯ (СРАВНЕНИЕ ХЭША) */
     if(url === '/api/guest/login' && method === 'POST'){
       const { id, pass } = await parseBody(req);
       if(!id || !pass) return sendJSON(res, 400, { error: 'Введите номер карты и пароль' });
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id).trim()]);
       if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Карта не найдена' });
+      
       const g = r.rows[0];
-      if(String(pass) !== String(g.pass || '1234')) return sendJSON(res, 401, { error: 'Неверный пароль' });
+      // Сравниваем введенный пароль с хэшем в базе
+      const match = await bcrypt.compare(String(pass), g.pass);
+      
+      if(!match) return sendJSON(res, 401, { error: 'Неверный пароль' });
+      
       await pool.query('UPDATE guests SET visits = visits + 1 WHERE id=$1', [g.id]);
       return sendJSON(res, 200, { ok: true, guest: g });
     }
@@ -435,7 +450,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* ДЕПОЗИТЫ И ВЫВОДЫ */
+    /* ДЕПОЗИТЫ */
     if(url === '/api/deposits' && method === 'GET'){
       const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
@@ -481,7 +496,6 @@ const server = http.createServer(async (req, res) => {
       const id = url.split('/')[3];
       const w = await parseBody(req);
       
-      // ВОЗВРАТ СРЕДСТВ ПРИ ОТКЛОНЕНИИ ВЫВОДА
       if(w.status === 'rejected') {
         const wrRes = await pool.query('SELECT * FROM withdrawals WHERE id=$1', [id]);
         if(wrRes.rows.length > 0 && wrRes.rows[0].status === 'pending') {
@@ -502,20 +516,52 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ДИЛЕРЫ И ОСТАЛЬНОЕ (Сокращено для краткости, работает как раньше) */
+    /* ЛОГИН (СРАВНЕНИЕ ХЭША) */
     if(url === '/api/login' && method === 'POST'){
       const { login, pass, type } = await parseBody(req);
+      
       if(type === 'dealer'){
-        const r = await pool.query('SELECT * FROM dealers WHERE login=$1 AND pass=$2', [login, pass]);
+        const r = await pool.query('SELECT * FROM dealers WHERE login=$1', [login]);
         if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        return sendJSON(res, 200, { ok: true, dealer: { id: r.rows[0].id, name: r.rows[0].name, balance: parseFloat(r.rows[0].balance)||0 } });
+        
+        const d = r.rows[0];
+        const match = await bcrypt.compare(String(pass), d.pass);
+        
+        if(!match) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
+        return sendJSON(res, 200, { ok: true, dealer: { id: d.id, name: d.name, balance: parseFloat(d.balance)||0 } });
       } else {
-        const r = await pool.query('SELECT * FROM employees WHERE login=$1 AND pass=$2', [login, pass]);
+        const r = await pool.query('SELECT * FROM employees WHERE login=$1', [login]);
         if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        return sendJSON(res, 200, { ok: true, employee: { id: r.rows[0].id, name: r.rows[0].name, role: r.rows[0].role } });
+        
+        const e = r.rows[0];
+        const match = await bcrypt.compare(String(pass), e.pass);
+        
+        if(!match) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
+        return sendJSON(res, 200, { ok: true, employee: { id: e.id, name: e.name, role: e.role } });
       }
     }
 
+    /* СОТРУДНИКИ (С ХЭШИРОВАНИЕМ) */
+    if(url === '/api/employees' && method === 'POST'){
+      const e = await parseBody(req);
+      try {
+        const hashedPass = await bcrypt.hash(e.pass, 10);
+        const r = await pool.query(`INSERT INTO employees (name,login,pass,role) VALUES ($1,$2,$3,$4) RETURNING id,name,login,role`, [e.name,e.login,hashedPass,e.role]);
+        return sendJSON(res, 200, { ok: true, employee: r.rows[0] });
+      } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
+    }
+    
+    /* ДИЛЕРЫ (С ХЭШИРОВАНИЕМ) */
+    if(url === '/api/dealers' && method === 'POST'){
+      const d = await parseBody(req);
+      try {
+        const hashedPass = await bcrypt.hash(d.pass, 10);
+        const r = await pool.query(`INSERT INTO dealers (name,login,pass) VALUES ($1,$2,$3) RETURNING id,name,login`, [d.name,d.login,hashedPass]);
+        return sendJSON(res, 200, { ok: true, dealer: r.rows[0] });
+      } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
+    }
+
+    // ... ОСТАЛЬНОЙ КОД (СЕССИИ, ПЕЙАУТЫ, АУДИТ, ОНЛАЙН, СТАТИКА) ОСТАЕТСЯ КАК БЫЛО ...
     if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/sessions' && method === 'POST'){
       const s = await parseBody(req);
@@ -564,11 +610,9 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/audit' && method === 'DELETE'){ await pool.query('DELETE FROM audit'); return sendJSON(res, 200, { ok: true }); }
 
     if(url === '/api/employees' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,role FROM employees ORDER BY id'); return sendJSON(res, 200, r.rows); }
-    if(url === '/api/employees' && method === 'POST'){ const e = await parseBody(req); try { const r = await pool.query(`INSERT INTO employees (name,login,pass,role) VALUES ($1,$2,$3,$4) RETURNING id,name,login,role`, [e.name,e.login,e.pass,e.role]); return sendJSON(res, 200, { ok: true, employee: r.rows[0] }); } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); } }
     if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
 
     if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,balance FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
-    if(url === '/api/dealers' && method === 'POST'){ const d = await parseBody(req); try { const r = await pool.query(`INSERT INTO dealers (name,login,pass) VALUES ($1,$2,$3) RETURNING id,name,login`, [d.name,d.login,d.pass]); return sendJSON(res, 200, { ok: true, dealer: r.rows[0] }); } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); } }
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
     if(url === '/api/dealer/balance' && method === 'GET'){ const u = new URL(req.url, 'http://x'); const id = u.searchParams.get('id'); const r = await pool.query('SELECT id,name,login,balance FROM dealers WHERE id=$1', [id]); const w = await pool.query(`SELECT * FROM dealer_withdrawals WHERE dealer_id=$1 ORDER BY id DESC LIMIT 50`, [id]); return sendJSON(res, 200, { dealer: r.rows[0], withdrawals: w.rows }); }
