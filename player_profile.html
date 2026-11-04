@@ -8,100 +8,58 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Montserrat', sans-serif; background: #0a0d14; color: #fff; padding-bottom: 40px; }
-  a { text-decoration: none; color: inherit; }
-  
-  /* TOP BAR */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #111625; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+  .logo { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
   .back-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
   
-  /* LAYOUT */
-  .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; align-items: flex-start; }
-  
-  /* SIDEBAR */
+  .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
   .sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
   .profile-card { background: #111625; border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
   .avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-  .avatar { width: 50px; height: 50px; border-radius: 50%; background: #1c2b45; display: flex; justify-content: center; align-items: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.1); }
-  .player-name { font-size: 16px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
-  .green-dot { width: 8px; height: 8px; background: #3fbf7f; border-radius: 50%; display: inline-block; }
-  .player-id { font-size: 11px; color: #8fa2b8; margin-top: 2px; }
-  
+  .avatar { width: 50px; height: 50px; border-radius: 50%; background: #1c2b45; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+  .player-name { font-size: 16px; font-weight: 800; text-transform: uppercase; }
   .balances { display: flex; gap: 10px; margin-bottom: 15px; }
   .bal-box { flex: 1; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; }
   .bal-label { font-size: 10px; color: #8fa2b8; text-transform: uppercase; margin-bottom: 4px; }
-  .bal-val { font-size: 16px; font-weight: 800; }
-  .bal-val.green { color: #3fbf7f; }
+  .bal-val { font-size: 16px; font-weight: 800; color: #3fbf7f; }
   
-  .action-btns { display: flex; gap: 10px; }
-  .action-btns button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .action-btns { display: flex; flex-direction: column; gap: 10px; }
+  .action-btns button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; }
   .btn-dep { background: #00e5ff; color: #000; }
   .btn-wd { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn-logout { background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); margin-top: 10px; }
   
-  .rank-card { background: linear-gradient(135deg, #1c2b45, #111625); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
-  .rank-icon { font-size: 30px; margin-bottom: 10px; }
-  .rank-name { font-size: 14px; color: #00e5ff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-  .rank-desc { font-size: 11px; color: #a0aec0; line-height: 1.4; margin-bottom: 15px; }
-  .progress-wrap { margin-top: 15px; }
-  .progress-text { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
-  .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #0077ff, #00e5ff); border-radius: 3px; width: 30%; transition: width 0.5s ease; }
-
-  /* MAIN CONTENT */
-  .main-content { flex: 1; background: #111625; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); min-height: 500px; }
-  
+  .main-content { flex: 1; background: #111625; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); min-width: 300px; }
   .tabs-header { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0 20px; overflow-x: auto; }
-  .tab-btn { padding: 15px 20px; background: transparent; border: none; color: #8fa2b8; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; position: relative; font-family: inherit; }
-  .tab-btn.active { color: #fff; }
-  .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #00e5ff; }
-  
+  .tab-btn { padding: 15px 20px; background: transparent; border: none; color: #8fa2b8; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .tab-btn.active { color: #fff; border-bottom: 2px solid #00e5ff; }
   .tab-content { padding: 20px; display: none; }
   .tab-content.active { display: block; }
   
-  /* TABLE */
   .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .history-table th { text-align: left; padding: 10px; color: #8fa2b8; font-size: 11px; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .history-table th { text-align: left; padding: 10px; color: #8fa2b8; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .history-table td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-  .history-table tr:last-child td { border-bottom: none; }
-  .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-  .badge.pending { background: rgba(241,196,15,0.15); color: #f1c40f; }
-  .badge.approved { background: rgba(63,191,127,0.15); color: #3fbf7f; }
-  .badge.rejected { background: rgba(255,77,77,0.15); color: #ff4d4d; }
 
-  /* MODALS */
+  /* МОДАЛКИ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: #111625; border: 1px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-  .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
-  .input-group { margin-bottom: 20px; }
-  .input-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 8px; font-weight: 600; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: #fff; font-size: 20px; font-weight: 700; text-align: center; outline: none; }
-  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; }
+  .modal-box { background: #111625; border: 1px solid #2a2d3e; border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
+  .modal-box h2 { font-size: 20px; margin-bottom: 15px; }
+  .modal-box p { color: #8fa2b8; font-size: 14px; margin-bottom: 20px; }
+  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 14px; color: #fff; font-size: 20px; text-align: center; margin-bottom: 15px; }
+  .modal-box button { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
   
-  /* TOASTS */
-  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: rgba(18,24,38,0.95); border-left: 4px solid #00e5ff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s ease; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); }
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid #00e5ff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateX(120%); transition: 0.3s; margin-bottom: 10px; font-size: 14px; font-weight: 600; }
   .toast.show { transform: translateX(0); }
-  .toast.success { border-left-color: #3fbf7f; }
-  .toast.error { border-left-color: #ff4d4d; }
-  .toast-icon { font-size: 20px; }
-  .toast.success .toast-icon { color: #3fbf7f; }
-  .toast.error .toast-icon { color: #ff4d4d; }
-  .toast-msg { font-size: 14px; font-weight: 600; color: #fff; }
 
-  /* RESPONSIVE */
   @media (max-width: 768px) {
-    .container { flex-direction: column; padding: 10px; }
     .sidebar { width: 100%; }
     .history-table th, .history-table td { padding: 10px 5px; font-size: 12px; }
-    .toast-container { top: 10px; right: 10px; left: 10px; }
-    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
-    .toast.show { transform: translateY(0); }
   }
 </style>
 </head>
 <body>
-
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="topbar">
@@ -116,193 +74,110 @@
       <div class="avatar-row">
         <div class="avatar">👤</div>
         <div>
-          <div class="player-name"><span id="uiName">Игрок</span> <span class="green-dot"></span></div>
-          <div class="player-id">ID: <span id="uiId">—</span></div>
+          <div class="player-name" id="uiName">Игрок</div>
+          <div style="font-size: 11px; color: #8fa2b8;">ID: <span id="uiId">—</span></div>
         </div>
       </div>
       
       <div class="balances">
         <div class="bal-box">
           <div class="bal-label">Бонусный баланс</div>
-          <div class="bal-val green"><span id="uiBalance">0.00</span> ₽</div>
+          <div class="bal-val"><span id="uiBalance">0.00</span> ₽</div>
         </div>
       </div>
       
       <div class="action-btns">
         <button class="btn-dep" onclick="window.location.href='/'">Пополнить</button>
         <button class="btn-wd" onclick="openModal('withdrawModal')">Вывести</button>
-      </div>
-    </div>
-
-    <!-- РАНГ -->
-    <div class="rank-card">
-      <div class="rank-icon" id="uiRankIcon">🥉</div>
-      <div class="rank-name" id="uiRankName">Любитель</div>
-      <div class="rank-desc">Играйте больше, чтобы повысить ранг и получать эксклюзивные бонусы.</div>
-      
-      <div class="progress-wrap">
-        <div class="progress-text">
-          <span id="uiRankNext">До следующего ранга</span>
-          <span id="uiRankPoints">0 / 300</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="uiProgressBar" style="width: 0%"></div>
-        </div>
+        <button class="btn-logout" onclick="openModal('logoutModal')">Выйти</button>
       </div>
     </div>
   </div>
 
-  <!-- ПРАВАЯ ПАНЕЛЬ (ВКЛАДКИ) -->
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
   <div class="main-content">
     <div class="tabs-header">
       <button class="tab-btn active" onclick="switchTab('history')">Операции</button>
-      <button class="tab-btn" onclick="switchTab('bonuses')">Бонусы</button>
-      <button class="tab-btn" onclick="switchTab('settings')">Настройки</button>
     </div>
     
-    <!-- Вкладка: Операции -->
     <div class="tab-content active" id="tab-history">
       <table class="history-table">
-        <thead>
-          <tr>
-            <th>Тип</th>
-            <th>Описание</th>
-            <th>Сумма</th>
-            <th>Дата</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Тип</th><th>Сумма</th><th>Дата</th></tr></thead>
         <tbody id="uiHistoryTable">
-          <tr><td colspan="4" style="text-align:center; color:#8fa2b8; padding:30px;">Загрузка...</td></tr>
+          <tr><td colspan="3" style="text-align:center; color:#8fa2b8; padding:30px;">Загрузка...</td></tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Вкладка: Бонусы -->
-    <div class="tab-content" id="tab-bonuses">
-      <div style="text-align:center; padding: 40px 0;">
-        <div style="font-size: 40px; margin-bottom: 15px;">🎁</div>
-        <h3 style="margin-bottom: 10px;">У вас нет активных бонусов</h3>
-        <p style="color: #8fa2b8; font-size: 14px;">Играйте чаще, чтобы получать эксклюзивные предложения!</p>
-      </div>
-    </div>
-
-    <!-- Вкладка: Настройки -->
-    <div class="tab-content" id="tab-settings">
-      <div style="padding: 20px 0;">
-        <p style="color:#a0aec0; margin-bottom:15px;">Сменить пароль от карты:</p>
-        <input type="password" id="newPass" placeholder="Новый пароль" style="width:100%; max-width:300px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; color:#fff; margin-bottom:15px;">
-        <button class="btn-submit" style="width:auto; padding: 10px 20px;" onclick="showToast('Пароль успешно обновлен!', 'success')">Сохранить</button>
-      </div>
     </div>
   </div>
 </div>
 
-<!-- МОДАЛКА: ВЫВОД -->
+<!-- МОДАЛКА ВЫВОДА -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h2>Вывод средств</h2>
-    <div class="input-group">
-      <label>Сумма к выводу (₽)</label>
-      <input type="number" id="withdrawAmount" placeholder="0">
-    </div>
-    <div style="font-size:12px; color:#a0aec0; margin-bottom:20px; text-align:center;">
-      Доступно: <span id="uiMaxWithdraw">0.00</span> ₽
-    </div>
-    <button class="btn-submit" onclick="doWithdraw()">Вывести</button>
+    <input type="number" id="withdrawAmount" placeholder="0">
+    <div style="font-size:12px; color:#8fa2b8; margin-bottom:20px;">Доступно: <span id="uiMaxWithdraw">0.00</span> ₽</div>
+    <button onclick="doWithdraw()">Вывести</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА ВЫХОДА -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-box">
+    <h2>Выход из аккаунта</h2>
+    <p>Вы уверены, что хотите выйти?</p>
+    <button style="background: #ff4d4d; color: #fff; margin-bottom: 10px;" onclick="confirmLogout()">Выйти</button>
+    <button style="background: transparent; border: 1px solid #2a2d3e; color: #fff;" onclick="closeModal('logoutModal')">Отмена</button>
   </div>
 </div>
 
 <script>
 let currentPlayer = null;
 
-/* ---------- УВЕДОМЛЕНИЯ (TOASTS) ---------- */
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <div class="toast-icon">${type === 'success' ? '✅' : '⚠️'}</div>
-    <div class="toast-msg">${text}</div>
-  `;
+  toast.textContent = text;
   container.appendChild(toast);
-  
-  // Появление
   setTimeout(() => toast.classList.add('show'), 10);
-  
-  // Исчезновение через 5 секунд
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 5000); 
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
 }
 
-/* ---------- МОДАЛКИ ---------- */
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-/* ---------- ЗАГРУЗКА ПРОФИЛЯ ---------- */
+function confirmLogout() {
+  localStorage.removeItem('kingwin_player_id');
+  window.location.href = '/';
+}
+
 async function loadProfile() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id') || localStorage.getItem('kingwin_player_id');
   
-  if(!id) {
-    window.location.href = '/';
-    return;
-  }
+  if(!id) { window.location.href = '/'; return; }
 
   try {
     const res = await fetch(`/api/guest/me?id=${id}`);
     const data = await res.json();
-    
     if(data.guest) {
       currentPlayer = data.guest;
-      updateUI();
+      document.getElementById('uiName').textContent = currentPlayer.name;
+      document.getElementById('uiId').textContent = currentPlayer.id;
+      document.getElementById('uiBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
+      document.getElementById('uiMaxWithdraw').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
       loadHistory(id);
     }
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-function updateUI() {
-  if(!currentPlayer) return;
-  const g = currentPlayer;
-  
-  document.getElementById('uiName').textContent = g.name;
-  document.getElementById('uiId').textContent = g.id;
-  document.getElementById('uiBalance').textContent = parseFloat(g.bonus_balance || 0).toFixed(2);
-  document.getElementById('uiMaxWithdraw').textContent = parseFloat(g.bonus_balance || 0).toFixed(2);
-  
-  // Ранги
-  const ranks = {
-    'Bronze': { icon: '🥉', name: 'Любитель (Bronze)', min: 0, max: 100 },
-    'Silver': { icon: '🥈', name: 'Серебро (Silver)', min: 100, max: 300 },
-    'Gold': { icon: '🥇', name: 'Золото (Gold)', min: 300, max: 600 },
-    'Platinum': { icon: '💠', name: 'Платина (Platinum)', min: 600, max: 1000 },
-    'Diamond': { icon: '💎', name: 'Алмаз (Diamond)', min: 1000, max: 1500 },
-    'VIP': { icon: '👑', name: 'VIP', min: 1500, max: 1500 }
-  };
-  
-  const r = ranks[g.rank] || ranks['Bronze'];
-  document.getElementById('uiRankIcon').textContent = r.icon;
-  document.getElementById('uiRankName').textContent = r.name;
-  
-  const progressPct = r.max === r.min ? 100 : Math.min(100, Math.round((g.points / r.max) * 100));
-  document.getElementById('uiProgressBar').style.width = progressPct + '%';
-  document.getElementById('uiRankPoints').textContent = `${g.points} / ${r.max}`;
-}
-
-/* ---------- ИСТОРИЯ ОПЕРАЦИЙ ---------- */
 async function loadHistory(id) {
   try {
-    const [wRes, dRes] = await Promise.all([
-      fetch('/api/withdrawals'),
-      fetch('/api/deposits')
-    ]);
+    const [wRes, dRes] = await Promise.all([ fetch('/api/withdrawals'), fetch('/api/deposits') ]);
     const withdrawals = await wRes.json();
     const deposits = await dRes.json();
     
-    // Фильтруем по нашему нику
     const myW = withdrawals.filter(w => w.nick.toLowerCase() === currentPlayer.name.toLowerCase());
     const myD = deposits.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
     
@@ -313,89 +188,53 @@ async function loadHistory(id) {
     
     const tbody = document.getElementById('uiHistoryTable');
     if(all.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#8fa2b8; padding:30px;">История пуста</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#8fa2b8; padding:30px;">История пуста</td></tr>`;
       return;
     }
     
     tbody.innerHTML = all.map(item => {
-      let badgeClass = 'pending';
-      let statusText = 'В обработке';
+      let badgeClass = 'pending', statusText = 'В обработке';
       if(item.status === 'approved') { badgeClass = 'approved'; statusText = 'Одобрено'; }
       if(item.status === 'rejected') { badgeClass = 'rejected'; statusText = 'Отклонено'; }
       
       return `
         <tr>
           <td><b>${item.type}</b></td>
-          <td>${item.type === 'Депозит' ? 'Пополнение баланса' : 'Заявка на вывод'}</td>
-          <td><span style="color:${item.type === 'Вывод' ? '#ff4d4d' : '#3fbf7f'}">${item.type === 'Вывод' ? '-' : '+'}${item.sum} ₽</span></td>
-          <td>${item.date} <br><span class="badge ${badgeClass}" style="margin-top:5px">${statusText}</span></td>
+          <td style="color:${item.type === 'Вывод' ? '#ff4d4d' : '#3fbf7f'}">${item.type === 'Вывод' ? '-' : '+'}${item.sum} ₽</td>
+          <td>${item.date} <br><span style="font-size:10px; padding:2px 5px; border-radius:4px; background:rgba(255,255,255,0.05)">${statusText}</span></td>
         </tr>
       `;
     }).join('');
-    
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-/* ---------- ВЫВОД ---------- */
 async function doWithdraw() {
   if(!currentPlayer) return;
   const amount = parseFloat(document.getElementById('withdrawAmount').value);
   const maxBal = parseFloat(currentPlayer.bonus_balance || 0);
   
-  if(!amount || amount <= 0) {
-    showToast('Введите сумму больше 0', 'error');
-    return;
-  }
-  
-  if(amount > maxBal) {
-    showToast(`Недостаточно средств. Доступно: ${maxBal.toFixed(2)} ₽`, 'error');
-    return;
-  }
+  if(!amount || amount <= 0) { showToast('Введите сумму больше 0', 'error'); return; }
+  if(amount > maxBal) { showToast(`Недостаточно средств. Доступно: ${maxBal.toFixed(2)} ₽`, 'error'); return; }
 
   closeModal('withdrawModal');
 
   try {
     const res = await fetch('/api/guest/withdraw', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        id: currentPlayer.id,
-        sum: amount
-      })
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id: currentPlayer.id, sum: amount })
     });
-    
     const data = await res.json();
     
     if(res.ok) {
-      // Показываем уведомление в правом верхнем углу
       showToast('Успешный вывод! Ожидайте зачисления.', 'success');
-      currentPlayer.bonus_balance = maxBal - amount; // Обновляем локально
-      updateUI();
-      loadHistory(currentPlayer.id); // Обновляем историю
+      currentPlayer.bonus_balance = maxBal - amount;
+      document.getElementById('uiBalance').textContent = currentPlayer.bonus_balance.toFixed(2);
+      loadHistory(currentPlayer.id);
     } else {
       showToast(data.error || 'Ошибка вывода', 'error');
     }
-  } catch(e) {
-    showToast('Ошибка соединения', 'error');
-  }
+  } catch(e) { showToast('Ошибка соединения', 'error'); }
 }
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  
-  document.querySelector(`.tab-btn[onclick="switchTab('${tabId}')"]`).classList.add('active');
-  document.getElementById(`tab-${tabId}`).classList.add('active');
-}
-
-// Закрытие по клику вне
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if(e.target === overlay) overlay.classList.remove('show');
-  });
-});
 
 window.onload = loadProfile;
 </script>
