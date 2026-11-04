@@ -63,6 +63,7 @@
   .btn:hover { box-shadow: 0 0 20px rgba(0,229,255,.5); }
   .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.15); }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.small { padding: 10px; font-size: 13px; }
 
   .footer { text-align: center; font-size: 11px; color: #6d819a; margin-top: 20px; line-height: 1.6; }
   .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4); color: #ff8a8a;
@@ -79,6 +80,24 @@
     margin-right: 6px; animation: pulse 1.4s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
   .live-label { font-size: 10px; color: #3fbf7f; text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ---------- Оценка дилера ---------- */
+  .section-title { font-size: 16px; font-weight: 800; margin: 22px 0 12px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.08); }
+  .dealer-row { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .dealer-row .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .dealer-row .dealer-name { font-size: 15px; font-weight: 700; color: #00e5ff; }
+  .dealer-row .avg { font-size: 12px; color: #8fa2b8; }
+  .stars { display: flex; gap: 6px; margin: 8px 0; }
+  .stars .star { font-size: 28px; line-height: 1; cursor: pointer; color: rgba(255,255,255,.2); transition: .2s; user-select: none; }
+  .stars .star:hover, .stars .star.active { color: #f1c40f; text-shadow: 0 0 10px rgba(241,196,15,.6); }
+  .dealer-row .comment-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px; padding: 10px; color: #fff; font-family: inherit; font-size: 13px; margin-top: 6px; }
+  .dealer-row .comment-input:focus { outline: none; border-color: #00e5ff; }
+  .dealer-row .rate-btn { width: 100%; background: #f1c40f; color: #000; border: none; border-radius: 8px;
+    padding: 10px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 8px; }
+  .dealer-row .rate-btn:hover { filter: brightness(1.1); }
+  .dealer-row .rate-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .rated-label { font-size: 12px; color: #3fbf7f; font-weight: 700; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -101,6 +120,8 @@ const RANKS_INFO = {
 
 let session = null;
 let refreshTimer = null;
+let dealersList = [];
+let myRatings = {};
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -138,6 +159,7 @@ async function doLogin(){
     session = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
     await loadMe();
+    await loadDealersForRating();
     startAutoRefresh();
   } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
 }
@@ -148,7 +170,7 @@ async function loadMe(){
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(session.id));
     const data = await r.json();
     if(r.ok){ session = data.guest; renderProfile(); }
-  } catch(e){ /* тихо */ }
+  } catch(e){}
 }
 
 function startAutoRefresh(){
@@ -166,7 +188,6 @@ function renderProfile(){
   const wageringLeft = Math.max(0, wageringRequired - wageringDone);
   const canWithdraw = wageringRequired > 0 && wageringDone >= wageringRequired && bonusBalance > 0;
 
-  // поздравление вместо «покажите код»
   const hasGift = g.bonus_text && g.bonus_text.trim() !== '';
   const giftHtml = hasGift ? `
     <div class="gift-block">
@@ -184,10 +205,30 @@ function renderProfile(){
     </div>` : '';
 
   const withdrawBtn = (bonusBalance > 0)
-    ? `<button class="btn" onclick="withdrawBonus()" ${canWithdraw ? '' : 'disabled'}>
-         Вывести ${fmt(bonusBalance)} ₽ на баланс
-       </button>`
+    ? `<button class="btn" onclick="withdrawBonus()" ${canWithdraw ? '' : 'disabled'}>Вывести ${fmt(bonusBalance)} ₽ на баланс</button>`
     : '';
+
+  // раздел с дилерами
+  const dealersHtml = dealersList.length
+    ? dealersList.map(d => {
+        const my = myRatings[d.name];
+        const myStars = my ? my.stars : 0;
+        return `
+          <div class="dealer-row" data-dealer="${esc(d.name)}">
+            <div class="top">
+              <div class="dealer-name">${esc(d.name)}</div>
+              <div class="avg">${d.avg ? '★ ' + d.avg + ' (' + d.cnt + ')' : 'нет оценок'}</div>
+            </div>
+            ${my ? `<div class="rated-label">Вы уже оценили: ${'★'.repeat(my.stars)}${'☆'.repeat(5-my.stars)}</div>` : `
+              <div class="stars" data-stars="0">
+                ${[1,2,3,4,5].map(i => `<span class="star" data-val="${i}" onclick="setStars('${esc(d.name)}', ${i})">★</span>`).join('')}
+              </div>
+              <input type="text" class="comment-input" placeholder="Комментарий (необязательно)" maxlength="120">
+              <button class="rate-btn" onclick="submitRating('${esc(d.name)}')" disabled>Оценить</button>
+            `}
+          </div>`;
+      }).join('')
+    : '<div style="color:#8fa2b8;text-align:center;padding:14px;font-size:13px">Пока нет дилеров</div>';
 
   document.getElementById('content').innerHTML = `
     <div class="live-label"><span class="live-dot"></span>Автообновление · каждые 5 сек</div>
@@ -199,53 +240,123 @@ function renderProfile(){
         </div>
         <div class="rank-badge ${g.rank}">${g.rank}</div>
       </div>
-
       <div class="stats">
         <div class="stat"><div class="lbl">Баллы</div><div class="val">${g.points || 0}</div></div>
         <div class="stat"><div class="lbl">Визиты</div><div class="val">${g.visits || 0}</div></div>
       </div>
-
       <div class="stats">
         <div class="stat"><div class="lbl">Бонусные рубли</div><div class="val green">${fmt(bonusBalance)} ₽</div></div>
         <div class="stat"><div class="lbl">До ранга ${info.label || '—'}</div><div class="val">${info.next ? `${g.points} / ${info.next}` : 'MAX'}</div></div>
       </div>
-
       <div class="progress-wrap">
-        <div class="progress-lbl">
-          <span>Прогресс ранга</span>
-          <span>${info.next ? `${g.points} / ${info.next}` : 'Максимальный ранг'}</span>
-        </div>
+        <div class="progress-lbl"><span>Прогресс ранга</span><span>${info.next ? `${g.points} / ${info.next}` : 'Максимальный ранг'}</span></div>
         <div class="progress"><div style="width:${progress}%"></div></div>
       </div>
-
       ${giftHtml}
       ${condHtml}
       <div id="withdrawMsg"></div>
       ${withdrawBtn}
-
       <button class="btn ghost" onclick="doLogout()">Выйти</button>
+
+      <div class="section-title">Оцените дилера</div>
+      <div style="font-size:12px;color:#8fa2b8;margin-bottom:12px">Поставьте звёзды дилеру, с которым играли. Это помогает нам улучшать сервис.</div>
+      <div id="dealersBlock">${dealersHtml}</div>
+      <div class="msg" id="msgRate" style="display:none"></div>
     </div>`;
+}
+
+async function loadDealersForRating(){
+  try {
+    // все дилеры + их рейтинги
+    const [rD, rR] = await Promise.all([
+      fetch('/api/dealers').then(x=>x.json()),
+      fetch('/api/dealer/ratings').then(x=>x.json())
+    ]);
+    const summary = {};
+    (rR.summary || []).forEach(s => { summary[s.dealer_name] = s; });
+
+    dealersList = (rD || []).map(d => ({
+      name: d.name,
+      avg: summary[d.name] ? summary[d.name].avg_stars : 0,
+      cnt: summary[d.name] ? summary[d.name].cnt : 0
+    }));
+
+    // мои оценки
+    myRatings = {};
+    (rR.ratings || []).forEach(x => {
+      if (session && String(x.guest_id) === String(session.id)) {
+        myRatings[x.dealer_name] = x;
+      }
+    });
+  } catch(e){}
+  if(session) renderProfile();
+}
+
+function setStars(dealerName, val){
+  const row = document.querySelector(`.dealer-row[data-dealer="${CSS.escape(dealerName)}"]`);
+  if(!row) return;
+  const starsBox = row.querySelector('.stars');
+  if(!starsBox) return;
+  starsBox.dataset.stars = val;
+  starsBox.querySelectorAll('.star').forEach(s => {
+    const v = parseInt(s.dataset.val, 10);
+    s.classList.toggle('active', v <= val);
+  });
+  const btn = row.querySelector('.rate-btn');
+  if(btn) btn.disabled = false;
+}
+
+async function submitRating(dealerName){
+  const row = document.querySelector(`.dealer-row[data-dealer="${CSS.escape(dealerName)}"]`);
+  if(!row) return;
+  const starsBox = row.querySelector('.stars');
+  const stars = parseInt(starsBox.dataset.stars, 10) || 0;
+  if(stars < 1){ alert('Поставьте оценку'); return; }
+  const comment = row.querySelector('.comment-input')?.value.trim() || '';
+
+  try {
+    const r = await fetch('/api/dealer/rate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        dealer_name: dealerName,
+        guest_id: session.id,
+        guest_name: session.name,
+        stars,
+        comment
+      })
+    });
+    const data = await r.json();
+    if(!r.ok){ showRateMsg(data.error || 'Ошибка', false); return; }
+    showRateMsg('Спасибо за оценку!', true);
+    await loadDealersForRating();
+  } catch(e){ showRateMsg('Ошибка соединения', false); }
+}
+
+function showRateMsg(text, ok){
+  const m = document.getElementById('msgRate');
+  if(!m) return;
+  m.textContent = text;
+  m.style.display = 'block';
+  m.className = ok ? 'ok' : 'err';
+  setTimeout(()=>{ m.style.display = 'none'; }, 4000);
 }
 
 async function withdrawBonus(){
   if(!session) return;
-  const g = session;
-  const amt = parseFloat(g.bonus_balance) || 0;
+  const amt = parseFloat(session.bonus_balance) || 0;
   if(amt <= 0) return;
   const box = document.getElementById('withdrawMsg');
   box.innerHTML = '';
   try {
     const r = await fetch('/api/guest/withdraw', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: g.id, sum: amt })
+      body: JSON.stringify({ id: session.id, sum: amt })
     });
     const data = await r.json();
     if(!r.ok){ box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`; return; }
     box.innerHTML = `<div class="ok">Заявка создана! Админ подтвердит вывод.</div>`;
     await loadMe();
-  } catch(e){
-    box.innerHTML = `<div class="err">Ошибка соединения</div>`;
-  }
+  } catch(e){ box.innerHTML = `<div class="err">Ошибка соединения</div>`; }
 }
 
 function doLogout(){
