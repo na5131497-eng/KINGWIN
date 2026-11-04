@@ -224,14 +224,14 @@
   </label>
   <button onclick="loadById()">Загрузить</button>
   <label>Базовый адрес для QR:
-    <input type="text" id="baseUrl" class="base" placeholder="http://192.168.0.11:3000">
+    <input type="text" id="baseUrl" class="base" placeholder="https://kingwin-production.up.railway.app">
   </label>
 </div>
 
 <div class="hint">
   Печатает <b>6 карт одного гостя</b>: Bronze, Silver, Gold, Platinum, Diamond, VIP — на одном A4, симметрично 2×3.
   Сначала «Печать лицевой» → переверни стопку → «Печать обратной».
-  <span class="warn">Базовый адрес должен открываться с телефона (например, http://192.168.0.11:3000 в той же сети).</span>
+  Если после печати обратной стороны рубашка оказалась под другим рангом — переключи «Переворот» на «Короткий край» и распечатай обратную ещё раз.
 </div>
 
 <div class="sheet-title" id="frontTitle">Лицевая сторона</div>
@@ -248,7 +248,7 @@ function getBaseUrl(){
   let val = (input.value || '').trim().replace(/\/+$/, '');
   if (!val){
     if (location.protocol.startsWith('http')) val = location.origin;
-    else val = 'http://192.168.0.11:3000';
+    else val = 'https://kingwin-production.up.railway.app';
   }
   return val;
 }
@@ -290,10 +290,20 @@ async function loadFromUrl(){
 
 function renderGuest(g){
   const list = RANKS.map(r => Object.assign({}, g, { rank: r }));
+
+  // Лицевая: Bronze, Silver, Gold, Platinum, Diamond, VIP (2×3)
+  // Обратная: порядок для правильного совпадения при перевороте листа «по длинному краю».
+  //   После переворота строки идут снизу вверх, поэтому:
+  //   верхний ряд обратной: [Silver][Bronze]
+  //   средний:              [Platinum][Gold]
+  //   нижний:               [VIP][Diamond]
+  const backOrder = ['Silver','Bronze','Platinum','Gold','VIP','Diamond'];
+  const backList = backOrder.map(rank => list.find(x => x.rank === rank));
+
   document.getElementById('frontTitle').textContent = `Лицевая сторона — ${g.name} (№ ${g.id}) — 6 карт`;
   document.getElementById('backTitle').textContent = `Обратная сторона — ${g.name} (№ ${g.id}) — 6 карт`;
   document.getElementById('sheetFront').innerHTML = list.map(frontHTML).join('');
-  document.getElementById('sheetBack').innerHTML = list.map(backHTML).join('');
+  document.getElementById('sheetBack').innerHTML = backList.map(backHTML).join('');
 }
 
 function frontHTML(g){
@@ -381,7 +391,7 @@ function printBack(){
   const input = document.getElementById('baseUrl');
   let saved = localStorage.getItem('kingwin_base_url');
   if (!saved){
-    saved = location.protocol.startsWith('http') ? location.origin : 'http://192.168.0.11:3000';
+    saved = location.protocol.startsWith('http') ? location.origin : 'https://kingwin-production.up.railway.app';
     localStorage.setItem('kingwin_base_url', saved);
   }
   input.value = saved;
