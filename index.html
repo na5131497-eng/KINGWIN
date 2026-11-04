@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KINGWIN — Casino</title>
+<title>KINGWIN — Казино</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -20,25 +20,23 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
   a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; }
   
   /* LEFT SIDEBAR */
   .sidebar { width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 10; }
-  .logo { font-size: 22px; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; padding-left: 10px; display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #a855f7, #6366f1); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 14px; }
+  
+  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; padding-left: 10px; display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 24px; height: 24px; background: linear-gradient(135deg, #00e5ff, #0077ff); border-radius: 6px; position: relative; }
+  .logo-mark::after { content: 'K'; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
   .logo span { background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  .side-widgets { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
-  .widget { background: var(--bg-panel); border-radius: 12px; padding: 12px; border: 1px solid var(--border); }
-  .widget-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
-  .widget-val { font-size: 14px; font-weight: 800; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-  
-  .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-bottom: auto; }
+  .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-bottom: 25px; }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
   .nav-item:hover, .nav-item.active { background: rgba(0, 229, 255, 0.08); color: #fff; border-color: rgba(0, 229, 255, 0.2); }
   .nav-item.active { color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
-  .nav-icon { font-size: 18px; }
-
-  .bottom-menu { display: flex; flex-direction: column; gap: 4px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+  
+  .side-section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin: 15px 0 10px 15px; letter-spacing: 1px; }
+  .bottom-menu { display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
   .bottom-menu .nav-item { padding: 10px 15px; font-size: 13px; }
 
   /* MAIN AREA */
@@ -46,7 +44,7 @@
   
   /* TOP BAR */
   .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
-  .search-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; color: #fff; width: 300px; font-family: inherit; display: flex; align-items: center; gap: 10px; font-size: 13px; outline: none; }
+  .search-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; color: #fff; width: 300px; font-family: inherit; display: flex; align-items: center; font-size: 13px; outline: none; }
   .search-box:focus { border-color: rgba(255,255,255,0.2); }
   .header-actions { display: flex; align-items: center; gap: 15px; }
   .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -54,63 +52,42 @@
   .btn-wallet:hover { filter: brightness(1.2); }
   .btn-login { background: var(--accent-green); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; }
   .profile-avatar { width: 36px; height: 36px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); }
-  .settings-icon { color: var(--text-muted); font-size: 20px; cursor: pointer; }
+  .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
 
   /* CONTENT */
-  .content { padding: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
+  .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
   
   /* HERO BANNER */
-  .hero { border-radius: 20px; overflow: hidden; position: relative; background: linear-gradient(135deg, #2b0f3b, #170b24, #091a2c); padding: 40px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border); }
-  .hero::before { content: ''; position: absolute; inset: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; pointer-events: none; }
+  .hero { border-radius: 20px; overflow: hidden; position: relative; background: linear-gradient(135deg, #2b0f3b, #170b24, #091a2c); padding: 50px 40px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 50%, rgba(168,85,247,0.3), transparent 50%); pointer-events: none; }
   .hero-content { position: relative; z-index: 2; max-width: 500px; }
   .hero-badge { display: inline-block; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); }
-  .hero h1 { font-size: 46px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  .hero h1 { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
   .hero h1 span { color: #f1c40f; }
   .hero-btn { background: var(--accent-green); color: #000; padding: 14px 30px; border-radius: 10px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,136,0.4); transition: 0.3s; }
   .hero-btn:hover { transform: scale(1.05); }
-  .hero-art { position: absolute; right: 5%; bottom: 0; height: 120%; z-index: 1; opacity: 0.9; pointer-events: none; font-size: 200px; line-height: 1; text-shadow: 0 0 50px rgba(168,85,247,0.5); }
-
-  /* SMALL WIDGETS GRID */
-  .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
-  .quick-card { background: var(--bg-panel); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px; }
-  .quick-card h3 { font-size: 16px; font-weight: 800; z-index: 2; }
-  .quick-card p { font-size: 12px; color: var(--text-muted); margin-top: 4px; z-index: 2; }
-  .quick-card .btn-small { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.5); padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; width: fit-content; margin-top: 15px; z-index: 2; }
-  .quick-art { position: absolute; right: -10px; bottom: -20px; font-size: 80px; z-index: 1; opacity: 0.8; }
 
   /* SECTION TITLES */
-  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .section-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-  .section-title::before { content: '🔥'; font-size: 20px; }
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 40px; }
+  .section-title { font-size: 20px; font-weight: 800; }
+  .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
 
-  /* RECENT WINNERS */
-  .winners-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 40px; scrollbar-width: none; }
-  .winners-row::-webkit-scrollbar { display: none; }
-  .winner-card { background: linear-gradient(180deg, #1a1c29, #11121a); border-radius: 12px; padding: 15px; min-width: 160px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .winner-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2a2d3e; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
-  .winner-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-  .winner-amount { font-size: 14px; font-weight: 900; color: var(--accent-green); margin-bottom: 8px; }
-  .winner-game { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  /* СЕТКА НАШИХ ИГР (иконки без эмодзи) */
+  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+  .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(0,229,255,0.1); }
+  .our-game-icon { width: 60px; height: 60px; border-radius: 15px; background: rgba(0,229,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
+  .our-game-icon svg { width: 32px; height: 32px; fill: currentColor; }
+  .our-game-title { font-size: 16px; font-weight: 800; margin-bottom: 5px; }
+  .our-game-desc { font-size: 12px; color: var(--text-muted); }
 
   /* SLOTS GRID */
   .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
   .slot-card { border-radius: 16px; overflow: hidden; position: relative; aspect-ratio: 3/4; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; }
   .slot-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
   .slot-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%); z-index: 1; }
-  .slot-art { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 60px; z-index: 0; }
   .slot-title { font-size: 14px; font-weight: 800; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
   .slot-sub { font-size: 11px; color: #ccc; z-index: 2; }
-
-  /* RIGHT CHAT (Скрыт на мобильных) */
-  .right-chat { width: 280px; background: var(--bg-sidebar); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-  .chat-header { padding: 20px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; }
-  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-  .chat-msg { font-size: 12px; line-height: 1.4; }
-  .chat-user { color: var(--accent); font-weight: 700; margin-bottom: 2px; }
-  .chat-text { color: #ccc; }
-  .chat-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-  .chat-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: #fff; font-family: inherit; outline: none; }
-  .chat-send { background: var(--accent-green); color: #000; border: none; border-radius: 8px; padding: 0 15px; font-weight: 800; cursor: pointer; }
 
   /* MOBILE RESPONSIVE */
   .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-sidebar); border-top: 1px solid var(--border); z-index: 100; justify-content: space-around; align-items: center; padding: 0 10px; }
@@ -118,18 +95,14 @@
   .mob-nav-item.active { color: var(--accent); }
   .mob-nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
-  @media (max-width: 1024px) {
-    .right-chat { display: none; }
-  }
   @media (max-width: 768px) {
     .sidebar { display: none; }
     .topbar { padding: 0 15px; height: 60px; }
     .search-box { display: none; }
     .content { padding: 15px; padding-bottom: 80px; }
-    .hero { padding: 20px; flex-direction: column; text-align: center; }
+    .hero { padding: 30px 20px; flex-direction: column; text-align: center; }
     .hero h1 { font-size: 28px; }
-    .hero-art { display: none; }
-    .quick-grid { grid-template-columns: 1fr; }
+    .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .slots-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .mobile-bottom-nav { display: flex; }
     .hero-btn { width: 100%; }
@@ -155,34 +128,39 @@
 
 <!-- LEFT SIDEBAR -->
 <aside class="sidebar">
-  <div class="logo"><div class="logo-icon">👑</div><span>KINGWIN</span></div>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <span>KINGWIN</span>
+  </div>
   
-  <div class="side-widgets">
-    <div class="widget">
-      <div class="widget-title">Wheel</div>
-      <div class="widget-val">🎡 <span>250 players now</span></div>
-    </div>
-    <div class="widget" style="border-color: rgba(0,255,136,0.3);">
-      <div class="widget-title" style="color:var(--accent-green)">Bonus</div>
-      <div class="widget-val">🎁 <span style="color:var(--accent-green)">0 FS</span></div>
-    </div>
+  <div class="nav-menu">
+    <!-- Активная вкладка Главная (без эмодзи) -->
+    <div class="nav-item active" onclick="showToast('Вы на главной', 'success')">Главная</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Слоты</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Новые игры</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Рулетка</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Топ</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Лидеры</div>
+    <div class="nav-item" onclick="window.location.href='/jackpot.html'">Джекпот</div>
   </div>
 
+  <div class="side-section-title">Наши игры</div>
   <div class="nav-menu">
-    <div class="nav-item active" onclick="showToast('Вы на главной', 'success')"><span class="nav-icon">🎰</span> Slots</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🏠</span> Home</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🆕</span> New games</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🎲</span> Roulette</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🔥</span> Top</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🏆</span> Leader games</div>
-    <div class="nav-item" onclick="window.location.href='/jackpot.html'"><span class="nav-icon">🎯</span> Jackpot games</div>
+    <div class="nav-item" onclick="showToast('Игра Краш в разработке', 'error')">Краш</div>
+    <div class="nav-item" onclick="showToast('Игра Кейсы в разработке', 'error')">Кейсы</div>
+    <div class="nav-item" onclick="showToast('Игра Дайс в разработке', 'error')">Дайс</div>
+    <div class="nav-item" onclick="showToast('Игра Кено в разработке', 'error')">Кено</div>
+    <div class="nav-item" onclick="showToast('Игра Минер в разработке', 'error')">Минер</div>
+    <div class="nav-item" onclick="showToast('Игра Лесенка в разработке', 'error')">Лесенка</div>
+    <div class="nav-item" onclick="showToast('Игра Монетка в разработке', 'error')">Монетка</div>
+    <div class="nav-item" onclick="showToast('Игра Плинко в разработке', 'error')">Плинко</div>
   </div>
 
   <div class="bottom-menu">
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">🎁</span> Promotions</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">👑</span> VIP</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">👥</span> Referral</div>
-    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')"><span class="nav-icon">❓</span> FAQ</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Акции</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">VIP</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Рефералы</div>
+    <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">FAQ</div>
   </div>
 </aside>
 
@@ -190,12 +168,13 @@
 <main class="main-area">
   <!-- TOP BAR -->
   <header class="topbar">
-    <div class="search-box">🔍 Search for games...</div>
+    <div class="search-box">Поиск игр...</div>
     <div class="header-actions" id="userArea" style="display:none">
-      <div class="balance-btn">💰 <span id="topBalance">0.00</span></div>
-      <button class="btn-wallet" onclick="openModal('depositModal')">Wallet</button>
-      <div class="profile-avatar" onclick="goToProfile()">👤</div>
-      <div class="settings-icon">⚙️</div>
+      <div class="balance-btn">Баланс: <span id="topBalance">0.00</span> ₽</div>
+      <button class="btn-wallet" onclick="openModal('depositModal')">Кошелек</button>
+      <div class="profile-avatar" onclick="goToProfile()">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
     </div>
     <div class="header-actions" id="loginArea">
       <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
@@ -207,137 +186,84 @@
     <!-- HERO BANNER -->
     <div class="hero" onclick="showToast('Переход в раздел бонусов...', 'success')">
       <div class="hero-content">
-        <div class="hero-badge">⭐️ Welcome bonus</div>
-        <h1>Claim the reward <span>$1000 & 70 fs</span></h1>
-        <button class="hero-btn">Claim now</button>
-      </div>
-      <div class="hero-art">🧝‍♀️</div>
-    </div>
-
-    <!-- QUICK CARDS -->
-    <div class="quick-grid">
-      <div class="quick-card">
-        <div>
-          <h3>Wheel</h3>
-          <p>👤 250 players now</p>
-        </div>
-        <button class="btn-small">Play now</button>
-        <div class="quick-art">🎡</div>
-      </div>
-      <div class="quick-card">
-        <div>
-          <h3>Bonus</h3>
-          <p>⏰ 10:47:56</p>
-        </div>
-        <button class="btn-small">Claim now</button>
-        <div class="quick-art">🎁</div>
-      </div>
-      <div class="quick-card">
-        <div>
-          <h3>Sports</h3>
-          <p>🏆 10+ events</p>
-        </div>
-        <button class="btn-small">Join now</button>
-        <div class="quick-art">⚽</div>
+        <div class="hero-badge">Приветственный бонус</div>
+        <h1>Забери бонус <span>$1000 и 70 фриспинов</span></h1>
+        <button class="hero-btn">Забрать сейчас</button>
       </div>
     </div>
 
-    <!-- RECENT WINNERS -->
+    <!-- НАШИ ИГРЫ -->
     <div class="section-head">
-      <div class="section-title">Recent winners</div>
+      <div class="section-title">Наши игры</div>
     </div>
-    <div class="winners-row">
-      <div class="winner-card">
-        <div class="winner-avatar">👤</div>
-        <div class="winner-name">@xaboo</div>
-        <div class="winner-amount">💰 0.765481</div>
-        <div class="winner-game">🦁 Fortune OX</div>
+    <div class="our-games-grid">
+      <div class="our-game-card" onclick="showToast('Игра Краш в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
+        <div class="our-game-title">Краш</div>
+        <div class="our-game-desc">Ракета летит — не упади</div>
       </div>
-      <div class="winner-card">
-        <div class="winner-avatar">👤</div>
-        <div class="winner-name">@sarrah</div>
-        <div class="winner-amount">💰 1.242</div>
-        <div class="winner-game">💎 Fortune Gems</div>
+      <div class="our-game-card" onclick="showToast('Игра Кейсы в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg></div>
+        <div class="our-game-title">Кейсы</div>
+        <div class="our-game-desc">Открывай и получай призы</div>
       </div>
-      <div class="winner-card">
-        <div class="winner-avatar">👤</div>
-        <div class="winner-name">@sarrah</div>
-        <div class="winner-amount">💰 0.598</div>
-        <div class="winner-game">🐯 Fortune Tiger</div>
+      <div class="our-game-card" onclick="showToast('Игра Дайс в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg></div>
+        <div class="our-game-title">Дайс</div>
+        <div class="our-game-desc">Угадай число на кубике</div>
       </div>
-      <div class="winner-card">
-        <div class="winner-avatar">👤</div>
-        <div class="winner-name">@xaboo</div>
-        <div class="winner-amount">💰 0.65783</div>
-        <div class="winner-game">🐟 Ugliest Catch</div>
+      <div class="our-game-card" onclick="showToast('Игра Кено в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm0-4H7v-2h5v2zm0-4H7V7h5v2zm5 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2z"/></svg></div>
+        <div class="our-game-title">Кено</div>
+        <div class="our-game-desc">Выбери числа и выиграй</div>
+      </div>
+      <div class="our-game-card" onclick="showToast('Игра Минер в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
+        <div class="our-game-title">Минер</div>
+        <div class="our-game-desc">Ищи алмазы, избегай бомб</div>
+      </div>
+      <div class="our-game-card" onclick="showToast('Игра Лесенка в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M5 11h4v2H5zm0 4h4v2H5zm0 4h4v2H5zM3 7h4v2H3zm-2 4h4v2H1zm16 4h4v2h-4zm0 4h4v2h-4zm0-8h4v2h-4zm-2 4h4v2h-4z"/></svg></div>
+        <div class="our-game-title">Лесенка</div>
+        <div class="our-game-desc">Поднимайся и умножай</div>
+      </div>
+      <div class="our-game-card" onclick="showToast('Игра Монетка в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v2H9v2h2v2H9v2h2v2h2v-2h2v-2h-2v-2h2V9h-2V7z"/></svg></div>
+        <div class="our-game-title">Монетка</div>
+        <div class="our-game-desc">Орел или решка</div>
+      </div>
+      <div class="our-game-card" onclick="showToast('Игра Плинко в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
+        <div class="our-game-title">Плинко</div>
+        <div class="our-game-desc">Сбрось шарик и поймай множитель</div>
       </div>
     </div>
 
-    <!-- LATEST SLOTS -->
+    <!-- СЛОТЫ -->
     <div class="section-head">
-      <div class="section-title">Latest slots</div>
+      <div class="section-title">Популярные слоты</div>
     </div>
     <div class="slots-grid">
       <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #4a1c0d, #1a0a04);">
-        <div class="slot-art">🎰</div>
         <div class="slot-title">Boomi Boomi Gold</div>
-        <div class="slot-sub">Slots</div>
+        <div class="slot-sub">Слоты</div>
       </div>
       <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #6b2108, #2a0d02);">
-        <div class="slot-art">🐫</div>
         <div class="slot-title">Sun of Egypt 2</div>
-        <div class="slot-sub">Slots</div>
+        <div class="slot-sub">Слоты</div>
       </div>
       <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #7c1d14, #2b0906);">
-        <div class="slot-art">🤠</div>
         <div class="slot-title">Hit the Gold!</div>
-        <div class="slot-sub">Slots</div>
+        <div class="slot-sub">Слоты</div>
       </div>
       <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #1b5e20, #061a09);">
-        <div class="slot-art">🦜</div>
         <div class="slot-title">Eggs of Gold</div>
-        <div class="slot-sub">Slots</div>
-      </div>
-      <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #b71c1c, #3b0505);">
-        <div class="slot-art">🪙</div>
-        <div class="slot-title">Coin Up</div>
-        <div class="slot-sub">Hot Rise 3x2</div>
-      </div>
-      <div class="slot-card" onclick="showToast('Игра в разработке', 'error')" style="background: linear-gradient(135deg, #33691e, #0f1f05);">
-        <div class="slot-art">🌶️</div>
-        <div class="slot-title">Green Chilli 2</div>
-        <div class="slot-sub">Slots</div>
+        <div class="slot-sub">Слоты</div>
       </div>
     </div>
 
   </div>
 </main>
-
-<!-- RIGHT CHAT (Desktop only) -->
-<aside class="right-chat">
-  <div class="chat-header">
-    <span>English ▼</span>
-    <span>👥 290</span>
-  </div>
-  <div class="chat-messages">
-    <div class="chat-msg">
-      <div class="chat-user">@prime_studio1</div>
-      <div class="chat-text">Bro did u feel about helping me out? If you want to help me, there is any person there to help me out?</div>
-    </div>
-    <div class="chat-msg">
-      <div class="chat-user">@xabooo</div>
-      <div class="chat-text">Ya, I am talking about tos. That is good too if it's bonus 100% boost in a game is amazing.</div>
-    </div>
-    <div class="chat-msg">
-      <div class="chat-user">@Coalino_pro</div>
-      <div class="chat-text">Hurrah... I won Jackpot! 🎉🎉</div>
-    </div>
-  </div>
-  <div class="chat-input-area">
-    <input type="text" class="chat-input" placeholder="Your message">
-    <button class="chat-send">Send</button>
-  </div>
-</aside>
 
 <!-- MOBILE NAV -->
 <div class="mobile-bottom-nav">
@@ -380,9 +306,8 @@
 
 <div class="modal-overlay" id="waitingModal">
   <div class="modal-box" style="text-align:center;">
-    <div style="font-size:40px; margin-bottom:15px; animation: spin 2s linear infinite;">⏳</div>
     <h2>Ожидайте</h2>
-    <p style="color:var(--text-muted)">Обрабатываем ваш запрос...</p>
+    <p style="color:var(--text-muted); margin-bottom: 20px;">Обрабатываем ваш запрос...</p>
   </div>
 </div>
 
@@ -393,7 +318,7 @@ function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<div>${type === 'success' ? '✅' : '⚠️'}</div><div style="font-size:14px;font-weight:600;color:#fff">${text}</div>`;
+  toast.innerHTML = `<div style="font-size:14px;font-weight:600;color:#fff">${text}</div>`;
   container.appendChild(toast);
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => {
