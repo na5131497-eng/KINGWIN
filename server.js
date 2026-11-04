@@ -46,6 +46,9 @@ let crashState = {
   history: [] // последние 20 раундов для верхней ленты
 };
 
+// АКТИВНЫЕ СТАВКИ ТЕКУЩЕГО РАУНДА (для синхронизации всех игроков)
+let crashActiveBets = []; 
+
 function dayKey(dateStr){ return new Date(dateStr).toISOString().slice(0,10); }
 function rankByPoints(p){
   if (p >= RANKS.VIP.min)      return 'VIP';
@@ -84,6 +87,7 @@ async function runCrashGame() {
     crashState.status = 'waiting';
     crashState.currentMultiplier = 1.00;
     crashState.roundId = Date.now();
+    crashActiveBets = []; // ОЧИЩАЕМ СПИСОК СТАВОК НА НОВЫЙ РАУНД
     
     const r = Math.random();
     if (r < 0.10) crashState.crashPoint = 1.00 + Math.random() * 0.10;
@@ -113,6 +117,14 @@ async function runCrashGame() {
 
         // Помечаем проигравших в БД
         await pool.query(`UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`, [crashState.crashPoint]);
+        
+        // Помечаем проигравших в активных ставках (для визуала)
+        crashActiveBets.forEach(b => {
+          if (b.status === 'playing') {
+            b.status = 'lose';
+            b.multiplier = crashState.crashPoint;
+          }
+        });
       } else {
         crashState.currentMultiplier = mult;
       }
@@ -265,7 +277,7 @@ async function initDB() {
     }
 
     console.log('База готова');
-    runCrashGame(); // Запускаем игру после инициализации БД
+    runCrashGame(); // Запускаем игру
   } catch (e) { console.error('Ошибка initDB:', e.message); }
 }
 initDB();
@@ -388,7 +400,11 @@ const server = http.createServer(async (req, res) => {
 
     /* --- КРАШ ИГРА --- */
     if(url === '/api/crash/status' && method === 'GET'){
-      return sendJSON(res, 200, crashState);
+      // Отдаем статус игры + активные ставки текущего раунда
+      return sendJSON(res, 200, {
+        ...crashState,
+        activeBets: crashActiveBets 
+      });
     }
     
     if(url === '/api/crash/bet' && method === 'POST'){
@@ -409,6 +425,17 @@ const server = http.createServer(async (req, res) => {
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2', [amt, id]);
 
       const maskedId = g.id.length > 4 ? g.id.slice(0, 2) + '***' + g.id.slice(-2) : '****';
+      
+      // Добавляем в список АКТИВНЫХ ставок для всех игроков
+      crashActiveBets.push({
+        guest_id: g.id,
+        guest_masked: maskedId,
+        bet: amt,
+        multiplier: 0,
+        win_amount: 0,
+        status: 'playing'
+      });
+
       const c = await pool.query(
         `INSERT INTO crash_history (guest_id, guest_masked, bet, multiplier, win_amount, status) 
          VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
@@ -429,6 +456,14 @@ const server = http.createServer(async (req, res) => {
       const winAmount = amt * mult;
       
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
+
+      // Обновляем в списке активных
+      const activeBet = crashActiveBets.find(b => b.guest_id === id && b.status === 'playing');
+      if(activeBet) {
+        activeBet.multiplier = mult;
+        activeBet.win_amount = winAmount;
+        activeBet.status = 'win';
+      }
 
       if (crash_id) {
         await pool.query(
@@ -664,7 +699,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* БАЛАНС ДИЛЕРА + ИСТОРИЯ ВЫВОДОВ */
+    /* БАЛАНС ДИЛЕРА */
     if(url === '/api/dealer/balance' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
