@@ -9,16 +9,13 @@ const DATABASE_URL = 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea
 
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
 
-/* ---------- ЗАЩИТА ОТ БРУТФОРСА ---------- */
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 3;
 const BAN_TIME_MS = 15 * 60 * 1000; 
 
-/* ---------- ЗАЩИТА ОТ DDOS ---------- */
 const requestCounts = new Map();
 const MAX_REQUESTS_PER_MINUTE = 100;
 
-/* ---------- КОНФИГ ---------- */
 const POINTS_PER_RUB = 0.2;   
 const ONLINE_POINTS_PER_RUB = 0.1; 
 
@@ -32,9 +29,10 @@ const RANKS = {
 };
 const RANK_ORDER = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
 
-const JACKPOT_MAX = 1000;
-const JACKPOT_TICK_MS = 2300;
-const JACKPOT_PER_TICK = 0.064;
+/* ---------- ДЖЕКПОТ (ДО 10 000) ---------- */
+const JACKPOT_MAX = 10000;
+const JACKPOT_TICK_MS = 5000; // авто-рост каждые 5 секунд
+const JACKPOT_PER_TICK = 0.50; // +50 копеек каждые 5 сек
 
 const DEALER_TASKS = [
   { id: 'bj10',  type: 'bj',  goal: 10,  reward: 15, title: 'Сыграй 10 раундов блэкджека' },
@@ -218,14 +216,11 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS session_rounds (
-        id SERIAL PRIMARY KEY, 
-        dealer TEXT, 
-        date TEXT, 
-        round_time TIMESTAMP DEFAULT NOW(),
-        game_type TEXT, -- 'bj' или 'bac'
-        nick TEXT, 
-        bet NUMERIC DEFAULT 0, 
-        win NUMERIC DEFAULT 0
+        id SERIAL PRIMARY KEY, dealer TEXT, date TEXT, round_time TIMESTAMP DEFAULT NOW(),
+        game_type TEXT, nick TEXT, bet NUMERIC DEFAULT 0, win NUMERIC DEFAULT 0
+      );
+      CREATE TABLE IF NOT EXISTS jackpot_winners (
+        id SERIAL PRIMARY KEY, nick TEXT, amount NUMERIC DEFAULT 0, date TIMESTAMP DEFAULT NOW()
       );
     `);
 
@@ -334,7 +329,6 @@ async function getDealerTasksProgress(dealerId){
   if(dRes.rows.length === 0) return { day, tasks: [] };
   const dealerName = dRes.rows[0].name;
   
-  // Считаем раунды из новой таблицы session_rounds за сегодня
   const bjRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM session_rounds WHERE dealer = $1 AND game_type = 'bj' AND date = $2`, [dealerName, day]);
   const bacRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM session_rounds WHERE dealer = $1 AND game_type = 'bac' AND date = $2`, [dealerName, day]);
   const bjCount = bjRes.rows[0]?.cnt || 0, bacCount = bacRes.rows[0]?.cnt || 0;
@@ -380,7 +374,31 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
-    /* --- НОВЫЙ РАУНД (ВМЕСТО СТАРОЙ СЕССИИ) --- */
+    /* --- ДЖЕКПОТ ВЫИГРАН --- */
+    if(url === '/api/jackpot/win' && method === 'POST'){
+      const { nick, amount } = await parseBody(req);
+      const safeNick = sanitizeString(nick, 50);
+      const amt = parseFloat(amount) || 0;
+      
+      if(!safeNick || amt <= 0) return sendJSON(res, 400, { error: 'Неверные данные' });
+      
+      // Записываем победителя
+      await pool.query(`INSERT INTO jackpot_winners (nick, amount) VALUES ($1, $2)`, [safeNick, amt]);
+      
+      // Сбрасываем джекпот в 0
+      await pool.query(`UPDATE settings SET value = '0' WHERE key = 'jackpot'`);
+      await pool.query(`UPDATE settings SET value = $1 WHERE key = 'jackpot_last_tick'`, [Date.now().toString()]);
+      
+      return sendJSON(res, 200, { ok: true });
+    }
+
+    /* --- ИСТОРИЯ ДЖЕКПОТА --- */
+    if(url === '/api/jackpot/winners' && method === 'GET'){
+      const r = await pool.query(`SELECT * FROM jackpot_winners ORDER BY id DESC LIMIT 10`);
+      return sendJSON(res, 200, r.rows);
+    }
+
+    /* --- РАУНД --- */
     if(url === '/api/sessions/round' && method === 'POST'){
       const { dealer, game_type, nick, bet, win } = await parseBody(req);
       
@@ -390,11 +408,9 @@ const server = http.createServer(async (req, res) => {
       const betAmt = parseFloat(bet) || 0;
       const winAmt = parseFloat(win) || 0;
       
-      // --- АВТОМАТИЧЕСКАЯ ПРОВЕРКА (ЗАЩИТА ОТ ВРАНЬЯ) ---
       if (betAmt > 10000) return sendJSON(res, 400, { error: 'Ставка не может быть больше 10 000 ₽' });
       if (winAmt > 100000) return sendJSON(res, 400, { error: 'Выигрыш не может быть больше 100 000 ₽' });
       
-      // Проверка на спам (не больше 1 раунда в 3 секунды)
       const lastRound = await pool.query(`SELECT round_time FROM session_rounds WHERE dealer = $1 ORDER BY id DESC LIMIT 1`, [dealer]);
       if (lastRound.rows.length > 0) {
         const lastTime = new Date(lastRound.rows[0].round_time).getTime();
@@ -405,26 +421,29 @@ const server = http.createServer(async (req, res) => {
 
       const today = new Date().toISOString().slice(0,10);
       
-      // Записываем раунд в БД
       await pool.query(
         `INSERT INTO session_rounds (dealer, date, game_type, nick, bet, win) VALUES ($1,$2,$3,$4,$5,$6)`,
         [dealer, today, game_type, safeNick, betAmt, winAmt]
       );
 
-      // Начисляем баллы гостю (10 руб = 1 балл)
       if (betAmt > 0) {
         await accruePointsByNick(safeNick, betAmt, game_type);
+        // ДЖЕКПОТ РАСТЕТ ОТ СТАВОК (10% ОТ ДЕПОЗИТА)
+        const jpAdd = betAmt * 0.10;
+        let currentJP = await getActualJackpot();
+        currentJP += jpAdd;
+        if (currentJP >= JACKPOT_MAX) currentJP = 0;
+        await pool.query(`UPDATE settings SET value = $1 WHERE key = 'jackpot'`, [currentJP.toString()]);
+        await pool.query(`UPDATE settings SET value = $1 WHERE key = 'jackpot_last_tick'`, [Date.now().toString()]);
       }
 
       return sendJSON(res, 200, { ok: true, bet: betAmt, win: winAmt });
     }
 
-    // Эндпоинт для получения статистики раундов дилера (для админки)
     if(url === '/api/sessions/rounds' && method === 'GET'){
       const r = await pool.query(`SELECT * FROM session_rounds ORDER BY id DESC LIMIT 500`);
       return sendJSON(res, 200, r.rows);
     }
-    /* ------------------------------------------- */
 
     /* --- КРАШ --- */
     if(url === '/api/crash/status' && method === 'GET'){
@@ -435,7 +454,11 @@ const server = http.createServer(async (req, res) => {
       if(crashState.status !== 'waiting') return sendJSON(res, 400, { error: 'Прием ставок закрыт' });
       const { id, bet } = await parseBody(req);
       const amt = parseFloat(bet) || 0;
-      if(!id || amt <= 0) return sendJSON(res, 400, { error: 'Неверная ставка' });
+      
+      if(!id || amt < 1 || amt > 1000) {
+        return sendJSON(res, 400, { error: 'Ставка от 1 до 1000 ₽' });
+      }
+      
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
       if(r.rows.length === 0) return sendJSON(res, 404, { error: 'Игрок не найден' });
       const g = r.rows[0];
