@@ -14,6 +14,10 @@ const loginAttempts = new Map();
 const MAX_ATTEMPTS = 3;
 const BAN_TIME_MS = 15 * 60 * 1000; // 15 минут
 
+/* ---------- ЗАЩИТА ОТ DDOS (RATE LIMITING) ---------- */
+const requestCounts = new Map();
+const MAX_REQUESTS_PER_MINUTE = 100; // 100 запросов в минуту с одного IP
+
 /* ---------- КОНФИГ ---------- */
 const POINTS_PER_RUB = 0.2;   
 const ONLINE_POINTS_PER_RUB = 0.1; 
@@ -218,7 +222,6 @@ async function initDB() {
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
-    // БЕЗОПАСНОЕ СОЗДАНИЕ ВЛАДЕЛЬЦА
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){
       const ownerPass = process.env.OWNER_PASSWORD || '56UpahoS';
@@ -227,7 +230,6 @@ async function initDB() {
         ['Владелец', 'Owner', hashedPass, 'owner']);
     }
 
-    // БЕЗОПАСНОЕ СОЗДАНИЕ ДИЛЕРА
     const dlCount = await pool.query(`SELECT COUNT(*) FROM dealers`);
     if(parseInt(dlCount.rows[0].count,10) === 0){
       const dealerPass = process.env.DEALER_PASSWORD || '56UpahoS';
@@ -331,13 +333,35 @@ const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
 
+  // --- ЗАЩИТА ОТ DDOS ---
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  
+  let reqData = requestCounts.get(ip);
+  if (!reqData || now > reqData.resetTime) {
+    reqData = { count: 0, resetTime: now + 60000 }; 
+  }
+  reqData.count++;
+  
+  // Исключение для частых запросов игры (чтобы Краш не ломался)
+  if (url.startsWith('/api/crash/status')) {
+    reqData.count = Math.max(0, reqData.count - 1);
+  }
+  
+  requestCounts.set(ip, reqData);
+
+  if (reqData.count > MAX_REQUESTS_PER_MINUTE) {
+    res.writeHead(429, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'Слишком много запросов. Подождите немного.' }));
+  }
+
   try {
     if(url === '/api/jackpot' && method === 'GET'){
       const jackpot = await getActualJackpot();
       return sendJSON(res, 200, { jackpot });
     }
 
-    /* --- КРАШ (ЗАЩИТА ОТ ЧИТОВ) --- */
+    /* --- КРАШ --- */
     if(url === '/api/crash/status' && method === 'GET'){
       return sendJSON(res, 200, { ...crashState, activeBets: crashState.activeBets });
     }
@@ -362,18 +386,15 @@ const server = http.createServer(async (req, res) => {
     }
     
     if(url === '/api/crash/cashout' && method === 'POST'){
-      // 1. ЖЕСТКАЯ ПРОВЕРКА НА СЕРВЕРЕ: Если уже не летим, значит краш.
       if (crashState.status !== 'flying') {
         return sendJSON(res, 400, { error: 'Раунд уже закончился (Краш)' });
       }
 
       const { id, crash_id } = await parseBody(req);
       
-      // 2. Ищем ставку в памяти сервера
       const activeBet = crashState.activeBets.find(b => b.guest_id === id && b.status === 'playing');
       if (!activeBet) return sendJSON(res, 400, { error: 'Активная ставка не найдена' });
 
-      // 3. Сервер САМ считает сумму (не доверяем клиенту)
       const currentMult = crashState.currentMultiplier;
       const winAmount = activeBet.bet * currentMult;
       
@@ -428,9 +449,8 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН ГОСТЯ + ЗАЩИТА ОТ БРУТФОРСА */
+    /* ЛОГИН ГОСТЯ + ЗАЩИТА */
     if(url === '/api/guest/login' && method === 'POST'){
-      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
       if (attempt.banUntil > Date.now()) {
         const minutesLeft = Math.ceil((attempt.banUntil - Date.now()) / 60000);
@@ -558,9 +578,8 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА ОТ БРУТФОРСА */
+    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА */
     if(url === '/api/login' && method === 'POST'){
-      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
       if (attempt.banUntil > Date.now()) {
         const minutesLeft = Math.ceil((attempt.banUntil - Date.now()) / 60000);
@@ -631,7 +650,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    /* ОСТАЛЬНОЕ (СЕССИИ, БАККАРА, ВЫПЛАТЫ, ИГРОКИ, ИГРЫ, АУДИТ, ОНЛАЙН) */
+    /* ОСТАЛЬНОЕ */
     if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/sessions' && method === 'POST'){
       const s = await parseBody(req);
