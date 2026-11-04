@@ -234,8 +234,15 @@ async function fetchServerState() {
       clientStartTime = Date.now() - elapsedOnServer;
     }
     
-    if (serverState.status === 'crashed') gameState = 'crashed';
-    else gameState = serverState.status;
+    // СИНХРОНИЗАЦИЯ КРАША: Если сервер сказал краш, моментально берем его кэф
+    if (serverState.status === 'crashed') {
+      gameState = 'crashed';
+      displayMultiplier = serverState.crashPoint;
+      currentMultiplier = serverState.crashPoint;
+      multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+    } else {
+      gameState = serverState.status;
+    }
     
     renderActiveBets(serverState.activeBets);
     renderHistory(serverState.history);
@@ -293,13 +300,17 @@ function animate() {
     const elapsed = Date.now() - clientStartTime;
     displayMultiplier = Math.pow(1.00006, elapsed);
     
-    if (displayMultiplier >= serverState.crashPoint) {
+    // Если достигли точки краша (или уже краш)
+    if (displayMultiplier >= serverState.crashPoint || gameState === 'crashed') {
       displayMultiplier = serverState.crashPoint;
       gameState = 'crashed'; 
+      multValueEl.textContent = displayMultiplier.toFixed(2) + 'x';
     }
 
     currentMultiplier = displayMultiplier;
-    multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+    if (gameState !== 'crashed') {
+      multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+    }
     
     const now = Date.now();
     if (localPoints.length === 0 || now - localPoints[localPoints.length-1].time > 50) {
@@ -357,12 +368,14 @@ function drawGame() {
 
     ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.shadowBlur = 15; ctx.shadowColor = color;
     
-    const maxX = localPoints[localPoints.length - 1].x || 1, maxY = localPoints[localPoints.length - 1].y || 1;
+    // ГРАФИК РАСТЕТ С САМОГО НИЗА
+    const maxY = Math.max(...localPoints.map(p => p.y)) || 1.1;
+    const maxX = localPoints[localPoints.length - 1].x || 1;
     const drawW = canvas.width - 60, drawH = canvas.height - 60;
 
     localPoints.forEach((p, i) => {
       const px = (p.x / Math.max(maxX, 10)) * drawW;
-      const py = drawH - ((p.y / Math.max(maxY, 2)) * drawH);
+      const py = drawH - ((p.y - 1.0) / (maxY - 1.0 || 0.1)) * drawH;
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
     ctx.stroke();
