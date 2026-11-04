@@ -28,12 +28,12 @@ const JACKPOT_PER_TICK = 0.064;
 
 /* ---------- Задания дилеров (еженедельные) ---------- */
 const DEALER_TASKS = [
-  { id: 'bj10',  type: 'bj',  goal: 10,  reward: 30,  title: 'Сыграй 10 раундов блэкджека' },
-  { id: 'bj30',  type: 'bj',  goal: 30,  reward: 80,  title: 'Сыграй 30 раундов блэкджека' },
-  { id: 'bj50',  type: 'bj',  goal: 50,  reward: 150, title: 'Сыграй 50 раундов блэкджека' },
-  { id: 'bac10', type: 'bac', goal: 10,  reward: 30,  title: 'Сыграй 10 раздач баккары' },
-  { id: 'bac30', type: 'bac', goal: 30,  reward: 80,  title: 'Сыграй 30 раздач баккары' },
-  { id: 'bac50', type: 'bac', goal: 50,  reward: 150, title: 'Сыграй 50 раздач баккары' }
+  { id: 'bj10',  type: 'bj',  goal: 10,  reward: 15, title: 'Сыграй 10 раундов блэкджека' },
+  { id: 'bj30',  type: 'bj',  goal: 30,  reward: 30, title: 'Сыграй 30 раундов блэкджека' },
+  { id: 'bj50',  type: 'bj',  goal: 50,  reward: 50, title: 'Сыграй 50 раундов блэкджека' },
+  { id: 'bac10', type: 'bac', goal: 10,  reward: 15, title: 'Сыграй 10 раздач баккары' },
+  { id: 'bac30', type: 'bac', goal: 30,  reward: 30, title: 'Сыграй 30 раздач баккары' },
+  { id: 'bac50', type: 'bac', goal: 50,  reward: 50, title: 'Сыграй 50 раздач баккары' }
 ];
 
 /* Понедельник текущей недели в YYYY-MM-DD */
