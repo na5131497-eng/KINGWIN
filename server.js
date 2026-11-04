@@ -152,6 +152,16 @@ async function initDB() {
         last_rank TEXT DEFAULT 'Bronze',
         created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS crash_history (
+        id SERIAL PRIMARY KEY, 
+        guest_id TEXT, 
+        guest_masked TEXT, 
+        bet NUMERIC DEFAULT 0, 
+        multiplier NUMERIC DEFAULT 0, 
+        win_amount NUMERIC DEFAULT 0, 
+        status TEXT DEFAULT 'playing',
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
 
     const cols = [
@@ -339,11 +349,19 @@ const server = http.createServer(async (req, res) => {
       // Списываем ставку
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2', [amt, id]);
 
-      return sendJSON(res, 200, { ok: true });
+      // Записываем в историю краша (в процессе)
+      const maskedId = g.id.length > 4 ? g.id.slice(0, 2) + '***' + g.id.slice(-2) : '****';
+      const c = await pool.query(
+        `INSERT INTO crash_history (guest_id, guest_masked, bet, multiplier, win_amount, status) 
+         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+        [g.id, maskedId, amt, 0, 0, 'playing']
+      );
+
+      return sendJSON(res, 200, { ok: true, crash_id: c.rows[0].id });
     }
     
     if(url === '/api/crash/cashout' && method === 'POST'){
-      const { id, bet, multiplier } = await parseBody(req);
+      const { id, crash_id, bet, multiplier } = await parseBody(req);
       const amt = parseFloat(bet) || 0;
       const mult = parseFloat(multiplier) || 1;
       
@@ -355,7 +373,31 @@ const server = http.createServer(async (req, res) => {
       // Начисляем выигрыш
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
 
+      // Обновляем историю краша
+      if (crash_id) {
+        await pool.query(
+          `UPDATE crash_history SET multiplier=$1, win_amount=$2, status='win' WHERE id=$3`,
+          [mult, winAmount, crash_id]
+        );
+      }
+
       return sendJSON(res, 200, { ok: true, winAmount });
+    }
+
+    if(url === '/api/crash/history' && method === 'GET'){
+      const r = await pool.query(`SELECT * FROM crash_history ORDER BY id DESC LIMIT 50`);
+      return sendJSON(res, 200, r.rows);
+    }
+
+    if(url === '/api/crash/round_end' && method === 'POST'){
+      const { multiplier } = await parseBody(req);
+      const mult = parseFloat(multiplier) || 1;
+      
+      await pool.query(
+        `UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`,
+        [mult]
+      );
+      return sendJSON(res, 200, { ok: true });
     }
 
     /* ГОСТИ */
@@ -490,7 +532,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ДЕПОЗИТЫ (ИСПРАВЛЕНО: НАЧИСЛЕНИЕ БАЛАНСА) */
+    /* ДЕПОЗИТЫ */
     if(url === '/api/deposits' && method === 'GET'){
       const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
@@ -564,7 +606,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ВЫПЛАТЫ ДИЛЕРАМ (зарплата) */
+    /* ВЫПЛАТЫ ДИЛЕРАМ */
     if(url === '/api/payouts' && method === 'GET'){
       const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
@@ -613,7 +655,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* ЗАДАНИЯ ДИЛЕРА (ежедневные) */
+    /* ЗАДАНИЯ ДИЛЕРА */
     if(url === '/api/dealer/tasks' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -763,7 +805,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ВЫВОДЫ ДИЛЕРОВ (просмотр для админа + подтверждение) */
+    /* ВЫВОДЫ ДИЛЕРОВ */
     if(url === '/api/dealer-withdrawals' && method === 'GET'){
       const r = await pool.query('SELECT * FROM dealer_withdrawals ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
