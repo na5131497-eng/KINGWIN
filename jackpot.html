@@ -7,17 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
   body {
     font-family: 'Montserrat', sans-serif;
     background: radial-gradient(circle at center, #1a2332, #0a0d14);
     color: #fff;
     height: 100vh;
-    height: 100dvh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,9 +20,8 @@
 
   .screen-container {
     width: 95vw;
-    max-width: 1400px;
+    max-width: 1000px;
     height: 95vh;
-    height: 95dvh;
     background: rgba(18, 24, 38, 0.95);
     border: 4px solid #2a3a52;
     border-radius: 10px;
@@ -40,16 +33,6 @@
     position: relative;
   }
 
-  /* В fullscreen растягиваем на весь экран */
-  :fullscreen .screen-container {
-    width: 100vw;
-    max-width: none;
-    height: 100vh;
-    height: 100dvh;
-    border-radius: 0;
-    border: none;
-  }
-
   .top-section {
     display: flex;
     padding: 20px 30px;
@@ -57,7 +40,6 @@
     border-bottom: 2px solid rgba(255,255,255,0.05);
     background: linear-gradient(135deg, rgba(26, 35, 50, 0.8), rgba(10, 13, 20, 0.8));
     flex: 1;
-    min-height: 0;
   }
 
   .logo-area {
@@ -132,7 +114,6 @@
     justify-content: center;
     align-items: center;
     min-height: 220px;
-    flex: 0 0 auto;
   }
 
   .jackpot-frame {
@@ -169,7 +150,7 @@
     text-align: center;
     vertical-align: top;
   }
-
+  
   .digit {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -203,55 +184,6 @@
     font-size: 50px;
   }
 
-  /* ---------- Кнопка fullscreen ---------- */
-  .fullscreen-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 229, 255, 0.15);
-    border: 2px solid #00e5ff;
-    color: #00e5ff;
-    padding: 16px 28px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: 1px;
-    z-index: 100;
-    transition: 0.3s;
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .fullscreen-btn:hover { background: rgba(0, 229, 255, 0.3); }
-  .fullscreen-btn:active { transform: scale(0.96); }
-  :fullscreen .fullscreen-btn { display: none; }
-  :-webkit-full-screen .fullscreen-btn { display: none; }
-
-  /* ---------- Кнопка выхода из fullscreen ---------- */
-  .exit-fs-btn {
-    display: none;
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    z-index: 200;
-    background: rgba(255, 77, 77, 0.15);
-    border: 2px solid #ff4d4d;
-    color: #ff4d4d;
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .exit-fs-btn:hover { background: rgba(255, 77, 77, 0.3); }
-  :fullscreen .exit-fs-btn { display: block; }
-  :-webkit-full-screen .exit-fs-btn { display: block; }
-
   /* ---------- Мин/Макс по углам внизу ---------- */
   .bottom-section {
     position: absolute;
@@ -273,7 +205,7 @@
     background: rgba(0, 0, 0, 0.55);
     border: 2px solid rgba(0, 229, 255, 0.4);
     border-radius: 12px;
-    padding: 12px 20px;
+    padding: 10px 18px;
     backdrop-filter: blur(6px);
   }
 
@@ -282,7 +214,7 @@
   }
 
   .bet-corner .bet-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #a0aec0;
     letter-spacing: 2px;
@@ -290,7 +222,7 @@
   }
 
   .bet-corner .bet-val {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 900;
     color: #00e5ff;
     text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
@@ -302,32 +234,32 @@
     text-shadow: 0 0 12px rgba(63, 191, 127, 0.5);
   }
 
-  /* В fullscreen увеличиваем углы */
-  :fullscreen .bet-corner .bet-val { font-size: 36px; }
-  :fullscreen .bet-corner .bet-label { font-size: 16px; }
-  :fullscreen .bottom-section { padding: 30px 50px; }
+  .fullscreen-btn {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid #00e5ff;
+    color: #00e5ff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    z-index: 100;
+    transition: 0.3s;
+  }
+  .fullscreen-btn:hover { background: rgba(0, 229, 255, 0.2); }
+  :fullscreen .fullscreen-btn { display: none; }
 
-  /* В fullscreen — джекпот по центру экрана */
-  :fullscreen .top-section { flex: 0 0 auto; }
-  :fullscreen .middle-section { flex: 1; min-height: 0; }
-  :fullscreen .jackpot-wrap { font-size: 140px; height: 160px; }
-  :fullscreen .digit-box { height: 160px; width: 90px; }
-  :fullscreen .comma, :fullscreen .currency { height: 160px; }
-  :fullscreen .currency { font-size: 80px; }
-  :fullscreen .jackpot-frame { padding: 25px 60px; }
-
-  /* ---------- Планшет / мобильный ---------- */
   @media (max-width: 900px) {
-    .screen-container { width: 100vw; height: 100dvh; border-radius: 0; border: none; max-width: none; }
+    .screen-container { width: 100vw; height: 100vh; border-radius: 0; border: none; max-width: none; }
     .top-section { flex-direction: column; padding: 15px; gap: 15px; }
     .sevens { font-size: 60px; }
     .kingwin-title { font-size: 28px; }
-    .kingwin-sub { font-size: 14px; letter-spacing: 4px; }
     .pays-table h3 { text-align: left; font-size: 18px; }
     .pays-table td { font-size: 13px; padding: 5px 0; }
-
-    .fullscreen-btn { top: 10px; right: 10px; padding: 12px 18px; font-size: 14px; }
-
+    
     .jackpot-frame { padding: 10px 20px; }
     .jackpot-wrap { font-size: 60px; height: 70px; }
     .digit-box { height: 70px; width: 40px; }
@@ -336,25 +268,15 @@
 
     .bottom-section { padding: 12px 15px; }
     .bet-corner { padding: 8px 12px; }
-    .bet-corner .bet-label { font-size: 11px; }
-    .bet-corner .bet-val { font-size: 20px; }
-    :fullscreen .bet-corner .bet-val { font-size: 28px; }
-    :fullscreen .bottom-section { padding: 20px 30px; }
-  }
-
-  @media (max-width: 600px) {
-    :fullscreen .jackpot-wrap { font-size: 80px; height: 100px; }
-    :fullscreen .digit-box { height: 100px; width: 55px; }
-    :fullscreen .comma, :fullscreen .currency { height: 100px; }
-    :fullscreen .currency { font-size: 50px; }
+    .bet-corner .bet-label { font-size: 10px; }
+    .bet-corner .bet-val { font-size: 18px; }
   }
 </style>
 </head>
 <body>
 
   <div class="screen-container" id="screenContainer">
-    <button class="fullscreen-btn" onclick="toggleFullScreen()">⛶ На весь экран</button>
-    <button class="exit-fs-btn" onclick="exitFullScreen()">✕ Выйти</button>
+    <button class="fullscreen-btn" onclick="toggleFullScreen()">На весь экран</button>
 
     <div class="top-section">
       <div class="logo-area">
@@ -362,7 +284,7 @@
         <div class="kingwin-title">KINGWIN</div>
         <div class="kingwin-sub">BLACKJACK</div>
       </div>
-
+      
       <div class="pays-table">
         <h3>Прогрессивные выплаты</h3>
         <table>
@@ -400,7 +322,6 @@
   let isAnimating = false;
 
   const wrap = document.getElementById('jackpotWrap');
-  const screenContainer = document.getElementById('screenContainer');
 
   function initDisplay() {
     wrap.innerHTML = '';
@@ -414,12 +335,12 @@
       box.appendChild(d);
       wrap.appendChild(box);
     }
-
+    
     const comma = document.createElement('span');
     comma.className = 'comma';
     comma.textContent = ',';
     wrap.appendChild(comma);
-
+    
     // 2 знака после запятой
     for(let i = 0; i < 2; i++) {
       const box = document.createElement('div');
@@ -430,7 +351,7 @@
       box.appendChild(d);
       wrap.appendChild(box);
     }
-
+    
     const currency = document.createElement('span');
     currency.className = 'currency';
     currency.textContent = '₽';
@@ -473,7 +394,7 @@
     const floatPart = parts[1];
 
     const fullStr = intPart + floatPart;
-
+    
     for(let i = 0; i < 5; i++) {
       updateDigit(i, fullStr[i]);
     }
@@ -484,7 +405,7 @@
       const res = await fetch('/api/jackpot');
       const data = await res.json();
       targetJackpot = data.jackpot || 0;
-
+      
       if (Math.abs(currentJackpot - targetJackpot) > 2) {
         currentJackpot = targetJackpot;
         renderJackpot(currentJackpot);
@@ -506,41 +427,15 @@
     requestAnimationFrame(animateLoop);
   }
 
-  /* ---------- FULLSCREEN ---------- */
   function toggleFullScreen() {
-    const elem = screenContainer;
+    const elem = document.getElementById('screenContainer');
     if (!document.fullscreenElement) {
-      const req = elem.requestFullscreen
-        || elem.webkitRequestFullscreen
-        || elem.msRequestFullscreen;
-      if (req) {
-        req.call(elem).catch(err => {
-          console.warn('Fullscreen error:', err);
-          alert('Полноэкранный режим недоступен. На iPad добавьте страницу на главный экран (Поделиться → На экран «Домой»).');
-        });
-      } else {
-        alert('Полноэкранный режим недоступен в этом браузере. На iPad добавьте страницу на главный экран.');
-      }
+      if (elem.requestFullscreen) { elem.requestFullscreen(); }
+      else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
     } else {
-      exitFullScreen();
+      if (document.exitFullscreen) { document.exitFullscreen(); }
     }
   }
-
-  function exitFullScreen() {
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    else if (document.msExitFullscreen) document.msExitFullscreen();
-  }
-
-  // Двойной тап/клик по экрану — выход из fullscreen
-  screenContainer.addEventListener('dblclick', () => {
-    if (document.fullscreenElement) exitFullScreen();
-  });
-
-  // Обновляем размеры при смене fullscreen
-  document.addEventListener('fullscreenchange', () => {
-    setTimeout(() => { /* canvas не нужен, но на всякий случай */ }, 100);
-  });
 
   initDisplay();
   fetchJackpot();
