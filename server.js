@@ -490,7 +490,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ДЕПОЗИТЫ */
+    /* ДЕПОЗИТЫ (ИСПРАВЛЕНО: НАЧИСЛЕНИЕ БАЛАНСА) */
     if(url === '/api/deposits' && method === 'GET'){
       const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
@@ -505,6 +505,31 @@ const server = http.createServer(async (req, res) => {
     if(url.startsWith('/api/deposits/') && method === 'PUT'){
       const id = url.split('/')[3];
       const d = await parseBody(req);
+      
+      // Получаем данные депозита перед изменением
+      const depRes = await pool.query('SELECT * FROM deposits WHERE id=$1', [id]);
+      if(depRes.rows.length === 0) return sendJSON(res, 404, { error: 'Депозит не найден' });
+      const dep = depRes.rows[0];
+
+      // Если статус меняется на 'approved' и до этого не был одобрен
+      if(d.status === 'approved' && dep.status !== 'approved') {
+        // Ищем гостя по имени
+        const guestRes = await pool.query('SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1', [dep.nick]);
+        if(guestRes.rows.length > 0) {
+          const guest = guestRes.rows[0];
+          const addSum = parseFloat(dep.sum) || 0;
+          
+          // Зачисляем на баланс гостю
+          await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [addSum, guest.id]);
+          
+          // Логируем в аудит
+          await pool.query(
+            `INSERT INTO audit (time, user_name, action, details) VALUES ($1,$2,$3,$4)`,
+            [new Date().toLocaleString('ru-RU'), 'Система', 'deposit_approved', `Пополнение на ${addSum} ₽ для ${guest.name}`]
+          );
+        }
+      }
+
       await pool.query('UPDATE deposits SET status=$1 WHERE id=$2', [d.status, id]);
       return sendJSON(res, 200, { ok: true });
     }
