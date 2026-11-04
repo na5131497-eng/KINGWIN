@@ -110,7 +110,7 @@
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
   .btn-action .subtext { font-size: 13px; font-weight: 700; margin-top: 4px; opacity: 0.9; }
   
-  /* НОВЫЕ СТИЛИ КНОПОК (В НАШЕМ ЦВЕТЕ) */
+  /* КНОПКИ */
   .btn-bet { 
     background: linear-gradient(135deg, #00e5ff, #0077ff); 
     color: #000; 
@@ -262,11 +262,11 @@
 
 <script>
 /* ---------------- СОСТОЯНИЕ ИГРЫ ---------------- */
-let gameState = 'waiting'; // waiting, flying, crashed, cooldown
+let gameState = 'waiting';
 let currentMultiplier = 1.00;
-let crashPoint = 1.00;
-let animationFrame = null;
 let currentPlayer = null;
+let localPoints = [];
+let lastRoundId = null;
 
 // Графика
 const canvas = document.getElementById('gameCanvas');
@@ -277,7 +277,6 @@ const multValueEl = document.getElementById('multValue');
 const topBalanceEl = document.getElementById('topBalance');
 const userMaskedIdEl = document.getElementById('userMaskedId');
 
-// Ставки
 let bets = {
   1: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0, crashId: null },
   2: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0, crashId: null }
@@ -291,7 +290,90 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 setTimeout(resizeCanvas, 100);
 
-/* ---------------- АВТОРИЗАЦИЯ ---------------- */
+/* ---------------- СИНХРОНИЗАЦИЯ С СЕРВЕРОМ ---------------- */
+async function syncGame() {
+  try {
+    const res = await fetch('/api/crash/status');
+    const state = await res.json();
+
+    // Если начался новый раунд
+    if (state.roundId !== lastRoundId) {
+      lastRoundId = state.roundId;
+      localPoints = [];
+      bets[1].active = false; bets[1].cashedOut = false; bets[1].crashId = null;
+      bets[2].active = false; bets[2].cashedOut = false; bets[2].crashId = null;
+      document.getElementById('autoCashout1').disabled = false;
+      document.getElementById('autoCashout2').disabled = false;
+      explosionEl.classList.remove('animate');
+      multValueEl.classList.remove('crashed');
+      rocketEl.style.display = 'none';
+    }
+
+    gameState = state.status;
+    currentMultiplier = state.currentMultiplier;
+
+    // Отрисовка кэфа
+    multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+    
+    // Отрисовка истории (верхняя лента)
+    if (state.history && state.history.length > 0) {
+      const list = document.getElementById('historyList');
+      // Перерисовываем только если изменилось количество
+      if (list.children.length !== state.history.length) {
+        list.innerHTML = '';
+        state.history.forEach(mult => {
+          const item = document.createElement('div');
+          item.className = 'history-item';
+          if (mult >= 10) item.classList.add('gold');
+          else if (mult >= 4) item.classList.add('purple');
+          else if (mult >= 1.5) item.classList.add('blue');
+          else item.classList.add('red');
+          item.textContent = mult.toFixed(2) + 'x';
+          list.appendChild(item);
+        });
+      }
+    }
+
+    if (gameState === 'flying') {
+      // Добавляем точку для графика
+      localPoints.push({ x: localPoints.length * 0.1, y: currentMultiplier });
+      if (localPoints.length > 500) localPoints.shift();
+      
+      drawGame();
+      updateButtonAmounts();
+      checkAutoCashout(1);
+      checkAutoCashout(2);
+    } else if (gameState === 'crashed') {
+      multValueEl.classList.add('crashed');
+      
+      // Взрыв один раз
+      if (!explosionEl.classList.contains('animate')) {
+        const lastP = localPoints[localPoints.length - 1];
+        if (lastP) {
+          const maxX = lastP.x || 1;
+          const maxY = lastP.y || 1;
+          const drawW = canvas.width - 60;
+          const drawH = canvas.height - 60;
+          explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
+          explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
+          explosionEl.classList.add('animate');
+        }
+        rocketEl.style.display = 'none';
+      }
+    } else {
+      drawGame();
+    }
+
+    updateBetButtons();
+  } catch (e) {
+    console.error('Sync error', e);
+  }
+}
+
+// Запускаем опрос сервера каждые 100 мс
+setInterval(syncGame, 100);
+
+/* ---------------- АВТОРИЗАЦИЯ И ИСТОРИЯ ---------------- */
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
@@ -312,7 +394,7 @@ window.onload = () => {
       .catch(() => {});
   }
 
-  // Загружаем историю с сервера
+  // Загружаем историю ставок с сервера
   fetch('/api/crash/history')
     .then(r => r.json())
     .then(data => {
@@ -332,134 +414,15 @@ window.onload = () => {
       }
     })
     .catch(() => {});
-
-  startRound();
+    
+    // Первичная синхронизация
+    syncGame();
 };
 
 function updateBalanceUI() {
   if(currentPlayer) {
     topBalanceEl.textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2) + ' ₽';
   }
-}
-
-/* ---------------- МАТЕМАТИКА ---------------- */
-function generateCrashPoint() {
-  const r = Math.random();
-  if (r < 0.10) return Math.max(1.00, 1 + Math.random() * 0.10);
-  if (r < 0.60) return 1.10 + Math.random() * 0.90;
-  if (r < 0.90) return 2.00 + Math.random() * 8.00;
-  return 10.00 + Math.random() * 90.00;
-}
-
-function getMultiplierAtTime(ms) {
-  return Math.pow(1.00006, ms);
-}
-
-/* ---------------- ИГРОВОЙ ЦИКЛ ---------------- */
-let startTime = 0;
-let points = [];
-
-function startRound() {
-  gameState = 'waiting';
-  currentMultiplier = 1.00;
-  crashPoint = generateCrashPoint();
-  points = [];
-  
-  multValueEl.textContent = '1.00x';
-  multValueEl.className = 'mult-value';
-  rocketEl.style.display = 'none';
-  explosionEl.className = 'explosion';
-  
-  // Сбрасываем ставки
-  bets[1].active = false; bets[1].cashedOut = false; bets[1].crashId = null;
-  bets[2].active = false; bets[2].cashedOut = false; bets[2].crashId = null;
-  
-  // Разблокируем чекбоксы автовывода
-  document.getElementById('autoCashout1').disabled = false;
-  document.getElementById('autoCashout2').disabled = false;
-  
-  updateBetButtons();
-  drawGame();
-
-  // Через 6 секунд старт
-  setTimeout(() => {
-    if(gameState === 'waiting') startFlight();
-  }, 6000);
-}
-
-function startFlight() {
-  gameState = 'flying';
-  startTime = Date.now();
-  
-  updateBetButtons();
-  
-  function tick() {
-    if (gameState !== 'flying') return;
-
-    const elapsed = Date.now() - startTime;
-    currentMultiplier = getMultiplierAtTime(elapsed);
-
-    if (currentMultiplier >= crashPoint) {
-      currentMultiplier = crashPoint;
-      endRound();
-      return;
-    }
-
-    multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
-    points.push({ x: elapsed / 1000, y: currentMultiplier });
-
-    checkAutoCashout(1);
-    checkAutoCashout(2);
-
-    drawGame();
-    updateButtonAmounts();
-    animationFrame = requestAnimationFrame(tick);
-  }
-  tick();
-}
-
-function endRound() {
-  gameState = 'cooldown'; // Блокируем кнопки на 2 секунды
-  cancelAnimationFrame(animationFrame);
-  
-  multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
-  multValueEl.classList.add('crashed');
-  
-  const lastP = points[points.length - 1];
-  if (lastP) {
-    const maxX = lastP.x || 1;
-    const maxY = lastP.y || 1;
-    const drawW = canvas.width - 60;
-    const drawH = canvas.height - 60;
-    explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
-    explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
-    explosionEl.classList.add('animate');
-  }
-  rocketEl.style.display = 'none';
-
-  addToHistory(currentMultiplier);
-
-  // Отправляем на сервер, что раунд закончился
-  fetch('/api/crash/round_end', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ multiplier: currentMultiplier })
-  });
-
-  // Проигрыш невыведенных ставок
-  [1, 2].forEach(id => {
-    if (bets[id].active && !bets[id].cashedOut) {
-      bets[id].active = false;
-    }
-  });
-  
-  updateBetButtons();
-
-  // Через 2 секунды разрешаем новые ставки
-  setTimeout(() => {
-    explosionEl.classList.remove('animate');
-    startRound();
-  }, 2000); 
 }
 
 /* ---------------- ОТРИСОВКА ---------------- */
@@ -475,14 +438,14 @@ function drawGame() {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
   }
 
-  if (points.length > 1) {
+  if (localPoints.length > 1) {
     ctx.beginPath();
     let color = '#00e5ff';
     if (currentMultiplier >= 10) color = '#f1c40f';
     else if (currentMultiplier >= 4) color = '#a855f7';
     else if (currentMultiplier >= 1.5) color = '#3b82f6';
     else color = '#ff4d4d';
-    if (gameState === 'crashed' || gameState === 'cooldown') color = '#ff4d4d';
+    if (gameState === 'crashed') color = '#ff4d4d';
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 4;
@@ -490,12 +453,12 @@ function drawGame() {
     ctx.shadowBlur = 15;
     ctx.shadowColor = color;
     
-    const maxX = points[points.length - 1].x || 1;
-    const maxY = points[points.length - 1].y || 1;
+    const maxX = localPoints[localPoints.length - 1].x || 1;
+    const maxY = localPoints[localPoints.length - 1].y || 1;
     const drawW = canvas.width - 60;
     const drawH = canvas.height - 60;
 
-    points.forEach((p, i) => {
+    localPoints.forEach((p, i) => {
       const px = (p.x / Math.max(maxX, 10)) * drawW;
       const py = drawH - ((p.y / Math.max(maxY, 2)) * drawH);
       if (i === 0) ctx.moveTo(px, py);
@@ -503,7 +466,7 @@ function drawGame() {
     });
     ctx.stroke();
 
-    const lastP = points[points.length - 1];
+    const lastP = localPoints[localPoints.length - 1];
     const rx = (lastP.x / Math.max(maxX, 10)) * drawW;
     const ry = drawH - ((lastP.y / Math.max(maxY, 2)) * drawH);
     
@@ -553,7 +516,6 @@ async function placeBet(id) {
       return;
     }
 
-    // Блокируем чекбокс автовывода
     document.getElementById('autoCashout' + id).disabled = true;
 
     try {
@@ -571,7 +533,7 @@ async function placeBet(id) {
       } else {
         bets[id].active = false;
         document.getElementById('autoCashout' + id).disabled = false;
-        showToast('Ошибка при списании средств', 'error');
+        showToast('Ошибка: ' + (data.error || 'сервер занят'), 'error');
         return;
       }
     } catch(e) {
@@ -668,22 +630,6 @@ function updateButtonAmounts() {
       }
     }
   });
-}
-
-/* ---------------- ИСТОРИЯ ---------------- */
-function addToHistory(mult) {
-  const list = document.getElementById('historyList');
-  const item = document.createElement('div');
-  item.className = 'history-item';
-  
-  if (mult >= 10) item.classList.add('gold');
-  else if (mult >= 4) item.classList.add('purple');
-  else if (mult >= 1.5) item.classList.add('blue');
-  else item.classList.add('red');
-  
-  item.textContent = mult.toFixed(2) + 'x';
-  list.prepend(item);
-  if (list.children.length > 20) list.lastChild.remove();
 }
 
 /* ---------------- УВЕДОМЛЕНИЯ ---------------- */
