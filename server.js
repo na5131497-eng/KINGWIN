@@ -337,10 +337,11 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
-    /* --- КРАШ --- */
+    /* --- КРАШ (ЗАЩИТА ОТ ЧИТОВ) --- */
     if(url === '/api/crash/status' && method === 'GET'){
       return sendJSON(res, 200, { ...crashState, activeBets: crashState.activeBets });
     }
+    
     if(url === '/api/crash/bet' && method === 'POST'){
       if(crashState.status !== 'waiting') return sendJSON(res, 400, { error: 'Прием ставок закрыт' });
       const { id, bet } = await parseBody(req);
@@ -359,15 +360,34 @@ const server = http.createServer(async (req, res) => {
       const c = await pool.query(`INSERT INTO crash_history (guest_id, guest_masked, bet, multiplier, win_amount, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`, [g.id, maskedId, amt, 0, 0, 'playing']);
       return sendJSON(res, 200, { ok: true, crash_id: c.rows[0].id });
     }
+    
     if(url === '/api/crash/cashout' && method === 'POST'){
-      const { id, crash_id, bet, multiplier } = await parseBody(req);
-      const amt = parseFloat(bet) || 0, mult = parseFloat(multiplier) || 1;
-      const winAmount = amt * mult;
-      await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
+      // 1. ЖЕСТКАЯ ПРОВЕРКА НА СЕРВЕРЕ: Если уже не летим, значит краш.
+      if (crashState.status !== 'flying') {
+        return sendJSON(res, 400, { error: 'Раунд уже закончился (Краш)' });
+      }
+
+      const { id, crash_id } = await parseBody(req);
+      
+      // 2. Ищем ставку в памяти сервера
       const activeBet = crashState.activeBets.find(b => b.guest_id === id && b.status === 'playing');
-      if(activeBet) { activeBet.multiplier = mult; activeBet.win_amount = winAmount; activeBet.status = 'win'; }
-      if (crash_id) await pool.query(`UPDATE crash_history SET multiplier=$1, win_amount=$2, status='win' WHERE id=$3`, [mult, winAmount, crash_id]);
-      return sendJSON(res, 200, { ok: true, winAmount });
+      if (!activeBet) return sendJSON(res, 400, { error: 'Активная ставка не найдена' });
+
+      // 3. Сервер САМ считает сумму (не доверяем клиенту)
+      const currentMult = crashState.currentMultiplier;
+      const winAmount = activeBet.bet * currentMult;
+      
+      await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
+      
+      activeBet.multiplier = currentMult;
+      activeBet.win_amount = winAmount;
+      activeBet.status = 'win';
+
+      if (crash_id) {
+        await pool.query(`UPDATE crash_history SET multiplier=$1, win_amount=$2, status='win' WHERE id=$3`, [currentMult, winAmount, crash_id]);
+      }
+
+      return sendJSON(res, 200, { ok: true, winAmount, multiplier: currentMult });
     }
 
     /* ГОСТИ */
@@ -408,7 +428,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН ГОСТЯ + ЗАЩИТА */
+    /* ЛОГИН ГОСТЯ + ЗАЩИТА ОТ БРУТФОРСА */
     if(url === '/api/guest/login' && method === 'POST'){
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
@@ -538,7 +558,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА */
+    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА ОТ БРУТФОРСА */
     if(url === '/api/login' && method === 'POST'){
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
@@ -611,7 +631,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    /* ... ОСТАЛЬНОЙ КОД (СЕССИИ, БАККАРА, ВЫПЛАТЫ, ПЛЕЕРЫ, ИГРЫ, АУДИТ, ОНЛАЙН, СТАТИКА) ... */
+    /* ОСТАЛЬНОЕ (СЕССИИ, БАККАРА, ВЫПЛАТЫ, ИГРОКИ, ИГРЫ, АУДИТ, ОНЛАЙН) */
     if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/sessions' && method === 'POST'){
       const s = await parseBody(req);
