@@ -37,8 +37,8 @@
   
   .side-section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin: 15px 0 10px 15px; letter-spacing: 1px; }
   
-  /* Стикеры в левом меню */
-  .nav-item-icon { font-size: 18px; width: 24px; text-align: center; }
+  /* SVG Иконки в левом меню */
+  .nav-item svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
   
   .bottom-menu { display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
   .bottom-menu .nav-item { padding: 10px 15px; font-size: 13px; }
@@ -75,12 +75,14 @@
   .section-title { font-size: 20px; font-weight: 800; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
 
-  /* СЕТКА НАШИХ ИГР В ЦЕНТРЕ (без стикеров, как ты просил) */
-  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  /* СЕТКА НАШИХ ИГР В ЦЕНТРЕ (только иконка + название) */
+  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(0,229,255,0.1); }
-  .our-game-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
-  .our-game-desc { font-size: 12px; color: var(--text-muted); }
+  
+  .our-game-icon { width: 60px; height: 60px; border-radius: 15px; background: rgba(0,229,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
+  .our-game-icon svg { width: 32px; height: 32px; fill: currentColor; }
+  .our-game-title { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
 
   /* SLOTS GRID */
   .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -104,7 +106,9 @@
     .hero h1 { font-size: 24px; }
     .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .our-game-card { padding: 15px; }
-    .our-game-title { font-size: 15px; }
+    .our-game-icon { width: 50px; height: 50px; margin-bottom: 10px; }
+    .our-game-icon svg { width: 26px; height: 26px; }
+    .our-game-title { font-size: 14px; }
     .slots-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .mobile-bottom-nav { display: flex; }
     .hero-btn { width: 100%; }
@@ -169,29 +173,30 @@
 
   <div class="side-section-title">Наши игры</div>
   <div class="nav-menu">
+    <!-- Возвращаем красивые SVG иконки в стиле сайта -->
     <div class="nav-item" onclick="showToast('Игра Crash в разработке', 'error')">
-      <span class="nav-item-icon">🚀</span> Crash
+      <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash
     </div>
     <div class="nav-item" onclick="showToast('Игра Cases в разработке', 'error')">
-      <span class="nav-item-icon">📦</span> Cases
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases
     </div>
     <div class="nav-item" onclick="showToast('Игра Dice в разработке', 'error')">
-      <span class="nav-item-icon">🎲</span> Dice
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg> Dice
     </div>
     <div class="nav-item" onclick="showToast('Игра Keno в разработке', 'error')">
-      <span class="nav-item-icon">🔢</span> Keno
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm0-4H7v-2h5v2zm0-4H7V7h5v2zm5 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2z"/></svg> Keno
     </div>
     <div class="nav-item" onclick="showToast('Игра Mines в разработке', 'error')">
-      <span class="nav-item-icon">💣</span> Mines
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Mines
     </div>
     <div class="nav-item" onclick="showToast('Игра Tower в разработке', 'error')">
-      <span class="nav-item-icon">🏗️</span> Tower
+      <svg viewBox="0 0 24 24"><path d="M5 11h4v2H5zm0 4h4v2H5zm0 4h4v2H5zM3 7h4v2H3zm-2 4h4v2H1zm16 4h4v2h-4zm0 4h4v2h-4zm0-8h4v2h-4zm-2 4h4v2h-4z"/></svg> Tower
     </div>
     <div class="nav-item" onclick="showToast('Игра Coinflip в разработке', 'error')">
-      <span class="nav-item-icon">🪙</span> Coinflip
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v2H9v2h2v2H9v2h2v2h2v-2h2v-2h-2v-2h2V9h-2V7z"/></svg> Coinflip
     </div>
     <div class="nav-item" onclick="showToast('Игра Plinko в разработке', 'error')">
-      <span class="nav-item-icon">🟣</span> Plinko
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Plinko
     </div>
   </div>
 
@@ -230,42 +235,42 @@
       </div>
     </div>
 
-    <!-- НАШИ ИГРЫ (В ЦЕНТРЕ БЕЗ СТИКЕРОВ) -->
+    <!-- НАШИ ИГРЫ (В ЦЕНТРЕ ТОЛЬКО ИКОНКА И НАЗВАНИЕ) -->
     <div class="section-head">
       <div class="section-title">Наши игры</div>
     </div>
     <div class="our-games-grid">
       <div class="our-game-card" onclick="showToast('Игра Crash в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
         <div class="our-game-title">Crash</div>
-        <div class="our-game-desc">Ракета летит — забери вовремя</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Cases в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg></div>
         <div class="our-game-title">Cases</div>
-        <div class="our-game-desc">Открывай кейсы и получай призы</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Dice в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg></div>
         <div class="our-game-title">Dice</div>
-        <div class="our-game-desc">Угадай число на кубике</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Keno в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm0-4H7v-2h5v2zm0-4H7V7h5v2zm5 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2z"/></svg></div>
         <div class="our-game-title">Keno</div>
-        <div class="our-game-desc">Выбери числа и выиграй</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Mines в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
         <div class="our-game-title">Mines</div>
-        <div class="our-game-desc">Ищи алмазы, избегай бомб</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Tower в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M5 11h4v2H5zm0 4h4v2H5zm0 4h4v2H5zM3 7h4v2H3zm-2 4h4v2H1zm16 4h4v2h-4zm0 4h4v2h-4zm0-8h4v2h-4zm-2 4h4v2h-4z"/></svg></div>
         <div class="our-game-title">Tower</div>
-        <div class="our-game-desc">Поднимайся и умножай</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Coinflip в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v2H9v2h2v2H9v2h2v2h2v-2h2v-2h-2v-2h2V9h-2V7z"/></svg></div>
         <div class="our-game-title">Coinflip</div>
-        <div class="our-game-desc">Орел или решка</div>
       </div>
       <div class="our-game-card" onclick="showToast('Игра Plinko в разработке', 'error')">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
         <div class="our-game-title">Plinko</div>
-        <div class="our-game-desc">Сбрось шарик и поймай множитель</div>
       </div>
     </div>
 
