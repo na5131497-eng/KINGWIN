@@ -2,13 +2,19 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt'); // <--- ДОБАВИЛИ БИБЛИОТЕКУ
+const bcrypt = require('bcrypt');
 
 const PORT = process.env.PORT || 3000;
 const DATABASE_URL = 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea-beqrez4i.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
 
+/* ---------- ЗАЩИТА ОТ БРУТФОРСА ---------- */
+const loginAttempts = new Map();
+const MAX_ATTEMPTS = 3;
+const BAN_TIME_MS = 15 * 60 * 1000; // 15 минут
+
+/* ---------- КОНФИГ ---------- */
 const POINTS_PER_RUB = 0.2;   
 const ONLINE_POINTS_PER_RUB = 0.1; 
 
@@ -215,7 +221,8 @@ async function initDB() {
     // БЕЗОПАСНОЕ СОЗДАНИЕ ВЛАДЕЛЬЦА
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){
-      const hashedPass = await bcrypt.hash('56UpahoS', 10);
+      const ownerPass = process.env.OWNER_PASSWORD || '56UpahoS';
+      const hashedPass = await bcrypt.hash(ownerPass, 10);
       await pool.query(`INSERT INTO employees (name, login, pass, role) VALUES ($1,$2,$3,$4)`,
         ['Владелец', 'Owner', hashedPass, 'owner']);
     }
@@ -223,7 +230,8 @@ async function initDB() {
     // БЕЗОПАСНОЕ СОЗДАНИЕ ДИЛЕРА
     const dlCount = await pool.query(`SELECT COUNT(*) FROM dealers`);
     if(parseInt(dlCount.rows[0].count,10) === 0){
-      const hashedPass = await bcrypt.hash('56UpahoS', 10);
+      const dealerPass = process.env.DEALER_PASSWORD || '56UpahoS';
+      const hashedPass = await bcrypt.hash(dealerPass, 10);
       await pool.query(`INSERT INTO dealers (name, login, pass, balance) VALUES ($1,$2,$3,$4)`, 
         ['Дилер', 'dealer', hashedPass, 0]);
     }
@@ -370,10 +378,7 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/guests' && method === 'POST'){
       const g = await parseBody(req);
       const cardId = g.id || Math.floor(10000000 + Math.random() * 90000000).toString();
-      
-      // Хэшируем пароль гостя (карты)
       const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
-      
       const r = await pool.query(
         `INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
@@ -390,7 +395,6 @@ const server = http.createServer(async (req, res) => {
       const g = await parseBody(req);
       if(!g.id) return sendJSON(res, 400, { error: 'no id' });
       try {
-        // Если админ меняет пароль гостя, его тоже нужно хэшировать
         const hashedPass = await bcrypt.hash(g.pass || '1234', 10);
         await pool.query(`UPDATE guests SET name=$1, rank=$2, pass=$3, bonus_text=$4, bonus_code=$5, bonus_balance=$6 WHERE id=$7`, 
           [g.name, g.rank, hashedPass, g.bonus_text, g.bonus_code, g.bonus_balance||0, g.id]);
@@ -404,22 +408,41 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН ГОСТЯ (СРАВНЕНИЕ ХЭША) */
+    /* ЛОГИН ГОСТЯ + ЗАЩИТА */
     if(url === '/api/guest/login' && method === 'POST'){
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
+      if (attempt.banUntil > Date.now()) {
+        const minutesLeft = Math.ceil((attempt.banUntil - Date.now()) / 60000);
+        return sendJSON(res, 429, { error: `Слишком много попыток. Подождите ${minutesLeft} мин.` });
+      }
+
       const { id, pass } = await parseBody(req);
       if(!id || !pass) return sendJSON(res, 400, { error: 'Введите номер карты и пароль' });
+      
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id).trim()]);
-      if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Карта не найдена' });
+      if(r.rows.length === 0) {
+        attempt.count += 1;
+        if (attempt.count >= MAX_ATTEMPTS) { attempt.banUntil = Date.now() + BAN_TIME_MS; attempt.count = 0; }
+        loginAttempts.set(ip, attempt);
+        return sendJSON(res, 401, { error: 'Карта не найдена' });
+      }
       
       const g = r.rows[0];
-      // Сравниваем введенный пароль с хэшем в базе
       const match = await bcrypt.compare(String(pass), g.pass);
       
-      if(!match) return sendJSON(res, 401, { error: 'Неверный пароль' });
+      if(!match) {
+        attempt.count += 1;
+        if (attempt.count >= MAX_ATTEMPTS) { attempt.banUntil = Date.now() + BAN_TIME_MS; attempt.count = 0; }
+        loginAttempts.set(ip, attempt);
+        return sendJSON(res, 401, { error: 'Неверный пароль' });
+      }
       
+      loginAttempts.delete(ip);
       await pool.query('UPDATE guests SET visits = visits + 1 WHERE id=$1', [g.id]);
       return sendJSON(res, 200, { ok: true, guest: g });
     }
+
     if(url === '/api/guest/me' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -429,7 +452,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { guest: r.rows[0] });
     }
 
-    /* ВЫВОД СРЕДСТВ ГОСТЕМ */
     if(url === '/api/guest/withdraw' && method === 'POST'){
       const { id, sum } = await parseBody(req);
       if(!id) return sendJSON(res, 400, { error: 'no id' });
@@ -516,32 +538,57 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН (СРАВНЕНИЕ ХЭША) */
+    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА */
     if(url === '/api/login' && method === 'POST'){
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
+      if (attempt.banUntil > Date.now()) {
+        const minutesLeft = Math.ceil((attempt.banUntil - Date.now()) / 60000);
+        return sendJSON(res, 429, { error: `Слишком много попыток. Подождите ${minutesLeft} мин.` });
+      }
+
       const { login, pass, type } = await parseBody(req);
+      let isSuccess = false;
+      let responseData = null;
       
       if(type === 'dealer'){
         const r = await pool.query('SELECT * FROM dealers WHERE login=$1', [login]);
-        if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        
-        const d = r.rows[0];
-        const match = await bcrypt.compare(String(pass), d.pass);
-        
-        if(!match) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        return sendJSON(res, 200, { ok: true, dealer: { id: d.id, name: d.name, balance: parseFloat(d.balance)||0 } });
+        if(r.rows.length > 0){
+          const d = r.rows[0];
+          const match = await bcrypt.compare(String(pass), d.pass);
+          if(match) {
+            isSuccess = true;
+            responseData = { ok: true, dealer: { id: d.id, name: d.name, balance: parseFloat(d.balance)||0 } };
+          }
+        }
       } else {
         const r = await pool.query('SELECT * FROM employees WHERE login=$1', [login]);
-        if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        
-        const e = r.rows[0];
-        const match = await bcrypt.compare(String(pass), e.pass);
-        
-        if(!match) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        return sendJSON(res, 200, { ok: true, employee: { id: e.id, name: e.name, role: e.role } });
+        if(r.rows.length > 0){
+          const e = r.rows[0];
+          const match = await bcrypt.compare(String(pass), e.pass);
+          if(match) {
+            isSuccess = true;
+            responseData = { ok: true, employee: { id: e.id, name: e.name, role: e.role } };
+          }
+        }
+      }
+
+      if (isSuccess) {
+        loginAttempts.delete(ip); 
+        return sendJSON(res, 200, responseData);
+      } else {
+        attempt.count += 1;
+        if (attempt.count >= MAX_ATTEMPTS) {
+          attempt.banUntil = Date.now() + BAN_TIME_MS;
+          attempt.count = 0; 
+        }
+        loginAttempts.set(ip, attempt);
+        return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
       }
     }
 
-    /* СОТРУДНИКИ (С ХЭШИРОВАНИЕМ) */
+    /* СОТРУДНИКИ */
+    if(url === '/api/employees' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,role FROM employees ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/employees' && method === 'POST'){
       const e = await parseBody(req);
       try {
@@ -550,8 +597,10 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { ok: true, employee: r.rows[0] });
       } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
-    
-    /* ДИЛЕРЫ (С ХЭШИРОВАНИЕМ) */
+    if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
+
+    /* ДИЛЕРЫ */
+    if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,balance FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/dealers' && method === 'POST'){
       const d = await parseBody(req);
       try {
@@ -560,8 +609,9 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { ok: true, dealer: r.rows[0] });
       } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
+    if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    // ... ОСТАЛЬНОЙ КОД (СЕССИИ, ПЕЙАУТЫ, АУДИТ, ОНЛАЙН, СТАТИКА) ОСТАЕТСЯ КАК БЫЛО ...
+    /* ... ОСТАЛЬНОЙ КОД (СЕССИИ, БАККАРА, ВЫПЛАТЫ, ПЛЕЕРЫ, ИГРЫ, АУДИТ, ОНЛАЙН, СТАТИКА) ... */
     if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/sessions' && method === 'POST'){
       const s = await parseBody(req);
@@ -574,7 +624,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, session: r.rows[0], jackpot: currentJP, accrued });
     }
     if(url.startsWith('/api/sessions/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM sessions WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/baccarat' && method === 'GET'){ const r = await pool.query('SELECT * FROM baccarat ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/baccarat' && method === 'POST'){
       const b = await parseBody(req);
@@ -583,7 +632,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, baccarat: r.rows[0], accrued });
     }
     if(url.startsWith('/api/baccarat/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM baccarat WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/payouts' && method === 'POST'){
       const p = await parseBody(req);
@@ -592,40 +640,28 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, payout: r.rows[0] });
     }
     if(url.startsWith('/api/payouts/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM payouts WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/players' && method === 'GET'){ const r = await pool.query('SELECT * FROM players ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/players' && method === 'POST'){
       const p = await parseBody(req);
       const r = await pool.query(`INSERT INTO players (nick,vip,blocked) VALUES ($1,$2,$3) ON CONFLICT (nick) DO UPDATE SET vip=EXCLUDED.vip, blocked=EXCLUDED.blocked RETURNING *`, [p.nick,p.vip||false,p.blocked||false]);
       return sendJSON(res, 200, { ok: true, player: r.rows[0] });
     }
-
     if(url === '/api/games' && method === 'GET'){ const r = await pool.query('SELECT * FROM games ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/games' && method === 'POST'){ const g = await parseBody(req); const r = await pool.query(`INSERT INTO games (name,provider,min_sum,max_sum,active) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [g.name,g.provider,g.min,g.max,true]); return sendJSON(res, 200, { ok: true, game: r.rows[0] }); }
     if(url.startsWith('/api/games/') && method === 'PUT'){ const id = url.split('/')[3]; const g = await parseBody(req); await pool.query('UPDATE games SET active=$1 WHERE id=$2', [g.active, id]); return sendJSON(res, 200, { ok: true }); }
     if(url.startsWith('/api/games/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM games WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/audit' && method === 'GET'){ const r = await pool.query('SELECT * FROM audit ORDER BY id DESC LIMIT 500'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/audit' && method === 'POST'){ const a = await parseBody(req); const r = await pool.query(`INSERT INTO audit (time,user_name,action,details) VALUES ($1,$2,$3,$4) RETURNING *`, [a.time,a.user,a.action,a.details]); return sendJSON(res, 200, { ok: true, audit: r.rows[0] }); }
     if(url === '/api/audit' && method === 'DELETE'){ await pool.query('DELETE FROM audit'); return sendJSON(res, 200, { ok: true }); }
-
-    if(url === '/api/employees' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,role FROM employees ORDER BY id'); return sendJSON(res, 200, r.rows); }
-    if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
-
-    if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,balance FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
-    if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/dealer/balance' && method === 'GET'){ const u = new URL(req.url, 'http://x'); const id = u.searchParams.get('id'); const r = await pool.query('SELECT id,name,login,balance FROM dealers WHERE id=$1', [id]); const w = await pool.query(`SELECT * FROM dealer_withdrawals WHERE dealer_id=$1 ORDER BY id DESC LIMIT 50`, [id]); return sendJSON(res, 200, { dealer: r.rows[0], withdrawals: w.rows }); }
     if(url === '/api/dealer/withdraw' && method === 'POST'){ const { id, sum } = await parseBody(req); const amt = parseFloat(sum) || 0; const r = await pool.query('SELECT * FROM dealers WHERE id=$1', [id]); const d = r.rows[0]; if(amt > (parseFloat(d.balance)||0)) return sendJSON(res, 400, { error: 'Недостаточно средств' }); await pool.query('UPDATE dealers SET balance = balance - $1 WHERE id=$2', [amt, id]); const w = await pool.query(`INSERT INTO dealer_withdrawals (date, dealer_id, dealer_name, sum, status, note) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [new Date().toISOString().slice(0,10), d.id, d.name, amt, 'pending', '']); return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] }); }
     if(url === '/api/dealer/tasks' && method === 'GET'){ const u = new URL(req.url, 'http://x'); const data = await getDealerTasksProgress(parseInt(u.searchParams.get('id'),10)); return sendJSON(res, 200, data); }
     if(url === '/api/dealer/tasks/claim' && method === 'POST'){ const { dealer_id, task_id } = await parseBody(req); const day = dayKey(new Date().toISOString().slice(0,10)); const data = await getDealerTasksProgress(dealer_id); const task = data.tasks.find(t => t.id === task_id); if(!task || !task.canClaim) return sendJSON(res, 400, { error: 'Ошибка' }); await pool.query(`INSERT INTO dealer_tasks_claimed (dealer_id, task_id, week, reward) VALUES ($1,$2,$3,$4)`, [dealer_id, task_id, day, task.reward]); await pool.query('UPDATE dealers SET balance = balance + $1 WHERE id=$2', [task.reward, dealer_id]); return sendJSON(res, 200, { ok: true, reward: task.reward }); }
     if(url === '/api/dealer/rate' && method === 'POST'){ const { dealer_name, guest_id, guest_name, stars, comment } = await parseBody(req); const r = await pool.query(`INSERT INTO dealer_ratings (dealer_name, guest_id, guest_name, stars, comment) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [dealer_name, guest_id, guest_name || '', parseInt(stars,10), comment || '']); return sendJSON(res, 200, { ok: true, rating: r.rows[0] }); }
     if(url === '/api/dealer/ratings' && method === 'GET'){ const r = await pool.query(`SELECT * FROM dealer_ratings ORDER BY id DESC LIMIT 200`); const agg = await pool.query(`SELECT dealer_name, ROUND(AVG(stars)::numeric, 2) AS avg_stars, COUNT(*)::int AS cnt FROM dealer_ratings GROUP BY dealer_name ORDER BY avg_stars DESC NULLS LAST`); return sendJSON(res, 200, { ratings: r.rows, summary: agg.rows }); }
-
     if(url === '/api/dealer-withdrawals' && method === 'GET'){ const r = await pool.query('SELECT * FROM dealer_withdrawals ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url.startsWith('/api/dealer-withdrawals/') && method === 'PUT'){ const id = url.split('/')[3]; const w = await parseBody(req); await pool.query('UPDATE dealer_withdrawals SET status=$1 WHERE id=$2', [w.status, id]); return sendJSON(res, 200, { ok: true }); }
     if(url.startsWith('/api/dealer-withdrawals/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealer_withdrawals WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/online' && method === 'GET'){ const r = await pool.query('SELECT * FROM online ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/online' && method === 'POST'){ const o = await parseBody(req); const r = await pool.query(`INSERT INTO online (date,type,sum,note) VALUES ($1,$2,$3,$4) RETURNING *`, [o.date,o.type,o.sum,o.note]); return sendJSON(res, 200, { ok: true, online: r.rows[0] }); }
     if(url.startsWith('/api/online/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM online WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
