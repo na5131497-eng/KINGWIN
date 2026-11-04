@@ -12,9 +12,9 @@ const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } }
 /* ---------- ЗАЩИТА ОТ БРУТФОРСА ---------- */
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 3;
-const BAN_TIME_MS = 15 * 60 * 1000; // 15 минут
+const BAN_TIME_MS = 15 * 60 * 1000; 
 
-/* ---------- ЗАЩИТА ОТ DDOS (RATE LIMITING) ---------- */
+/* ---------- ЗАЩИТА ОТ DDOS ---------- */
 const requestCounts = new Map();
 const MAX_REQUESTS_PER_MINUTE = 100;
 
@@ -60,7 +60,6 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
-// --- ОЧИСТКА ВВОДА (ЗАЩИТА ОТ XSS И ПЕРЕПОЛНЕНИЯ) ---
 function sanitizeString(str, maxLength = 50) {
   if (!str || typeof str !== 'string') return '';
   let cleaned = str.trim().slice(0, maxLength);
@@ -218,6 +217,16 @@ async function initDB() {
         multiplier NUMERIC DEFAULT 0, win_amount NUMERIC DEFAULT 0, status TEXT DEFAULT 'playing',
         created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS session_rounds (
+        id SERIAL PRIMARY KEY, 
+        dealer TEXT, 
+        date TEXT, 
+        round_time TIMESTAMP DEFAULT NOW(),
+        game_type TEXT, -- 'bj' или 'bac'
+        nick TEXT, 
+        bet NUMERIC DEFAULT 0, 
+        win NUMERIC DEFAULT 0
+      );
     `);
 
     const cols = [
@@ -324,11 +333,15 @@ async function getDealerTasksProgress(dealerId){
   const dRes = await pool.query('SELECT name FROM dealers WHERE id=$1', [dealerId]);
   if(dRes.rows.length === 0) return { day, tasks: [] };
   const dealerName = dRes.rows[0].name;
-  const bjRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM sessions WHERE dealer = $1 AND date = $2`, [dealerName, day]);
-  const bacRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM baccarat WHERE dealer = $1 AND date = $2`, [dealerName, day]);
+  
+  // Считаем раунды из новой таблицы session_rounds за сегодня
+  const bjRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM session_rounds WHERE dealer = $1 AND game_type = 'bj' AND date = $2`, [dealerName, day]);
+  const bacRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM session_rounds WHERE dealer = $1 AND game_type = 'bac' AND date = $2`, [dealerName, day]);
   const bjCount = bjRes.rows[0]?.cnt || 0, bacCount = bacRes.rows[0]?.cnt || 0;
+  
   const claimedRes = await pool.query(`SELECT task_id FROM dealer_tasks_claimed WHERE dealer_id=$1 AND week=$2`, [dealerId, day]);
   const claimed = new Set(claimedRes.rows.map(r => r.task_id));
+  
   const tasks = DEALER_TASKS.map(t => {
     const progress = t.type === 'bj' ? bjCount : bacCount;
     const done = progress >= t.goal;
@@ -341,7 +354,6 @@ const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
 
-  // --- ЗАЩИТА ОТ DDOS ---
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
   const now = Date.now();
   
@@ -367,6 +379,52 @@ const server = http.createServer(async (req, res) => {
       const jackpot = await getActualJackpot();
       return sendJSON(res, 200, { jackpot });
     }
+
+    /* --- НОВЫЙ РАУНД (ВМЕСТО СТАРОЙ СЕССИИ) --- */
+    if(url === '/api/sessions/round' && method === 'POST'){
+      const { dealer, game_type, nick, bet, win } = await parseBody(req);
+      
+      const safeNick = sanitizeString(nick, 50);
+      if(!dealer || !safeNick) return sendJSON(res, 400, { error: 'Нет данных' });
+      
+      const betAmt = parseFloat(bet) || 0;
+      const winAmt = parseFloat(win) || 0;
+      
+      // --- АВТОМАТИЧЕСКАЯ ПРОВЕРКА (ЗАЩИТА ОТ ВРАНЬЯ) ---
+      if (betAmt > 10000) return sendJSON(res, 400, { error: 'Ставка не может быть больше 10 000 ₽' });
+      if (winAmt > 100000) return sendJSON(res, 400, { error: 'Выигрыш не может быть больше 100 000 ₽' });
+      
+      // Проверка на спам (не больше 1 раунда в 3 секунды)
+      const lastRound = await pool.query(`SELECT round_time FROM session_rounds WHERE dealer = $1 ORDER BY id DESC LIMIT 1`, [dealer]);
+      if (lastRound.rows.length > 0) {
+        const lastTime = new Date(lastRound.rows[0].round_time).getTime();
+        if (Date.now() - lastTime < 3000) {
+          return sendJSON(res, 429, { error: 'Слишком быстро. Подождите 3 секунды.' });
+        }
+      }
+
+      const today = new Date().toISOString().slice(0,10);
+      
+      // Записываем раунд в БД
+      await pool.query(
+        `INSERT INTO session_rounds (dealer, date, game_type, nick, bet, win) VALUES ($1,$2,$3,$4,$5,$6)`,
+        [dealer, today, game_type, safeNick, betAmt, winAmt]
+      );
+
+      // Начисляем баллы гостю (10 руб = 1 балл)
+      if (betAmt > 0) {
+        await accruePointsByNick(safeNick, betAmt, game_type);
+      }
+
+      return sendJSON(res, 200, { ok: true, bet: betAmt, win: winAmt });
+    }
+
+    // Эндпоинт для получения статистики раундов дилера (для админки)
+    if(url === '/api/sessions/rounds' && method === 'GET'){
+      const r = await pool.query(`SELECT * FROM session_rounds ORDER BY id DESC LIMIT 500`);
+      return sendJSON(res, 200, r.rows);
+    }
+    /* ------------------------------------------- */
 
     /* --- КРАШ --- */
     if(url === '/api/crash/status' && method === 'GET'){
@@ -453,9 +511,14 @@ const server = http.createServer(async (req, res) => {
       const safeBonusCode = sanitizeString(g.bonus_code || '', 30);
       
       try {
-        const hashedPass = await bcrypt.hash(String(g.pass || '1234').slice(0, 30), 10);
-        await pool.query(`UPDATE guests SET name=$1, rank=$2, pass=$3, bonus_text=$4, bonus_code=$5, bonus_balance=$6 WHERE id=$7`, 
-          [safeName, g.rank, hashedPass, safeBonusText, safeBonusCode, g.bonus_balance||0, g.id]);
+        if (g.pass) {
+          const hashedPass = await bcrypt.hash(String(g.pass).slice(0, 30), 10);
+          await pool.query(`UPDATE guests SET name=$1, rank=$2, pass=$3, bonus_text=$4, bonus_code=$5, bonus_balance=$6 WHERE id=$7`, 
+            [safeName, g.rank, hashedPass, safeBonusText, safeBonusCode, g.bonus_balance||0, g.id]);
+        } else {
+          await pool.query(`UPDATE guests SET name=$1, rank=$2, bonus_text=$3, bonus_code=$4, bonus_balance=$5 WHERE id=$6`, 
+            [safeName, g.rank, safeBonusText, safeBonusCode, g.bonus_balance||0, g.id]);
+        }
         return sendJSON(res, 200, { ok: true });
       } catch(e){ return sendJSON(res, 500, { error: e.message }); }
     }
@@ -466,7 +529,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН ГОСТЯ + ЗАЩИТА */
+    /* ЛОГИН ГОСТЯ */
     if(url === '/api/guest/login' && method === 'POST'){
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
       if (attempt.banUntil > Date.now()) {
@@ -595,7 +658,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* ЛОГИН (АДМИН/ДИЛЕР) + ЗАЩИТА */
+    /* ЛОГИН (АДМИН/ДИЛЕР) */
     if(url === '/api/login' && method === 'POST'){
       const attempt = loginAttempts.get(ip) || { count: 0, banUntil: 0 };
       if (attempt.banUntil > Date.now()) {
@@ -668,26 +731,6 @@ const server = http.createServer(async (req, res) => {
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
     /* ОСТАЛЬНОЕ */
-    if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
-    if(url === '/api/sessions' && method === 'POST'){
-      const s = await parseBody(req);
-      const r = await pool.query(`INSERT INTO sessions (date,nick,decks,dep,out_sum,fee,net,result,dealer) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`, [s.date,s.nick,s.decks,s.dep,s.outSum,s.fee,s.net,s.result,s.dealer]);
-      const accrued = await accruePointsByNick(s.nick, parseFloat(s.dep) || 0, 'blackjack');
-      let currentJP = await getActualJackpot();
-      if(s.winJackpot){ currentJP = 0; } else { currentJP += Math.max(1, (parseFloat(s.dep)||0) * 0.15); if (currentJP >= JACKPOT_MAX) currentJP = 0; }
-      await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
-      await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
-      return sendJSON(res, 200, { ok: true, session: r.rows[0], jackpot: currentJP, accrued });
-    }
-    if(url.startsWith('/api/sessions/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM sessions WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-    if(url === '/api/baccarat' && method === 'GET'){ const r = await pool.query('SELECT * FROM baccarat ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
-    if(url === '/api/baccarat' && method === 'POST'){
-      const b = await parseBody(req);
-      const r = await pool.query(`INSERT INTO baccarat (date,player,bet,sum,result,dealer) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [b.date,b.player,b.bet,b.sum,b.result,b.dealer]);
-      const accrued = await accruePointsByNick(b.player, parseFloat(b.sum) || 0, 'baccarat');
-      return sendJSON(res, 200, { ok: true, baccarat: r.rows[0], accrued });
-    }
-    if(url.startsWith('/api/baccarat/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM baccarat WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/payouts' && method === 'POST'){
       const p = await parseBody(req);
