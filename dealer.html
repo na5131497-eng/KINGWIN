@@ -2,14 +2,14 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Панель дилера</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
   .login-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; }
-  .logo-text { font-size: 32px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.3)); }
+  .logo-text { font-size: 32px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
   .login-subtitle { font-size: 14px; color: #a0aec0; font-weight: 600; margin-bottom: 35px; text-transform: uppercase; letter-spacing: 1px; }
   .input-group { position: relative; margin-bottom: 25px; text-align: left; }
   .input-group label { display: block; font-size: 14px; color: #a0aec0; margin-bottom: 8px; font-weight: 600; }
@@ -52,13 +52,11 @@
   .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
   .hidden { display: none !important; }
 
-  /* Баланс */
   .balance-card { background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.35); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
   .balance-card .lbl { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
   .balance-card .amount { font-size: 38px; font-weight: 900; color: #3fbf7f; line-height: 1; }
   .balance-card .sub { font-size: 12px; color: #8fa2b8; margin-top: 6px; }
 
-  /* Задания */
   .task { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
   .task.done { border-color: rgba(63,191,127,.4); }
   .task .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
@@ -89,6 +87,9 @@
   .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
   .btn-confirm { flex: 1; background: #00e5ff; border: none; color: #000; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
+  .err-modal { border-color: rgba(255,77,77,.4); }
+  .ok-modal { border-color: rgba(63,191,127,.4); }
+
   @media (max-width: 500px) {
     .row { flex-direction: column; gap: 0; }
     .tabs { flex-direction: column; }
@@ -117,84 +118,57 @@
   </div>
 
   <div class="tabs">
-    <button class="active" data-tab="data" onclick="switchTab('data')">Внести данные</button>
+    <button class="active" data-tab="data" onclick="switchTab('data')">Внести раунд</button>
     <button data-tab="tasks" onclick="switchTab('tasks')">Задания</button>
     <button data-tab="balance" onclick="switchTab('balance')">Баланс</button>
   </div>
 
-  <!-- ВНЕСТИ ДАННЫЕ -->
+  <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
   <div class="tab active" id="tab-data">
-    <div class="tabs" style="margin-bottom:15px">
-      <button class="active" data-sub="bj" onclick="switchSub('bj')">Блэкджек</button>
-      <button data-sub="bac" onclick="switchSub('bac')">Баккара</button>
+    <h2>Новый раунд</h2>
+    <div class="sub">Вбивайте каждый раунд. Система сама посчитает сессию.</div>
+
+    <div class="form-group">
+      <label>Игра</label>
+      <select id="gameType">
+        <option value="bj">Блэкджек</option>
+        <option value="bac">Баккара</option>
+      </select>
     </div>
 
-    <div class="sub-tab active" id="sub-bj">
-      <div class="form-group"><label>Игрок</label><input type="text" id="nick" placeholder="Ник игрока"></div>
-      <div class="form-group">
-        <label>Количество колод</label>
-        <div class="choice-group" id="decks-group">
-          <button type="button" class="choice-btn selected" onclick="selectDeck(this, '6')">6 колод</button>
-          <button type="button" class="choice-btn" onclick="selectDeck(this, '4')">4 колоды</button>
-          <button type="button" class="choice-btn" onclick="selectDeck(this, '2')">2 колоды</button>
-          <button type="button" class="choice-btn" onclick="selectDeck(this, '1')">1 колода</button>
-        </div>
-        <input type="hidden" id="decks" value="6">
-      </div>
-      <div class="row">
-        <div class="form-group"><label>Депозит (₽)</label><input type="number" id="dep" min="10" max="10000" placeholder="10"></div>
-        <div class="form-group"><label>Вывод (₽)</label><input type="number" id="out" min="0" max="10000" placeholder="0"></div>
-      </div>
-      <div class="form-group"><label>Комиссия (₽)</label><input type="number" id="fee" min="0" placeholder="0"></div>
-      <div class="form-group" style="text-align:left;margin-top:8px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;text-transform:none;font-size:13px">
-          <input type="checkbox" id="winJackpot" style="width:18px;height:18px">
-          <span>Выпал джекпот (Три 7 бубен)</span>
-        </label>
-      </div>
-      <button class="btn-submit" id="btnBJ" onclick="saveBJ()">Внести сессию</button>
-      <div class="msg" id="msgBj"></div>
+    <div class="form-group">
+      <label>Ник игрока</label>
+      <input type="text" id="playerNick" placeholder="Иван">
     </div>
 
-    <div class="sub-tab" id="sub-bac" style="display:none">
-      <div class="form-group"><label>Игрок</label><input type="text" id="bac_player" placeholder="Ник игрока"></div>
+    <div class="row">
       <div class="form-group">
-        <label>Ставка на</label>
-        <div class="choice-group" id="bac-bet-group">
-          <button type="button" class="choice-btn" onclick="selectBet(this, 'игрок')">Игрок</button>
-          <button type="button" class="choice-btn" onclick="selectBet(this, 'банк')">Банк</button>
-          <button type="button" class="choice-btn" onclick="selectBet(this, 'ничья')">Ничья</button>
-        </div>
-        <input type="hidden" id="bac_bet" value="">
+        <label>Ставка игрока (₽)</label>
+        <input type="number" id="betAmount" min="10" max="10000" placeholder="100">
       </div>
-      <div class="form-group"><label>Сумма ставки (₽)</label><input type="number" id="bac_sum" min="10" max="10000" placeholder="10"></div>
       <div class="form-group">
-        <label>Результат раздачи</label>
-        <div class="choice-group" id="bac-result-group">
-          <button type="button" class="choice-btn" onclick="selectResult(this, 'игрок')">Победил Игрок</button>
-          <button type="button" class="choice-btn" onclick="selectResult(this, 'банк')">Победил Банк</button>
-          <button type="button" class="choice-btn" onclick="selectResult(this, 'ничья')">Ничья</button>
-        </div>
-        <input type="hidden" id="bac_result" value="">
+        <label>Выигрыш игрока (₽)</label>
+        <input type="number" id="winAmount" min="0" max="100000" placeholder="0">
       </div>
-      <button class="btn-submit" id="btnBac" onclick="saveBac()">Внести раздачу</button>
-      <div class="msg" id="msgBac"></div>
     </div>
+
+    <button class="btn-submit" id="btnSubmit" onclick="saveRound()">Внести раунд</button>
+    <div class="msg" id="msgData"></div>
   </div>
 
-  <!-- ЗАДАНИЯ -->
+  <!-- ВКЛАДКА: ЗАДАНИЯ -->
   <div class="tab" id="tab-tasks">
-    <h2>Еженедельные задания</h2>
-    <div class="sub">Обновляются каждый понедельник. Успей выполнить и забрать награду!</div>
-    <div id="weekBadge" class="week-badge">Неделя: —</div>
+    <h2>Ежедневные задания</h2>
+    <div class="sub">Обновляются каждый день</div>
+    <div id="weekBadge" class="week-badge">День: —</div>
     <div id="tasksList"></div>
     <div class="msg" id="msgTask"></div>
   </div>
 
-  <!-- БАЛАНС -->
+  <!-- ВКЛАДКА: БАЛАНС -->
   <div class="tab" id="tab-balance">
     <h2>Мой баланс</h2>
-    <div class="sub">Зарплата + награды за задания. Можно вывести на карту или получить наличными.</div>
+    <div class="sub">Зарплата + награды за задания</div>
     <div class="balance-card">
       <div class="lbl">Доступно к выводу</div>
       <div class="amount"><span id="dealerBalance">0</span> ₽</div>
@@ -208,7 +182,7 @@
   </div>
 </div>
 
-<!-- Модалка вывода -->
+<!-- Модалки -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h3>Вывод средств</h3>
@@ -221,11 +195,32 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box" id="infoBox">
+    <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
+    <h3 id="infoTitle">Ошибка</h3>
+    <p id="infoText"></p>
+    <div class="modal-actions">
+      <button class="btn-confirm" onclick="closeInfo()">ОК</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let currentDealer = null;
 let dealerBalance = 0;
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+function showInfo(title, text, type='err'){
+  const box = document.getElementById('infoBox');
+  box.className = 'modal-box ' + (type === 'ok' ? 'ok-modal' : 'err-modal');
+  document.getElementById('infoIcon').textContent = type === 'ok' ? '✅' : '⚠️';
+  document.getElementById('infoTitle').textContent = title;
+  document.getElementById('infoText').innerHTML = text;
+  document.getElementById('infoModal').classList.add('show');
+}
+function closeInfo(){ document.getElementById('infoModal').classList.remove('show'); }
 
 function switchTab(name){
   document.querySelectorAll('.tabs > button[data-tab]').forEach(b=>b.classList.remove('active'));
@@ -234,28 +229,6 @@ function switchTab(name){
   document.getElementById('tab-' + name).classList.add('active');
   if(name === 'tasks') loadTasks();
   if(name === 'balance') loadBalance();
-}
-function switchSub(name){
-  document.querySelectorAll('.tabs button[data-sub]').forEach(b=>b.classList.remove('active'));
-  document.querySelector(`.tabs button[data-sub="${name}"]`).classList.add('active');
-  document.getElementById('sub-bj').style.display = name === 'bj' ? 'block' : 'none';
-  document.getElementById('sub-bac').style.display = name === 'bac' ? 'block' : 'none';
-}
-
-function selectDeck(btn, val){
-  document.querySelectorAll('#decks-group .choice-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  document.getElementById('decks').value = val;
-}
-function selectBet(btn, val){
-  document.querySelectorAll('#bac-bet-group .choice-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  document.getElementById('bac_bet').value = val;
-}
-function selectResult(btn, val){
-  document.querySelectorAll('#bac-result-group .choice-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  document.getElementById('bac_result').value = val;
 }
 
 function showMsg(id, text, ok){
@@ -301,75 +274,56 @@ function confirmLogout(){
   document.getElementById('loginPass').value = '';
 }
 
-/* ---------- ВНЕСЕНИЕ ---------- */
-async function saveBJ(){
-  const nick = document.getElementById('nick').value.trim();
-  const decks = parseInt(document.getElementById('decks').value, 10);
-  const dep = parseFloat(document.getElementById('dep').value) || 0;
-  const outSum = parseFloat(document.getElementById('out').value) || 0;
-  const fee = parseFloat(document.getElementById('fee').value) || 0;
-  const winJackpot = document.getElementById('winJackpot').checked;
+/* --- СОХРАНЕНИЕ РАУНДА --- */
+async function saveRound(){
+  const gameType = document.getElementById('gameType').value;
+  const playerNick = document.getElementById('playerNick').value.trim();
+  const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+  const winAmount = parseFloat(document.getElementById('winAmount').value) || 0;
 
-  if(!nick){ showMsg('msgBj', 'Укажите ник игрока', false); return; }
-  if(dep < 10 || dep > 10000){ showMsg('msgBj', 'Депозит от 10 до 10 000', false); return; }
-  if(outSum < 0 || outSum > 10000){ showMsg('msgBj', 'Вывод от 0 до 10 000', false); return; }
+  if(!playerNick){ showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if(betAmount < 10 || betAmount > 10000){ showInfo('Ошибка', 'Ставка от 10 до 10 000 ₽'); return; }
+  if(winAmount < 0 || winAmount > 100000){ showInfo('Ошибка', 'Выигрыш от 0 до 100 000 ₽'); return; }
 
-  const btn = document.getElementById('btnBJ');
+  const btn = document.getElementById('btnSubmit');
   btn.disabled = true; btn.textContent = 'Отправка...';
-  const date = new Date().toISOString().slice(0,10);
-  const net = outSum - fee;
-  const result = dep - outSum + fee;
 
   try {
-    const r = await fetch('/api/sessions', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ date, nick, decks, dep, outSum, fee, net, result, dealer: currentDealer.name, winJackpot })
+    const res = await fetch('/api/sessions/round', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        dealer: currentDealer.name,
+        game_type: gameType,
+        nick: playerNick,
+        bet: betAmount,
+        win: winAmount
+      })
     });
-    if(!r.ok) throw new Error('Ошибка сервера');
-    showMsg('msgBj', 'Сессия сохранена', true);
-    ['nick','dep','out','fee'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('winJackpot').checked = false;
-  } catch(e){ showMsg('msgBj', 'Ошибка: ' + e.message, false); }
-  finally { btn.disabled = false; btn.textContent = 'Внести сессию'; }
+    const data = await res.json();
+    
+    if(res.ok) {
+      showMsg('msgData', 'Раунд сохранен!', true);
+      document.getElementById('playerNick').value = '';
+      document.getElementById('betAmount').value = '';
+      document.getElementById('winAmount').value = '';
+      loadTasks();
+    } else {
+      showInfo('Ошибка', data.error || 'Не удалось сохранить');
+    }
+  } catch(e){
+    showInfo('Ошибка', 'Соединение прервано');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Внести раунд';
+  }
 }
 
-async function saveBac(){
-  const player = document.getElementById('bac_player').value.trim();
-  const bet = document.getElementById('bac_bet').value;
-  const sum = parseFloat(document.getElementById('bac_sum').value) || 0;
-  const result = document.getElementById('bac_result').value;
-
-  if(!player){ showMsg('msgBac', 'Укажите игрока', false); return; }
-  if(!bet){ showMsg('msgBac', 'Выберите на кого ставка', false); return; }
-  if(!result){ showMsg('msgBac', 'Выберите результат', false); return; }
-  if(sum < 10 || sum > 10000){ showMsg('msgBac', 'Ставка от 10 до 10 000', false); return; }
-
-  const btn = document.getElementById('btnBac');
-  btn.disabled = true; btn.textContent = 'Отправка...';
-  const date = new Date().toISOString().slice(0,10);
-
-  try {
-    const r = await fetch('/api/baccarat', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ date, player, bet, sum, result, dealer: currentDealer.name })
-    });
-    if(!r.ok) throw new Error('Ошибка сервера');
-    showMsg('msgBac', 'Раздача сохранена', true);
-    ['bac_player','bac_sum'].forEach(id=>document.getElementById(id).value='');
-    document.querySelectorAll('#bac-bet-group .choice-btn, #bac-result-group .choice-btn').forEach(b=>b.classList.remove('selected'));
-    document.getElementById('bac_bet').value = '';
-    document.getElementById('bac_result').value = '';
-  } catch(e){ showMsg('msgBac', 'Ошибка: ' + e.message, false); }
-  finally { btn.disabled = false; btn.textContent = 'Внести раздачу'; }
-}
-
-/* ---------- ЗАДАНИЯ ---------- */
+/* --- ЗАДАНИЯ --- */
 async function loadTasks(){
   if(!currentDealer) return;
   try {
     const r = await fetch('/api/dealer/tasks?id=' + currentDealer.id);
     const data = await r.json();
-    document.getElementById('weekBadge').textContent = 'Неделя с ' + (data.week || '—');
+    document.getElementById('weekBadge').textContent = 'День: ' + (data.day || '—');
     const list = data.tasks || [];
     document.getElementById('tasksList').innerHTML = list.map(t => {
       const pct = Math.round((t.progress / t.goal) * 100);
@@ -380,15 +334,9 @@ async function loadTasks(){
           : `<span>${t.progress} / ${t.goal}</span>`;
       return `
         <div class="task ${t.done ? 'done' : ''}">
-          <div class="top">
-            <div class="title">${t.title}</div>
-            <div class="reward">${t.reward} ₽</div>
-          </div>
+          <div class="top"><div class="title">${t.title}</div><div class="reward">${t.reward} ₽</div></div>
           <div class="progress-bar"><div style="width:${pct}%"></div></div>
-          <div class="bottom">
-            <span>${t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара'}</span>
-            ${claimBtn}
-          </div>
+          <div class="bottom"><span>${t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара'}</span>${claimBtn}</div>
         </div>`;
     }).join('') || '<div style="color:#8fa2b8;text-align:center;padding:20px">Заданий нет</div>';
   } catch(e){
@@ -404,17 +352,16 @@ async function claimTask(taskId){
       body: JSON.stringify({ dealer_id: currentDealer.id, task_id: taskId })
     });
     const data = await r.json();
-    if(!r.ok){ showMsg('msgTask', data.error || 'Ошибка', false); return; }
-    showMsg('msgTask', 'Награда зачислена: ' + data.reward + ' ₽', true);
-    // обновляем баланс
+    if(!r.ok){ showInfo('Ошибка', data.error || 'Не удалось забрать награду'); return; }
+    showInfo('Награда получена', `+${data.reward} ₽ зачислено на баланс`, 'ok');
     dealerBalance += parseFloat(data.reward) || 0;
     document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
     loadTasks();
-  } catch(e){ showMsg('msgTask', 'Ошибка соединения', false); }
+  } catch(e){ showInfo('Ошибка', 'Ошибка соединения'); }
 }
 
-/* ---------- БАЛАНС ---------- */
+/* --- БАЛАНС --- */
 async function loadBalance(){
   if(!currentDealer) return;
   try {
@@ -440,27 +387,45 @@ async function loadBalance(){
 }
 
 function openWithdrawModal(){
-  if(dealerBalance <= 0){ alert('Нет средств к выводу'); return; }
-  document.getElementById('withdrawSum').value = fmt(dealerBalance).replace(/\s/g,'');
+  if(dealerBalance <= 0){
+    showInfo('Нет средств', 'На вашем балансе 0 ₽. Выполните задания или дождитесь зарплаты.', 'err');
+    return;
+  }
+  document.getElementById('withdrawSum').value = dealerBalance;
   document.getElementById('withdrawModal').classList.add('show');
 }
 function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.remove('show'); }
 
 async function doWithdraw(){
   const sum = parseFloat(document.getElementById('withdrawSum').value) || 0;
-  if(sum <= 0){ alert('Введите сумму'); return; }
-  if(sum > dealerBalance){ alert('Не больше баланса'); return; }
+  if(sum <= 0){ 
+    closeWithdrawModal();
+    showInfo('Ошибка', 'Введите сумму больше 0'); 
+    return; 
+  }
+  if(sum > dealerBalance){ 
+    closeWithdrawModal();
+    showInfo('Ошибка', `Недостаточно средств. Баланс: ${fmt(dealerBalance)} ₽`); 
+    return; 
+  }
   try {
     const r = await fetch('/api/dealer/withdraw', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ id: currentDealer.id, sum })
     });
     const data = await r.json();
-    if(!r.ok){ showMsg('msgWithdraw', data.error || 'Ошибка', false); return; }
-    showMsg('msgWithdraw', 'Заявка создана. Ожидайте подтверждения администратора.', true);
+    if(!r.ok){ 
+      closeWithdrawModal();
+      showInfo('Ошибка', data.error || 'Не удалось создать заявку'); 
+      return; 
+    }
     closeWithdrawModal();
+    showInfo('Заявка создана', 'Ожидайте подтверждения администратора', 'ok');
     loadBalance();
-  } catch(e){ showMsg('msgWithdraw', 'Ошибка соединения', false); }
+  } catch(e){ 
+    closeWithdrawModal();
+    showInfo('Ошибка', 'Ошибка соединения'); 
+  }
 }
 </script>
 </body>
