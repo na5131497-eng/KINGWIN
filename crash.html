@@ -111,27 +111,16 @@
   .btn-action .subtext { font-size: 13px; font-weight: 700; margin-top: 4px; opacity: 0.9; }
   
   /* КНОПКИ */
-  .btn-bet { 
-    background: linear-gradient(135deg, #00e5ff, #0077ff); 
-    color: #000; 
-    box-shadow: 0 0 15px rgba(0,229,255,0.3); 
-    animation: pulse-accent 2s infinite;
-  }
+  .btn-bet { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; box-shadow: 0 0 15px rgba(0,229,255,0.3); animation: pulse-accent 2s infinite; }
   .btn-bet:hover { filter: brightness(1.2); box-shadow: 0 0 25px rgba(0,229,255,0.6); }
   .btn-bet:disabled { background: rgba(255,255,255,0.05); color: var(--text-muted); box-shadow: none; animation: none; cursor: not-allowed; }
-  
   @keyframes pulse-accent {
     0% { box-shadow: 0 0 10px rgba(0,229,255,0.3); }
     50% { box-shadow: 0 0 25px rgba(0,229,255,0.8); }
     100% { box-shadow: 0 0 10px rgba(0,229,255,0.3); }
   }
   
-  .btn-cashout { 
-    background: var(--accent-green); 
-    color: #000; 
-    box-shadow: 0 0 20px rgba(0,255,136,0.5); 
-    animation: pulse-green 1s infinite; 
-  }
+  .btn-cashout { background: var(--accent-green); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.5); animation: pulse-green 1s infinite; }
   .btn-cashout:hover { background: #33ffaa; box-shadow: 0 0 30px rgba(0,255,136,0.8); }
   @keyframes pulse-green {
     0% { transform: scale(1); box-shadow: 0 0 15px rgba(0,255,136,0.4); }
@@ -307,20 +296,51 @@ async function syncGame() {
       explosionEl.classList.remove('animate');
       multValueEl.classList.remove('crashed');
       rocketEl.style.display = 'none';
+      document.getElementById('betsList').innerHTML = ''; // ОЧИЩАЕМ ТАБЛИЦУ
     }
 
     gameState = state.status;
     currentMultiplier = state.currentMultiplier;
-
-    // Отрисовка кэфа
     multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+
+    // --- ОБНОВЛЕНИЕ ЛЕВОЙ ПАНЕЛИ СТАВОК ---
+    const list = document.getElementById('betsList');
+    list.innerHTML = ''; // ЖЕСТКАЯ ОЧИСТКА ПЕРЕД ОТРИСОВКОЙ
     
+    if (state.activeBets && state.activeBets.length > 0) {
+      state.activeBets.forEach(b => {
+        const row = document.createElement('div');
+        row.className = 'bet-row';
+        
+        let multHtml = '--';
+        if (b.status === 'win') {
+          multHtml = `<span class="bet-mult win">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
+        } else if (b.status === 'lose') {
+          multHtml = `<span class="bet-mult lose" style="color:var(--red)">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
+        }
+        
+        let winHtml = '--';
+        if (b.status === 'win') {
+          winHtml = `${parseFloat(b.win_amount).toFixed(2)} ₽`;
+        } else if (b.status === 'lose') {
+          winHtml = `Проигрыш`;
+        }
+
+        row.innerHTML = `
+          <div class="bet-user"><div class="user-avatar">ID</div>${b.guest_masked}</div>
+          <div class="bet-amount">${b.bet} ₽</div>
+          <div>${multHtml}</div>
+          <div class="bet-cashout">${winHtml}</div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
     // Отрисовка истории (верхняя лента)
     if (state.history && state.history.length > 0) {
-      const list = document.getElementById('historyList');
-      // Перерисовываем только если изменилось количество
-      if (list.children.length !== state.history.length) {
-        list.innerHTML = '';
+      const hList = document.getElementById('historyList');
+      if (hList.children.length !== state.history.length) {
+        hList.innerHTML = '';
         state.history.forEach(mult => {
           const item = document.createElement('div');
           item.className = 'history-item';
@@ -329,13 +349,12 @@ async function syncGame() {
           else if (mult >= 1.5) item.classList.add('blue');
           else item.classList.add('red');
           item.textContent = mult.toFixed(2) + 'x';
-          list.appendChild(item);
+          hList.appendChild(item);
         });
       }
     }
 
     if (gameState === 'flying') {
-      // Добавляем точку для графика
       localPoints.push({ x: localPoints.length * 0.1, y: currentMultiplier });
       if (localPoints.length > 500) localPoints.shift();
       
@@ -345,8 +364,6 @@ async function syncGame() {
       checkAutoCashout(2);
     } else if (gameState === 'crashed') {
       multValueEl.classList.add('crashed');
-      
-      // Взрыв один раз
       if (!explosionEl.classList.contains('animate')) {
         const lastP = localPoints[localPoints.length - 1];
         if (lastP) {
@@ -370,10 +387,9 @@ async function syncGame() {
   }
 }
 
-// Запускаем опрос сервера каждые 100 мс
 setInterval(syncGame, 100);
 
-/* ---------------- АВТОРИЗАЦИЯ И ИСТОРИЯ ---------------- */
+/* ---------------- АВТОРИЗАЦИЯ ---------------- */
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
@@ -383,40 +399,14 @@ window.onload = () => {
         if(data.guest) {
           currentPlayer = data.guest; 
           updateBalanceUI();
-          
           const card = String(currentPlayer.id);
-          const masked = card.length > 4 
-            ? card.slice(0, 2) + '****' + card.slice(-2) 
-            : '****';
+          const masked = card.length > 4 ? card.slice(0, 2) + '****' + card.slice(-2) : '****';
           userMaskedIdEl.textContent = 'ID: ' + masked;
         } 
       })
       .catch(() => {});
   }
-
-  // Загружаем историю ставок с сервера
-  fetch('/api/crash/history')
-    .then(r => r.json())
-    .then(data => {
-      const list = document.getElementById('betsList');
-      if(data && data.length) {
-        data.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'bet-row';
-          row.innerHTML = `
-            <div class="bet-user"><div class="user-avatar">ID</div>${item.guest_masked || 'Гость'}</div>
-            <div class="bet-amount">${item.bet} ₽</div>
-            <div>${item.multiplier > 0 ? `<span class="bet-mult win">${parseFloat(item.multiplier).toFixed(2)}x</span>` : '--'}</div>
-            <div class="bet-cashout">${item.status === 'win' ? `${parseFloat(item.win_amount).toFixed(2)} ₽` : (item.status === 'lose' ? 'Проигрыш' : '--')}</div>
-          `;
-          list.appendChild(row);
-        });
-      }
-    })
-    .catch(() => {});
-    
-    // Первичная синхронизация
-    syncGame();
+  syncGame();
 };
 
 function updateBalanceUI() {
