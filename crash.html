@@ -80,7 +80,7 @@
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.6); }
   
   /* Ракета и Взрыв */
-  .rocket { position: absolute; z-index: 9; font-size: 60px; transform: translate(-50%, -50%) rotate(-45deg); transition: transform 0.1s linear; filter: drop-shadow(0 0 20px rgba(0,229,255,0.6)); display: none; }
+  .rocket { position: absolute; z-index: 9; font-size: 60px; transform: translate(-50%, -50%) rotate(-45deg); transition: transform 0.05s linear; filter: drop-shadow(0 0 20px rgba(0,229,255,0.6)); display: none; }
   .explosion { position: absolute; z-index: 11; font-size: 100px; transform: translate(-50%, -50%) scale(0); opacity: 0; pointer-events: none; }
   .explosion.animate { animation: boom 0.6s ease-out forwards; }
   @keyframes boom {
@@ -257,6 +257,11 @@ let currentPlayer = null;
 let localPoints = [];
 let lastRoundId = null;
 
+// ДЛЯ ПЛАВНОЙ АНИМАЦИИ
+let serverState = null;
+let clientStartTime = 0;
+let displayMultiplier = 1.00;
+
 // Графика
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -280,14 +285,13 @@ window.addEventListener('resize', resizeCanvas);
 setTimeout(resizeCanvas, 100);
 
 /* ---------------- СИНХРОНИЗАЦИЯ С СЕРВЕРОМ ---------------- */
-async function syncGame() {
+async function fetchServerState() {
   try {
     const res = await fetch('/api/crash/status');
-    const state = await res.json();
+    serverState = await res.json();
 
-    // Если начался новый раунд
-    if (state.roundId !== lastRoundId) {
-      lastRoundId = state.roundId;
+    if (serverState.roundId !== lastRoundId) {
+      lastRoundId = serverState.roundId;
       localPoints = [];
       bets[1].active = false; bets[1].cashedOut = false; bets[1].crashId = null;
       bets[2].active = false; bets[2].cashedOut = false; bets[2].crashId = null;
@@ -296,98 +300,133 @@ async function syncGame() {
       explosionEl.classList.remove('animate');
       multValueEl.classList.remove('crashed');
       rocketEl.style.display = 'none';
-      document.getElementById('betsList').innerHTML = ''; // ОЧИЩАЕМ ТАБЛИЦУ
+      document.getElementById('betsList').innerHTML = ''; // Очистка таблицы
     }
 
-    gameState = state.status;
-    currentMultiplier = state.currentMultiplier;
-    multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
-
-    // --- ОБНОВЛЕНИЕ ЛЕВОЙ ПАНЕЛИ СТАВОК ---
-    const list = document.getElementById('betsList');
-    list.innerHTML = ''; // ЖЕСТКАЯ ОЧИСТКА ПЕРЕД ОТРИСОВКОЙ
+    if (serverState.status === 'flying' && gameState !== 'flying') {
+      // Запоминаем локальное время старта для плавной анимации
+      const elapsedOnServer = Date.now() - serverState.startTime;
+      clientStartTime = Date.now() - elapsedOnServer;
+    }
     
-    if (state.activeBets && state.activeBets.length > 0) {
-      state.activeBets.forEach(b => {
-        const row = document.createElement('div');
-        row.className = 'bet-row';
-        
-        let multHtml = '--';
-        if (b.status === 'win') {
-          multHtml = `<span class="bet-mult win">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
-        } else if (b.status === 'lose') {
-          multHtml = `<span class="bet-mult lose" style="color:var(--red)">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
-        }
-        
-        let winHtml = '--';
-        if (b.status === 'win') {
-          winHtml = `${parseFloat(b.win_amount).toFixed(2)} ₽`;
-        } else if (b.status === 'lose') {
-          winHtml = `Проигрыш`;
-        }
+    gameState = serverState.status;
+    
+    // Обновляем таблицу ставок (только при изменении)
+    renderActiveBets(serverState.activeBets);
 
-        row.innerHTML = `
-          <div class="bet-user"><div class="user-avatar">ID</div>${b.guest_masked}</div>
-          <div class="bet-amount">${b.bet} ₽</div>
-          <div>${multHtml}</div>
-          <div class="bet-cashout">${winHtml}</div>
-        `;
-        list.appendChild(row);
-      });
-    }
+    // Обновляем верхнюю ленту истории
+    renderHistory(serverState.history);
 
-    // Отрисовка истории (верхняя лента)
-    if (state.history && state.history.length > 0) {
-      const hList = document.getElementById('historyList');
-      if (hList.children.length !== state.history.length) {
-        hList.innerHTML = '';
-        state.history.forEach(mult => {
-          const item = document.createElement('div');
-          item.className = 'history-item';
-          if (mult >= 10) item.classList.add('gold');
-          else if (mult >= 4) item.classList.add('purple');
-          else if (mult >= 1.5) item.classList.add('blue');
-          else item.classList.add('red');
-          item.textContent = mult.toFixed(2) + 'x';
-          hList.appendChild(item);
-        });
-      }
-    }
-
-    if (gameState === 'flying') {
-      localPoints.push({ x: localPoints.length * 0.1, y: currentMultiplier });
-      if (localPoints.length > 500) localPoints.shift();
-      
-      drawGame();
-      updateButtonAmounts();
-      checkAutoCashout(1);
-      checkAutoCashout(2);
-    } else if (gameState === 'crashed') {
-      multValueEl.classList.add('crashed');
-      if (!explosionEl.classList.contains('animate')) {
-        const lastP = localPoints[localPoints.length - 1];
-        if (lastP) {
-          const maxX = lastP.x || 1;
-          const maxY = lastP.y || 1;
-          const drawW = canvas.width - 60;
-          const drawH = canvas.height - 60;
-          explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
-          explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
-          explosionEl.classList.add('animate');
-        }
-        rocketEl.style.display = 'none';
-      }
-    } else {
-      drawGame();
-    }
-
-    updateBetButtons();
   } catch (e) {
     console.error('Sync error', e);
   }
 }
 
-setInterval(syncGame, 100);
+function renderActiveBets(activeBets) {
+  const list = document.getElementById('betsList');
+  if (!activeBets) return;
+  
+  list.innerHTML = ''; 
+  activeBets.forEach(b => {
+    const row = document.createElement('div');
+    row.className = 'bet-row';
+    
+    let multHtml = '--';
+    if (b.status === 'win') {
+      multHtml = `<span class="bet-mult win">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
+    } else if (b.status === 'lose') {
+      multHtml = `<span class="bet-mult lose" style="color:var(--red)">${parseFloat(b.multiplier).toFixed(2)}x</span>`;
+    }
+    
+    let winHtml = '--';
+    if (b.status === 'win') {
+      winHtml = `${parseFloat(b.win_amount).toFixed(2)} ₽`;
+    } else if (b.status === 'lose') {
+      winHtml = `Проигрыш`;
+    }
+
+    row.innerHTML = `
+      <div class="bet-user"><div class="user-avatar">ID</div>${b.guest_masked}</div>
+      <div class="bet-amount">${b.bet} ₽</div>
+      <div>${multHtml}</div>
+      <div class="bet-cashout">${winHtml}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function renderHistory(history) {
+  if (!history) return;
+  const hList = document.getElementById('historyList');
+  if (hList.children.length !== history.length) {
+    hList.innerHTML = '';
+    history.forEach(mult => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      if (mult >= 10) item.classList.add('gold');
+      else if (mult >= 4) item.classList.add('purple');
+      else if (mult >= 1.5) item.classList.add('blue');
+      else item.classList.add('red');
+      item.textContent = mult.toFixed(2) + 'x';
+      hList.appendChild(item);
+    });
+  }
+}
+
+// Синхронизация с сервером раз в 100 мс
+setInterval(fetchServerState, 100);
+
+/* ---------------- ПЛАВНАЯ АНИМАЦИЯ (60 FPS) ---------------- */
+function animate() {
+  if (gameState === 'flying' && serverState) {
+    // Вычисляем кэф локально на основе времени, чтобы было плавно
+    const elapsed = Date.now() - clientStartTime;
+    displayMultiplier = Math.pow(1.00006, elapsed);
+    
+    // Защита от перелета (если сервер сказал, что краш, не рисуем дальше)
+    if (displayMultiplier >= serverState.crashPoint) {
+      displayMultiplier = serverState.crashPoint;
+    }
+
+    currentMultiplier = displayMultiplier;
+    multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
+    
+    // Добавляем точки для графика (каждые 100 мс примерно)
+    const now = Date.now();
+    if (localPoints.length === 0 || now - localPoints[localPoints.length-1].time > 50) {
+      localPoints.push({ x: elapsed / 1000, y: currentMultiplier, time: now });
+    }
+    
+    drawGame();
+    updateButtonAmounts();
+    checkAutoCashout(1);
+    checkAutoCashout(2);
+    
+  } else if (gameState === 'crashed') {
+    multValueEl.classList.add('crashed');
+    if (!explosionEl.classList.contains('animate')) {
+      const lastP = localPoints[localPoints.length - 1];
+      if (lastP) {
+        const maxX = lastP.x || 1;
+        const maxY = lastP.y || 1;
+        const drawW = canvas.width - 60;
+        const drawH = canvas.height - 60;
+        explosionEl.style.left = ((lastP.x / Math.max(maxX, 10)) * drawW) + 'px';
+        explosionEl.style.top = (drawH - ((lastP.y / Math.max(maxY, 2)) * drawH)) + 'px';
+        explosionEl.classList.add('animate');
+      }
+      rocketEl.style.display = 'none';
+    }
+  } else {
+    multValueEl.textContent = '1.00x';
+    if (gameState === 'waiting') {
+      drawGame();
+    }
+  }
+  
+  updateBetButtons();
+  requestAnimationFrame(animate);
+}
 
 /* ---------------- АВТОРИЗАЦИЯ ---------------- */
 window.onload = () => {
@@ -406,7 +445,10 @@ window.onload = () => {
       })
       .catch(() => {});
   }
-  syncGame();
+  
+  // Запускаем циклы
+  fetchServerState();
+  requestAnimationFrame(animate);
 };
 
 function updateBalanceUI() {
