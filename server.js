@@ -43,11 +43,9 @@ let crashState = {
   crashPoint: 1.00,
   currentMultiplier: 1.00,
   roundId: Date.now(),
-  history: [] // последние 20 раундов для верхней ленты
+  history: [],     // История сыгранных раундов (верхняя лента)
+  activeBets: []   // СТАВКИ ТОЛЬКО ТЕКУЩЕГО РАУНДА
 };
-
-// АКТИВНЫЕ СТАВКИ ТЕКУЩЕГО РАУНДА (для синхронизации всех игроков)
-let crashActiveBets = []; 
 
 function dayKey(dateStr){ return new Date(dateStr).toISOString().slice(0,10); }
 function rankByPoints(p){
@@ -87,7 +85,7 @@ async function runCrashGame() {
     crashState.status = 'waiting';
     crashState.currentMultiplier = 1.00;
     crashState.roundId = Date.now();
-    crashActiveBets = []; // ОЧИЩАЕМ СПИСОК СТАВОК НА НОВЫЙ РАУНД
+    crashState.activeBets = []; // <--- ПОЛНАЯ ОЧИСТКА ТАБЛИЦЫ
     
     const r = Math.random();
     if (r < 0.10) crashState.crashPoint = 1.00 + Math.random() * 0.10;
@@ -111,24 +109,23 @@ async function runCrashGame() {
         crashState.status = 'crashed';
         isFlying = false;
         
-        // Добавляем в историю раунда
         crashState.history.unshift(crashState.crashPoint);
         if(crashState.history.length > 20) crashState.history.pop();
 
-        // Помечаем проигравших в БД
-        await pool.query(`UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`, [crashState.crashPoint]);
-        
-        // Помечаем проигравших в активных ставках (для визуала)
-        crashActiveBets.forEach(b => {
+        // Помечаем проигравших в памяти (для тех, кто смотрит)
+        crashState.activeBets.forEach(b => {
           if (b.status === 'playing') {
             b.status = 'lose';
             b.multiplier = crashState.crashPoint;
           }
         });
+
+        // Помечаем проигравших в БД (для админа)
+        await pool.query(`UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`, [crashState.crashPoint]);
       } else {
         crashState.currentMultiplier = mult;
       }
-      await new Promise(r => setTimeout(r, 100)); // Обновляем каждые 100мс
+      await new Promise(r => setTimeout(r, 100)); 
     }
 
     // 3. Стадия краша (3 секунды)
@@ -400,10 +397,10 @@ const server = http.createServer(async (req, res) => {
 
     /* --- КРАШ ИГРА --- */
     if(url === '/api/crash/status' && method === 'GET'){
-      // Отдаем статус игры + активные ставки текущего раунда
+      // Отдаем статус игры + активные ставки ТЕКУЩЕГО раунда
       return sendJSON(res, 200, {
         ...crashState,
-        activeBets: crashActiveBets 
+        activeBets: crashState.activeBets 
       });
     }
     
@@ -426,8 +423,8 @@ const server = http.createServer(async (req, res) => {
 
       const maskedId = g.id.length > 4 ? g.id.slice(0, 2) + '***' + g.id.slice(-2) : '****';
       
-      // Добавляем в список АКТИВНЫХ ставок для всех игроков
-      crashActiveBets.push({
+      // Добавляем в список АКТИВНЫХ СТАВОК ТЕКУЩЕГО РАУНДА
+      crashState.activeBets.push({
         guest_id: g.id,
         guest_masked: maskedId,
         bet: amt,
@@ -457,8 +454,8 @@ const server = http.createServer(async (req, res) => {
       
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
 
-      // Обновляем в списке активных
-      const activeBet = crashActiveBets.find(b => b.guest_id === id && b.status === 'playing');
+      // Обновляем в списке активных для текущего раунда
+      const activeBet = crashState.activeBets.find(b => b.guest_id === id && b.status === 'playing');
       if(activeBet) {
         activeBet.multiplier = mult;
         activeBet.win_amount = winAmount;
@@ -476,6 +473,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if(url === '/api/crash/history' && method === 'GET'){
+      // Этот эндпоинт оставим, он отдает ленту сверху (последние кэфы), если понадобится
       const r = await pool.query(`SELECT * FROM crash_history ORDER BY id DESC LIMIT 50`);
       return sendJSON(res, 200, r.rows);
     }
