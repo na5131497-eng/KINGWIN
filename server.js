@@ -26,7 +26,7 @@ const JACKPOT_MAX = 1000;
 const JACKPOT_TICK_MS = 2300;
 const JACKPOT_PER_TICK = 0.064;
 
-/* ---------- Задания дилеров (ежедневные, макс 50 ₽) ---------- */
+/* ---------- Задания дилеров ---------- */
 const DEALER_TASKS = [
   { id: 'bj10',  type: 'bj',  goal: 10,  reward: 15, title: 'Сыграй 10 раундов блэкджека' },
   { id: 'bj30',  type: 'bj',  goal: 30,  reward: 30, title: 'Сыграй 30 раундов блэкджека' },
@@ -36,11 +36,17 @@ const DEALER_TASKS = [
   { id: 'bac50', type: 'bac', goal: 50,  reward: 50, title: 'Сыграй 50 раздач баккары' }
 ];
 
-/* Текущий день в YYYY-MM-DD */
-function dayKey(dateStr){
-  return new Date(dateStr).toISOString().slice(0,10);
-}
+/* ---------- ГЛОБАЛЬНОЕ СОСТОЯНИЕ КРАША ---------- */
+let crashState = {
+  status: 'waiting', // waiting, flying, crashed
+  startTime: 0,
+  crashPoint: 1.00,
+  currentMultiplier: 1.00,
+  roundId: Date.now(),
+  history: [] // последние 20 раундов для верхней ленты
+};
 
+function dayKey(dateStr){ return new Date(dateStr).toISOString().slice(0,10); }
 function rankByPoints(p){
   if (p >= RANKS.VIP.min)      return 'VIP';
   if (p >= RANKS.Diamond.min)  return 'Diamond';
@@ -69,6 +75,53 @@ async function getActualJackpot() {
     }
     return currentJP;
   } catch (e) { console.error('getActualJackpot error:', e.message); return 0; }
+}
+
+/* ---------- ИГРОВОЙ ЦИКЛ КРАША ---------- */
+async function runCrashGame() {
+  while(true) {
+    // 1. Стадия ожидания (10 сек)
+    crashState.status = 'waiting';
+    crashState.currentMultiplier = 1.00;
+    crashState.roundId = Date.now();
+    
+    const r = Math.random();
+    if (r < 0.10) crashState.crashPoint = 1.00 + Math.random() * 0.10;
+    else if (r < 0.60) crashState.crashPoint = 1.10 + Math.random() * 0.90;
+    else if (r < 0.90) crashState.crashPoint = 2.00 + Math.random() * 8.00;
+    else crashState.crashPoint = 10.00 + Math.random() * 90.00;
+
+    await new Promise(r => setTimeout(r, 10000));
+
+    // 2. Стадия полета
+    crashState.status = 'flying';
+    crashState.startTime = Date.now();
+    
+    let isFlying = true;
+    while(isFlying) {
+      const elapsed = Date.now() - crashState.startTime;
+      const mult = Math.pow(1.00006, elapsed);
+      
+      if (mult >= crashState.crashPoint) {
+        crashState.currentMultiplier = crashState.crashPoint;
+        crashState.status = 'crashed';
+        isFlying = false;
+        
+        // Добавляем в историю раунда
+        crashState.history.unshift(crashState.crashPoint);
+        if(crashState.history.length > 20) crashState.history.pop();
+
+        // Помечаем проигравших в БД
+        await pool.query(`UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`, [crashState.crashPoint]);
+      } else {
+        crashState.currentMultiplier = mult;
+      }
+      await new Promise(r => setTimeout(r, 100)); // Обновляем каждые 100мс
+    }
+
+    // 3. Стадия краша (3 секунды)
+    await new Promise(r => setTimeout(r, 3000));
+  }
 }
 
 async function initDB() {
@@ -212,6 +265,7 @@ async function initDB() {
     }
 
     console.log('База готова');
+    runCrashGame(); // Запускаем игру после инициализации БД
   } catch (e) { console.error('Ошибка initDB:', e.message); }
 }
 initDB();
@@ -333,7 +387,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     /* --- КРАШ ИГРА --- */
+    if(url === '/api/crash/status' && method === 'GET'){
+      return sendJSON(res, 200, crashState);
+    }
+    
     if(url === '/api/crash/bet' && method === 'POST'){
+      if(crashState.status !== 'waiting') return sendJSON(res, 400, { error: 'Прием ставок закрыт' });
+
       const { id, bet } = await parseBody(req);
       const amt = parseFloat(bet) || 0;
       
@@ -346,10 +406,8 @@ const server = http.createServer(async (req, res) => {
       const balance = parseFloat(g.bonus_balance) || 0;
       if(amt > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
 
-      // Списываем ставку
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2', [amt, id]);
 
-      // Записываем в историю краша (в процессе)
       const maskedId = g.id.length > 4 ? g.id.slice(0, 2) + '***' + g.id.slice(-2) : '****';
       const c = await pool.query(
         `INSERT INTO crash_history (guest_id, guest_masked, bet, multiplier, win_amount, status) 
@@ -370,10 +428,8 @@ const server = http.createServer(async (req, res) => {
       
       const winAmount = amt * mult;
       
-      // Начисляем выигрыш
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, id]);
 
-      // Обновляем историю краша
       if (crash_id) {
         await pool.query(
           `UPDATE crash_history SET multiplier=$1, win_amount=$2, status='win' WHERE id=$3`,
@@ -387,17 +443,6 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/crash/history' && method === 'GET'){
       const r = await pool.query(`SELECT * FROM crash_history ORDER BY id DESC LIMIT 50`);
       return sendJSON(res, 200, r.rows);
-    }
-
-    if(url === '/api/crash/round_end' && method === 'POST'){
-      const { multiplier } = await parseBody(req);
-      const mult = parseFloat(multiplier) || 1;
-      
-      await pool.query(
-        `UPDATE crash_history SET multiplier=$1, status='lose' WHERE status='playing'`,
-        [mult]
-      );
-      return sendJSON(res, 200, { ok: true });
     }
 
     /* ГОСТИ */
@@ -548,23 +593,16 @@ const server = http.createServer(async (req, res) => {
       const id = url.split('/')[3];
       const d = await parseBody(req);
       
-      // Получаем данные депозита перед изменением
       const depRes = await pool.query('SELECT * FROM deposits WHERE id=$1', [id]);
       if(depRes.rows.length === 0) return sendJSON(res, 404, { error: 'Депозит не найден' });
       const dep = depRes.rows[0];
 
-      // Если статус меняется на 'approved' и до этого не был одобрен
       if(d.status === 'approved' && dep.status !== 'approved') {
-        // Ищем гостя по имени
         const guestRes = await pool.query('SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1', [dep.nick]);
         if(guestRes.rows.length > 0) {
           const guest = guestRes.rows[0];
           const addSum = parseFloat(dep.sum) || 0;
-          
-          // Зачисляем на баланс гостю
           await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [addSum, guest.id]);
-          
-          // Логируем в аудит
           await pool.query(
             `INSERT INTO audit (time, user_name, action, details) VALUES ($1,$2,$3,$4)`,
             [new Date().toLocaleString('ru-RU'), 'Система', 'deposit_approved', `Пополнение на ${addSum} ₽ для ${guest.name}`]
