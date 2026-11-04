@@ -3,169 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KINGWIN — Джекпот</title>
+<title>KINGWIN — Прогрессивный Джекпот</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { 
     background: radial-gradient(circle at center, #1a2332 0%, #0a0d14 100%); 
-    color: #fff; 
-    height: 100vh; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    overflow: hidden;
+    color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative;
   }
 
-  .header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 30px 50px; 
-  }
-  .logo { 
-    font-size: 36px; 
-    font-weight: 900; 
-    letter-spacing: 4px; 
-    background: linear-gradient(135deg, #00e5ff, #0077ff); 
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent; 
-  }
-  .logo-sub { 
-    font-size: 12px; 
-    letter-spacing: 8px; 
-    color: #a0aec0; 
-    text-transform: uppercase; 
+  /* Падающие монеты */
+  .bg-coins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .coin { position: absolute; font-size: 40px; opacity: 0.12; animation: fall linear infinite; }
+  @keyframes fall { 0% { transform: translateY(-100px) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+
+  .container { 
+    flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; z-index: 10; 
   }
   
-  .jackpot-container { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
-    position: relative; 
+  .layout { 
+    display: flex; width: 100%; max-width: 1400px; gap: 40px; align-items: center; justify-content: center; 
   }
-  .jackpot-title { 
-    font-size: 24px; 
-    color: #f1c40f; 
-    letter-spacing: 10px; 
-    text-transform: uppercase; 
-    margin-bottom: 20px; 
-    text-shadow: 0 0 10px rgba(241,196,15,.5); 
+
+  /* Левая часть: Логотип и джекпот */
+  .left-side { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  
+  .logo-area { margin-bottom: 30px; }
+  .sevens { 
+    font-size: 120px; font-weight: 900; color: #f1c40f; 
+    text-shadow: 0 0 30px rgba(241,196,15,.8), 0 0 60px rgba(255,69,0,.4); 
+    line-height: 1; font-family: 'Arial Black', sans-serif; margin-bottom: -10px;
+  }
+  .kingwin-title { 
+    font-size: 48px; font-weight: 900; letter-spacing: 8px; color: #fff; 
+    text-shadow: 0 0 20px rgba(0,229,255,.8); margin-top: 10px; 
+  }
+  .kingwin-sub { font-size: 20px; color: #00e5ff; letter-spacing: 10px; font-weight: 700; }
+
+  .jackpot-title-main { 
+    font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: #f1c40f; 
+    margin-bottom: 20px; text-shadow: 0 0 20px rgba(241,196,15,.5);
   }
   
+  /* Рамка с цифрами */
   .jackpot-screen { 
-    background: rgba(0,0,0,.6); 
-    border: 4px solid #f1c40f; 
-    border-radius: 20px; 
-    padding: 40px 60px; 
-    box-shadow: 0 0 50px rgba(241,196,15,.3), inset 0 0 30px rgba(241,196,15,.1);
-    position: relative; 
-    overflow: hidden;
+    background: rgba(0,0,0,.85); border: 4px solid #f1c40f; border-radius: 20px; padding: 30px 50px; 
+    box-shadow: 0 0 50px rgba(241,196,15,.4), inset 0 0 30px rgba(241,196,15,.1);
+    position: relative; overflow: hidden;
   }
-  
+  .jackpot-screen::before { 
+    content: ''; position: absolute; inset: 0; 
+    background: linear-gradient(180deg, transparent, rgba(241,196,15,.15), transparent); 
+    animation: scan 3s linear infinite; 
+  }
+  @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+  .corner { position: absolute; width: 25px; height: 25px; border: 3px solid #00e5ff; z-index: 5; box-shadow: 0 0 10px rgba(0,229,255,.5); }
+  .corner.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; border-top-left-radius: 15px; }
+  .corner.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; border-top-right-radius: 15px; }
+  .corner.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; border-bottom-left-radius: 15px; }
+  .corner.br { bottom: -3px; right: -3px; border-left: none; border-top: none; border-bottom-right-radius: 15px; }
+
   .digits { 
-    display: flex; 
-    align-items: center;
-    font-family: 'Courier New', monospace; 
-    font-size: 120px; 
-    font-weight: 900; 
-    line-height: 1; 
-    color: #fff; 
-    text-shadow: 0 0 20px rgba(255,255,255,.4); 
+    display: flex; align-items: center; font-family: 'Courier New', monospace; 
+    font-size: 90px; font-weight: 900; line-height: 1; color: #fff; 
+    text-shadow: 0 0 20px rgba(255,255,255,.6); position: relative; z-index: 2;
   }
-  .digit-box { 
-    width: 80px; 
-    height: 120px; 
-    position: relative; 
-    overflow: hidden; 
-    text-align: center; 
-    display: inline-block;
-  }
+  .digit-box { width: 60px; height: 90px; position: relative; overflow: hidden; text-align: center; display: inline-block; }
+  
   .digit { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    display: flex; justify-content: center; align-items: center; 
+    transition: transform 1.1s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
-  .comma { font-size: 100px; margin: 0 5px; color: #f1c40f; }
-  .currency { font-size: 70px; margin-left: 15px; color: #f1c40f; }
+  .digit.out { transform: translateY(-100%); }
+  .digit.in { transform: translateY(100%); }
+  
+  .comma { font-size: 80px; margin: 0 5px; color: #f1c40f; }
+  .currency { font-size: 60px; margin-left: 10px; color: #f1c40f; }
 
+  /* Правая часть: Таблица выплат */
+  .right-side { 
+    flex: 1; max-width: 500px; background: rgba(18,24,38,.9); border: 2px solid rgba(0,229,255,.3); 
+    border-radius: 20px; padding: 30px; box-shadow: 0 0 30px rgba(0,229,255,.1); 
+  }
+  .right-side h3 { 
+    font-size: 20px; color: #f1c40f; text-transform: uppercase; letter-spacing: 2px; 
+    margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(241,196,15,.3); padding-bottom: 10px;
+  }
+  .pays-table { width: 100%; border-collapse: collapse; }
+  .pays-table td { padding: 12px 0; font-size: 16px; border-bottom: 1px dashed rgba(255,255,255,.1); }
+  .pays-table td:first-child { color: #a0aec0; }
+  .pays-table td:last-child { text-align: right; color: #3fbf7f; font-weight: 800; font-size: 18px; }
+  .pays-table tr:last-child td { border-bottom: none; }
+
+  /* Бегущая строка */
   .winners-bar { 
-    background: rgba(241,196,15,.1); 
-    border-top: 1px solid rgba(241,196,15,.3); 
-    border-bottom: 1px solid rgba(241,196,15,.3); 
-    padding: 15px 0; 
-    overflow: hidden; 
-    white-space: nowrap; 
+    background: rgba(241,196,15,.15); border-top: 2px solid #f1c40f; border-bottom: 2px solid #f1c40f; 
+    padding: 15px 0; overflow: hidden; white-space: nowrap; position: relative; z-index: 10; 
   }
-  .winners-track { 
-    display: inline-block; 
-    animation: scroll 20s linear infinite; 
-  }
-  .winners-track span { 
-    font-size: 18px; 
-    font-weight: 700; 
-    color: #fff; 
-    margin: 0 40px; 
-  }
+  .winners-track { display: inline-block; animation: scroll 20s linear infinite; }
+  .winners-track span { font-size: 18px; font-weight: 700; color: #fff; margin: 0 40px; text-transform: uppercase; }
   .winners-track b { color: #f1c40f; }
-  @keyframes scroll { 
-    0% { transform: translateX(100%); } 
-    100% { transform: translateX(-100%); } 
-  }
+  @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-  .footer { 
-    text-align: center; 
-    padding: 20px; 
-    color: #a0aec0; 
-    font-size: 14px; 
-    letter-spacing: 2px; 
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; gap: 20px; }
+    .sevens { font-size: 60px; }
+    .kingwin-title { font-size: 28px; }
+    .digits { font-size: 50px; }
+    .digit-box { width: 35px; height: 50px; }
+    .comma { font-size: 40px; }
+    .currency { font-size: 30px; }
+    .right-side { padding: 15px; width: 100%; }
+    .pays-table td { font-size: 13px; padding: 8px 0; }
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <div class="logo">KINGWIN</div>
-    <div class="logo-sub">Progressive Jackpot</div>
-  </div>
-</div>
+<div class="bg-coins" id="bgCoins"></div>
 
-<div class="jackpot-container">
-  <div class="jackpot-title">Текущий банк</div>
-  <div class="jackpot-screen">
-    <div class="digits" id="jackpotDigits"></div>
+<div class="container">
+  <div class="layout">
+    
+    <!-- Левая сторона: Лого и джекпот -->
+    <div class="left-side">
+      <div class="logo-area">
+        <div class="sevens">777</div>
+        <div class="kingwin-title">KINGWIN</div>
+        <div class="kingwin-sub">BLACKJACK</div>
+      </div>
+      
+      <div class="jackpot-title-main">Progressive Jackpot</div>
+      
+      <div class="jackpot-screen">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="digits" id="jackpotDigits"></div>
+      </div>
+    </div>
+
+    <!-- Правая сторона: Выплаты -->
+    <div class="right-side">
+      <h3>Прогрессивные выплаты</h3>
+      <table class="pays-table">
+        <tr><td>3 Семерки бубен (Джекпот)</td><td>100% банка</td></tr>
+        <tr><td>3 Семерки одного цвета</td><td>10% банка</td></tr>
+        <tr><td>3 Семерки (разные)</td><td>50 к 1</td></tr>
+        <tr><td>Первые 2 карты — Семерки</td><td>15 к 1</td></tr>
+        <tr><td>Первые 2 карты — одна Семерка</td><td>2 к 1</td></tr>
+      </table>
+    </div>
+
   </div>
 </div>
 
 <div class="winners-bar">
   <div class="winners-track" id="winnersTrack">
-    <span>Пока нет победителей</span>
+    <span>Ждем первого победителя...</span>
   </div>
 </div>
-
-<div class="footer">Сыграй в блэкджек и выиграй три семёрки бубён!</div>
 
 <script>
 let currentJackpot = 0;
 let targetJackpot = 0;
 
-// Инициализация 6 ячеек (4 до запятой + 2 после)
+// Создаем монеты
+const bgCoins = document.getElementById('bgCoins');
+for (let i = 0; i < 20; i++) {
+  const coin = document.createElement('div');
+  coin.className = 'coin';
+  coin.textContent = '🪙';
+  coin.style.left = Math.random() * 100 + '%';
+  coin.style.animationDuration = (Math.random() * 5 + 5) + 's';
+  coin.style.animationDelay = (Math.random() * 5) + 's';
+  coin.style.fontSize = (Math.random() * 30 + 20) + 'px';
+  bgCoins.appendChild(coin);
+}
+
 const wrap = document.getElementById('jackpotDigits');
-const digitElements = [];
+const digitElements = []; 
 
 function initDisplay() {
   wrap.innerHTML = '';
   digitElements.length = 0;
   
-  // 4 знака до запятой
   for(let i = 0; i < 4; i++) {
     const box = document.createElement('div');
     box.className = 'digit-box';
@@ -179,10 +202,9 @@ function initDisplay() {
   
   const comma = document.createElement('span');
   comma.className = 'comma';
-  comma.textContent = '.';
+  comma.textContent = ',';
   wrap.appendChild(comma);
   
-  // 2 знака после запятой
   for(let i = 0; i < 2; i++) {
     const box = document.createElement('div');
     box.className = 'digit-box';
@@ -195,6 +217,24 @@ function initDisplay() {
   }
 }
 
+function updateDigit(index, newValue) {
+  const oldDigit = digitElements[index];
+  if (oldDigit.textContent === newValue) return;
+
+  const box = oldDigit.parentElement;
+  const newDigit = document.createElement('div');
+  newDigit.className = 'digit in';
+  newDigit.textContent = newValue;
+  box.appendChild(newDigit);
+
+  void newDigit.offsetWidth;
+  oldDigit.classList.add('out');
+  newDigit.classList.remove('in');
+
+  setTimeout(() => { if (oldDigit.parentElement) oldDigit.remove(); }, 1100);
+  digitElements[index] = newDigit;
+}
+
 function renderJackpot(val) {
   const str = val.toFixed(2);
   const parts = str.split('.');
@@ -203,9 +243,7 @@ function renderJackpot(val) {
   const fullStr = intPart + floatPart;
   
   for(let i = 0; i < 6; i++) {
-    if (digitElements[i].textContent !== fullStr[i]) {
-      digitElements[i].textContent = fullStr[i];
-    }
+    updateDigit(i, fullStr[i]);
   }
 }
 
@@ -223,20 +261,17 @@ async function fetchWinners() {
     const winners = await res.json();
     const track = document.getElementById('winnersTrack');
     if (winners.length > 0) {
-      track.innerHTML = winners.map(w => `<span>🏆 <b>${w.nick}</b> выиграл ${parseFloat(w.amount).toFixed(2)} ₽</span>`).join('');
+      track.innerHTML = winners.map(w => `<span>🏆 <b>${w.nick}</b> забрал ${parseFloat(w.amount).toFixed(2)} ₽</span>`).join('');
     } else {
-      track.innerHTML = '<span>Пока нет победителей</span>';
+      track.innerHTML = '<span>Ждем первого победителя...</span>';
     }
   } catch (e) { console.error(e); }
 }
 
 function animate() {
-  if (Math.abs(currentJackpot - targetJackpot) > 0.01) {
+  if (Math.abs(currentJackpot - targetJackpot) > 0.005) {
     const diff = targetJackpot - currentJackpot;
-    currentJackpot += diff * 0.05;
-    renderJackpot(currentJackpot);
-  } else if (currentJackpot !== targetJackpot) {
-    currentJackpot = targetJackpot;
+    currentJackpot += diff * 0.1;
     renderJackpot(currentJackpot);
   }
   requestAnimationFrame(animate);
@@ -245,7 +280,7 @@ function animate() {
 initDisplay();
 fetchJackpot();
 fetchWinners();
-setInterval(fetchJackpot, 2000);
+setInterval(fetchJackpot, 3000); // Обновляем раз в 3 секунды (чтобы анимация успевала)
 setInterval(fetchWinners, 10000);
 animate();
 </script>
