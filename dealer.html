@@ -3,66 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KINGWIN — Вход дилерам</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>KINGWIN — Панель дилера</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-  .login-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; animation: fadeIn 0.5s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
+  .login-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; }
   .logo-text { font-size: 32px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.3)); }
   .login-subtitle { font-size: 14px; color: #a0aec0; font-weight: 600; margin-bottom: 35px; text-transform: uppercase; letter-spacing: 1px; }
   .input-group { position: relative; margin-bottom: 25px; text-align: left; }
   .input-group label { display: block; font-size: 14px; color: #a0aec0; margin-bottom: 8px; font-weight: 600; }
-  .input-group input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 16px; padding: 10px 0; font-family: inherit; transition: border-color 0.3s; }
+  .input-group input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 16px; padding: 10px 0; font-family: inherit; }
   .input-group input:focus { outline: none; border-bottom-color: #00e5ff; }
-  .btn-glow { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), 0 0 30px rgba(0, 229, 255, 0.2); font-family: inherit; }
-  .btn-glow:hover { background: #33ebff; box-shadow: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 40px rgba(0, 229, 255, 0.4); transform: translateY(-2px); }
+  .btn-glow { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); font-family: inherit; }
+  .btn-glow:hover { background: #33ebff; transform: translateY(-2px); }
   .login-err { color: #ff4d4d; font-size: 13px; margin-top: 15px; height: 18px; font-weight: 600; }
-  
-  .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
+  .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; width: 100%; max-width: 620px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
   .topbar .name { font-size: 14px; color: #a0aec0; }
   .topbar .name b { color: #00e5ff; }
-  .logout { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: 0.3s; }
+  .topbar .balance { font-size: 13px; color: #3fbf7f; font-weight: 700; margin-top: 4px; }
+  .logout { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-family: inherit; }
   .logout:hover { border-color: #ff4d4d; color: #ff4d4d; }
-  h1 { font-size: 22px; margin-bottom: 5px; }
-  .sub { color: #a0aec0; font-size: 13px; margin-bottom: 20px; }
-  .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
-  .tabs button { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: inherit; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tabs button { flex: 1; min-width: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .tabs button.active { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
   .tab { display: none; } .tab.active { display: block; animation: fadeIn 0.3s; }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 15px; color: #fff; font-family: inherit; transition: 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  h2 { font-size: 18px; margin-bottom: 6px; }
+  .sub { color: #a0aec0; font-size: 13px; margin-bottom: 18px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 11px; color: #a0aec0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 15px; color: #fff; font-family: inherit; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-  .row { display: flex; gap: 15px; } .row .form-group { flex: 1; }
-  .choice-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; margin-top: 5px; }
-  .choice-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #a0aec0; padding: 12px 5px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; text-align: center; font-family: inherit; }
-  .choice-btn:hover { background: rgba(255, 255, 255, 0.1); }
-  .choice-btn.selected { background: rgba(0, 229, 255, 0.15); border-color: #00e5ff; color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; transition: 0.3s; font-family: inherit; }
-  .btn-submit:hover:not(:disabled) { background: #33ebff; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+  .row { display: flex; gap: 12px; } .row .form-group { flex: 1; }
+  .choice-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; }
+  .choice-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #a0aec0; padding: 10px 5px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .choice-btn.selected { background: rgba(0, 229, 255, 0.15); border-color: #00e5ff; color: #00e5ff; }
+  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; }
+  .btn-submit:hover:not(:disabled) { background: #33ebff; }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-  .msg { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px; display: none; text-align: center; font-weight: 600; }
+  .msg { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; text-align: center; font-weight: 600; }
   .msg.ok { background: rgba(63, 191, 127, 0.15); color: #3fbf7f; border: 1px solid rgba(63, 191, 127, 0.3); display: block; }
   .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
   .hidden { display: none !important; }
-  
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-  .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease-out; }
-  .modal-box { background: rgba(18, 24, 38, 0.95); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.1); transform: translateY(0); animation: slideUp 0.3s ease-out; }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .modal-box h3 { font-size: 20px; margin-bottom: 10px; color: #fff; }
-  .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 25px; }
+
+  /* Баланс */
+  .balance-card { background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.35); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
+  .balance-card .lbl { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .balance-card .amount { font-size: 38px; font-weight: 900; color: #3fbf7f; line-height: 1; }
+  .balance-card .sub { font-size: 12px; color: #8fa2b8; margin-top: 6px; }
+
+  /* Задания */
+  .task { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .task.done { border-color: rgba(63,191,127,.4); }
+  .task .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .task .title { font-size: 14px; font-weight: 600; line-height: 1.3; }
+  .task .reward { font-size: 15px; font-weight: 800; color: #00e5ff; white-space: nowrap; }
+  .task .progress-bar { height: 8px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .task .progress-bar > div { height: 100%; background: linear-gradient(90deg, #3fbf7f, #00e5ff); border-radius: 4px; transition: width .4s; }
+  .task .bottom { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8fa2b8; gap: 8px; }
+  .task .claim-btn { background: #3fbf7f; color: #000; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .task .claim-btn:hover { filter: brightness(1.1); }
+  .task .claimed-label { color: #3fbf7f; font-weight: 700; font-size: 12px; }
+
+  .week-badge { display: inline-block; background: rgba(0,229,255,.15); color: #00e5ff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 14px; }
+
+  .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
+  .status { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .status.pending { background: rgba(241,196,15,.15); color: #f1c40f; }
+  .status.approved { background: rgba(63,191,127,.15); color: #3fbf7f; }
+  .status.rejected { background: rgba(255,77,77,.15); color: #ff4d4d; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: rgba(18, 24, 38, 0.95); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 350px; text-align: center; }
+  .modal-box h3 { font-size: 20px; margin-bottom: 10px; }
+  .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 20px; }
+  .modal-box input { width: 100%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; text-align: center; }
   .modal-actions { display: flex; gap: 10px; }
-  .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: inherit; }
-  .btn-cancel:hover { background: rgba(255, 255, 255, 0.05); }
-  .btn-confirm { flex: 1; background: #ff4d4d; border: none; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: inherit; }
-  .btn-confirm:hover { background: #ff3333; box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
+  .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn-confirm { flex: 1; background: #00e5ff; border: none; color: #000; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
   @media (max-width: 500px) {
-    .login-container, .main-container { padding: 20px; border-radius: 15px; }
     .row { flex-direction: column; gap: 0; }
     .tabs { flex-direction: column; }
     .choice-group { grid-template-columns: repeat(2, 1fr); }
@@ -74,132 +101,169 @@
 <div id="loginScreen" class="login-container">
   <div class="logo-text">KINGWIN</div>
   <div class="login-subtitle">Вход дилерам</div>
-  <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer" autocomplete="username"></div>
-  <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password"></div>
+  <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer"></div>
+  <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••"></div>
   <div class="login-err" id="loginErr"></div>
-  <button class="btn-glow" onclick="doLogin()">Submit</button>
+  <button class="btn-glow" onclick="doLogin()">Войти</button>
 </div>
 
 <div id="mainScreen" class="main-container hidden">
   <div class="topbar">
-    <div class="name">Дилер: <b id="dealerName">—</b></div>
-    <button class="logout" onclick="openLogoutModal()">Выйти</button>
+    <div class="name">
+      Дилер: <b id="dealerName">—</b>
+      <div class="balance">Баланс: <span id="dealerBalanceTop">0</span> ₽</div>
+    </div>
+    <button class="logout" onclick="confirmLogout()">Выйти</button>
   </div>
-  <h1>Внести данные</h1>
-  <div class="sub">Данные сохранятся с текущей датой</div>
 
   <div class="tabs">
-    <button class="active" data-tab="bj" onclick="switchTab('bj')">Блэкджек</button>
-    <button data-tab="bac" onclick="switchTab('bac')">Баккара</button>
+    <button class="active" data-tab="data" onclick="switchTab('data')">Внести данные</button>
+    <button data-tab="tasks" onclick="switchTab('tasks')">Задания</button>
+    <button data-tab="balance" onclick="switchTab('balance')">Баланс</button>
   </div>
 
-  <div class="tab active" id="tab-bj">
-    <div class="form-group">
-      <label>Игрок</label>
-      <input type="text" id="nick" placeholder="Ник игрока">
-    </div>
-    <div class="form-group">
-      <label>Количество колод</label>
-      <div class="choice-group" id="decks-group">
-        <button type="button" class="choice-btn selected" onclick="selectDeck(this, '6')">6 колод</button>
-        <button type="button" class="choice-btn" onclick="selectDeck(this, '4')">4 колоды</button>
-        <button type="button" class="choice-btn" onclick="selectDeck(this, '2')">2 колоды</button>
-        <button type="button" class="choice-btn" onclick="selectDeck(this, '1')">1 колода</button>
-      </div>
-      <input type="hidden" id="decks" value="6">
-    </div>
-    <div class="row">
-      <div class="form-group"><label>Депозит (₽)</label><input type="number" id="dep" min="10" max="10000" step="1" placeholder="10"></div>
-      <div class="form-group"><label>Вывод (₽)</label><input type="number" id="out" min="0" max="10000" step="1" placeholder="0"></div>
-    </div>
-    <div class="row">
-      <div class="form-group"><label>Комиссия (₽)</label><input type="number" id="fee" min="0" step="1" placeholder="0"></div>
-    </div>
-    
-    <div class="form-group" style="margin-top: 10px; text-align: left;">
-      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; text-transform: none;">
-        <input type="checkbox" id="winJackpot" style="width: 20px; height: 20px; min-width: 20px; cursor: pointer;">
-        <span>Выпал джекпот (Три 7 бубен)</span>
-      </label>
+  <!-- ВНЕСТИ ДАННЫЕ -->
+  <div class="tab active" id="tab-data">
+    <div class="tabs" style="margin-bottom:15px">
+      <button class="active" data-sub="bj" onclick="switchSub('bj')">Блэкджек</button>
+      <button data-sub="bac" onclick="switchSub('bac')">Баккара</button>
     </div>
 
-    <button class="btn-submit" id="btnBJ" onclick="saveBJ()">Внести сессию</button>
-    <div class="msg" id="msgBj"></div>
+    <div class="sub-tab active" id="sub-bj">
+      <div class="form-group"><label>Игрок</label><input type="text" id="nick" placeholder="Ник игрока"></div>
+      <div class="form-group">
+        <label>Количество колод</label>
+        <div class="choice-group" id="decks-group">
+          <button type="button" class="choice-btn selected" onclick="selectDeck(this, '6')">6 колод</button>
+          <button type="button" class="choice-btn" onclick="selectDeck(this, '4')">4 колоды</button>
+          <button type="button" class="choice-btn" onclick="selectDeck(this, '2')">2 колоды</button>
+          <button type="button" class="choice-btn" onclick="selectDeck(this, '1')">1 колода</button>
+        </div>
+        <input type="hidden" id="decks" value="6">
+      </div>
+      <div class="row">
+        <div class="form-group"><label>Депозит (₽)</label><input type="number" id="dep" min="10" max="10000" placeholder="10"></div>
+        <div class="form-group"><label>Вывод (₽)</label><input type="number" id="out" min="0" max="10000" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label>Комиссия (₽)</label><input type="number" id="fee" min="0" placeholder="0"></div>
+      <div class="form-group" style="text-align:left;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;text-transform:none;font-size:13px">
+          <input type="checkbox" id="winJackpot" style="width:18px;height:18px">
+          <span>Выпал джекпот (Три 7 бубен)</span>
+        </label>
+      </div>
+      <button class="btn-submit" id="btnBJ" onclick="saveBJ()">Внести сессию</button>
+      <div class="msg" id="msgBj"></div>
+    </div>
+
+    <div class="sub-tab" id="sub-bac" style="display:none">
+      <div class="form-group"><label>Игрок</label><input type="text" id="bac_player" placeholder="Ник игрока"></div>
+      <div class="form-group">
+        <label>Ставка на</label>
+        <div class="choice-group" id="bac-bet-group">
+          <button type="button" class="choice-btn" onclick="selectBet(this, 'игрок')">Игрок</button>
+          <button type="button" class="choice-btn" onclick="selectBet(this, 'банк')">Банк</button>
+          <button type="button" class="choice-btn" onclick="selectBet(this, 'ничья')">Ничья</button>
+        </div>
+        <input type="hidden" id="bac_bet" value="">
+      </div>
+      <div class="form-group"><label>Сумма ставки (₽)</label><input type="number" id="bac_sum" min="10" max="10000" placeholder="10"></div>
+      <div class="form-group">
+        <label>Результат раздачи</label>
+        <div class="choice-group" id="bac-result-group">
+          <button type="button" class="choice-btn" onclick="selectResult(this, 'игрок')">Победил Игрок</button>
+          <button type="button" class="choice-btn" onclick="selectResult(this, 'банк')">Победил Банк</button>
+          <button type="button" class="choice-btn" onclick="selectResult(this, 'ничья')">Ничья</button>
+        </div>
+        <input type="hidden" id="bac_result" value="">
+      </div>
+      <button class="btn-submit" id="btnBac" onclick="saveBac()">Внести раздачу</button>
+      <div class="msg" id="msgBac"></div>
+    </div>
   </div>
 
-  <div class="tab" id="tab-bac">
-    <div class="form-group">
-      <label>Игрок</label>
-      <input type="text" id="bac_player" placeholder="Ник игрока">
+  <!-- ЗАДАНИЯ -->
+  <div class="tab" id="tab-tasks">
+    <h2>Еженедельные задания</h2>
+    <div class="sub">Обновляются каждый понедельник. Успей выполнить и забрать награду!</div>
+    <div id="weekBadge" class="week-badge">Неделя: —</div>
+    <div id="tasksList"></div>
+    <div class="msg" id="msgTask"></div>
+  </div>
+
+  <!-- БАЛАНС -->
+  <div class="tab" id="tab-balance">
+    <h2>Мой баланс</h2>
+    <div class="sub">Зарплата + награды за задания. Можно вывести на карту или получить наличными.</div>
+    <div class="balance-card">
+      <div class="lbl">Доступно к выводу</div>
+      <div class="amount"><span id="dealerBalance">0</span> ₽</div>
+      <div class="sub">Вывод обрабатывается администратором</div>
     </div>
-    <div class="form-group">
-      <label>Ставка на</label>
-      <div class="choice-group" id="bac-bet-group">
-        <button type="button" class="choice-btn" onclick="selectBet(this, 'игрок')">Игрок</button>
-        <button type="button" class="choice-btn" onclick="selectBet(this, 'банк')">Банк</button>
-        <button type="button" class="choice-btn" onclick="selectBet(this, 'ничья')">Ничья</button>
-      </div>
-      <input type="hidden" id="bac_bet" value="">
-    </div>
-    <div class="form-group">
-      <label>Сумма ставки (₽)</label>
-      <input type="number" id="bac_sum" min="10" max="10000" step="1" placeholder="10">
-    </div>
-    <div class="form-group">
-      <label>Результат раздачи</label>
-      <div class="choice-group" id="bac-result-group">
-        <button type="button" class="choice-btn" onclick="selectResult(this, 'игрок')">Победил Игрок</button>
-        <button type="button" class="choice-btn" onclick="selectResult(this, 'банк')">Победил Банк</button>
-        <button type="button" class="choice-btn" onclick="selectResult(this, 'ничья')">Ничья</button>
-      </div>
-      <input type="hidden" id="bac_result" value="">
-    </div>
-    <button class="btn-submit" id="btnBac" onclick="saveBac()">Внести раздачу</button>
-    <div class="msg" id="msgBac"></div>
+    <button class="btn-submit" onclick="openWithdrawModal()">Запросить вывод</button>
+    <div class="msg" id="msgWithdraw"></div>
+
+    <h2 style="margin-top:24px;font-size:16px">История выводов</h2>
+    <div id="withdrawHistory"></div>
   </div>
 </div>
 
-<div class="modal-overlay" id="logoutModal">
+<!-- Модалка вывода -->
+<div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
-    <h3>Выход из аккаунта</h3>
-    <p>Вы уверены, что хотите выйти?</p>
+    <h3>Вывод средств</h3>
+    <p>Введите сумму к выводу (не больше баланса)</p>
+    <input type="number" id="withdrawSum" placeholder="0" min="1">
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeLogoutModal()">Отмена</button>
-      <button class="btn-confirm" onclick="confirmLogout()">Выйти</button>
+      <button class="btn-cancel" onclick="closeWithdrawModal()">Отмена</button>
+      <button class="btn-confirm" onclick="doWithdraw()">Вывести</button>
     </div>
   </div>
 </div>
 
 <script>
 let currentDealer = null;
+let dealerBalance = 0;
 
-function selectDeck(btn, val) {
-  document.querySelectorAll('#decks-group .choice-btn').forEach(b => b.classList.remove('selected'));
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+function switchTab(name){
+  document.querySelectorAll('.tabs > button[data-tab]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.tabs > button[data-tab="${name}"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if(name === 'tasks') loadTasks();
+  if(name === 'balance') loadBalance();
+}
+function switchSub(name){
+  document.querySelectorAll('.tabs button[data-sub]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.tabs button[data-sub="${name}"]`).classList.add('active');
+  document.getElementById('sub-bj').style.display = name === 'bj' ? 'block' : 'none';
+  document.getElementById('sub-bac').style.display = name === 'bac' ? 'block' : 'none';
+}
+
+function selectDeck(btn, val){
+  document.querySelectorAll('#decks-group .choice-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   document.getElementById('decks').value = val;
 }
-function selectBet(btn, val) {
-  document.querySelectorAll('#bac-bet-group .choice-btn').forEach(b => b.classList.remove('selected'));
+function selectBet(btn, val){
+  document.querySelectorAll('#bac-bet-group .choice-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   document.getElementById('bac_bet').value = val;
 }
-function selectResult(btn, val) {
-  document.querySelectorAll('#bac-result-group .choice-btn').forEach(b => b.classList.remove('selected'));
+function selectResult(btn, val){
+  document.querySelectorAll('#bac-result-group .choice-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   document.getElementById('bac_result').value = val;
 }
 
-function switchTab(name){
-  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelector(`.tabs button[data-tab="${name}"]`).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-}
-
 function showMsg(id, text, ok){
   const m = document.getElementById(id);
+  if(!m) return;
   m.textContent = text;
   m.className = 'msg ' + (ok ? 'ok' : 'err');
+  setTimeout(()=>{ m.className = 'msg'; }, 5000);
 }
 
 async function doLogin(){
@@ -207,45 +271,37 @@ async function doLogin(){
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   const btn = document.querySelector('.btn-glow');
-  
-  btn.textContent = 'Загрузка...';
-  btn.disabled = true;
-
+  btn.textContent = 'Загрузка...'; btn.disabled = true;
   try {
     const r = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ login, pass, type: 'dealer' })
     });
     const data = await r.json();
     if(!r.ok){ err.textContent = data.error || 'Ошибка'; return; }
-    
     currentDealer = data.dealer;
+    dealerBalance = parseFloat(data.dealer.balance) || 0;
     err.textContent = '';
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('mainScreen').classList.remove('hidden');
     document.getElementById('dealerName').textContent = currentDealer.name;
-  } catch(e){ 
-    err.textContent = 'Ошибка соединения'; 
-  } finally {
-    btn.textContent = 'Submit';
-    btn.disabled = false;
-  }
+    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
+    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
+    loadTasks();
+  } catch(e){ err.textContent = 'Ошибка соединения'; }
+  finally { btn.textContent = 'Войти'; btn.disabled = false; }
 }
-
 document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
 
-function openLogoutModal(){ document.getElementById('logoutModal').classList.add('show'); }
-function closeLogoutModal(){ document.getElementById('logoutModal').classList.remove('show'); }
 function confirmLogout(){
   currentDealer = null;
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('mainScreen').classList.add('hidden');
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
-  closeLogoutModal();
 }
 
+/* ---------- ВНЕСЕНИЕ ---------- */
 async function saveBJ(){
   const nick = document.getElementById('nick').value.trim();
   const decks = parseInt(document.getElementById('decks').value, 10);
@@ -253,39 +309,28 @@ async function saveBJ(){
   const outSum = parseFloat(document.getElementById('out').value) || 0;
   const fee = parseFloat(document.getElementById('fee').value) || 0;
   const winJackpot = document.getElementById('winJackpot').checked;
-  
+
   if(!nick){ showMsg('msgBj', 'Укажите ник игрока', false); return; }
   if(dep < 10 || dep > 10000){ showMsg('msgBj', 'Депозит от 10 до 10 000', false); return; }
   if(outSum < 0 || outSum > 10000){ showMsg('msgBj', 'Вывод от 0 до 10 000', false); return; }
-  if(fee < 0){ showMsg('msgBj', 'Комиссия не может быть отрицательной', false); return; }
 
   const btn = document.getElementById('btnBJ');
-  btn.disabled = true;
-  btn.textContent = 'Отправка...';
-
+  btn.disabled = true; btn.textContent = 'Отправка...';
   const date = new Date().toISOString().slice(0,10);
-  const net = outSum - fee;                       // на руки игроку
-  const result = dep - outSum - fee;              // результат казино (может быть отрицательным)
+  const net = outSum - fee;
+  const result = dep - outSum + fee;
 
   try {
     const r = await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ date, nick, decks, dep, outSum, fee, net, result, dealer: currentDealer.name, winJackpot })
     });
     if(!r.ok) throw new Error('Ошибка сервера');
-    const okText = result >= 0
-      ? `Сессия сохранена. Доход казино: ${result} ₽`
-      : `Сессия сохранена. Игрок в плюсе: ${Math.abs(result)} ₽`;
-    showMsg('msgBj', okText, true);
+    showMsg('msgBj', 'Сессия сохранена', true);
     ['nick','dep','out','fee'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('winJackpot').checked = false;
-  } catch(e){
-    showMsg('msgBj', 'Ошибка: ' + e.message, false);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Внести сессию';
-  }
+  } catch(e){ showMsg('msgBj', 'Ошибка: ' + e.message, false); }
+  finally { btn.disabled = false; btn.textContent = 'Внести сессию'; }
 }
 
 async function saveBac(){
@@ -293,39 +338,129 @@ async function saveBac(){
   const bet = document.getElementById('bac_bet').value;
   const sum = parseFloat(document.getElementById('bac_sum').value) || 0;
   const result = document.getElementById('bac_result').value;
-  
+
   if(!player){ showMsg('msgBac', 'Укажите игрока', false); return; }
   if(!bet){ showMsg('msgBac', 'Выберите на кого ставка', false); return; }
   if(!result){ showMsg('msgBac', 'Выберите результат', false); return; }
   if(sum < 10 || sum > 10000){ showMsg('msgBac', 'Ставка от 10 до 10 000', false); return; }
 
   const btn = document.getElementById('btnBac');
-  btn.disabled = true;
-  btn.textContent = 'Отправка...';
-
+  btn.disabled = true; btn.textContent = 'Отправка...';
   const date = new Date().toISOString().slice(0,10);
 
   try {
     const r = await fetch('/api/baccarat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ date, player, bet, sum, result, dealer: currentDealer.name })
     });
     if(!r.ok) throw new Error('Ошибка сервера');
     showMsg('msgBac', 'Раздача сохранена', true);
     ['bac_player','bac_sum'].forEach(id=>document.getElementById(id).value='');
-    
-    document.querySelectorAll('#bac-bet-group .choice-btn').forEach(b => b.classList.remove('selected'));
-    document.querySelectorAll('#bac-result-group .choice-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('#bac-bet-group .choice-btn, #bac-result-group .choice-btn').forEach(b=>b.classList.remove('selected'));
     document.getElementById('bac_bet').value = '';
     document.getElementById('bac_result').value = '';
-    
+  } catch(e){ showMsg('msgBac', 'Ошибка: ' + e.message, false); }
+  finally { btn.disabled = false; btn.textContent = 'Внести раздачу'; }
+}
+
+/* ---------- ЗАДАНИЯ ---------- */
+async function loadTasks(){
+  if(!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/tasks?id=' + currentDealer.id);
+    const data = await r.json();
+    document.getElementById('weekBadge').textContent = 'Неделя с ' + (data.week || '—');
+    const list = data.tasks || [];
+    document.getElementById('tasksList').innerHTML = list.map(t => {
+      const pct = Math.round((t.progress / t.goal) * 100);
+      const claimBtn = t.canClaim
+        ? `<button class="claim-btn" onclick="claimTask('${t.id}')">Забрать ${t.reward} ₽</button>`
+        : t.claimed
+          ? `<span class="claimed-label">✓ Получено</span>`
+          : `<span>${t.progress} / ${t.goal}</span>`;
+      return `
+        <div class="task ${t.done ? 'done' : ''}">
+          <div class="top">
+            <div class="title">${t.title}</div>
+            <div class="reward">${t.reward} ₽</div>
+          </div>
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+          <div class="bottom">
+            <span>${t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара'}</span>
+            ${claimBtn}
+          </div>
+        </div>`;
+    }).join('') || '<div style="color:#8fa2b8;text-align:center;padding:20px">Заданий нет</div>';
   } catch(e){
-    showMsg('msgBac', 'Ошибка: ' + e.message, false);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Внести раздачу';
+    document.getElementById('tasksList').innerHTML = '<div style="color:#ff4d4d;text-align:center;padding:20px">Ошибка загрузки</div>';
   }
+}
+
+async function claimTask(taskId){
+  if(!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/tasks/claim', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id, task_id: taskId })
+    });
+    const data = await r.json();
+    if(!r.ok){ showMsg('msgTask', data.error || 'Ошибка', false); return; }
+    showMsg('msgTask', 'Награда зачислена: ' + data.reward + ' ₽', true);
+    // обновляем баланс
+    dealerBalance += parseFloat(data.reward) || 0;
+    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
+    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
+    loadTasks();
+  } catch(e){ showMsg('msgTask', 'Ошибка соединения', false); }
+}
+
+/* ---------- БАЛАНС ---------- */
+async function loadBalance(){
+  if(!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/balance?id=' + currentDealer.id);
+    const data = await r.json();
+    if(!r.ok){ return; }
+    dealerBalance = parseFloat(data.dealer.balance) || 0;
+    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
+    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
+
+    const w = data.withdrawals || [];
+    document.getElementById('withdrawHistory').innerHTML = w.length
+      ? w.map(x => `
+        <div class="withdraw-item">
+          <div>
+            <div style="font-weight:600">${fmt(x.sum)} ₽</div>
+            <div style="font-size:11px;color:#8fa2b8">${x.date}</div>
+          </div>
+          <span class="status ${x.status}">${x.status}</span>
+        </div>`).join('')
+      : '<div style="color:#8fa2b8;text-align:center;padding:20px;font-size:13px">Выводов пока не было</div>';
+  } catch(e){}
+}
+
+function openWithdrawModal(){
+  if(dealerBalance <= 0){ alert('Нет средств к выводу'); return; }
+  document.getElementById('withdrawSum').value = fmt(dealerBalance).replace(/\s/g,'');
+  document.getElementById('withdrawModal').classList.add('show');
+}
+function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.remove('show'); }
+
+async function doWithdraw(){
+  const sum = parseFloat(document.getElementById('withdrawSum').value) || 0;
+  if(sum <= 0){ alert('Введите сумму'); return; }
+  if(sum > dealerBalance){ alert('Не больше баланса'); return; }
+  try {
+    const r = await fetch('/api/dealer/withdraw', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id: currentDealer.id, sum })
+    });
+    const data = await r.json();
+    if(!r.ok){ showMsg('msgWithdraw', data.error || 'Ошибка', false); return; }
+    showMsg('msgWithdraw', 'Заявка создана. Ожидайте подтверждения администратора.', true);
+    closeWithdrawModal();
+    loadBalance();
+  } catch(e){ showMsg('msgWithdraw', 'Ошибка соединения', false); }
 }
 </script>
 </body>
