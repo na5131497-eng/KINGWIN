@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Казино</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -43,9 +43,8 @@
   .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); }
   
   /* TOP BAR */
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
-  .search-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; color: #fff; width: 300px; font-family: inherit; display: flex; align-items: center; font-size: 13px; outline: none; }
-  .search-box:focus { border-color: rgba(255,255,255,0.2); }
+  .topbar { height: 70px; display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
+  
   .header-actions { display: flex; align-items: center; gap: 15px; }
   .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
   .btn-wallet { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 0 15px rgba(168,85,247,0.4); transition: 0.3s; }
@@ -72,17 +71,16 @@
   .section-title { font-size: 20px; font-weight: 800; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
 
-  /* СЕТКА НАШИХ ИГР (иконки без эмодзи) */
-  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+  /* СЕТКА НАШИХ ИГР (КРАСИВЫЕ КАРТОЧКИ) */
+  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+  .our-game-card { background: linear-gradient(180deg, #1c1f2b, #11121a); border-radius: 16px; padding: 20px 15px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; aspect-ratio: 1; justify-content: center; }
   .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(0,229,255,0.1); }
-  .our-game-icon { width: 60px; height: 60px; border-radius: 15px; background: rgba(0,229,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
-  .our-game-icon svg { width: 32px; height: 32px; fill: currentColor; }
-  .our-game-title { font-size: 16px; font-weight: 800; margin-bottom: 5px; }
-  .our-game-desc { font-size: 12px; color: var(--text-muted); }
+  .our-game-icon { font-size: 48px; line-height: 1; margin-bottom: 15px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+  .our-game-title { font-size: 16px; font-weight: 800; margin-bottom: 5px; letter-spacing: 0.5px; }
+  .our-game-desc { font-size: 11px; color: var(--text-muted); }
 
   /* SLOTS GRID */
-  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
   .slot-card { border-radius: 16px; overflow: hidden; position: relative; aspect-ratio: 3/4; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; }
   .slot-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
   .slot-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%); z-index: 1; }
@@ -98,28 +96,51 @@
   @media (max-width: 768px) {
     .sidebar { display: none; }
     .topbar { padding: 0 15px; height: 60px; }
-    .search-box { display: none; }
     .content { padding: 15px; padding-bottom: 80px; }
     .hero { padding: 30px 20px; flex-direction: column; text-align: center; }
-    .hero h1 { font-size: 28px; }
+    .hero h1 { font-size: 24px; }
     .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .our-game-icon { font-size: 36px; margin-bottom: 10px; }
+    .our-game-title { font-size: 14px; }
     .slots-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .mobile-bottom-nav { display: flex; }
     .hero-btn { width: 100%; }
   }
 
   /* MODALS */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
   .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
   
+  /* DEPOSIT FORM (как на фото) */
+  .payment-methods { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+  .pm-btn { flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+  .pm-btn.active { background: rgba(0,229,255,0.1); border-color: #00e5ff; color: #00e5ff; }
+  
+  .amount-input-wrap { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; margin-bottom: 15px; }
+  .amount-input-wrap button { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 20px; cursor: pointer; font-weight: 700; }
+  .amount-input-wrap input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 24px; font-weight: 800; outline: none; font-family: inherit; }
+  
+  .quick-amounts { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
+  .quick-amounts button { background: rgba(255,255,255,0.05); border: none; color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .quick-amounts button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  
+  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+  .btn-submit:hover { background: #33ebff; box-shadow: 0 0 20px rgba(0,229,255,0.4); }
+
   /* TOASTS */
   .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 12px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: #ff4d4d; }
+
+  @media (max-width: 500px) {
+    .toast-container { top: 10px; left: 10px; right: 10px; }
+    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
@@ -134,7 +155,6 @@
   </div>
   
   <div class="nav-menu">
-    <!-- Активная вкладка Главная (без эмодзи) -->
     <div class="nav-item active" onclick="showToast('Вы на главной', 'success')">Главная</div>
     <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Слоты</div>
     <div class="nav-item" onclick="showToast('Раздел в разработке', 'error')">Новые игры</div>
@@ -146,14 +166,14 @@
 
   <div class="side-section-title">Наши игры</div>
   <div class="nav-menu">
-    <div class="nav-item" onclick="showToast('Игра Краш в разработке', 'error')">Краш</div>
-    <div class="nav-item" onclick="showToast('Игра Кейсы в разработке', 'error')">Кейсы</div>
-    <div class="nav-item" onclick="showToast('Игра Дайс в разработке', 'error')">Дайс</div>
-    <div class="nav-item" onclick="showToast('Игра Кено в разработке', 'error')">Кено</div>
-    <div class="nav-item" onclick="showToast('Игра Минер в разработке', 'error')">Минер</div>
-    <div class="nav-item" onclick="showToast('Игра Лесенка в разработке', 'error')">Лесенка</div>
-    <div class="nav-item" onclick="showToast('Игра Монетка в разработке', 'error')">Монетка</div>
-    <div class="nav-item" onclick="showToast('Игра Плинко в разработке', 'error')">Плинко</div>
+    <div class="nav-item" onclick="showToast('Игра Crash в разработке', 'error')">Crash</div>
+    <div class="nav-item" onclick="showToast('Игра Cases в разработке', 'error')">Cases</div>
+    <div class="nav-item" onclick="showToast('Игра Dice в разработке', 'error')">Dice</div>
+    <div class="nav-item" onclick="showToast('Игра Keno в разработке', 'error')">Keno</div>
+    <div class="nav-item" onclick="showToast('Игра Mines в разработке', 'error')">Mines</div>
+    <div class="nav-item" onclick="showToast('Игра Tower в разработке', 'error')">Tower</div>
+    <div class="nav-item" onclick="showToast('Игра Coinflip в разработке', 'error')">Coinflip</div>
+    <div class="nav-item" onclick="showToast('Игра Plinko в разработке', 'error')">Plinko</div>
   </div>
 
   <div class="bottom-menu">
@@ -168,7 +188,6 @@
 <main class="main-area">
   <!-- TOP BAR -->
   <header class="topbar">
-    <div class="search-box">Поиск игр...</div>
     <div class="header-actions" id="userArea" style="display:none">
       <div class="balance-btn">Баланс: <span id="topBalance">0.00</span> ₽</div>
       <button class="btn-wallet" onclick="openModal('depositModal')">Кошелек</button>
@@ -187,7 +206,7 @@
     <div class="hero" onclick="showToast('Переход в раздел бонусов...', 'success')">
       <div class="hero-content">
         <div class="hero-badge">Приветственный бонус</div>
-        <h1>Забери бонус <span>$1000 и 70 фриспинов</span></h1>
+        <h1>Забери бонус <span>100 рублей и 20 FS</span></h1>
         <button class="hero-btn">Забрать сейчас</button>
       </div>
     </div>
@@ -197,45 +216,45 @@
       <div class="section-title">Наши игры</div>
     </div>
     <div class="our-games-grid">
-      <div class="our-game-card" onclick="showToast('Игра Краш в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
-        <div class="our-game-title">Краш</div>
-        <div class="our-game-desc">Ракета летит — не упади</div>
+      <div class="our-game-card" onclick="showToast('Игра Crash в разработке', 'error')">
+        <div class="our-game-icon">🚀</div>
+        <div class="our-game-title">Crash</div>
+        <div class="our-game-desc">Ракета летит</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Кейсы в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg></div>
-        <div class="our-game-title">Кейсы</div>
-        <div class="our-game-desc">Открывай и получай призы</div>
+      <div class="our-game-card" onclick="showToast('Игра Cases в разработке', 'error')">
+        <div class="our-game-icon">📦</div>
+        <div class="our-game-title">Cases</div>
+        <div class="our-game-desc">Открывай призы</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Дайс в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg></div>
-        <div class="our-game-title">Дайс</div>
-        <div class="our-game-desc">Угадай число на кубике</div>
+      <div class="our-game-card" onclick="showToast('Игра Dice в разработке', 'error')">
+        <div class="our-game-icon">🎲</div>
+        <div class="our-game-title">Dice</div>
+        <div class="our-game-desc">Угадай число</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Кено в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm0-4H7v-2h5v2zm0-4H7V7h5v2zm5 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2z"/></svg></div>
-        <div class="our-game-title">Кено</div>
-        <div class="our-game-desc">Выбери числа и выиграй</div>
+      <div class="our-game-card" onclick="showToast('Игра Keno в разработке', 'error')">
+        <div class="our-game-icon">🔢</div>
+        <div class="our-game-title">Keno</div>
+        <div class="our-game-desc">Выбери числа</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Минер в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
-        <div class="our-game-title">Минер</div>
-        <div class="our-game-desc">Ищи алмазы, избегай бомб</div>
+      <div class="our-game-card" onclick="showToast('Игра Mines в разработке', 'error')">
+        <div class="our-game-icon">💣</div>
+        <div class="our-game-title">Mines</div>
+        <div class="our-game-desc">Ищи алмазы</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Лесенка в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M5 11h4v2H5zm0 4h4v2H5zm0 4h4v2H5zM3 7h4v2H3zm-2 4h4v2H1zm16 4h4v2h-4zm0 4h4v2h-4zm0-8h4v2h-4zm-2 4h4v2h-4z"/></svg></div>
-        <div class="our-game-title">Лесенка</div>
-        <div class="our-game-desc">Поднимайся и умножай</div>
+      <div class="our-game-card" onclick="showToast('Игра Tower в разработке', 'error')">
+        <div class="our-game-icon">🏗️</div>
+        <div class="our-game-title">Tower</div>
+        <div class="our-game-desc">Строй башню</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Монетка в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v2H9v2h2v2H9v2h2v2h2v-2h2v-2h-2v-2h2V9h-2V7z"/></svg></div>
-        <div class="our-game-title">Монетка</div>
+      <div class="our-game-card" onclick="showToast('Игра Coinflip в разработке', 'error')">
+        <div class="our-game-icon">🪙</div>
+        <div class="our-game-title">Coinflip</div>
         <div class="our-game-desc">Орел или решка</div>
       </div>
-      <div class="our-game-card" onclick="showToast('Игра Плинко в разработке', 'error')">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
-        <div class="our-game-title">Плинко</div>
-        <div class="our-game-desc">Сбрось шарик и поймай множитель</div>
+      <div class="our-game-card" onclick="showToast('Игра Plinko в разработке', 'error')">
+        <div class="our-game-icon">🟣</div>
+        <div class="our-game-title">Plinko</div>
+        <div class="our-game-desc">Шарик и множитель</div>
       </div>
     </div>
 
@@ -287,25 +306,48 @@
     <h2>Вход в аккаунт</h2>
     <input type="text" id="loginId" placeholder="Номер карты" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:14px; color:#fff; margin-bottom:15px; outline:none;">
     <input type="password" id="loginPass" placeholder="Пароль" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:14px; color:#fff; margin-bottom:20px; outline:none;">
-    <button class="btn-login" style="width:100%; padding:15px; font-size:16px;" onclick="doLogin()">Войти</button>
+    <button class="btn-submit" onclick="doLogin()">Войти</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <h2>Пополнить баланс</h2>
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-      <button class="btn-small" style="background:var(--accent); color:#000; flex:1; padding:10px; border-radius:8px; border:none; font-weight:800;">СБП</button>
-      <button class="btn-small" style="background:rgba(255,255,255,0.1); color:#fff; flex:1; padding:10px; border-radius:8px; border:none; font-weight:800;">Карта</button>
+    
+    <!-- Как на фото: методы -->
+    <div class="payment-methods">
+      <button class="pm-btn active">СБП</button>
+      <button class="pm-btn">Карта</button>
+      <button class="pm-btn">Крипта</button>
     </div>
-    <input type="number" id="depositAmount" value="200" min="200" max="1000" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:20px; color:#fff; font-size:24px; text-align:center; font-weight:800; margin-bottom:10px; outline:none;">
-    <div style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:20px;">Мин: 200 ₽ • Макс: 1000 ₽</div>
-    <button class="btn-login" style="width:100%; padding:15px; font-size:16px;" onclick="doDeposit()">Пополнить</button>
+    
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px; text-align:center;">Введите сумму пополнения (₽)</div>
+    
+    <!-- Управление суммой -->
+    <div class="amount-input-wrap">
+      <button onclick="changeAmount(-100)">−</button>
+      <input type="number" id="depositAmount" value="200" min="200" max="1000">
+      <button onclick="changeAmount(100)">+</button>
+    </div>
+    
+    <!-- Быстрые суммы -->
+    <div class="quick-amounts">
+      <button onclick="setAmount(200)">200</button>
+      <button onclick="setAmount(500)">500</button>
+      <button onclick="setAmount(1000)">1000</button>
+    </div>
+    
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px; text-align:center;">
+      Мин: 200 ₽ • Макс: 1000 ₽
+    </div>
+    
+    <button class="btn-submit" onclick="doDeposit()">Пополнить</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="waitingModal">
   <div class="modal-box" style="text-align:center;">
+    <div style="font-size:40px; margin-bottom:15px; animation: spin 2s linear infinite;">⏳</div>
     <h2>Ожидайте</h2>
     <p style="color:var(--text-muted); margin-bottom: 20px;">Обрабатываем ваш запрос...</p>
   </div>
@@ -375,6 +417,19 @@ function goToProfile() {
   else { openModal('loginModal'); }
 }
 
+/* --- ЛОГИКА ПОПОЛНЕНИЯ (БЕЗ МГНОВЕННОГО НАЧИСЛЕНИЯ) --- */
+function changeAmount(diff) {
+  const input = document.getElementById('depositAmount');
+  let val = parseInt(input.value) || 200;
+  val += diff;
+  if(val < 200) val = 200;
+  if(val > 1000) val = 1000;
+  input.value = val;
+}
+function setAmount(val) {
+  document.getElementById('depositAmount').value = val;
+}
+
 async function doDeposit() {
   if(!currentPlayer) return;
   const amount = parseInt(document.getElementById('depositAmount').value);
@@ -384,24 +439,29 @@ async function doDeposit() {
   document.getElementById('waitingModal').classList.add('show');
 
   try {
+    // Создаем заявку. Баланс НЕ меняем локально!
     const res = await fetch('/api/deposits', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         date: new Date().toISOString().slice(0,10),
-        nick: currentPlayer.name, email: 'player@kingwin.com', sum: amount, status: 'pending'
+        nick: currentPlayer.name,
+        email: 'player@kingwin.com',
+        sum: amount,
+        status: 'pending' // Ждет подтверждения в админке
       })
     });
+
     setTimeout(() => {
       closeModal('waitingModal');
       if(res.ok) {
-        showToast('Спасибо за ожидание и удачи!', 'success');
-        currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance || 0) + amount;
-        updateUI();
+        showToast('Заявка отправлена! Ожидайте подтверждения администратора.', 'success');
+        // НЕ прибавляем баланс! Игрок увидит его только после подтверждения админом.
       } else {
         showToast('Ошибка при создании заявки', 'error');
       }
     }, 1500);
+
   } catch(e) {
     closeModal('waitingModal');
     showToast('Ошибка соединения', 'error');
