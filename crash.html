@@ -19,7 +19,6 @@
     --blue: #0077ff;
     --purple: #a855f7;
     --gold: #f1c40f;
-    --yellow: #f1c40f;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -98,6 +97,7 @@
   .check-group { display: flex; gap: 15px; }
   .check-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); font-weight: 600; cursor: pointer; }
   .check-label input { accent-color: var(--accent); cursor: pointer; }
+  .check-label input:disabled { opacity: 0.5; cursor: not-allowed; }
   
   .mult-input { font-size: 12px; color: var(--text-muted); font-weight: 700; }
   
@@ -110,19 +110,20 @@
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
   .btn-action .subtext { font-size: 13px; font-weight: 700; margin-top: 4px; opacity: 0.9; }
   
-  /* СТИЛИ КНОПОК */
+  /* НОВЫЕ СТИЛИ КНОПОК (В НАШЕМ ЦВЕТЕ) */
   .btn-bet { 
-    background: var(--yellow); 
+    background: linear-gradient(135deg, #00e5ff, #0077ff); 
     color: #000; 
-    box-shadow: 0 0 15px rgba(241,196,15,0.3); 
-    animation: pulse-yellow 2s infinite;
+    box-shadow: 0 0 15px rgba(0,229,255,0.3); 
+    animation: pulse-accent 2s infinite;
   }
-  .btn-bet:hover { background: #f7d341; box-shadow: 0 0 25px rgba(241,196,15,0.6); }
-  .btn-bet:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; animation: none; }
-  @keyframes pulse-yellow {
-    0% { box-shadow: 0 0 10px rgba(241,196,15,0.3); }
-    50% { box-shadow: 0 0 25px rgba(241,196,15,0.8); }
-    100% { box-shadow: 0 0 10px rgba(241,196,15,0.3); }
+  .btn-bet:hover { filter: brightness(1.2); box-shadow: 0 0 25px rgba(0,229,255,0.6); }
+  .btn-bet:disabled { background: rgba(255,255,255,0.05); color: var(--text-muted); box-shadow: none; animation: none; cursor: not-allowed; }
+  
+  @keyframes pulse-accent {
+    0% { box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+    50% { box-shadow: 0 0 25px rgba(0,229,255,0.8); }
+    100% { box-shadow: 0 0 10px rgba(0,229,255,0.3); }
   }
   
   .btn-cashout { 
@@ -261,7 +262,7 @@
 
 <script>
 /* ---------------- СОСТОЯНИЕ ИГРЫ ---------------- */
-let gameState = 'waiting'; // waiting, flying, crashed
+let gameState = 'waiting'; // waiting, flying, crashed, cooldown
 let currentMultiplier = 1.00;
 let crashPoint = 1.00;
 let animationFrame = null;
@@ -278,12 +279,9 @@ const userMaskedIdEl = document.getElementById('userMaskedId');
 
 // Ставки
 let bets = {
-  1: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0 },
-  2: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0 }
+  1: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0, crashId: null },
+  2: { active: false, amount: 10, cashedOut: false, cashoutMultiplier: 0, crashId: null }
 };
-
-// История игроков (не сбрасывается)
-let playersHistory = [];
 
 function resizeCanvas() {
   const parent = canvas.parentElement;
@@ -304,7 +302,6 @@ window.onload = () => {
           currentPlayer = data.guest; 
           updateBalanceUI();
           
-          // Маскируем номер карты (например, 1234 **** 5678)
           const card = String(currentPlayer.id);
           const masked = card.length > 4 
             ? card.slice(0, 2) + '****' + card.slice(-2) 
@@ -314,6 +311,28 @@ window.onload = () => {
       })
       .catch(() => {});
   }
+
+  // Загружаем историю с сервера
+  fetch('/api/crash/history')
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('betsList');
+      if(data && data.length) {
+        data.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'bet-row';
+          row.innerHTML = `
+            <div class="bet-user"><div class="user-avatar">ID</div>${item.guest_masked || 'Гость'}</div>
+            <div class="bet-amount">${item.bet} ₽</div>
+            <div>${item.multiplier > 0 ? `<span class="bet-mult win">${parseFloat(item.multiplier).toFixed(2)}x</span>` : '--'}</div>
+            <div class="bet-cashout">${item.status === 'win' ? `${parseFloat(item.win_amount).toFixed(2)} ₽` : (item.status === 'lose' ? 'Проигрыш' : '--')}</div>
+          `;
+          list.appendChild(row);
+        });
+      }
+    })
+    .catch(() => {});
+
   startRound();
 };
 
@@ -351,10 +370,14 @@ function startRound() {
   rocketEl.style.display = 'none';
   explosionEl.className = 'explosion';
   
-  bets[1].active = false; bets[1].cashedOut = false;
-  bets[2].active = false; bets[2].cashedOut = false;
+  // Сбрасываем ставки
+  bets[1].active = false; bets[1].cashedOut = false; bets[1].crashId = null;
+  bets[2].active = false; bets[2].cashedOut = false; bets[2].crashId = null;
   
-  // Восстанавливаем кнопки
+  // Разблокируем чекбоксы автовывода
+  document.getElementById('autoCashout1').disabled = false;
+  document.getElementById('autoCashout2').disabled = false;
+  
   updateBetButtons();
   drawGame();
 
@@ -368,7 +391,6 @@ function startFlight() {
   gameState = 'flying';
   startTime = Date.now();
   
-  // Принудительно обновляем кнопки, чтобы они переключились в режим "Забрать"
   updateBetButtons();
   
   function tick() {
@@ -397,7 +419,7 @@ function startFlight() {
 }
 
 function endRound() {
-  gameState = 'crashed';
+  gameState = 'cooldown'; // Блокируем кнопки на 2 секунды
   cancelAnimationFrame(animationFrame);
   
   multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
@@ -417,6 +439,13 @@ function endRound() {
 
   addToHistory(currentMultiplier);
 
+  // Отправляем на сервер, что раунд закончился
+  fetch('/api/crash/round_end', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ multiplier: currentMultiplier })
+  });
+
   // Проигрыш невыведенных ставок
   [1, 2].forEach(id => {
     if (bets[id].active && !bets[id].cashedOut) {
@@ -426,11 +455,11 @@ function endRound() {
   
   updateBetButtons();
 
-  // Перезапуск через 6 секунд
+  // Через 2 секунды разрешаем новые ставки
   setTimeout(() => {
     explosionEl.classList.remove('animate');
     startRound();
-  }, 6000);
+  }, 2000); 
 }
 
 /* ---------------- ОТРИСОВКА ---------------- */
@@ -453,7 +482,7 @@ function drawGame() {
     else if (currentMultiplier >= 4) color = '#a855f7';
     else if (currentMultiplier >= 1.5) color = '#3b82f6';
     else color = '#ff4d4d';
-    if (gameState === 'crashed') color = '#ff4d4d';
+    if (gameState === 'crashed' || gameState === 'cooldown') color = '#ff4d4d';
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 4;
@@ -504,7 +533,6 @@ function setAmount(id, val) {
 }
 
 async function placeBet(id) {
-  // Если ставка уже сделана и идет полет - это клик по кнопке "Забрать"
   if (bets[id].active) {
     if (gameState === 'flying' && !bets[id].cashedOut) {
       cashOut(id);
@@ -525,29 +553,34 @@ async function placeBet(id) {
       return;
     }
 
-    // Списываем с сервера
+    // Блокируем чекбокс автовывода
+    document.getElementById('autoCashout' + id).disabled = true;
+
     try {
       const res = await fetch('/api/crash/bet', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ id: currentPlayer.id, bet: bets[id].amount })
       });
+      const data = await res.json();
+      
       if(res.ok) {
         currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance) - bets[id].amount;
         updateBalanceUI();
+        bets[id].crashId = data.crash_id;
       } else {
         bets[id].active = false;
+        document.getElementById('autoCashout' + id).disabled = false;
         showToast('Ошибка при списании средств', 'error');
         return;
       }
     } catch(e) {
       bets[id].active = false;
+      document.getElementById('autoCashout' + id).disabled = false;
       showToast('Ошибка соединения', 'error');
       return;
     }
 
-    // Добавляем в историю
-    addBetToPanel(id);
     showToast(`Ставка ${bets[id].amount} ₽ принята!`, 'success');
     updateBetButtons();
   }
@@ -565,14 +598,18 @@ async function cashOut(id) {
       await fetch('/api/crash/cashout', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ id: currentPlayer.id, bet: bets[id].amount, multiplier: currentMultiplier })
+        body: JSON.stringify({ 
+          id: currentPlayer.id, 
+          crash_id: bets[id].crashId,
+          bet: bets[id].amount, 
+          multiplier: currentMultiplier 
+        })
       });
       currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance) + winAmount;
       updateBalanceUI();
     } catch(e) {}
   }
   
-  updateBetInPanel(id, currentMultiplier, winAmount);
   showToast(`Выведено: ${winAmount.toFixed(2)} ₽`, 'success');
   updateBetButtons();
 }
@@ -602,7 +639,6 @@ function updateBetButtons() {
       }
     } else if (gameState === 'flying') {
       if (bet.active && !bet.cashedOut) {
-        // ВОТ КНОПКА "ЗАБРАТЬ"
         btn.className = 'btn-action btn-cashout';
         btn.innerHTML = `Забрать <div class="subtext">${(bet.amount * currentMultiplier).toFixed(2)} ₽</div>`;
         btn.disabled = false;
@@ -634,41 +670,6 @@ function updateButtonAmounts() {
   });
 }
 
-/* ---------------- ЛЕВАЯ ПАНЕЛЬ ---------------- */
-function addBetToPanel(id) {
-  const list = document.getElementById('betsList');
-  const row = document.createElement('div');
-  row.className = 'bet-row';
-  row.id = `bet-panel-${id}-${Date.now()}`;
-  
-  // Маскируем ID для отображения в истории
-  let masked = 'Гость';
-  if(currentPlayer) {
-    const c = String(currentPlayer.id);
-    masked = c.length > 4 ? c.slice(0, 2) + '***' + c.slice(-2) : '****';
-  }
-  
-  row.innerHTML = `
-    <div class="bet-user"><div class="user-avatar">ID</div>${masked}</div>
-    <div class="bet-amount">${bets[id].amount} ₽</div>
-    <div>--</div>
-    <div class="bet-cashout">--</div>
-  `;
-  list.prepend(row);
-  
-  // Запоминаем ID строки для обновления
-  row.dataset.betId = id;
-}
-
-function updateBetInPanel(id, mult, win) {
-  // Ищем последнюю строку с этим ID
-  const rows = document.querySelectorAll(`.bet-row[data-bet-id="${id}"]`);
-  if(rows.length === 0) return;
-  const row = rows[0];
-  row.children[2].innerHTML = `<span class="bet-mult win">${mult.toFixed(2)}x</span>`;
-  row.children[3].textContent = `${win.toFixed(2)} ₽`;
-}
-
 /* ---------------- ИСТОРИЯ ---------------- */
 function addToHistory(mult) {
   const list = document.getElementById('historyList');
@@ -682,8 +683,6 @@ function addToHistory(mult) {
   
   item.textContent = mult.toFixed(2) + 'x';
   list.prepend(item);
-  
-  // Ограничиваем визуальный список, чтобы не переполнялся экран
   if (list.children.length > 20) list.lastChild.remove();
 }
 
