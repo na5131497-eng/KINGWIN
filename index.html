@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KINGWIN — Онлайн Казино</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: #0a0d14; color: #fff; padding-bottom: 70px; }
+  a { text-decoration: none; color: inherit; }
+  
+  /* TOP BAR */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #111625; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .user-area { display: flex; align-items: center; gap: 15px; }
+  .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.3s; }
+  .balance-badge:hover { border-color: #00e5ff; }
+  .balance-badge span { color: #00e5ff; }
+  .btn-deposit { background: #3fbf7f; color: #000; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; transition: 0.3s; }
+  .btn-deposit:hover { background: #4edb92; box-shadow: 0 0 15px rgba(63,191,127,0.4); }
+  .profile-icon { width: 36px; height: 36px; border-radius: 50%; background: #1c2b45; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+  .profile-icon:hover { border-color: #00e5ff; }
+
+  /* MAIN CONTAINER */
+  .main-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  
+  /* BANNER */
+  .banner { position: relative; border-radius: 20px; overflow: hidden; background: linear-gradient(135deg, #1a0b2e, #2d1b4e); padding: 40px; margin-bottom: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+  .banner::before { content: ''; position: absolute; right: -20px; top: -20px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,229,255,0.2), transparent 70%); pointer-events: none; }
+  .banner h1 { font-size: 42px; font-weight: 900; margin-bottom: 10px; z-index: 1; position: relative; }
+  .banner h1 span { color: #f1c40f; }
+  .banner p { font-size: 16px; color: #a0aec0; margin-bottom: 20px; z-index: 1; position: relative; }
+  .btn-claim { background: #00e5ff; color: #000; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 15px; border: none; cursor: pointer; z-index: 1; position: relative; }
+  
+  /* SECTIONS */
+  .section-title { font-size: 20px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 20px; background: #00e5ff; border-radius: 2px; }
+  
+  /* GRID CARDS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .game-card { background: linear-gradient(135deg, #1c2b45, #111625); border-radius: 16px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; cursor: pointer; }
+  .game-card:hover { transform: translateY(-5px); border-color: rgba(0,229,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  .game-img { width: 100%; height: 100px; background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+  .game-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .game-sub { font-size: 11px; color: #a0aec0; }
+
+  /* MODALS */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .modal-box { background: #111625; border: 1px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+  .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
+  .modal-box p { color: #a0aec0; font-size: 14px; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+  
+  /* DEPOSIT FORM */
+  .payment-methods { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+  .pm-btn { flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+  .pm-btn.active { background: rgba(0,229,255,0.1); border-color: #00e5ff; color: #00e5ff; }
+  .input-group { margin-bottom: 20px; }
+  .input-group label { display: block; font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+  .amount-input-wrap { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; }
+  .amount-input-wrap button { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 20px; cursor: pointer; font-weight: 700; }
+  .amount-input-wrap input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 24px; font-weight: 800; outline: none; font-family: inherit; }
+  .quick-amounts { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+  .quick-amounts button { background: rgba(255,255,255,0.05); border: none; color: #a0aec0; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .quick-amounts button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  
+  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; font-family: inherit; }
+  .btn-submit:hover { background: #33ebff; box-shadow: 0 0 20px rgba(0,229,255,0.4); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  /* TOASTS */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: rgba(18,24,38,0.95); border-left: 4px solid #00e5ff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s ease; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: #3fbf7f; }
+  .toast.error { border-left-color: #ff4d4d; }
+  .toast-icon { font-size: 20px; }
+  .toast.success .toast-icon { color: #3fbf7f; }
+  .toast.error .toast-icon { color: #ff4d4d; }
+  .toast-msg { font-size: 14px; font-weight: 600; color: #fff; }
+
+  /* MOBILE BOTTOM NAV */
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #111625; border-top: 1px solid rgba(255,255,255,0.05); padding: 10px; z-index: 100; justify-content: space-around; }
+  .bottom-nav div { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #a0aec0; cursor: pointer; gap: 4px; }
+  .bottom-nav div.active { color: #00e5ff; }
+  .bottom-nav div svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 15px; }
+    .logo { font-size: 18px; }
+    .balance-badge { padding: 4px 8px; font-size: 12px; }
+    .btn-deposit { display: none; } /* Скрываем в топбаре на мобилке, пополнение будет в нижнем меню */
+    .banner { padding: 25px 20px; }
+    .banner h1 { font-size: 28px; }
+    .banner p { font-size: 14px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .bottom-nav { display: flex; }
+    .modal-box { padding: 20px; border-radius: 16px; }
+    .toast-container { top: 10px; right: 10px; left: 10px; }
+    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Контейнер для уведомлений -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Шапка -->
+<div class="topbar">
+  <div class="logo">KINGWIN</div>
+  <div class="user-area" id="userArea" style="display:none">
+    <div class="balance-badge" onclick="openModal('depositModal')">
+      💰 <span id="topBalance">0.00</span> ₽
+    </div>
+    <button class="btn-deposit" onclick="openModal('depositModal')">Пополнить</button>
+    <div class="profile-icon" onclick="goToProfile()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    </div>
+  </div>
+  <div class="user-area" id="loginArea">
+    <button class="btn-deposit" onclick="openModal('loginModal')">Войти</button>
+  </div>
+</div>
+
+<!-- Основной контент -->
+<div class="main-content">
+  
+  <!-- Баннер -->
+  <div class="banner" onclick="showToast('Переход в раздел бонусов...', 'success')">
+    <h1>Забери бонус <span>$1000</span> & 70 FS</h1>
+    <p>Пополни баланс и получи до 50% к депозиту + фриспины!</p>
+    <button class="btn-claim">Забрать</button>
+  </div>
+
+  <!-- Игры -->
+  <div class="section-title">Популярные игры</div>
+  <div class="grid">
+    <div class="game-card" onclick="showToast('Запуск Fortune OX...', 'success')">
+      <div class="game-img">🐂</div>
+      <div class="game-title">Fortune OX</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Fortune Gems...', 'success')">
+      <div class="game-img">💎</div>
+      <div class="game-title">Fortune Gems</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Fortune Tiger...', 'success')">
+      <div class="game-img">🐯</div>
+      <div class="game-title">Fortune Tiger</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Gates of Olympus...', 'success')">
+      <div class="game-img">⚡</div>
+      <div class="game-title">Gates of Olympus</div>
+      <div class="game-sub">Slots</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- МОБИЛЬНОЕ МЕНЮ -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="active" onclick="showToast('Вы на главной', 'success')">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Главная
+  </div>
+  <div onclick="openModal('depositModal')">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Пополнить
+  </div>
+  <div onclick="goToProfile()">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    Профиль
+  </div>
+</div>
+
+<!-- МОДАЛКА: ВХОД -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <h2>Вход в аккаунт</h2>
+    <p>Введите номер вашей клубной карты и пароль</p>
+    <div class="input-group">
+      <label>Номер карты</label>
+      <input type="text" id="loginId" placeholder="12345678" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px; color:#fff; font-size:16px; outline:none;">
+    </div>
+    <div class="input-group">
+      <label>Пароль</label>
+      <input type="password" id="loginPass" placeholder="••••" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px; color:#fff; font-size:16px; outline:none;">
+    </div>
+    <button class="btn-submit" onclick="doLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА: ПОПОЛНЕНИЕ -->
+<div class="modal-overlay" id="depositModal">
+  <div class="modal-box">
+    <h2>Пополнить баланс</h2>
+    <div class="payment-methods">
+      <button class="pm-btn active">СБП</button>
+      <button class="pm-btn">Карта</button>
+      <button class="pm-btn">Криптовалюта</button>
+    </div>
+    
+    <div class="input-group">
+      <label>Введите сумму (₽)</label>
+      <div class="amount-input-wrap">
+        <button onclick="changeAmount(-100)">−</button>
+        <input type="number" id="depositAmount" value="200" min="200" max="1000">
+        <button onclick="changeAmount(100)">+</button>
+      </div>
+      <div class="quick-amounts">
+        <button onclick="setAmount(200)">200</button>
+        <button onclick="setAmount(500)">500</button>
+        <button onclick="setAmount(1000)">1000</button>
+      </div>
+    </div>
+    
+    <div style="font-size:12px; color:#a0aec0; margin-bottom:20px; text-align:center;">
+      Мин: 200 ₽ • Макс: 1000 ₽
+    </div>
+    
+    <button class="btn-submit" id="btnDoDeposit" onclick="doDeposit()">Пополнить</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА: ОЖИДАНИЕ -->
+<div class="modal-overlay" id="waitingModal">
+  <div class="modal-box" style="text-align:center;">
+    <div style="font-size:40px; margin-bottom:15px; animation: spin 2s linear infinite;">⏳</div>
+    <h2>Ожидайте</h2>
+    <p>Обрабатываем ваш запрос...</p>
+  </div>
+</div>
+
+<script>
+const API = ''; // Если нужно, укажи полный URL, например 'https://kingwin-production.up.railway.app'
+let currentPlayer = null;
+
+/* ---------- УВЕДОМЛЕНИЯ (TOASTS) ---------- */
+function showToast(text, type='success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${type === 'success' ? '✅' : '⚠️'}</div>
+    <div class="toast-msg">${text}</div>
+  `;
+  container.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 5000); // 5 секунд и пропадает
+}
+
+/* ---------- МОДАЛКИ ---------- */
+function openModal(id) {
+  if(id === 'depositModal' && !currentPlayer) {
+    showToast('Сначала войдите в аккаунт', 'error');
+    openModal('loginModal');
+    return;
+  }
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+/* ---------- АВТОРИЗАЦИЯ ---------- */
+async function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(!id || !pass) { showToast('Введите номер и пароль', 'error'); return; }
+
+  try {
+    const res = await fetch('/api/guest/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id, pass })
+    });
+    const data = await res.json();
+    
+    if(!res.ok) {
+      showToast(data.error || 'Ошибка входа', 'error');
+      return;
+    }
+    
+    currentPlayer = data.guest;
+    localStorage.setItem('kingwin_player_id', id);
+    closeModal('loginModal');
+    updateUI();
+    showToast(`С возвращением, ${currentPlayer.name}!`, 'success');
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+  }
+}
+
+function updateUI() {
+  if(currentPlayer) {
+    document.getElementById('userArea').style.display = 'flex';
+    document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'flex';
+    document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
+  } else {
+    document.getElementById('userArea').style.display = 'none';
+    document.getElementById('loginArea').style.display = 'flex';
+    document.getElementById('bottomNav').style.display = 'none';
+  }
+}
+
+function goToProfile() {
+  if(currentPlayer) {
+    window.location.href = `/player_profile.html?id=${currentPlayer.id}`;
+  } else {
+    openModal('loginModal');
+  }
+}
+
+/* ---------- ПОПОЛНЕНИЕ ---------- */
+function changeAmount(diff) {
+  const input = document.getElementById('depositAmount');
+  let val = parseInt(input.value) || 200;
+  val += diff;
+  if(val < 200) val = 200;
+  if(val > 1000) val = 1000;
+  input.value = val;
+}
+function setAmount(val) {
+  document.getElementById('depositAmount').value = val;
+}
+
+async function doDeposit() {
+  if(!currentPlayer) return;
+  const amount = parseInt(document.getElementById('depositAmount').value);
+  
+  if(amount < 200 || amount > 1000) {
+    showToast('Сумма должна быть от 200 до 1000 ₽', 'error');
+    return;
+  }
+
+  closeModal('depositModal');
+  openModal('waitingModal');
+
+  try {
+    // Создаем заявку на депозит. В нашем server.js это /api/deposits
+    const res = await fetch('/api/deposits', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        date: new Date().toISOString().slice(0,10),
+        nick: currentPlayer.name,
+        email: 'player@kingwin.com',
+        sum: amount,
+        status: 'pending' // Ждет подтверждения админа
+      })
+    });
+
+    const data = await res.json();
+    
+    setTimeout(() => {
+      closeModal('waitingModal');
+      if(res.ok) {
+        showToast('Спасибо за ожидание и удачи!', 'success');
+        // Обновляем баланс локально
+        currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance || 0) + amount;
+        updateUI();
+      } else {
+        showToast('Ошибка при создании заявки', 'error');
+      }
+    }, 1500); // Небольшая задержка для реализма
+
+  } catch(e) {
+    closeModal('waitingModal');
+    showToast('Ошибка соединения', 'error');
+  }
+}
+
+/* ---------- ИНИЦИАЛИЗАЦИЯ ---------- */
+window.onload = () => {
+  const savedId = localStorage.getItem('kingwin_player_id');
+  if(savedId) {
+    // Пробуем тихо подтянуть данные игрока
+    fetch('/api/guest/me?id=' + savedId)
+      .then(r => r.json())
+      .then(data => {
+        if(data.guest) {
+          currentPlayer = data.guest;
+          updateUI();
+        }
+      })
+      .catch(() => {});
+  }
+};
+
+// Закрытие модалок по клику вне окна
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay && overlay.id !== 'waitingModal') {
+      overlay.classList.remove('show');
+    }
+  });
+});
+</script>
+</body>
+</html>
