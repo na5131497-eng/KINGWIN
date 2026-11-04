@@ -257,7 +257,6 @@ let currentPlayer = null;
 let localPoints = [];
 let lastRoundId = null;
 
-// ДЛЯ ПЛАВНОЙ АНИМАЦИИ
 let serverState = null;
 let clientStartTime = 0;
 let displayMultiplier = 1.00;
@@ -304,22 +303,17 @@ async function fetchServerState() {
     }
 
     if (serverState.status === 'flying' && gameState !== 'flying') {
-      // Запоминаем локальное время старта для плавной анимации
       const elapsedOnServer = Date.now() - serverState.startTime;
       clientStartTime = Date.now() - elapsedOnServer;
     }
     
-    // Если сервер сказал, что уже краш - фиксируем это
     if (serverState.status === 'crashed') {
       gameState = 'crashed';
     } else {
       gameState = serverState.status;
     }
     
-    // Обновляем таблицу ставок
     renderActiveBets(serverState.activeBets);
-
-    // Обновляем верхнюю ленту истории
     renderHistory(serverState.history);
 
   } catch (e) {
@@ -378,21 +372,19 @@ function renderHistory(history) {
   }
 }
 
-// Синхронизация с сервером раз в 100 мс
 setInterval(fetchServerState, 100);
 
 /* ---------------- ПЛАВНАЯ АНИМАЦИЯ (60 FPS) ---------------- */
 function animate() {
   if (gameState === 'flying' && serverState) {
-    // Вычисляем кэф локально на основе времени
     const elapsed = Date.now() - clientStartTime;
     displayMultiplier = Math.pow(1.00006, elapsed);
     
-    // --- МОМЕНТАЛЬНЫЙ КРАШ ЛОКАЛЬНО ---
-    // Если кэф достиг точки краша, моментально блокируем кнопки
+    // --- МОМЕНТАЛЬНЫЙ КРАШ И БЛОКИРОВКА ---
+    // Если локальный кэф достиг точки краша, моментально останавливаем игру
     if (displayMultiplier >= serverState.crashPoint) {
       displayMultiplier = serverState.crashPoint;
-      gameState = 'crashed'; // Меняем статус прямо здесь
+      gameState = 'crashed'; 
       
       if (!explosionEl.classList.contains('animate')) {
         const lastP = localPoints[localPoints.length - 1];
@@ -406,13 +398,19 @@ function animate() {
           explosionEl.classList.add('animate');
         }
         rocketEl.style.display = 'none';
+        
+        // Отправляем запрос на сервер, чтобы он тоже зафиксировал крах, если еще не
+        fetch('/api/crash/round_end', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ multiplier: serverState.crashPoint })
+        });
       }
     }
 
     currentMultiplier = displayMultiplier;
     multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
     
-    // Добавляем точки для графика
     const now = Date.now();
     if (localPoints.length === 0 || now - localPoints[localPoints.length-1].time > 50) {
       localPoints.push({ x: elapsed / 1000, y: currentMultiplier, time: now });
@@ -602,7 +600,8 @@ async function placeBet(id) {
 
 async function cashOut(id) {
   if (!bets[id].active || bets[id].cashedOut) return;
-  if (gameState !== 'flying') return; // Запрещаем вывод, если уже краш
+  // ЖЕСТКАЯ ПРОВЕРКА: Если статус уже не flying - не даем вывести
+  if (gameState !== 'flying') return;
 
   bets[id].cashedOut = true;
   bets[id].cashoutMultiplier = currentMultiplier;
@@ -632,7 +631,7 @@ async function cashOut(id) {
 
 function checkAutoCashout(id) {
   if (!bets[id].active || bets[id].cashedOut) return;
-  if (gameState !== 'flying') return; // Не срабатывает после краша
+  if (gameState !== 'flying') return;
   const isAuto = document.getElementById('autoCashout' + id).checked;
   const targetMult = parseFloat(document.getElementById('autoMult' + id).value) || 0;
   if (isAuto && currentMultiplier >= targetMult) cashOut(id);
@@ -669,7 +668,6 @@ function updateBetButtons() {
         btn.disabled = true;
       }
     } else {
-      // Если краш - моментально меняем кнопку
       btn.className = 'btn-action btn-wait';
       btn.innerHTML = `Краш!`;
       btn.disabled = true;
