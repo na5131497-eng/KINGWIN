@@ -2,287 +2,550 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Прогрессивный Джекпот</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { 
-    background: radial-gradient(circle at center, #1a2332 0%, #0a0d14 100%); 
-    color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: radial-gradient(circle at center, #1a2332, #0a0d14);
+    color: #fff;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
   }
 
-  /* Падающие монеты */
-  .bg-coins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-  .coin { position: absolute; font-size: 40px; opacity: 0.12; animation: fall linear infinite; }
-  @keyframes fall { 0% { transform: translateY(-100px) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+  .screen-container {
+    width: 95vw;
+    max-width: 1400px;
+    height: 95vh;
+    height: 95dvh;
+    background: rgba(18, 24, 38, 0.95);
+    border: 4px solid #2a3a52;
+    border-radius: 10px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 229, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+  }
 
-  .container { 
-    flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; z-index: 10; 
-  }
-  
-  .layout { 
-    display: flex; width: 100%; max-width: 1400px; gap: 40px; align-items: center; justify-content: center; 
+  /* В fullscreen растягиваем на весь экран */
+  :fullscreen .screen-container {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
   }
 
-  /* Левая часть: Логотип и джекпот */
-  .left-side { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
-  
-  .logo-area { margin-bottom: 30px; }
-  .sevens { 
-    font-size: 120px; font-weight: 900; color: #f1c40f; 
-    text-shadow: 0 0 30px rgba(241,196,15,.8), 0 0 60px rgba(255,69,0,.4); 
-    line-height: 1; font-family: 'Arial Black', sans-serif; margin-bottom: -10px;
+  .top-section {
+    display: flex;
+    padding: 20px 30px;
+    gap: 30px;
+    border-bottom: 2px solid rgba(255,255,255,0.05);
+    background: linear-gradient(135deg, rgba(26, 35, 50, 0.8), rgba(10, 13, 20, 0.8));
+    flex: 1;
+    min-height: 0;
   }
-  .kingwin-title { 
-    font-size: 48px; font-weight: 900; letter-spacing: 8px; color: #fff; 
-    text-shadow: 0 0 20px rgba(0,229,255,.8); margin-top: 10px; 
-  }
-  .kingwin-sub { font-size: 20px; color: #00e5ff; letter-spacing: 10px; font-weight: 700; }
 
-  .jackpot-title-main { 
-    font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: #f1c40f; 
-    margin-bottom: 20px; text-shadow: 0 0 20px rgba(241,196,15,.5);
+  .logo-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
-  
-  /* Рамка с цифрами */
-  .jackpot-screen { 
-    background: rgba(0,0,0,.85); border: 4px solid #f1c40f; border-radius: 20px; padding: 30px 50px; 
-    box-shadow: 0 0 50px rgba(241,196,15,.4), inset 0 0 30px rgba(241,196,15,.1);
-    position: relative; overflow: hidden;
+  .sevens {
+    font-size: 100px;
+    font-weight: 900;
+    color: #f1c40f;
+    text-shadow: 0 0 20px rgba(241, 196, 15, 0.8), 0 0 60px rgba(255, 69, 0, 0.6);
+    line-height: 1;
+    font-family: 'Arial Black', sans-serif;
+    margin-bottom: -10px;
   }
-  .jackpot-screen::before { 
-    content: ''; position: absolute; inset: 0; 
-    background: linear-gradient(180deg, transparent, rgba(241,196,15,.15), transparent); 
-    animation: scan 3s linear infinite; 
+  .kingwin-title {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #fff;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+    margin-top: 10px;
   }
-  @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+  .kingwin-sub {
+    font-size: 20px;
+    color: #00e5ff;
+    letter-spacing: 8px;
+    font-weight: 700;
+  }
 
-  .corner { position: absolute; width: 25px; height: 25px; border: 3px solid #00e5ff; z-index: 5; box-shadow: 0 0 10px rgba(0,229,255,.5); }
-  .corner.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; border-top-left-radius: 15px; }
-  .corner.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; border-top-right-radius: 15px; }
-  .corner.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; border-bottom-left-radius: 15px; }
-  .corner.br { bottom: -3px; right: -3px; border-left: none; border-top: none; border-bottom-right-radius: 15px; }
+  .pays-table {
+    flex: 1;
+  }
+  .pays-table h3 {
+    font-size: 24px;
+    color: #f1c40f;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    text-align: right;
+  }
+  .pays-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .pays-table td {
+    padding: 8px 0;
+    font-size: 16px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+  }
+  .pays-table td:first-child {
+    color: #a0aec0;
+  }
+  .pays-table td:last-child {
+    text-align: right;
+    color: #3fbf7f;
+    font-weight: 700;
+  }
 
-  .digits { 
-    display: flex; align-items: center; font-family: 'Courier New', monospace; 
-    font-size: 90px; font-weight: 900; line-height: 1; color: #fff; 
-    text-shadow: 0 0 20px rgba(255,255,255,.6); position: relative; z-index: 2;
+  .middle-section {
+    padding: 20px 30px;
+    background: #000;
+    border-top: 3px solid #f1c40f;
+    border-bottom: 3px solid #f1c40f;
+    box-shadow: inset 0 0 40px rgba(241, 196, 15, 0.2);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+    flex: 0 0 auto;
   }
-  .digit-box { width: 60px; height: 90px; position: relative; overflow: hidden; text-align: center; display: inline-block; }
-  
-  .digit { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    display: flex; justify-content: center; align-items: center; 
-    transition: transform 1.1s cubic-bezier(0.4, 0.0, 0.2, 1);
-  }
-  .digit.out { transform: translateY(-100%); }
-  .digit.in { transform: translateY(100%); }
-  
-  .comma { font-size: 80px; margin: 0 5px; color: #f1c40f; }
-  .currency { font-size: 60px; margin-left: 10px; color: #f1c40f; }
 
-  /* Правая часть: Таблица выплат */
-  .right-side { 
-    flex: 1; max-width: 500px; background: rgba(18,24,38,.9); border: 2px solid rgba(0,229,255,.3); 
-    border-radius: 20px; padding: 30px; box-shadow: 0 0 30px rgba(0,229,255,.1); 
+  .jackpot-frame {
+    border: 4px solid #00e5ff;
+    border-radius: 15px;
+    padding: 15px 40px;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4), inset 0 0 20px rgba(0, 229, 255, 0.2);
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .right-side h3 { 
-    font-size: 20px; color: #f1c40f; text-transform: uppercase; letter-spacing: 2px; 
-    margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(241,196,15,.3); padding-bottom: 10px;
-  }
-  .pays-table { width: 100%; border-collapse: collapse; }
-  .pays-table td { padding: 12px 0; font-size: 16px; border-bottom: 1px dashed rgba(255,255,255,.1); }
-  .pays-table td:first-child { color: #a0aec0; }
-  .pays-table td:last-child { text-align: right; color: #3fbf7f; font-weight: 800; font-size: 18px; }
-  .pays-table tr:last-child td { border-bottom: none; }
 
-  /* Бегущая строка */
-  .winners-bar { 
-    background: rgba(241,196,15,.15); border-top: 2px solid #f1c40f; border-bottom: 2px solid #f1c40f; 
-    padding: 15px 0; overflow: hidden; white-space: nowrap; position: relative; z-index: 10; 
+  .jackpot-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 90px;
+    font-weight: 900;
+    color: #f1c40f;
+    text-shadow: 0 0 20px rgba(241, 196, 15, 0.8), 0 0 40px rgba(241, 196, 15, 0.4);
+    line-height: 1;
+    height: 100px;
+    overflow: hidden;
   }
-  .winners-track { display: inline-block; animation: scroll 20s linear infinite; }
-  .winners-track span { font-size: 18px; font-weight: 700; color: #fff; margin: 0 40px; text-transform: uppercase; }
-  .winners-track b { color: #f1c40f; }
-  @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
+  .digit-box {
+    display: inline-block;
+    height: 100px;
+    width: 60px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .digit {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .digit.out-down {
+    transform: translateY(100%);
+  }
+  .digit.in-top {
+    transform: translateY(-100%);
+  }
+  .digit.active {
+    transform: translateY(0);
+  }
+
+  .comma {
+    margin: 0 5px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+  .currency {
+    margin-left: 15px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    font-size: 50px;
+  }
+
+  /* ---------- Кнопка fullscreen ---------- */
+  .fullscreen-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 229, 255, 0.15);
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+    padding: 16px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 1px;
+    z-index: 100;
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .fullscreen-btn:hover { background: rgba(0, 229, 255, 0.3); }
+  .fullscreen-btn:active { transform: scale(0.96); }
+  :fullscreen .fullscreen-btn { display: none; }
+  :-webkit-full-screen .fullscreen-btn { display: none; }
+
+  /* ---------- Кнопка выхода из fullscreen ---------- */
+  .exit-fs-btn {
+    display: none;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 200;
+    background: rgba(255, 77, 77, 0.15);
+    border: 2px solid #ff4d4d;
+    color: #ff4d4d;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .exit-fs-btn:hover { background: rgba(255, 77, 77, 0.3); }
+  :fullscreen .exit-fs-btn { display: block; }
+  :-webkit-full-screen .exit-fs-btn { display: block; }
+
+  /* ---------- Мин/Макс по углам внизу ---------- */
+  .bottom-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 20px 30px;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .bet-corner {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 2px solid rgba(0, 229, 255, 0.4);
+    border-radius: 12px;
+    padding: 12px 20px;
+    backdrop-filter: blur(6px);
+  }
+
+  .bet-corner.max {
+    border-color: rgba(63, 191, 127, 0.5);
+  }
+
+  .bet-corner .bet-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #a0aec0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .bet-corner .bet-val {
+    font-size: 28px;
+    font-weight: 900;
+    color: #00e5ff;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+    line-height: 1;
+  }
+
+  .bet-corner.max .bet-val {
+    color: #3fbf7f;
+    text-shadow: 0 0 12px rgba(63, 191, 127, 0.5);
+  }
+
+  /* В fullscreen увеличиваем углы */
+  :fullscreen .bet-corner .bet-val { font-size: 36px; }
+  :fullscreen .bet-corner .bet-label { font-size: 16px; }
+  :fullscreen .bottom-section { padding: 30px 50px; }
+
+  /* В fullscreen — джекпот по центру экрана */
+  :fullscreen .top-section { flex: 0 0 auto; }
+  :fullscreen .middle-section { flex: 1; min-height: 0; }
+  :fullscreen .jackpot-wrap { font-size: 140px; height: 160px; }
+  :fullscreen .digit-box { height: 160px; width: 90px; }
+  :fullscreen .comma, :fullscreen .currency { height: 160px; }
+  :fullscreen .currency { font-size: 80px; }
+  :fullscreen .jackpot-frame { padding: 25px 60px; }
+
+  /* ---------- Планшет / мобильный ---------- */
   @media (max-width: 900px) {
-    .layout { flex-direction: column; gap: 20px; }
+    .screen-container { width: 100vw; height: 100dvh; border-radius: 0; border: none; max-width: none; }
+    .top-section { flex-direction: column; padding: 15px; gap: 15px; }
     .sevens { font-size: 60px; }
     .kingwin-title { font-size: 28px; }
-    .digits { font-size: 50px; }
-    .digit-box { width: 35px; height: 50px; }
-    .comma { font-size: 40px; }
-    .currency { font-size: 30px; }
-    .right-side { padding: 15px; width: 100%; }
-    .pays-table td { font-size: 13px; padding: 8px 0; }
+    .kingwin-sub { font-size: 14px; letter-spacing: 4px; }
+    .pays-table h3 { text-align: left; font-size: 18px; }
+    .pays-table td { font-size: 13px; padding: 5px 0; }
+
+    .fullscreen-btn { top: 10px; right: 10px; padding: 12px 18px; font-size: 14px; }
+
+    .jackpot-frame { padding: 10px 20px; }
+    .jackpot-wrap { font-size: 60px; height: 70px; }
+    .digit-box { height: 70px; width: 40px; }
+    .comma { height: 70px; }
+    .currency { font-size: 30px; height: 70px; }
+
+    .bottom-section { padding: 12px 15px; }
+    .bet-corner { padding: 8px 12px; }
+    .bet-corner .bet-label { font-size: 11px; }
+    .bet-corner .bet-val { font-size: 20px; }
+    :fullscreen .bet-corner .bet-val { font-size: 28px; }
+    :fullscreen .bottom-section { padding: 20px 30px; }
+  }
+
+  @media (max-width: 600px) {
+    :fullscreen .jackpot-wrap { font-size: 80px; height: 100px; }
+    :fullscreen .digit-box { height: 100px; width: 55px; }
+    :fullscreen .comma, :fullscreen .currency { height: 100px; }
+    :fullscreen .currency { font-size: 50px; }
   }
 </style>
 </head>
 <body>
 
-<div class="bg-coins" id="bgCoins"></div>
+  <div class="screen-container" id="screenContainer">
+    <button class="fullscreen-btn" onclick="toggleFullScreen()">⛶ На весь экран</button>
+    <button class="exit-fs-btn" onclick="exitFullScreen()">✕ Выйти</button>
 
-<div class="container">
-  <div class="layout">
-    
-    <!-- Левая сторона: Лого и джекпот -->
-    <div class="left-side">
+    <div class="top-section">
       <div class="logo-area">
         <div class="sevens">777</div>
         <div class="kingwin-title">KINGWIN</div>
         <div class="kingwin-sub">BLACKJACK</div>
       </div>
-      
-      <div class="jackpot-title-main">Progressive Jackpot</div>
-      
-      <div class="jackpot-screen">
-        <div class="corner tl"></div><div class="corner tr"></div>
-        <div class="corner bl"></div><div class="corner br"></div>
-        <div class="digits" id="jackpotDigits"></div>
+
+      <div class="pays-table">
+        <h3>Прогрессивные выплаты</h3>
+        <table>
+          <tr><td>3 Семерки бубен (Джекпот)</td><td>100% банка</td></tr>
+          <tr><td>3 Семерки одного цвета</td><td>10% банка</td></tr>
+          <tr><td>3 Семерки (разные)</td><td>50 к 1</td></tr>
+          <tr><td>Первые 2 карты — Семерки</td><td>15 к 1</td></tr>
+          <tr><td>Первые 2 карты — одна Семерка</td><td>2 к 1</td></tr>
+        </table>
       </div>
     </div>
 
-    <!-- Правая сторона: Выплаты -->
-    <div class="right-side">
-      <h3>Прогрессивные выплаты</h3>
-      <table class="pays-table">
-        <tr><td>3 Семерки бубен (Джекпот)</td><td>100% банка</td></tr>
-        <tr><td>3 Семерки одного цвета</td><td>10% банка</td></tr>
-        <tr><td>3 Семерки (разные)</td><td>50 к 1</td></tr>
-        <tr><td>Первые 2 карты — Семерки</td><td>15 к 1</td></tr>
-        <tr><td>Первые 2 карты — одна Семерка</td><td>2 к 1</td></tr>
-      </table>
+    <div class="middle-section">
+      <div class="jackpot-frame">
+        <div class="jackpot-wrap" id="jackpotWrap"></div>
+      </div>
     </div>
 
+    <div class="bottom-section">
+      <div class="bet-corner min">
+        <div class="bet-label">Мин ставка</div>
+        <div class="bet-val">10 ₽</div>
+      </div>
+      <div class="bet-corner max">
+        <div class="bet-label">Макс ставка</div>
+        <div class="bet-val">100 ₽</div>
+      </div>
+    </div>
   </div>
-</div>
-
-<div class="winners-bar">
-  <div class="winners-track" id="winnersTrack">
-    <span>Ждем первого победителя...</span>
-  </div>
-</div>
 
 <script>
-let currentJackpot = 0;
-let targetJackpot = 0;
+  let currentJackpot = 0;
+  let targetJackpot = 0;
+  let currentDigits = [];
+  let isAnimating = false;
 
-// Создаем монеты
-const bgCoins = document.getElementById('bgCoins');
-for (let i = 0; i < 20; i++) {
-  const coin = document.createElement('div');
-  coin.className = 'coin';
-  coin.textContent = '🪙';
-  coin.style.left = Math.random() * 100 + '%';
-  coin.style.animationDuration = (Math.random() * 5 + 5) + 's';
-  coin.style.animationDelay = (Math.random() * 5) + 's';
-  coin.style.fontSize = (Math.random() * 30 + 20) + 'px';
-  bgCoins.appendChild(coin);
-}
+  const wrap = document.getElementById('jackpotWrap');
+  const screenContainer = document.getElementById('screenContainer');
 
-const wrap = document.getElementById('jackpotDigits');
-const digitElements = []; 
-
-function initDisplay() {
-  wrap.innerHTML = '';
-  digitElements.length = 0;
-  
-  for(let i = 0; i < 4; i++) {
-    const box = document.createElement('div');
-    box.className = 'digit-box';
-    const d = document.createElement('div');
-    d.className = 'digit';
-    d.textContent = '0';
-    box.appendChild(d);
-    wrap.appendChild(box);
-    digitElements.push(d);
-  }
-  
-  const comma = document.createElement('span');
-  comma.className = 'comma';
-  comma.textContent = ',';
-  wrap.appendChild(comma);
-  
-  for(let i = 0; i < 2; i++) {
-    const box = document.createElement('div');
-    box.className = 'digit-box';
-    const d = document.createElement('div');
-    d.className = 'digit';
-    d.textContent = '0';
-    box.appendChild(d);
-    wrap.appendChild(box);
-    digitElements.push(d);
-  }
-}
-
-function updateDigit(index, newValue) {
-  const oldDigit = digitElements[index];
-  if (oldDigit.textContent === newValue) return;
-
-  const box = oldDigit.parentElement;
-  const newDigit = document.createElement('div');
-  newDigit.className = 'digit in';
-  newDigit.textContent = newValue;
-  box.appendChild(newDigit);
-
-  void newDigit.offsetWidth;
-  oldDigit.classList.add('out');
-  newDigit.classList.remove('in');
-
-  setTimeout(() => { if (oldDigit.parentElement) oldDigit.remove(); }, 1100);
-  digitElements[index] = newDigit;
-}
-
-function renderJackpot(val) {
-  const str = val.toFixed(2);
-  const parts = str.split('.');
-  const intPart = parts[0].padStart(4, '0');
-  const floatPart = parts[1];
-  const fullStr = intPart + floatPart;
-  
-  for(let i = 0; i < 6; i++) {
-    updateDigit(i, fullStr[i]);
-  }
-}
-
-async function fetchJackpot() {
-  try {
-    const res = await fetch('/api/jackpot');
-    const data = await res.json();
-    targetJackpot = data.jackpot || 0;
-  } catch (e) { console.error(e); }
-}
-
-async function fetchWinners() {
-  try {
-    const res = await fetch('/api/jackpot/winners');
-    const winners = await res.json();
-    const track = document.getElementById('winnersTrack');
-    if (winners.length > 0) {
-      track.innerHTML = winners.map(w => `<span>🏆 <b>${w.nick}</b> забрал ${parseFloat(w.amount).toFixed(2)} ₽</span>`).join('');
-    } else {
-      track.innerHTML = '<span>Ждем первого победителя...</span>';
+  function initDisplay() {
+    wrap.innerHTML = '';
+    // 3 знака до запятой
+    for(let i = 0; i < 3; i++) {
+      const box = document.createElement('div');
+      box.className = 'digit-box';
+      const d = document.createElement('div');
+      d.className = 'digit active';
+      d.textContent = '0';
+      box.appendChild(d);
+      wrap.appendChild(box);
     }
-  } catch (e) { console.error(e); }
-}
 
-function animate() {
-  if (Math.abs(currentJackpot - targetJackpot) > 0.005) {
-    const diff = targetJackpot - currentJackpot;
-    currentJackpot += diff * 0.1;
-    renderJackpot(currentJackpot);
+    const comma = document.createElement('span');
+    comma.className = 'comma';
+    comma.textContent = ',';
+    wrap.appendChild(comma);
+
+    // 2 знака после запятой
+    for(let i = 0; i < 2; i++) {
+      const box = document.createElement('div');
+      box.className = 'digit-box';
+      const d = document.createElement('div');
+      d.className = 'digit active';
+      d.textContent = '0';
+      box.appendChild(d);
+      wrap.appendChild(box);
+    }
+
+    const currency = document.createElement('span');
+    currency.className = 'currency';
+    currency.textContent = '₽';
+    wrap.appendChild(currency);
   }
-  requestAnimationFrame(animate);
-}
 
-initDisplay();
-fetchJackpot();
-fetchWinners();
-setInterval(fetchJackpot, 3000); // Обновляем раз в 3 секунды (чтобы анимация успевала)
-setInterval(fetchWinners, 10000);
-animate();
+  function updateDigit(index, newValue) {
+    if (currentDigits[index] === newValue) return;
+    currentDigits[index] = newValue;
+
+    const digitBoxes = wrap.querySelectorAll('.digit-box');
+    const targetBox = digitBoxes[index];
+    if (!targetBox) return;
+
+    const oldDigit = targetBox.querySelector('.digit.active');
+    if(oldDigit) {
+      oldDigit.classList.remove('active');
+      oldDigit.classList.add('out-down');
+    }
+
+    const newDigit = document.createElement('div');
+    newDigit.className = 'digit in-top';
+    newDigit.textContent = newValue;
+    targetBox.appendChild(newDigit);
+
+    void newDigit.offsetWidth;
+
+    newDigit.classList.remove('in-top');
+    newDigit.classList.add('active');
+
+    setTimeout(() => {
+      if (oldDigit && oldDigit.parentNode) oldDigit.parentNode.removeChild(oldDigit);
+    }, 300);
+  }
+
+  function renderJackpot(val) {
+    const str = val.toFixed(2);
+    const parts = str.split('.');
+    const intPart = parts[0].padStart(3, '0');
+    const floatPart = parts[1];
+
+    const fullStr = intPart + floatPart;
+
+    for(let i = 0; i < 5; i++) {
+      updateDigit(i, fullStr[i]);
+    }
+  }
+
+  async function fetchJackpot() {
+    try {
+      const res = await fetch('/api/jackpot');
+      const data = await res.json();
+      targetJackpot = data.jackpot || 0;
+
+      if (Math.abs(currentJackpot - targetJackpot) > 2) {
+        currentJackpot = targetJackpot;
+        renderJackpot(currentJackpot);
+      }
+    } catch (e) {
+      console.error('Ошибка:', e);
+    }
+  }
+
+  function animateLoop() {
+    if (Math.abs(currentJackpot - targetJackpot) > 0.01) {
+      const diff = targetJackpot - currentJackpot;
+      currentJackpot += diff * 0.05;
+      renderJackpot(currentJackpot);
+    } else if (currentJackpot !== targetJackpot) {
+      currentJackpot = targetJackpot;
+      renderJackpot(currentJackpot);
+    }
+    requestAnimationFrame(animateLoop);
+  }
+
+  /* ---------- FULLSCREEN ---------- */
+  function toggleFullScreen() {
+    const elem = screenContainer;
+    if (!document.fullscreenElement) {
+      const req = elem.requestFullscreen
+        || elem.webkitRequestFullscreen
+        || elem.msRequestFullscreen;
+      if (req) {
+        req.call(elem).catch(err => {
+          console.warn('Fullscreen error:', err);
+          alert('Полноэкранный режим недоступен. На iPad добавьте страницу на главный экран (Поделиться → На экран «Домой»).');
+        });
+      } else {
+        alert('Полноэкранный режим недоступен в этом браузере. На iPad добавьте страницу на главный экран.');
+      }
+    } else {
+      exitFullScreen();
+    }
+  }
+
+  function exitFullScreen() {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+
+  // Двойной тап/клик по экрану — выход из fullscreen
+  screenContainer.addEventListener('dblclick', () => {
+    if (document.fullscreenElement) exitFullScreen();
+  });
+
+  // Обновляем размеры при смене fullscreen
+  document.addEventListener('fullscreenchange', () => {
+    setTimeout(() => { /* canvas не нужен, но на всякий случай */ }, 100);
+  });
+
+  initDisplay();
+  fetchJackpot();
+  setInterval(fetchJackpot, 1000);
+  animateLoop();
 </script>
 </body>
 </html>
