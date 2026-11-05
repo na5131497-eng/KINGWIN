@@ -4,10 +4,31 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
-const DATABASE_URL = process.env.DATABASE_URL
+
+// Строка подключения: берём из переменной, и если sslmode нет — добавляем verify-full
+let DATABASE_URL = process.env.DATABASE_URL
   || 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea-beqrez4i.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
-const pool = new Pool({ connectionString: DATABASE_URL, ssl: { require: true } });
+// Нормализуем sslmode для Neon: require → verify-full (убирает предупреждение и стабилизирует SSL)
+if (DATABASE_URL.includes('sslmode=require')) {
+  DATABASE_URL = DATABASE_URL.replace('sslmode=require', 'sslmode=verify-full');
+}
+if (!DATABASE_URL.includes('sslmode=')) {
+  DATABASE_URL += (DATABASE_URL.includes('?') ? '&' : '?') + 'sslmode=verify-full';
+}
+
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // Neon требует SSL; rejectUnauthorized false — чтобы не падало на цепочке сертификатов
+  connectionTimeoutMillis: 15000,     // ждать подключения до 15 сек (Neon просыпается)
+  idleTimeoutMillis: 30000,           // держать idle-соединение 30 сек
+  max: 10
+});
+
+// Логируем ошибки пула, чтобы не падало молча
+pool.on('error', (err) => {
+  console.error('PG Pool error:', err.message);
+});
 
 /* ---------- Конфиг ---------- */
 const POINTS_PER_RUB = 0.2;
@@ -63,14 +84,14 @@ async function getActualJackpot() {
 /* ==========================================
    CRASH — глобальный раунд
    ========================================== */
-const CRASH_WAIT_MS = 5000;       // приём ставок
-const CRASH_CRASH_PAUSE = 3000;   // пауза после краша
+const CRASH_WAIT_MS = 5000;
+const CRASH_CRASH_PAUSE = 3000;
 
 let crashState = {
   roundId: null,
   crashPoint: 1,
   startTime: 0,
-  status: 'idle'   // idle | waiting | flying | crashed
+  status: 'idle'
 };
 let crashTimeouts = [];
 
@@ -88,44 +109,54 @@ function crashGeneratePoint() {
 }
 
 async function crashStartRound() {
-  crashClearTimers();
-  const cp = crashGeneratePoint();
-  const r = await pool.query(
-    `INSERT INTO crash_rounds (crash_point, status) VALUES ($1, 'waiting') RETURNING id`,
-    [cp]
-  );
-  crashState.roundId = r.rows[0].id;
-  crashState.crashPoint = cp;
-  crashState.startTime = 0;
-  crashState.status = 'waiting';
-  console.log('CRASH round #' + crashState.roundId + ' waiting, point=' + cp.toFixed(2));
-
-  crashTimeouts.push(setTimeout(() => crashStartFlight(), CRASH_WAIT_MS));
+  try {
+    crashClearTimers();
+    const cp = crashGeneratePoint();
+    const r = await pool.query(
+      `INSERT INTO crash_rounds (crash_point, status) VALUES ($1, 'waiting') RETURNING id`,
+      [cp]
+    );
+    crashState.roundId = r.rows[0].id;
+    crashState.crashPoint = cp;
+    crashState.startTime = 0;
+    crashState.status = 'waiting';
+    console.log('CRASH round #' + crashState.roundId + ' waiting, point=' + cp.toFixed(2));
+    crashTimeouts.push(setTimeout(() => crashStartFlight(), CRASH_WAIT_MS));
+  } catch (e) {
+    console.error('crashStartRound:', e.message);
+    crashTimeouts.push(setTimeout(() => crashStartRound(), 3000));
+  }
 }
 
 async function crashStartFlight() {
-  crashState.status = 'flying';
-  crashState.startTime = Date.now();
-  await pool.query(
-    `UPDATE crash_rounds SET status='flying', start_time=$1 WHERE id=$2`,
-    [crashState.startTime, crashState.roundId]
-  );
-  console.log('CRASH round #' + crashState.roundId + ' FLYING');
-
-  const msToCrash = Math.log(crashState.crashPoint) / Math.log(1.00006);
-  crashTimeouts.push(setTimeout(() => crashEndRound(), msToCrash));
+  try {
+    crashState.status = 'flying';
+    crashState.startTime = Date.now();
+    await pool.query(
+      `UPDATE crash_rounds SET status='flying', start_time=$1 WHERE id=$2`,
+      [crashState.startTime, crashState.roundId]
+    );
+    console.log('CRASH round #' + crashState.roundId + ' FLYING');
+    const msToCrash = Math.log(crashState.crashPoint) / Math.log(1.00006);
+    crashTimeouts.push(setTimeout(() => crashEndRound(), Math.max(msToCrash, 200)));
+  } catch (e) {
+    console.error('crashStartFlight:', e.message);
+  }
 }
 
 async function crashEndRound() {
-  crashState.status = 'crashed';
-  const endTime = Date.now();
-  await pool.query(
-    `UPDATE crash_rounds SET status='crashed', end_time=$1 WHERE id=$2`,
-    [endTime, crashState.roundId]
-  );
-  console.log('CRASH round #' + crashState.roundId + ' CRASHED at ' + crashState.crashPoint.toFixed(2));
-
-  crashTimeouts.push(setTimeout(() => crashStartRound(), CRASH_CRASH_PAUSE));
+  try {
+    crashState.status = 'crashed';
+    const endTime = Date.now();
+    await pool.query(
+      `UPDATE crash_rounds SET status='crashed', end_time=$1 WHERE id=$2`,
+      [endTime, crashState.roundId]
+    );
+    console.log('CRASH round #' + crashState.roundId + ' CRASHED at ' + crashState.crashPoint.toFixed(2));
+    crashTimeouts.push(setTimeout(() => crashStartRound(), CRASH_CRASH_PAUSE));
+  } catch (e) {
+    console.error('crashEndRound:', e.message);
+  }
 }
 
 /* ---------- initDB ---------- */
@@ -267,6 +298,8 @@ async function initDB() {
     crashStartRound();
   } catch (e) {
     console.error('Ошибка initDB:', e.message);
+    // если не удалось с первого раза — повторим через 5 секунд
+    setTimeout(initDB, 5000);
   }
 }
 initDB();
@@ -366,19 +399,23 @@ const server = http.createServer(async (req, res) => {
 
       let bets = [];
       if (crashState.roundId) {
-        const betsRes = await pool.query(
-          `SELECT id, player_id, player_name, amount, cashout_mult, cashed_out
-           FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`,
-          [crashState.roundId]
-        );
-        bets = betsRes.rows;
+        try {
+          const betsRes = await pool.query(
+            `SELECT id, player_id, player_name, amount, cashout_mult, cashed_out
+             FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`,
+            [crashState.roundId]
+          );
+          bets = betsRes.rows;
+        } catch(e) { /* таблица может ещё не создаться — игнорируем */ }
       }
 
-      // история последних 15 раундов
-      const histRes = await pool.query(
-        `SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 15`
-      );
-      const history = histRes.rows.map(r => parseFloat(r.crash_point));
+      let history = [];
+      try {
+        const histRes = await pool.query(
+          `SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 15`
+        );
+        history = histRes.rows.map(r => parseFloat(r.crash_point));
+      } catch(e) {}
 
       return sendJSON(res, 200, {
         roundId: crashState.roundId,
@@ -400,7 +437,6 @@ const server = http.createServer(async (req, res) => {
       if (amt < 10) return sendJSON(res, 400, { error: 'Мин. ставка 10 ₽' });
       if (amt > 100) return sendJSON(res, 400, { error: 'Макс. ставка 100 ₽' });
 
-      // проверка баланса, если есть player_id
       if (b.player_id) {
         const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1`, [String(b.player_id)]);
         if (gRes.rows.length > 0) {
@@ -408,7 +444,6 @@ const server = http.createServer(async (req, res) => {
           if (bal < amt) {
             return sendJSON(res, 400, { error: 'Недостаточно бонусных рублей' });
           }
-          // списываем сразу
           await pool.query(
             `UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2`,
             [amt, String(b.player_id)]
@@ -450,7 +485,6 @@ const server = http.createServer(async (req, res) => {
         [mult, b.bet_id]
       );
 
-      // зачисляем выигрыш гостю
       if (bet.player_id) {
         await pool.query(
           `UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2`,
