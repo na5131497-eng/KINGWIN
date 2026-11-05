@@ -21,10 +21,17 @@
   .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; gap: 8px; }
   .balance-badge span { color: var(--accent); }
 
+  /* ИСТОРИЯ */
+  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .history-bar::-webkit-scrollbar { display: none; }
+  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
+  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .history-item .h-name { color: var(--text-muted); }
+  .history-item .h-res { color: var(--accent); }
+  .history-item .h-res.gold { color: var(--gold); text-shadow: 0 0 10px rgba(241,196,15,0.5); }
+
   /* КОНТЕНТ */
   .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
-  
-  /* СПИСОК КЕЙСОВ (Каталог) */
   .view-catalog { display: block; }
   .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
@@ -36,27 +43,20 @@
   .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; pointer-events: none; }
   .case-price { font-size: 14px; color: var(--gold); font-weight: 700; pointer-events: none; }
 
-  /* КОМНАТА КЕЙСА (Открытие) */
   .view-room { display: none; flex-direction: column; align-items: center; }
   .view-room.active { display: flex; }
-  
   .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
   .room-back:hover { color: #fff; }
-  
   .room-case-preview { text-align: center; margin-bottom: 30px; }
   .room-case-preview img { width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); margin-bottom: 10px; }
   .room-case-preview h2 { font-size: 28px; font-weight: 900; }
   .room-case-preview p { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 5px; }
-
-  /* Содержимое кейса (Сетка призов) */
   .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
   .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
   .prize-chip { padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 15px; background: #131624; border: 1px solid var(--border); }
   .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); box-shadow: 0 0 10px rgba(241,196,15,0.1); }
   .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
   .prize-chip.silver { color: #ccc; }
-
-  /* Кнопка открытия */
   .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); }
   .open-big-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
   .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -66,34 +66,19 @@
   .roulette-overlay.show { display: flex; }
   .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; margin-bottom: 30px; }
   .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
-  
   @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-  
-  .roulette-item { 
-    width: 130px; height: 110px; margin: 0 5px; 
-    background: linear-gradient(135deg, #131624 0%, #1a1c29 100%);
-    border-radius: 12px; display: flex; justify-content: center; align-items: center; 
-    flex-shrink: 0; position: relative; font-size: 24px; font-weight: 900; color: #fff;
-    box-sizing: content-box;
-  }
+  .roulette-item { width: 130px; height: 110px; margin: 0 5px; background: linear-gradient(135deg, #131624 0%, #1a1c29 100%); border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; position: relative; font-size: 24px; font-weight: 900; color: #fff; box-sizing: content-box; }
   .roulette-item.silver { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #8e9eab, #eef2f3, #8e9eab, #eef2f3, #8e9eab) border-box; background-size: auto, 200% 100%; animation: shine 4s linear infinite; color: #eef2f3; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
   .roulette-item.blue { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #00e5ff, #0077ff, #00e5ff, #0077ff, #00e5ff) border-box; background-size: auto, 200% 100%; animation: shine 3s linear infinite; color: var(--accent); text-shadow: 0 0 15px rgba(0,229,255,0.6); box-shadow: inset 0 0 20px rgba(0,229,255,0.1); }
   .roulette-item.gold { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #f1c40f, #ffe066, #ffd700, #f1c40f) border-box; background-size: auto, 200% 100%; animation: shine 2.5s linear infinite; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.8); box-shadow: inset 0 0 20px rgba(241,196,15,0.2), 0 0 15px rgba(241,196,15,0.2); }
-
   .roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--red); transform: translateX(-50%); z-index: 10; box-shadow: 0 0 15px var(--red); }
   .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid var(--red); }
   .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid var(--red); }
-  
   .win-modal { background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 60px rgba(0,255,136,0.3); display: none; z-index: 20; }
   .win-modal.show { display: block; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
   .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 20px; }
-
-  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transform: translateX(120%); transition: 0.3s; }
-  .toast.show { transform: translateX(0); }
-  .toast.error { border-left-color: var(--red); }
 
   @media (max-width: 768px) {
     .roulette-wrapper { height: 110px; }
@@ -108,16 +93,18 @@
 </head>
 <body>
 
-<div class="toast-container" id="toastContainer"></div>
-
 <div class="topbar">
   <a href="/" class="logo">KINGWIN</a>
   <div class="balance-badge">Баланс: <span id="topBalance">0.00</span> ₽</div>
 </div>
 
+<!-- ПАНЕЛЬ ИСТОРИИ -->
+<div class="history-bar" id="historyBar">
+  <div class="history-title">Последние дропы:</div>
+  <div id="historyList" style="display:flex; gap:8px;"></div>
+</div>
+
 <div class="container">
-  
-  <!-- ЭТАП 1: КАТАЛОГ КЕЙСОВ -->
   <div class="view-catalog active" id="viewCatalog">
     <div class="header-title">Выберите кейс</div>
     <div class="cases-grid" id="casesGrid">
@@ -125,25 +112,20 @@
     </div>
   </div>
 
-  <!-- ЭТАП 2: КОМНАТА КЕЙСА -->
   <div class="view-room" id="viewRoom">
     <button class="room-back" onclick="backToCatalog()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Назад к кейсам
     </button>
-    
     <div class="room-case-preview">
       <img id="roomCaseImg" src="" alt="Case">
       <h2 id="roomCaseName">Название</h2>
       <p id="roomCasePrice">0 ₽</p>
     </div>
-
     <div class="case-items-title">Возможные выигрыши:</div>
     <div class="case-items-grid" id="roomCaseItems"></div>
-
     <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
   </div>
-
 </div>
 
 <!-- ОКНО РУЛЕТКИ -->
@@ -164,7 +146,6 @@ let playerId = localStorage.getItem('kingwin_player_id');
 let currentCase = null;
 let allCasesList = [];
 
-// Загрузка профиля для баланса
 async function loadProfile() {
   if(!playerId) return;
   try {
@@ -177,23 +158,19 @@ async function loadProfile() {
   } catch(e) {}
 }
 
-// Загрузка списка кейсов
 async function loadCases() {
   try {
     const url = playerId ? `/api/cases/list?guest_id=${playerId}` : '/api/cases/list';
     const r = await fetch(url);
     allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
-    
     if(!allCasesList || allCasesList.length === 0) {
       grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>';
       return;
     }
-
     grid.innerHTML = allCasesList.map((c, i) => `
       <div class="case-card" onclick="enterRoom(${i})">
-        <img src="/case_${c.name.toLowerCase()}.png" class="case-image" 
-             onerror="this.src='/cases_card.jpg'" alt="${c.name}">
+        <img src="/case_${c.name.toLowerCase()}.png" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
         <div class="case-name">${c.name}</div>
         <div class="case-price">${c.price} ₽</div>
       </div>
@@ -203,34 +180,27 @@ async function loadCases() {
   }
 }
 
-// Определение класса для призов
 function getPrizeClass(prize) {
   if (prize >= 500) return 'gold';
   if (prize >= 50) return 'blue';
   return 'silver';
 }
 
-// Вход в комнату кейса
 function enterRoom(index) {
   currentCase = allCasesList[index];
-  
   document.getElementById('viewCatalog').classList.remove('active');
   document.getElementById('viewRoom').classList.add('active');
-  
   document.getElementById('roomCaseImg').src = `/case_${currentCase.name.toLowerCase()}.png`;
   document.getElementById('roomCaseImg').onerror = function() { this.src='/cases_card.jpg'; };
   document.getElementById('roomCaseName').textContent = currentCase.name;
   document.getElementById('roomCasePrice').textContent = currentCase.price + ' ₽';
   
-  // Отрисовка возможных призов
   const itemsWrap = document.getElementById('roomCaseItems');
   const sortedPrizes = [...currentCase.prizes].sort((a, b) => a - b);
-  
   itemsWrap.innerHTML = sortedPrizes.map(p => `
     <div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>
   `).join('');
   
-  // Настройка кнопки
   const btn = document.getElementById('roomOpenBtn');
   if(currentCase.available) {
     btn.disabled = false;
@@ -241,14 +211,12 @@ function enterRoom(index) {
   }
 }
 
-// Возврат в каталог
 function backToCatalog() {
   document.getElementById('viewRoom').classList.remove('active');
   document.getElementById('viewCatalog').classList.add('active');
   currentCase = null;
 }
 
-// Само открытие кейса
 async function openCaseAction() {
   if(!playerId) { showToast('Войдите в аккаунт!', 'error'); return; }
   if(!currentCase) return;
@@ -273,6 +241,7 @@ async function openCaseAction() {
 
     startRouletteAnimation(d.prize);
     loadProfile();
+    loadHistory();
 
   } catch(e) {
     showToast('Ошибка соединения', 'error');
@@ -281,7 +250,6 @@ async function openCaseAction() {
   }
 }
 
-// Анимация рулетки
 function startRouletteAnimation(prize) {
   const overlay = document.getElementById('rouletteOverlay');
   const track = document.getElementById('rouletteTrack');
@@ -298,28 +266,20 @@ function startRouletteAnimation(prize) {
 
   const itemsCount = 60;
   const prizeIndex = 50;
-  
-  // Берем пул призов из текущего кейса для фона
   const pool = currentCase.prizes;
 
   for(let i = 0; i < itemsCount; i++) {
     let val = i === prizeIndex ? prize : pool[Math.floor(Math.random() * pool.length)];
     let cls = getPrizeClass(val);
-    track.innerHTML += `
-      <div class="roulette-item ${cls}">
-        ${val} ₽
-      </div>
-    `;
+    track.innerHTML += `<div class="roulette-item ${cls}">${val} ₽</div>`;
   }
 
   setTimeout(() => {
     const items = track.querySelectorAll('.roulette-item');
     const winItem = items[prizeIndex];
-    
     const itemWidth = winItem.offsetWidth;
     const itemLeft = winItem.offsetLeft;
     const wrapperWidth = wrapper.offsetWidth;
-    
     const offset = itemLeft + (itemWidth / 2) - (wrapperWidth / 2);
 
     track.style.transition = 'transform 4s cubic-bezier(0.15, 0.9, 0.25, 1)';
@@ -341,19 +301,35 @@ function closeRoulette() {
   }
 }
 
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/cases/history');
+    const data = await r.json();
+    const list = document.getElementById('historyList');
+    if(!data || data.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет дропов</div>';
+      return;
+    }
+    list.innerHTML = data.map(h => {
+      const isGold = h.result >= 500;
+      return `<div class="history-item">
+        <span class="h-name">${h.name}</span>
+        <span class="h-res ${isGold?'gold':''}">${parseFloat(h.result).toFixed(0)} ₽</span>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
 function showToast(text, type='success') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.textContent = text;
-  c.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+  // Можно добавить красивый тост, если нужно
+  alert(text);
 }
 
 loadProfile();
 loadCases();
+loadHistory();
 setInterval(loadProfile, 5000);
+setInterval(loadHistory, 5000);
 </script>
 </body>
 </html>
