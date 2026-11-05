@@ -35,15 +35,91 @@
   .balance-info .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
   .balance-info .val { font-size: 14px; font-weight: 800; color: var(--accent-green); }
   
-  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; }
   .btn-deposit:hover { box-shadow: 0 0 15px rgba(0,230,118,0.4); transform: translateY(-1px); }
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; }
   .btn-login:hover { border-color: var(--accent); }
+  
+  .profile-avatar { width: 40px; height: 40px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+  .profile-avatar:hover { border-color: var(--accent); }
+  .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
 
   /* ОСНОВНОЙ КОНТЕНТ */
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-  /* БАННЕРЫ (ВЕРХНИЕ) */
+  /* БОЛЬШОЙ БАННЕР С АНИМЕ-ДЕВУШКОЙ */
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #1c2230, #0f1219);
+    border: 1px solid var(--border);
+    min-height: 300px; /* Запасная высота, если картинка не загрузится */
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Фоновая картинка */
+  .hero-banner img.bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%; /* Сдвигаем фокус, чтобы девушка была видна */
+    z-index: 1;
+  }
+
+  /* Затемнение для читаемости текста */
+  .hero-banner .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.5) 50%, transparent 100%);
+    z-index: 2;
+  }
+
+  /* Текст слева */
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 40px;
+    max-width: 500px;
+  }
+  .hero-content h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--accent-green);
+    line-height: 1.1;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .hero-content p {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+  }
+  .hero-content .btn-claim {
+    background: var(--accent-green);
+    color: #000;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(0,230,118,0.4);
+  }
+  .hero-content .btn-claim:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0,230,118,0.6);
+  }
+
+  /* ВЕРХНИЕ МАЛЫЕ БАННЕРЫ */
   .banners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
   .banner-card { 
     background: linear-gradient(135deg, #1c2230, #0f1219); 
@@ -54,7 +130,7 @@
   .banner-card:hover { border-color: var(--accent); }
   .banner-text h3 { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; }
   .banner-text p { font-size: 11px; color: var(--text-muted); }
-  .banner-img { font-size: 40px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.2)); }
+  .banner-img { font-size: 40px; }
 
   /* СЕКЦИИ */
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
@@ -65,61 +141,45 @@
   
   /* КАРТОЧКА ИГРЫ */
   .game-card { 
-    background: var(--bg-card); 
-    border-radius: 12px; 
-    overflow: hidden; 
-    cursor: pointer; 
-    transition: 0.3s; 
-    border: 1px solid var(--border);
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    aspect-ratio: 3 / 4;
+    background: var(--bg-card); border-radius: 12px; overflow: hidden; cursor: pointer; 
+    transition: 0.3s; border: 1px solid var(--border); text-decoration: none;
+    display: flex; flex-direction: column; aspect-ratio: 3 / 4;
   }
   .game-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
   
-  /* ИДЕАЛЬНАЯ КАРТИНКА */
-  .game-img-wrap { 
-    width: 100%; 
-    flex: 1; 
-    position: relative;
-    overflow: hidden;
-  }
-  .game-img-wrap img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    display: block;
-    transition: 0.3s;
-  }
-  .game-card:hover .game-img-wrap img {
-    transform: scale(1.05); 
-  }
+  .game-img-wrap { width: 100%; flex: 1; position: relative; overflow: hidden; }
+  .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: 0.3s; }
+  .game-card:hover .game-img-wrap img { transform: scale(1.05); }
   
-  .game-info { 
-    padding: 12px; 
-    background: rgba(0,0,0,0.4); 
-    border-top: 1px solid var(--border); 
-    flex-shrink: 0;
-    backdrop-filter: blur(5px);
-  }
-  .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .game-info { padding: 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); flex-shrink: 0; }
+  .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* МОДАЛКИ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
   .modal-overlay.show { display: flex; }
   .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; }
-  .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: 0.2s; }
+  .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
   .modal-close:hover { color: #fff; }
-  .modal-box h2 { font-size: 22px; margin-bottom: 20px; }
+  .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; }
-  .modal-box input:focus { border-color: var(--accent); }
-  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+  
+  /* ДЕПОЗИТ */
+  .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
+  .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+  .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+  .dep-banner { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-weight: 800; font-size: 14px; color: var(--accent-green); }
+  .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
+  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; }
+  
+  .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: left; }
+  .card-info .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
+  .card-info .row:last-child { margin-bottom: 0; }
+  .card-info .row b { color: #fff; font-family: 'Courier New', monospace; font-size: 15px; letter-spacing: 1px; }
 
   /* ТОСТЫ */
   .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; color: #fff; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
@@ -132,8 +192,17 @@
     .games-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .banners-grid { grid-template-columns: 1fr; }
     .nav-menu { display: none; }
-    .header-right { gap: 10px; }
     .balance-info { display: none; }
+    .profile-avatar { width: 34px; height: 34px; }
+    
+    /* Баннер на мобилке */
+    .hero-banner { min-height: 250px; }
+    .hero-content { padding: 20px; }
+    .hero-content h1 { font-size: 28px; }
+    .hero-content p { font-size: 14px; }
+    .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
+    .hero-banner img.bg-img { object-position: right center; } /* Девушку сдвигаем вправо */
+    .hero-banner .overlay { background: linear-gradient(90deg, rgba(11,14,20,0.95) 0%, rgba(11,14,20,0.6) 60%, transparent 100%); }
   }
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; }
@@ -144,6 +213,9 @@
     .game-info { padding: 8px; }
     .game-title { font-size: 10px; }
     .game-sub { font-size: 8px; }
+    
+    .hero-content h1 { font-size: 24px; }
+    .hero-content p { font-size: 12px; }
   }
 </style>
 </head>
@@ -172,6 +244,9 @@
       <div class="val"><span id="topBalance">0.00</span> ₽</div>
     </div>
     <button class="btn-deposit" onclick="openDeposit()">Пополнить</button>
+    <div class="profile-avatar" onclick="goToProfile()">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    </div>
   </div>
   <div class="header-right" id="loginArea">
     <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
@@ -180,7 +255,19 @@
 
 <div class="main-content">
   
-  <!-- ВЕРХНИЕ БАННЕРЫ -->
+  <!-- БОЛЬШОЙ БАННЕР С АНИМЕ-ДЕВУШКОЙ -->
+  <div class="hero-banner">
+    <!-- Фоновая картинка. Если у тебя другое имя файла - замени -->
+    <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <h1>+100 ₽</h1>
+      <p>к первому депозиту<br>от 200 ₽</p>
+      <button class="btn-claim" onclick="openDeposit()">Забрать бонус</button>
+    </div>
+  </div>
+
+  <!-- ВЕРХНИЕ МАЛЫЕ БАННЕРЫ -->
   <div class="banners-grid">
     <div class="banner-card" onclick="openDeposit()">
       <div class="banner-text">
@@ -277,7 +364,7 @@
     <h2>Вход в аккаунт</h2>
     <input type="text" id="loginId" placeholder="Номер карты">
     <input type="password" id="loginPass" placeholder="Пароль">
-    <button class="btn-deposit" style="width: 100%; justify-content: center;" onclick="doLogin()">Войти</button>
+    <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="doLogin()">Войти</button>
   </div>
 </div>
 
@@ -286,14 +373,34 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
     <h2>Пополнение</h2>
-    <p>Введите сумму пополнения (от 200 ₽):</p>
-    <input type="number" id="depositAmountInput" placeholder="500" value="500" min="200" style="margin-bottom: 20px;">
-    <button class="btn-deposit" style="width: 100%; justify-content: center;" onclick="goToPayment()">Перейти к оплате</button>
+    
+    <div class="dep-methods">
+      <div class="dep-method active" id="methodBonus" onclick="selectDepMethod('bonus')">С бонусом</div>
+      <div class="dep-method" id="methodNoBonus" onclick="selectDepMethod('nobonus')">Без бонуса</div>
+    </div>
+
+    <div id="bonusBlock">
+      <div class="dep-banner" id="depBanner">+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ</div>
+      <input type="text" id="promoCodeInput" placeholder="Введите промокод (если есть)" style="display:none; margin-bottom: 15px;">
+    </div>
+
+    <div class="dep-amount-row">
+      <input type="number" id="depositAmountInput" class="dep-amount-input" placeholder="500" value="500" min="200">
+    </div>
+
+    <div class="card-info">
+      <div class="row"><span>Способ:</span> <b>Перевод на карту</b></div>
+      <div class="row"><span>Номер:</span> <b>2200 7010 1234 5678</b></div>
+      <div class="row"><span>Получатель:</span> <b>Павел С</b></div>
+    </div>
+
+    <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="goToPayment()">Перейти к оплате</button>
   </div>
 </div>
 
 <script>
 let currentPlayer = null;
+let selectedDepMethod = 'bonus';
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
@@ -314,20 +421,56 @@ function openModal(id) {
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+function goToProfile() {
+  if(currentPlayer) window.location.href = `/profile.html?id=${currentPlayer.id}`;
+}
+
 function openDeposit() {
   if(!currentPlayer) { openModal('loginModal'); return; }
+  
+  document.getElementById('depositAmountInput').value = 500;
+  selectDepMethod('bonus');
+  
+  fetch('/api/deposits').then(r => r.json()).then(deps => {
+    const myDeps = deps.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    if(myDeps.length > 0) {
+      document.getElementById('depBanner').textContent = 'ВВЕДИТЕ ПРОМОКОД';
+      document.getElementById('promoCodeInput').style.display = 'block';
+      document.getElementById('promoCodeInput').value = '';
+    } else {
+      document.getElementById('depBanner').textContent = '+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ';
+      document.getElementById('promoCodeInput').style.display = 'none';
+    }
+  }).catch(() => {});
+
   openModal('depositModal');
 }
 
-// ПЕРЕХОД НА СТРАНИЦУ ОПЛАТЫ
+function selectDepMethod(method) {
+  selectedDepMethod = method;
+  document.getElementById('methodBonus').classList.toggle('active', method === 'bonus');
+  document.getElementById('methodNoBonus').classList.toggle('active', method === 'nobonus');
+  
+  if(method === 'nobonus') {
+    document.getElementById('bonusBlock').style.display = 'none';
+  } else {
+    document.getElementById('bonusBlock').style.display = 'block';
+  }
+}
+
 function goToPayment() {
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
-  if(amount < 200) {
-    showToast('Минимальная сумма 200 ₽', 'error');
-    return;
-  }
+  if(amount < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
+  
   closeModal('depositModal');
-  window.location.href = '/pay.html?amount=' + amount;
+  
+  let url = `/pay.html?amount=${amount}&method=${selectedDepMethod}`;
+  if(selectedDepMethod === 'bonus') {
+    const promo = document.getElementById('promoCodeInput').value.trim();
+    if(promo) url += `&promo=${encodeURIComponent(promo)}`;
+  }
+  
+  window.location.href = url;
 }
 
 async function doLogin() {
