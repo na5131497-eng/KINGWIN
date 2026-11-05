@@ -897,11 +897,10 @@ const server = http.createServer(async (req, res) => {
         const dep = bet;
         const outSum = win;
         const net = dep - outSum;
-        const result = net >= 0 ? 'win' : 'lose';
         const r = await pool.query(
           `INSERT INTO sessions (date,nick,decks,dep,out_sum,fee,net,result,dealer)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-          [today, nick, 1, dep, outSum, 0, net, result, dealer]
+          [today, nick, 1, dep, outSum, 0, net, net, dealer]
         );
         sessionRow = r.rows[0];
         await accruePointsByNick(nick, dep, 'blackjack');
