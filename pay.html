@@ -87,8 +87,6 @@ let playerName = '';
 let currentAmount = 0;
 let myDepositId = null;
 
-function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
-
 function generateUniqueAmount(baseAmount) {
   const kopecks = Math.floor(Math.random() * 99) + 1;
   return baseAmount + (kopecks / 100);
@@ -120,7 +118,6 @@ async function confirmPayment() {
   document.getElementById('loaderCard').style.display = 'flex';
   
   try {
-    // 1. Создаем заявку и запоминаем её ID
     const res = await fetch('/api/deposits', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -138,17 +135,16 @@ async function confirmPayment() {
       return;
     }
 
-    // 2. Запускаем проверку ИМЕННО этого ID
     const pollInterval = setInterval(async () => {
       const check = await fetch('/api/deposits');
       const deps = await check.json();
       
-      // Ищем нашу заявку по ID и проверяем её статус
       const myDep = deps.find(d => d.id === myDepositId);
       
       if(myDep && myDep.status === 'approved') {
         clearInterval(pollInterval);
-        document.getElementById('successAmount').textContent = myDep.sum.toFixed(2);
+        // ИСПРАВЛЕНИЕ: parseFloat() превращает строку в число
+        document.getElementById('successAmount').textContent = parseFloat(myDep.sum).toFixed(2);
         document.getElementById('successModal').classList.add('show');
       }
     }, 3000);
