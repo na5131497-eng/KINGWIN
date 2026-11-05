@@ -74,26 +74,26 @@
     text-decoration: none;
     display: flex;
     flex-direction: column;
-    aspect-ratio: 3 / 4; /* Пропорции как на референсе */
+    aspect-ratio: 3 / 4;
   }
   .game-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
   
   /* ИДЕАЛЬНАЯ КАРТИНКА */
   .game-img-wrap { 
     width: 100%; 
-    flex: 1; /* Занимает всё свободное место сверху */
+    flex: 1; 
     position: relative;
     overflow: hidden;
   }
   .game-img-wrap img { 
     width: 100%; 
     height: 100%; 
-    object-fit: cover; /* Растягивает без искажений, заполняя всё */
+    object-fit: cover; 
     display: block;
     transition: 0.3s;
   }
   .game-card:hover .game-img-wrap img {
-    transform: scale(1.05); /* Легкий зум при наведении */
+    transform: scale(1.05); 
   }
   
   .game-info { 
@@ -285,8 +285,9 @@
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
-    <h2>Пополнение баланса</h2>
-    <p>Сейчас вы будете перенаправлены на страницу оплаты.</p>
+    <h2>Пополнение</h2>
+    <p>Введите сумму пополнения (от 200 ₽):</p>
+    <input type="number" id="depositAmountInput" placeholder="500" value="500" min="200" style="margin-bottom: 20px;">
     <button class="btn-deposit" style="width: 100%; justify-content: center;" onclick="goToPayment()">Перейти к оплате</button>
   </div>
 </div>
@@ -318,9 +319,15 @@ function openDeposit() {
   openModal('depositModal');
 }
 
+// ПЕРЕХОД НА СТРАНИЦУ ОПЛАТЫ
 function goToPayment() {
+  const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
+  if(amount < 200) {
+    showToast('Минимальная сумма 200 ₽', 'error');
+    return;
+  }
   closeModal('depositModal');
-  showToast('Переход к оплате...', 'success');
+  window.location.href = '/pay.html?amount=' + amount;
 }
 
 async function doLogin() {
