@@ -10,19 +10,20 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-  /* ВЫДВИЖНОЕ МЕНЮ */
+  /* Меню (Бургер) */
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
-  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
   .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
-  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
-  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; }
 
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding-left: 70px; }
+  /* ТОПБАР */
+  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
   .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; gap: 8px; }
   .balance-badge span { color: var(--accent); }
+
+  /* ИСТОРИЯ */
   .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
@@ -30,58 +31,76 @@
   .history-item .h-name { color: var(--text-muted); }
   .history-item .h-res { color: var(--accent); }
   .history-item .h-res.gold { color: var(--gold); text-shadow: 0 0 10px rgba(241,196,15,0.5); }
+
+  /* КОНТЕНТ */
   .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
   .view-catalog { display: block; }
   .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
+  
   .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; cursor: pointer; }
+  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; cursor: pointer; }
   .case-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,229,255,0.1); }
-  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); pointer-events: none; }
-  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; pointer-events: none; }
-  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; pointer-events: none; }
+  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); }
+  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; }
+
+  /* КОМНАТА */
   .view-room { display: none; flex-direction: column; align-items: center; }
   .view-room.active { display: flex; }
-  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-  .room-back:hover { color: #fff; }
+  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; }
   .room-case-preview { text-align: center; margin-bottom: 30px; }
   .room-case-preview img { width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); margin-bottom: 10px; }
   .room-case-preview h2 { font-size: 28px; font-weight: 900; }
   .room-case-preview p { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 5px; }
-  .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+  
+  .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
   .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
   .prize-chip { padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 15px; background: #131624; border: 1px solid var(--border); }
-  .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); box-shadow: 0 0 10px rgba(241,196,15,0.1); }
+  .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); }
   .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
   .prize-chip.silver { color: #ccc; }
   .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); }
-  .open-big-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
-  .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .open-big-btn:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
+  .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+  /* РУЛЕТКА */
   .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
   .roulette-overlay.show { display: flex; }
   .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; margin-bottom: 30px; }
   .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
   @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-  .roulette-item { width: 130px; height: 110px; margin: 0 5px; background: linear-gradient(135deg, #131624 0%, #1a1c29 100%); border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; position: relative; font-size: 24px; font-weight: 900; color: #fff; box-sizing: content-box; }
-  .roulette-item.silver { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #8e9eab, #eef2f3, #8e9eab, #eef2f3, #8e9eab) border-box; background-size: auto, 200% 100%; animation: shine 4s linear infinite; color: #eef2f3; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-  .roulette-item.blue { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #00e5ff, #0077ff, #00e5ff, #0077ff, #00e5ff) border-box; background-size: auto, 200% 100%; animation: shine 3s linear infinite; color: var(--accent); text-shadow: 0 0 15px rgba(0,229,255,0.6); box-shadow: inset 0 0 20px rgba(0,229,255,0.1); }
-  .roulette-item.gold { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #f1c40f, #ffe066, #ffd700, #f1c40f) border-box; background-size: auto, 200% 100%; animation: shine 2.5s linear infinite; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.8); box-shadow: inset 0 0 20px rgba(241,196,15,0.2), 0 0 15px rgba(241,196,15,0.2); }
+  .roulette-item { width: 130px; height: 110px; margin: 0 5px; background: linear-gradient(135deg, #131624 0%, #1a1c29 100%); border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-size: 24px; font-weight: 900; color: #fff; }
+  .roulette-item.silver { border: 2px solid #eef2f3; color: #eef2f3; }
+  .roulette-item.blue { border: 2px solid var(--accent); color: var(--accent); }
+  .roulette-item.gold { border: 2px solid #ffd700; color: #ffd700; }
   .roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--red); transform: translateX(-50%); z-index: 10; box-shadow: 0 0 15px var(--red); }
   .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid var(--red); }
   .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid var(--red); }
   .win-modal { background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 60px rgba(0,255,136,0.3); display: none; z-index: 20; }
-  .win-modal.show { display: block; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .win-modal.show { display: block; animation: pop 0.5s ease; }
   @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
-  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 20px; }
+  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); margin-bottom: 20px; }
+
   @media (max-width: 768px) {
-    .roulette-wrapper { height: 110px; }
+    .topbar { padding-left: 65px; height: 60px; }
+    .container { padding: 15px; }
+    .cases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .case-image { width: 80px; height: 80px; }
+    .case-name { font-size: 14px; }
+    .case-price { font-size: 12px; }
+    
+    .room-case-preview img { width: 120px; height: 120px; }
+    .room-case-preview h2 { font-size: 20px; }
+    .open-big-btn { padding: 15px 30px; font-size: 16px; width: 100%; max-width: 300px; }
+    .case-items-grid { gap: 6px; }
+    .prize-chip { padding: 6px 12px; font-size: 12px; }
+
+    .roulette-wrapper { height: 100px; }
     .roulette-item { width: 90px; height: 80px; margin: 0 3px; font-size: 18px; }
-    .win-modal { padding: 30px 20px; }
+    .win-modal { padding: 30px 20px; width: 90%; }
     .win-amount { font-size: 32px; }
-    .room-case-preview img { width: 140px; height: 140px; }
-    .room-case-preview h2 { font-size: 22px; }
-    .open-big-btn { padding: 15px 40px; font-size: 16px; width: 100%; max-width: 300px; }
   }
 </style>
 </head>
@@ -89,12 +108,7 @@
 
 <button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
 <div class="float-menu" id="floatMenu">
-  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
-  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
-  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
-  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg> Miner</a>
-  <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 21h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4V7H4v2zm0-4h4V3H4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2z"/></svg> Ladder</a>
-  <a href="/plinko.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Plinko</a>
+  <a href="/">Главная</a><a href="/crash.html">Crash</a><a href="/cases.html">Cases</a><a href="/miner.html">Miner</a><a href="/ladder.html">Ladder</a><a href="/plinko.html">Plinko</a>
 </div>
 
 <div class="topbar">
@@ -103,20 +117,18 @@
 </div>
 
 <div class="history-bar" id="historyBar">
-  <div class="history-title">Последние дропы:</div>
+  <div class="history-title">Дропы:</div>
   <div id="historyList" style="display:flex; gap:8px;"></div>
 </div>
 
 <div class="container">
   <div class="view-catalog active" id="viewCatalog">
     <div class="header-title">Выберите кейс</div>
-    <div class="cases-grid" id="casesGrid">
-      <div style="color:var(--text-muted); padding:20px;">Загрузка кейсов...</div>
-    </div>
+    <div class="cases-grid" id="casesGrid"><div style="color:var(--text-muted);">Загрузка...</div></div>
   </div>
 
   <div class="view-room" id="viewRoom">
-    <button class="room-back" onclick="backToCatalog()">← Назад к кейсам</button>
+    <button class="room-back" onclick="backToCatalog()">← Назад</button>
     <div class="room-case-preview">
       <img id="roomCaseImg" src="" alt="Case">
       <h2 id="roomCaseName">Название</h2>
@@ -124,7 +136,7 @@
     </div>
     <div class="case-items-title">Возможные выигрыши:</div>
     <div class="case-items-grid" id="roomCaseItems"></div>
-    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть</button>
   </div>
 </div>
 
@@ -136,7 +148,7 @@
   <div class="win-modal" id="winModal">
     <div class="win-title">Вы выиграли!</div>
     <div class="win-amount" id="winAmount">0 ₽</div>
-    <button class="case-btn" style="width: 200px; padding: 14px; border-radius: 8px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; background: var(--accent-green); color: #000;" onclick="closeRoulette()">Забрать</button>
+    <button class="open-big-btn" style="padding: 12px 30px; font-size: 16px; background: var(--accent-green);" onclick="closeRoulette()">Забрать</button>
   </div>
 </div>
 
@@ -163,7 +175,7 @@ async function loadCases() {
     const r = await fetch(url);
     allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
-    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
+    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет кейсов</div>'; return; }
     grid.innerHTML = allCasesList.map((c, i) => `
       <div class="case-card" onclick="enterRoom(${i})">
         <img src="/case_${c.name.toLowerCase()}.png" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
@@ -171,7 +183,7 @@ async function loadCases() {
         <div class="case-price">${c.price} ₽</div>
       </div>
     `).join('');
-  } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка загрузки кейсов</div>'; }
+  } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка</div>'; }
 }
 
 function getPrizeClass(prize) { if (prize >= 500) return 'gold'; if (prize >= 50) return 'blue'; return 'silver'; }
@@ -189,7 +201,7 @@ function enterRoom(index) {
   itemsWrap.innerHTML = sortedPrizes.map(p => `<div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>`).join('');
   const btn = document.getElementById('roomOpenBtn');
   if(currentCase.available) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
-  else { btn.disabled = true; btn.textContent = 'Недоступно для вашего ранга'; }
+  else { btn.disabled = true; btn.textContent = 'Недоступно'; }
 }
 
 function backToCatalog() {
@@ -199,17 +211,17 @@ function backToCatalog() {
 }
 
 async function openCaseAction() {
-  if(!playerId) { showToast('Войдите в аккаунт!', 'error'); return; }
+  if(!playerId) { alert('Войдите в аккаунт!'); return; }
   if(!currentCase) return;
   const btn = document.getElementById('roomOpenBtn');
   btn.disabled = true; btn.textContent = 'Загрузка...';
   try {
     const r = await fetch('/api/cases/open', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, case_name: currentCase.name }) });
     const d = await r.json();
-    if(!r.ok) { showToast(d.error || 'Ошибка открытия', 'error'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; return; }
+    if(!r.ok) { alert(d.error || 'Ошибка'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; return; }
     startRouletteAnimation(d.prize);
     loadProfile(); loadHistory();
-  } catch(e) { showToast('Ошибка соединения', 'error'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
+  } catch(e) { alert('Ошибка соединения'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
 }
 
 function startRouletteAnimation(prize) {
@@ -248,12 +260,10 @@ async function loadHistory() {
     const r = await fetch('/api/cases/history');
     const data = await r.json();
     const list = document.getElementById('historyList');
-    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет дропов</div>'; return; }
+    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Пусто</div>'; return; }
     list.innerHTML = data.map(h => { const isGold = h.result >= 500; return `<div class="history-item"><span class="h-name">${h.name}</span><span class="h-res ${isGold?'gold':''}">${parseFloat(h.result).toFixed(0)} ₽</span></div>`; }).join('');
   } catch(e) {}
 }
-
-function showToast(text, type='success') { alert(text); }
 
 loadProfile(); loadCases(); loadHistory();
 setInterval(loadProfile, 5000); setInterval(loadHistory, 5000);
