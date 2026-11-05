@@ -9,7 +9,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Montserrat', sans-serif; background: #0a0d14; color: #fff; padding-bottom: 70px; }
   a { text-decoration: none; color: inherit; }
-
+  
   /* TOP BAR */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #111625; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -24,7 +24,7 @@
 
   /* MAIN CONTAINER */
   .main-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
+  
   /* BANNER */
   .banner { position: relative; border-radius: 20px; overflow: hidden; background: linear-gradient(135deg, #1a0b2e, #2d1b4e); padding: 40px; margin-bottom: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
   .banner::before { content: ''; position: absolute; right: -20px; top: -20px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,229,255,0.2), transparent 70%); pointer-events: none; }
@@ -32,11 +32,11 @@
   .banner h1 span { color: #f1c40f; }
   .banner p { font-size: 16px; color: #a0aec0; margin-bottom: 20px; z-index: 1; position: relative; }
   .btn-claim { background: #00e5ff; color: #000; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 15px; border: none; cursor: pointer; z-index: 1; position: relative; }
-
+  
   /* SECTIONS */
   .section-title { font-size: 20px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
   .section-title::before { content: ''; display: block; width: 4px; height: 20px; background: #00e5ff; border-radius: 2px; }
-
+  
   /* GRID CARDS */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px; }
   .game-card { background: linear-gradient(135deg, #1c2b45, #111625); border-radius: 16px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; cursor: pointer; }
@@ -53,7 +53,7 @@
   @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
   .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
   .modal-box p { color: #a0aec0; font-size: 14px; text-align: center; margin-bottom: 20px; line-height: 1.5; }
-
+  
   /* DEPOSIT FORM */
   .payment-methods { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
   .pm-btn { flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; }
@@ -66,11 +66,11 @@
   .quick-amounts { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
   .quick-amounts button { background: rgba(255,255,255,0.05); border: none; color: #a0aec0; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
   .quick-amounts button:hover { color: #fff; background: rgba(255,255,255,0.1); }
-
+  
   .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; font-family: inherit; }
   .btn-submit:hover { background: #33ebff; box-shadow: 0 0 20px rgba(0,229,255,0.4); }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
+  
   /* TOASTS */
   .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(18,24,38,0.95); border-left: 4px solid #00e5ff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s ease; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); }
@@ -88,7 +88,24 @@
   .bottom-nav div.active { color: #00e5ff; }
   .bottom-nav div svg { width: 24px; height: 24px; fill: currentColor; }
 
-  /* ---------- МОДАЛКА ДЕПОЗИТА ---------- */
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 15px; }
+    .logo { font-size: 18px; }
+    .balance-badge { padding: 4px 8px; font-size: 12px; }
+    .btn-deposit { display: none; }
+    .banner { padding: 25px 20px; }
+    .banner h1 { font-size: 28px; }
+    .banner p { font-size: 14px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .bottom-nav { display: flex; }
+    .modal-box { padding: 20px; border-radius: 16px; }
+    .toast-container { top: 10px; right: 10px; left: 10px; }
+    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
+
+  /* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
   .thanks-backdrop {
     position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
@@ -172,22 +189,7 @@
   }
   .thanks-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.7); transform: translateY(-2px); }
 
-  /* RESPONSIVE */
   @media (max-width: 768px) {
-    .topbar { padding: 10px 15px; }
-    .logo { font-size: 18px; }
-    .balance-badge { padding: 4px 8px; font-size: 12px; }
-    .btn-deposit { display: none; }
-    .banner { padding: 25px 20px; }
-    .banner h1 { font-size: 28px; }
-    .banner p { font-size: 14px; }
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .bottom-nav { display: flex; }
-    .modal-box { padding: 20px; border-radius: 16px; }
-    .toast-container { top: 10px; right: 10px; left: 10px; }
-    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
-    .toast.show { transform: translateY(0); }
-
     .thanks-modal { padding: 30px 24px; }
     .thanks-logo { font-size: 34px; }
     .thanks-title { font-size: 20px; }
@@ -218,13 +220,15 @@
 
 <!-- Основной контент -->
 <div class="main-content">
-
+  
+  <!-- Баннер -->
   <div class="banner" onclick="showToast('Переход в раздел бонусов...', 'success')">
     <h1>Забери бонус <span>$1000</span> & 70 FS</h1>
     <p>Пополни баланс и получи до 50% к депозиту + фриспины!</p>
     <button class="btn-claim">Забрать</button>
   </div>
 
+  <!-- Игры -->
   <div class="section-title">Популярные игры</div>
   <div class="grid">
     <div class="game-card" onclick="showToast('Запуск Fortune OX...', 'success')">
@@ -293,7 +297,7 @@
       <button class="pm-btn">Карта</button>
       <button class="pm-btn">Криптовалюта</button>
     </div>
-
+    
     <div class="input-group">
       <label>Введите сумму (₽)</label>
       <div class="amount-input-wrap">
@@ -307,11 +311,11 @@
         <button onclick="setAmount(1000)">1000</button>
       </div>
     </div>
-
+    
     <div style="font-size:12px; color:#a0aec0; margin-bottom:20px; text-align:center;">
       Мин: 200 ₽ • Макс: 1000 ₽
     </div>
-
+    
     <button class="btn-submit" id="btnDoDeposit" onclick="doDeposit()">Пополнить</button>
   </div>
 </div>
@@ -353,7 +357,9 @@ function showToast(text, type='success') {
     <div class="toast-msg">${text}</div>
   `;
   container.appendChild(toast);
+  
   setTimeout(() => toast.classList.add('show'), 10);
+  
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300);
@@ -386,12 +392,12 @@ async function doLogin() {
       body: JSON.stringify({ id, pass })
     });
     const data = await res.json();
-
+    
     if(!res.ok) {
       showToast(data.error || 'Ошибка входа', 'error');
       return;
     }
-
+    
     currentPlayer = data.guest;
     localStorage.setItem('kingwin_player_id', id);
     closeModal('loginModal');
@@ -439,7 +445,7 @@ function setAmount(val) {
 async function doDeposit() {
   if(!currentPlayer) return;
   const amount = parseInt(document.getElementById('depositAmount').value);
-
+  
   if(amount < 200 || amount > 1000) {
     showToast('Сумма должна быть от 200 до 1000 ₽', 'error');
     return;
@@ -462,11 +468,13 @@ async function doDeposit() {
     });
 
     const data = await res.json();
-
+    
     setTimeout(() => {
       closeModal('waitingModal');
       if(res.ok) {
-        showToast('Заявка на пополнение отправлена. Ожидайте подтверждения.', 'success');
+        showToast('Спасибо за ожидание и удачи!', 'success');
+        currentPlayer.bonus_balance = parseFloat(currentPlayer.bonus_balance || 0) + amount;
+        updateUI();
       } else {
         showToast('Ошибка при создании заявки', 'error');
       }
@@ -478,7 +486,7 @@ async function doDeposit() {
   }
 }
 
-/* ---------- МОДАЛКА ДЕПОЗИТ ЗАЧИСЛЕН ---------- */
+/* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
 function showThanksModal(dep) {
   if (!dep) return;
   pendingDeposits = [dep];
@@ -526,7 +534,6 @@ setInterval(() => {
         document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
       }
       if (data.unseen_deposits && data.unseen_deposits.length > 0) {
-        // показываем только если модалка сейчас не открыта
         const modal = document.getElementById('thanksModal');
         if (!modal.classList.contains('show')) {
           showThanksModal(data.unseen_deposits[0]);
