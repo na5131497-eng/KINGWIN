@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -81,7 +81,6 @@
   .dep-method.active { background: #222635; color: #f1c40f; border-left: 4px solid #f1c40f; }
   .dep-content { flex: 1; padding: 25px; min-width: 300px; }
   
-  /* Здесь будет твой второй баннер, пока заглушка */
   .dep-banner { background: linear-gradient(90deg, #2b0f3b, #1a0b24); border-radius: 8px; padding: 15px; margin-bottom: 25px; font-weight: 800; font-size: 14px; text-align: center; }
   .dep-banner span { color: #a855f7; }
   
@@ -114,7 +113,90 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: #ff4d4d; }
-  
+
+  /* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
+  .thanks-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
+  }
+  .thanks-backdrop.show { display: flex; }
+
+  .thanks-modal {
+    background: linear-gradient(135deg, #111625, #0a0d14);
+    border: 2px solid #00e5ff;
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(0,229,255,0.35), inset 0 0 40px rgba(0,229,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .thanks-modal::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 60%);
+    animation: rotate 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .thanks-logo {
+    font-size: 42px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .thanks-sub {
+    font-size: 11px; color: #8fa2b8; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 28px;
+    position: relative; z-index: 1;
+  }
+  .thanks-title {
+    font-size: 24px; font-weight: 900; color: #fff;
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+  }
+  .thanks-title span { color: #3fbf7f; }
+  .thanks-text {
+    font-size: 15px; color: #a0aec0; line-height: 1.6;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .thanks-amount {
+    display: inline-block;
+    font-size: 34px; font-weight: 900;
+    color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    margin: 12px 0 20px;
+    position: relative; z-index: 1;
+  }
+  .thanks-luck {
+    font-size: 16px;
+    color: #3fbf7f;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 26px;
+    position: relative; z-index: 1;
+  }
+  .thanks-btn {
+    background: #00e5ff; color: #000;
+    border: none; border-radius: 12px;
+    padding: 14px 44px;
+    font-size: 16px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+    transition: 0.3s;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 20px rgba(0,229,255,0.4);
+  }
+  .thanks-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.7); transform: translateY(-2px); }
+
   /* АДАПТАЦИЯ */
   @media (max-width: 768px) {
     .sidebar { display: none; }
@@ -127,6 +209,11 @@
     .dep-methods { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .dep-method { padding: 12px 15px; }
     .dep-content { padding: 15px; }
+
+    .thanks-modal { padding: 30px 24px; }
+    .thanks-logo { font-size: 34px; }
+    .thanks-title { font-size: 20px; }
+    .thanks-amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -233,7 +320,6 @@
       
       <div class="dep-content">
         <div id="depStep1">
-          <!-- СЮДА ВСТАВИМ ВТОРУЮ КАРТИНКУ ПОЗЖЕ -->
           <div class="dep-banner"><span>+30%</span> К ДЕПОЗИТУ (ПЕРВОЕ ПОПОЛНЕНИЕ)</div>
           
           <div class="dep-amount-title">Введите сумму пополнения (₽)</div>
@@ -273,8 +359,22 @@
   </div>
 </div>
 
+<!-- МОДАЛКА: ДЕПОЗИТ ЗАЧИСЛЕН -->
+<div class="thanks-backdrop" id="thanksModal">
+  <div class="thanks-modal">
+    <div class="thanks-logo">KINGWIN</div>
+    <div class="thanks-sub">Club Card</div>
+    <div class="thanks-title">Депозит <span>зачислен</span></div>
+    <div class="thanks-text">Ваш баланс успешно пополнен на</div>
+    <div class="thanks-amount" id="thanksAmount">+0 ₽</div>
+    <div class="thanks-luck">Удачи в игре!</div>
+    <button class="thanks-btn" onclick="closeThanksModal()">Отлично</button>
+  </div>
+</div>
+
 <script>
 let currentPlayer = null;
+let pendingDeposits = [];
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
@@ -384,15 +484,58 @@ async function sendDeposit() {
   }
 }
 
+/* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
+function showThanksModal(dep) {
+  if (!dep) return;
+  pendingDeposits = [dep];
+  document.getElementById('thanksAmount').textContent = '+' + (Math.round(dep.sum*100)/100).toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('thanksModal').classList.add('show');
+}
+
+async function closeThanksModal() {
+  document.getElementById('thanksModal').classList.remove('show');
+  if (pendingDeposits.length > 0) {
+    const dep = pendingDeposits.shift();
+    try {
+      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
+    } catch(e) {}
+  }
+}
+
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId)
       .then(r => r.json())
-      .then(data => { if(data.guest) { currentPlayer = data.guest; updateUI(); } })
+      .then(data => {
+        if(data.guest) { currentPlayer = data.guest; updateUI(); }
+        if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+          showThanksModal(data.unseen_deposits[0]);
+        }
+      })
       .catch(() => {});
   }
 };
+
+/* Периодическая проверка новых подтверждённых депозитов */
+setInterval(() => {
+  if (!currentPlayer) return;
+  fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id))
+    .then(r => r.json())
+    .then(data => {
+      if (data.guest) {
+        currentPlayer = data.guest;
+        document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
+      }
+      if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+        const modal = document.getElementById('thanksModal');
+        if (!modal.classList.contains('show')) {
+          showThanksModal(data.unseen_deposits[0]);
+        }
+      }
+    })
+    .catch(() => {});
+}, 5000);
 </script>
 </body>
 </html>
