@@ -141,6 +141,10 @@
     position: relative; z-index: 1; }
   .modal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,.7); }
   .modal.rank-up .modal-btn { background: #f1c40f; box-shadow: 0 0 20px rgba(241,196,15,.5); }
+  .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #8fa2b8; font-size: 24px; cursor: pointer; z-index: 10; transition: 0.2s; }
+  .modal-close:hover { color: #fff; }
+  .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 10px; }
+  .modal-btn.green { background: #3fbf7f; color: #000; box-shadow: 0 0 20px rgba(63,191,127,.4); }
 
   .login-form label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin: 14px 0 6px; font-weight: 600; }
@@ -186,6 +190,60 @@
   </div>
 </div>
 
+<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ПЕРЕВОДА НА КАЗИНО -->
+<div class="modal-backdrop" id="confirmTransferModal">
+  <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
+    <button class="modal-close" onclick="closeConfirmTransfer()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Transfer</div>
+    <div class="modal-title">Перевод на казино</div>
+    <div class="modal-text">Вы уверены, что хотите перевести <b id="transferAmount" style="color: #fff;">0</b> ₽ на баланс онлайн-казино?</div>
+    <div class="modal-hint">Средства сразу поступят на игровой счёт.</div>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button>
+      <button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА УСПЕШНОГО ПЕРЕВОДА -->
+<div class="modal-backdrop" id="successTransferModal">
+  <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Успешно!</div>
+    <div class="modal-text">Вы перевели <b id="successTransferAmount" style="color: #fff;">0</b> ₽ на баланс онлайн-казино.</div>
+    <button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ РЕАЛЬНОГО ВЫВОДА -->
+<div class="modal-backdrop" id="confirmRealWithdrawModal">
+  <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
+    <button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Withdraw</div>
+    <div class="modal-title">Заявка на вывод</div>
+    <div class="modal-text">Вы уверены, что хотите вывести <b id="realWithdrawAmount" style="color: #fff;">0</b> ₽?</div>
+    <div class="modal-hint">Заявка уходит администратору на проверку.</div>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button>
+      <button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА УСПЕШНОГО РЕАЛЬНОГО ВЫВОДА -->
+<div class="modal-backdrop" id="successRealWithdrawModal">
+  <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Заявка создана!</div>
+    <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color: #fff;">0</b> ₽ отправлена администратору. Ожидайте проверки.</div>
+    <button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button>
+  </div>
+</div>
+
 <script>
 /* ============================================================
    KINGWIN — Profile 2 v3.3
@@ -209,6 +267,8 @@ let currentTab = 'profile';
 let lastSeenRank = null;
 let refreshTimer = null;
 let claimLock = false;
+let pendingTransferAmount = 0;
+let pendingRealWithdrawAmount = 0;
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -371,11 +431,9 @@ function renderDailyHtml(){
     return `<div class="daily-card"><div class="daily-title">🔥 Ежедневный бонус</div>
       <div class="daily-sub">Загрузка…</div></div>`;
   }
-  const level = dailyState.level || 0;             // 0..7 (7 = цикл завершён)
+  const level = dailyState.level || 0;
   const claimed = dailyState.claimed_today;
   const rewards = DAILY_REWARDS;
-  // индекс «сегодняшнего» дня: если ещё не забрали — текущий уровень (0→10, 1→15...)
-  // если забрали — предыдущий (level-1)
   const todayIdx = claimed ? Math.max(0, Math.min(6, level - 1)) : Math.min(6, level);
 
   let daysHtml = '';
@@ -428,7 +486,6 @@ async function claimDaily(){
       return;
     }
 
-    // локально фиксируем успех СРАЗУ
     dailyState.claimed_today = true;
     dailyState.level = data.level;
     dailyState.next_reward = 0;
@@ -437,7 +494,6 @@ async function claimDaily(){
     showDailyModal(data.reward, data.level);
     renderProfile();
 
-    // и синхронизация
     await Promise.all([loadSummary(), loadDaily()]);
     renderProfile();
   } catch(e){
@@ -487,7 +543,7 @@ function renderWithdrawHtml(){
         </div>
         <div class="row"><span>Перевод</span><span style="color:#a0aec0">мгновенный</span></div>
       </div>
-      <button class="btn green" ${canToCasino?'':'disabled'} onclick="withdrawToCasino()">
+      <button class="btn green" ${canToCasino?'':'disabled'} onclick="openConfirmTransfer(${pending})">
         Перевести на баланс
       </button>
       <div style="font-size:11px;color:#6d819a;margin-top:10px;line-height:1.5;">
@@ -510,7 +566,7 @@ function renderWithdrawHtml(){
           <span class="ok">✓ активна</span>
         </div>
       </div>
-      <button class="btn" ${canReal?'':'disabled'} onclick="withdrawReal()">
+      <button class="btn" ${canReal?'':'disabled'} onclick="openConfirmRealWithdraw(${deposit})">
         Отправить заявку на вывод
       </button>
       <div style="font-size:11px;color:#6d819a;margin-top:10px;line-height:1.5;">
@@ -530,7 +586,18 @@ function renderWithdrawHtml(){
   `;
 }
 
-async function withdrawToCasino(){
+// ПЕРЕВОД НА КАЗИНО
+function openConfirmTransfer(amount){
+  pendingTransferAmount = amount;
+  document.getElementById('transferAmount').textContent = fmt(amount);
+  document.getElementById('confirmTransferModal').classList.add('show');
+}
+function closeConfirmTransfer(){
+  document.getElementById('confirmTransferModal').classList.remove('show');
+}
+
+async function executeTransfer(){
+  closeConfirmTransfer();
   try {
     const r = await fetch('/api/guest/withdraw-to-casino', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -538,13 +605,30 @@ async function withdrawToCasino(){
     });
     const data = await r.json();
     if(!r.ok){ alert(data.error || 'Ошибка'); return; }
-    alert(`Переведено ${fmt(data.amount)} ₽ на баланс казино!`);
+    
+    document.getElementById('successTransferAmount').textContent = fmt(data.amount);
+    document.getElementById('successTransferModal').classList.add('show');
+    
     await loadSummary();
     renderProfile();
   } catch(e){ alert('Ошибка соединения'); }
 }
+function closeSuccessTransfer(){
+  document.getElementById('successTransferModal').classList.remove('show');
+}
 
-async function withdrawReal(){
+// РЕАЛЬНЫЙ ВЫВОД
+function openConfirmRealWithdraw(amount){
+  pendingRealWithdrawAmount = amount;
+  document.getElementById('realWithdrawAmount').textContent = fmt(amount);
+  document.getElementById('confirmRealWithdrawModal').classList.add('show');
+}
+function closeConfirmRealWithdraw(){
+  document.getElementById('confirmRealWithdrawModal').classList.remove('show');
+}
+
+async function executeRealWithdraw(){
+  closeConfirmRealWithdraw();
   try {
     const r = await fetch('/api/guest/withdraw-real', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -552,10 +636,16 @@ async function withdrawReal(){
     });
     const data = await r.json();
     if(!r.ok){ alert(data.error || 'Ошибка'); return; }
-    alert(`Заявка на вывод ${fmt(data.withdrawal.sum)} ₽ создана! Ожидайте проверки администратора.`);
+    
+    document.getElementById('successRealWithdrawAmount').textContent = fmt(data.withdrawal.sum);
+    document.getElementById('successRealWithdrawModal').classList.add('show');
+    
     await loadSummary();
     renderProfile();
   } catch(e){ alert('Ошибка соединения'); }
+}
+function closeSuccessRealWithdraw(){
+  document.getElementById('successRealWithdrawModal').classList.remove('show');
 }
 
 /* ---------------- TABS ---------------- */
