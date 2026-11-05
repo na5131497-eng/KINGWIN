@@ -28,13 +28,16 @@
   .logo-mark::after { content: 'K'; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
   .logo span { background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  .quick-nav { display: flex; gap: 8px; margin-bottom: 20px; }
-  .quick-btn { flex: 1; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; }
-  .quick-btn:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.05); }
-  .quick-btn svg { width: 24px; height: 24px; fill: var(--text-main); transition: 0.2s; }
-  .quick-btn:hover svg { fill: var(--accent); }
-  .quick-btn span { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-
+  /* БЫСТРЫЙ ПЕРЕХОД (ИГРЫ) */
+  .quick-nav-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 10px; padding-left: 10px; }
+  .quick-games { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 25px; }
+  .q-game { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: 0.2s; text-decoration: none; }
+  .q-game:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.05); transform: translateY(-2px); }
+  .q-game svg { width: 22px; height: 22px; fill: var(--text-muted); transition: 0.2s; }
+  .q-game:hover svg { fill: var(--accent); }
+  .q-game span { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; text-align: center; line-height: 1; }
+  
+  /* ОБЫЧНОЕ МЕНЮ */
   .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-bottom: 25px; }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
   .nav-item:hover, .nav-item.active { background: rgba(0, 229, 255, 0.08); color: #fff; border-color: rgba(0, 229, 255, 0.2); }
@@ -195,16 +198,29 @@
 <aside class="sidebar" id="sidebar">
   <div class="logo"><div class="logo-mark"></div><span>KINGWIN</span></div>
   
-  <!-- БЫСТРЫЕ ПЕРЕХОДЫ -->
-  <div class="quick-nav">
-    <div class="quick-btn" onclick="window.location.href='/cases.html'">
-      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
-      <span>Кейсы</span>
-    </div>
-    <div class="quick-btn" onclick="window.location.href='/crash.html'">
+  <!-- БЫСТРЫЙ ПЕРЕХОД К ИГРАМ -->
+  <div class="quick-nav-title">Быстрый переход</div>
+  <div class="quick-games">
+    <a href="/crash.html" class="q-game">
       <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
       <span>Crash</span>
-    </div>
+    </a>
+    <a href="/cases.html" class="q-game">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+      <span>Cases</span>
+    </a>
+    <a href="/miner.html" class="q-game">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg>
+      <span>Miner</span>
+    </a>
+    <a href="/ladder.html" class="q-game">
+      <svg viewBox="0 0 24 24"><path d="M4 21h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4V7H4v2zm0-4h4V3H4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2z"/></svg>
+      <span>Ladder</span>
+    </a>
+    <a href="/plinko.html" class="q-game">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+      <span>Plinko</span>
+    </a>
   </div>
 
   <div class="nav-menu">
@@ -234,7 +250,6 @@
     
     <!-- БАННЕР С ДЕВУШКОЙ И БОНУСОМ -->
     <div class="hero">
-      <!-- Название картинки можно поменять, если у тебя другое -->
       <img src="/main_banner.jpg" alt="KINGWIN Bonus">
       
       <div class="bonus-tag">
