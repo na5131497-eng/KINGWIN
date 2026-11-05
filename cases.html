@@ -23,83 +23,72 @@
 
   /* КОНТЕНТ */
   .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
+  
+  /* СПИСОК КЕЙСОВ (Каталог) */
+  .view-catalog { display: block; }
   .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
   
-  /* СЕТКА КЕЙСОВ */
   .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; }
+  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; cursor: pointer; }
   .case-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,229,255,0.1); }
-  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); }
-  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
-  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; margin-bottom: 15px; }
-  .case-btn { width: 100%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 8px; padding: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; }
-  .case-btn:hover { box-shadow: 0 0 20px rgba(0,229,255,0.5); transform: scale(1.02); }
-  .case-btn:disabled { background: #333; color: #888; cursor: not-allowed; box-shadow: none; transform: none; }
+  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); pointer-events: none; }
+  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; pointer-events: none; }
+  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; pointer-events: none; }
+
+  /* КОМНАТА КЕЙСА (Открытие) */
+  .view-room { display: none; flex-direction: column; align-items: center; }
+  .view-room.active { display: flex; }
+  
+  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+  .room-back:hover { color: #fff; }
+  
+  .room-case-preview { text-align: center; margin-bottom: 30px; }
+  .room-case-preview img { width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); margin-bottom: 10px; }
+  .room-case-preview h2 { font-size: 28px; font-weight: 900; }
+  .room-case-preview p { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 5px; }
+
+  /* Содержимое кейса (Сетка призов) */
+  .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+  .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
+  .prize-chip { padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 15px; background: #131624; border: 1px solid var(--border); }
+  .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); box-shadow: 0 0 10px rgba(241,196,15,0.1); }
+  .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
+  .prize-chip.silver { color: #ccc; }
+
+  /* Кнопка открытия */
+  .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); }
+  .open-big-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
+  .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
   /* РУЛЕТКА */
-  .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
+  .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
   .roulette-overlay.show { display: flex; }
-  .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; }
+  .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; margin-bottom: 30px; }
   .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
   
-  /* ПЕРЕЛИВАЮЩИЕСЯ КАРТОЧКИ */
-  @keyframes shine {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-  }
+  @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
   
   .roulette-item { 
     width: 130px; height: 110px; margin: 0 5px; 
     background: linear-gradient(135deg, #131624 0%, #1a1c29 100%);
     border-radius: 12px; display: flex; justify-content: center; align-items: center; 
-    flex-shrink: 0; position: relative; 
-    font-size: 24px; font-weight: 900; color: #fff;
-    box-sizing: content-box; /* Чтобы margin не влиял на ширину */
+    flex-shrink: 0; position: relative; font-size: 24px; font-weight: 900; color: #fff;
+    box-sizing: content-box;
   }
+  .roulette-item.silver { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #8e9eab, #eef2f3, #8e9eab, #eef2f3, #8e9eab) border-box; background-size: auto, 200% 100%; animation: shine 4s linear infinite; color: #eef2f3; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+  .roulette-item.blue { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #00e5ff, #0077ff, #00e5ff, #0077ff, #00e5ff) border-box; background-size: auto, 200% 100%; animation: shine 3s linear infinite; color: var(--accent); text-shadow: 0 0 15px rgba(0,229,255,0.6); box-shadow: inset 0 0 20px rgba(0,229,255,0.1); }
+  .roulette-item.gold { border: 2px solid transparent; background: linear-gradient(#131624, #131624) padding-box, linear-gradient(90deg, #f1c40f, #ffe066, #ffd700, #f1c40f) border-box; background-size: auto, 200% 100%; animation: shine 2.5s linear infinite; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.8); box-shadow: inset 0 0 20px rgba(241,196,15,0.2), 0 0 15px rgba(241,196,15,0.2); }
 
-  .roulette-item.silver {
-    border: 2px solid transparent;
-    background: linear-gradient(#131624, #131624) padding-box,
-                linear-gradient(90deg, #8e9eab, #eef2f3, #8e9eab, #eef2f3, #8e9eab) border-box;
-    background-size: auto, 200% 100%;
-    animation: shine 4s linear infinite;
-    color: #eef2f3;
-    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-  }
-
-  .roulette-item.blue {
-    border: 2px solid transparent;
-    background: linear-gradient(#131624, #131624) padding-box,
-                linear-gradient(90deg, #00e5ff, #0077ff, #00e5ff, #0077ff, #00e5ff) border-box;
-    background-size: auto, 200% 100%;
-    animation: shine 3s linear infinite;
-    color: var(--accent);
-    text-shadow: 0 0 15px rgba(0,229,255,0.6);
-    box-shadow: inset 0 0 20px rgba(0,229,255,0.1);
-  }
-
-  .roulette-item.gold {
-    border: 2px solid transparent;
-    background: linear-gradient(#131624, #131624) padding-box,
-                linear-gradient(90deg, #f1c40f, #ffe066, #ffd700, #f1c40f) border-box;
-    background-size: auto, 200% 100%;
-    animation: shine 2.5s linear infinite;
-    color: #ffd700;
-    text-shadow: 0 0 20px rgba(255,215,0,0.8);
-    box-shadow: inset 0 0 20px rgba(241,196,15,0.2), 0 0 15px rgba(241,196,15,0.2);
-  }
-
-  /* УКАЗАТЕЛЬ */
   .roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--red); transform: translateX(-50%); z-index: 10; box-shadow: 0 0 15px var(--red); }
   .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid var(--red); }
   .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid var(--red); }
   
-  .win-modal { background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 20px; padding: 40px; text-align: center; margin-top: 40px; box-shadow: 0 0 60px rgba(0,255,136,0.3); display: none; z-index: 20; }
+  .win-modal { background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 60px rgba(0,255,136,0.3); display: none; z-index: 20; }
   .win-modal.show { display: block; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
-  .win-amount { font-size: 42px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 20px; }
+  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 20px; }
 
   .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; transform: translateX(120%); transition: 0.3s; }
@@ -109,8 +98,11 @@
   @media (max-width: 768px) {
     .roulette-wrapper { height: 110px; }
     .roulette-item { width: 90px; height: 80px; margin: 0 3px; font-size: 18px; }
-    .win-modal { padding: 30px 20px; margin-top: 20px; }
+    .win-modal { padding: 30px 20px; }
     .win-amount { font-size: 32px; }
+    .room-case-preview img { width: 140px; height: 140px; }
+    .room-case-preview h2 { font-size: 22px; }
+    .open-big-btn { padding: 15px 40px; font-size: 16px; width: 100%; max-width: 300px; }
   }
 </style>
 </head>
@@ -124,10 +116,34 @@
 </div>
 
 <div class="container">
-  <div class="header-title">Кейсы</div>
-  <div class="cases-grid" id="casesGrid">
-    <div style="color:var(--text-muted); padding:20px;">Загрузка кейсов...</div>
+  
+  <!-- ЭТАП 1: КАТАЛОГ КЕЙСОВ -->
+  <div class="view-catalog active" id="viewCatalog">
+    <div class="header-title">Выберите кейс</div>
+    <div class="cases-grid" id="casesGrid">
+      <div style="color:var(--text-muted); padding:20px;">Загрузка кейсов...</div>
+    </div>
   </div>
+
+  <!-- ЭТАП 2: КОМНАТА КЕЙСА -->
+  <div class="view-room" id="viewRoom">
+    <button class="room-back" onclick="backToCatalog()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Назад к кейсам
+    </button>
+    
+    <div class="room-case-preview">
+      <img id="roomCaseImg" src="" alt="Case">
+      <h2 id="roomCaseName">Название</h2>
+      <p id="roomCasePrice">0 ₽</p>
+    </div>
+
+    <div class="case-items-title">Возможные выигрыши:</div>
+    <div class="case-items-grid" id="roomCaseItems"></div>
+
+    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+  </div>
+
 </div>
 
 <!-- ОКНО РУЛЕТКИ -->
@@ -139,12 +155,14 @@
   <div class="win-modal" id="winModal">
     <div class="win-title">Вы выиграли!</div>
     <div class="win-amount" id="winAmount">0 ₽</div>
-    <button class="case-btn" style="width: 200px;" onclick="closeRoulette()">Забрать</button>
+    <button class="case-btn" style="width: 200px; padding: 14px; border-radius: 8px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; background: var(--accent-green); color: #000;" onclick="closeRoulette()">Забрать</button>
   </div>
 </div>
 
 <script>
 let playerId = localStorage.getItem('kingwin_player_id');
+let currentCase = null;
+let allCasesList = [];
 
 // Загрузка профиля для баланса
 async function loadProfile() {
@@ -159,28 +177,25 @@ async function loadProfile() {
   } catch(e) {}
 }
 
-// Загрузка кейсов
+// Загрузка списка кейсов
 async function loadCases() {
   try {
     const url = playerId ? `/api/cases/list?guest_id=${playerId}` : '/api/cases/list';
     const r = await fetch(url);
-    const cases = await r.json();
+    allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
     
-    if(!cases || cases.length === 0) {
+    if(!allCasesList || allCasesList.length === 0) {
       grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>';
       return;
     }
 
-    grid.innerHTML = cases.map(c => `
-      <div class="case-card">
+    grid.innerHTML = allCasesList.map((c, i) => `
+      <div class="case-card" onclick="enterRoom(${i})">
         <img src="/case_${c.name.toLowerCase()}.png" class="case-image" 
              onerror="this.src='/cases_card.jpg'" alt="${c.name}">
         <div class="case-name">${c.name}</div>
         <div class="case-price">${c.price} ₽</div>
-        <button class="case-btn" onclick="openCase('${c.name}')" ${!c.available ? 'disabled' : ''}>
-          ${c.available ? 'Открыть' : 'Недоступно'}
-        </button>
       </div>
     `).join('');
   } catch(e) {
@@ -188,32 +203,71 @@ async function loadCases() {
   }
 }
 
-// Определение класса для карточки рулетки
+// Определение класса для призов
 function getPrizeClass(prize) {
   if (prize >= 500) return 'gold';
   if (prize >= 50) return 'blue';
   return 'silver';
 }
 
-// Открытие кейса
-async function openCase(caseName) {
-  if(!playerId) { showToast('Войдите в аккаунт!', 'error'); return; }
+// Вход в комнату кейса
+function enterRoom(index) {
+  currentCase = allCasesList[index];
   
-  const grid = document.getElementById('casesGrid');
-  grid.style.opacity = '0.5';
-  grid.style.pointerEvents = 'none';
+  document.getElementById('viewCatalog').classList.remove('active');
+  document.getElementById('viewRoom').classList.add('active');
+  
+  document.getElementById('roomCaseImg').src = `/case_${currentCase.name.toLowerCase()}.png`;
+  document.getElementById('roomCaseImg').onerror = function() { this.src='/cases_card.jpg'; };
+  document.getElementById('roomCaseName').textContent = currentCase.name;
+  document.getElementById('roomCasePrice').textContent = currentCase.price + ' ₽';
+  
+  // Отрисовка возможных призов
+  const itemsWrap = document.getElementById('roomCaseItems');
+  const sortedPrizes = [...currentCase.prizes].sort((a, b) => a - b);
+  
+  itemsWrap.innerHTML = sortedPrizes.map(p => `
+    <div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>
+  `).join('');
+  
+  // Настройка кнопки
+  const btn = document.getElementById('roomOpenBtn');
+  if(currentCase.available) {
+    btn.disabled = false;
+    btn.textContent = `Открыть за ${currentCase.price} ₽`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Недоступно для вашего ранга';
+  }
+}
+
+// Возврат в каталог
+function backToCatalog() {
+  document.getElementById('viewRoom').classList.remove('active');
+  document.getElementById('viewCatalog').classList.add('active');
+  currentCase = null;
+}
+
+// Само открытие кейса
+async function openCaseAction() {
+  if(!playerId) { showToast('Войдите в аккаунт!', 'error'); return; }
+  if(!currentCase) return;
+  
+  const btn = document.getElementById('roomOpenBtn');
+  btn.disabled = true;
+  btn.textContent = 'Загрузка...';
 
   try {
     const r = await fetch('/api/cases/open', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, case_name: caseName })
+      body: JSON.stringify({ guest_id: playerId, case_name: currentCase.name })
     });
     const d = await r.json();
     
     if(!r.ok) {
       showToast(d.error || 'Ошибка открытия', 'error');
-      grid.style.opacity = '1';
-      grid.style.pointerEvents = 'auto';
+      btn.disabled = false;
+      btn.textContent = `Открыть за ${currentCase.price} ₽`;
       return;
     }
 
@@ -222,8 +276,8 @@ async function openCase(caseName) {
 
   } catch(e) {
     showToast('Ошибка соединения', 'error');
-    grid.style.opacity = '1';
-    grid.style.pointerEvents = 'auto';
+    btn.disabled = false;
+    btn.textContent = `Открыть за ${currentCase.price} ₽`;
   }
 }
 
@@ -238,21 +292,19 @@ function startRouletteAnimation(prize) {
   overlay.classList.add('show');
   winModal.classList.remove('show');
   
-  // Сброс позиции
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   track.innerHTML = '';
 
   const itemsCount = 60;
-  const prizeIndex = 50; // Победная карточка будет 50-й
+  const prizeIndex = 50;
   
+  // Берем пул призов из текущего кейса для фона
+  const pool = currentCase.prizes;
+
   for(let i = 0; i < itemsCount; i++) {
-    // Генерируем случайные суммы для фона
-    let val = Math.floor(Math.random() * 100) + 5;
-    if(i === prizeIndex) val = prize; // Реальный выигрыш
-    
+    let val = i === prizeIndex ? prize : pool[Math.floor(Math.random() * pool.length)];
     let cls = getPrizeClass(val);
-    
     track.innerHTML += `
       <div class="roulette-item ${cls}">
         ${val} ₽
@@ -260,24 +312,19 @@ function startRouletteAnimation(prize) {
     `;
   }
 
-  // Даем браузеру отрисовать DOM перед тем как считать ширины
   setTimeout(() => {
     const items = track.querySelectorAll('.roulette-item');
     const winItem = items[prizeIndex];
     
-    // Получаем точные координаты победной карточки
     const itemWidth = winItem.offsetWidth;
     const itemLeft = winItem.offsetLeft;
     const wrapperWidth = wrapper.offsetWidth;
     
-    // Вычисляем смещение, чтобы центр победной карточки оказался ровно под указателем
     const offset = itemLeft + (itemWidth / 2) - (wrapperWidth / 2);
 
-    // Запускаем анимацию
     track.style.transition = 'transform 4s cubic-bezier(0.15, 0.9, 0.25, 1)';
     track.style.transform = `translateX(-${offset}px)`;
 
-    // Показываем результат
     setTimeout(() => {
       winAmount.textContent = prize.toFixed(2) + ' ₽';
       winModal.classList.add('show');
@@ -287,9 +334,11 @@ function startRouletteAnimation(prize) {
 
 function closeRoulette() {
   document.getElementById('rouletteOverlay').classList.remove('show');
-  const grid = document.getElementById('casesGrid');
-  grid.style.opacity = '1';
-  grid.style.pointerEvents = 'auto';
+  const btn = document.getElementById('roomOpenBtn');
+  if(currentCase) {
+    btn.disabled = false;
+    btn.textContent = `Открыть за ${currentCase.price} ₽`;
+  }
 }
 
 function showToast(text, type='success') {
@@ -302,7 +351,6 @@ function showToast(text, type='success') {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-// Инициализация
 loadProfile();
 loadCases();
 setInterval(loadProfile, 5000);
