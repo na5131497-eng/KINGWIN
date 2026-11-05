@@ -26,7 +26,7 @@
     display: flex;
     min-height: 100vh;
   }
-  
+
   /* SIDEBAR */
   aside {
     width: 240px;
@@ -51,7 +51,7 @@
   }
   .nav button:hover { background: rgba(255,255,255,0.05); color: var(--text); }
   .nav button.active { background: rgba(0, 229, 255, 0.1); border-color: var(--accent); color: var(--accent); }
-  
+
   .user-box {
     padding: 12px; margin-top: 30px; background: rgba(0,0,0,0.3);
     border: 1px solid var(--line); border-radius: 10px; font-size: 12px; color: var(--muted);
@@ -68,7 +68,7 @@
   .page { display: none; }
   .page.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  
+
   h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
   .sub { color: var(--muted); font-size: 14px; margin-bottom: 25px; }
 
@@ -139,12 +139,20 @@
   .rank-pill.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border: 1px solid #b9f2ff; }
   .rank-pill.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border: 1px solid #d4af37; box-shadow: 0 0 8px rgba(212,175,55,.5); }
 
+  .streak-badge { display: inline-block; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: 800;
+    background: rgba(255,138,138,.15); color: #ff8a8a; }
+  .streak-badge.hot { background: rgba(241,196,15,.2); color: #f1c40f; }
+  .streak-badge.max { background: rgba(212,175,55,.25); color: #ffe066; box-shadow: 0 0 8px rgba(212,175,55,.4); }
+  .dot-yes { color: var(--green); font-weight: 800; }
+  .dot-no  { color: var(--muted); }
+
   /* MODALS */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
   .modal { background: rgba(18, 24, 38, 0.95); border: 1px solid var(--accent); border-radius: 16px;
-    padding: 30px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.15); }
+    padding: 30px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    max-height: 92vh; overflow-y: auto; }
   .modal h2 { font-size: 22px; margin-bottom: 15px; }
   .modal p { color: var(--muted); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
   .modal .btn-row { display: flex; gap: 12px; }
@@ -175,46 +183,46 @@
   .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; backdrop-filter: blur(5px); }
   .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 240; backdrop-filter: blur(2px); }
 
+  /* ---------- engage ---------- */
+  .engage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+  .engage-block { background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .engage-block h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px; }
+  .engage-block .hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .daily-rewards-edit { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .daily-rewards-edit input { padding: 8px 6px; font-size: 13px; text-align: center; width: 100%; }
+  .daily-rewards-edit label { font-size: 9px; text-align: center; align-items: center; }
+  .prize-row { display: grid; grid-template-columns: 1fr 70px 70px 80px 32px; gap: 6px; margin-bottom: 6px; align-items: center; }
+  .prize-row input { padding: 6px 8px; font-size: 12px; width: 100%; }
+  .prize-row input[type="color"] { padding: 2px; height: 30px; cursor: pointer; }
+  .prize-row .del { background: var(--red); color:#fff; border-radius: 6px; padding: 4px 8px; cursor:pointer; border:none; font-size: 12px; }
+  .news-edit-row { display: flex; gap: 8px; align-items: flex-start; padding: 10px; background: rgba(0,0,0,.3); border-radius: 10px; margin-bottom: 8px; }
+  .news-edit-row .col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
+  .news-edit-row textarea { min-height: 50px; resize: vertical; font-family: inherit; }
+
   /* ============ АДАПТИВ ============ */
   @media (max-width: 900px) {
     .mobile-menu-btn { display: block; }
-    
-    aside {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      z-index: 250;
-      transform: translateX(-100%);
-      box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-    }
+    aside { position: fixed; top: 0; left: 0; height: 100vh; z-index: 250; transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
     aside.open { transform: translateX(0); }
-    
     .mobile-overlay.show { display: block; }
-
     main { padding: 70px 15px 20px; }
-
     h1 { font-size: 22px; }
     .sub { font-size: 13px; margin-bottom: 20px; }
-
     .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
     .card { padding: 15px; }
     .card .value { font-size: 20px; }
     .card .label { font-size: 11px; }
-
     .panel { padding: 15px; }
     .panel h3 { font-size: 16px; margin-bottom: 15px; }
-
     .chart-wrap { height: 220px; }
-
     .row { gap: 10px; }
     label { font-size: 11px; width: 100%; }
     label input, label select { width: 100%; }
     .row button { width: 100%; }
-
     .modal { padding: 20px; }
+    .daily-rewards-edit { grid-template-columns: repeat(4, 1fr); }
   }
-
   @media (max-width: 480px) {
     .cards { grid-template-columns: 1fr; }
     .chart-wrap { height: 180px; }
@@ -222,6 +230,7 @@
     h1 { font-size: 20px; }
     .panel { padding: 12px; }
     th, td { padding: 8px 5px; }
+    .prize-row { grid-template-columns: 1fr 50px 50px 60px 28px; }
   }
 </style>
 </head>
@@ -253,6 +262,8 @@
     <button data-page="finance" onclick="switchPage('finance')">Депозиты и выводы</button>
     <button data-page="players" onclick="switchPage('players')">Игроки</button>
     <button data-page="guests" onclick="switchPage('guests')">Гости (Профиль 2)</button>
+    <button data-page="engage" onclick="switchPage('engage')">🎯 Вовлечение</button>
+    <button data-page="news" onclick="switchPage('news')">📰 Новости</button>
     <button data-page="online" onclick="switchPage('online')">Онлайн-казино (Crash)</button>
     <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
     <button data-page="history" onclick="switchPage('history')">История</button>
@@ -275,16 +286,21 @@
       </div>
       <button class="danger" onclick="openClearModal()">Очистить всё</button>
     </div>
-    
+
     <div class="cards" id="dashCards"></div>
 
     <div class="panel">
       <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
     </div>
+
+    <div class="panel">
+      <h3>Вовлечение гостей (Профиль 2)</h3>
+      <div class="cards" id="engageCards" style="margin-bottom:0"></div>
+    </div>
   </div>
 
-  <!-- ОСТАЛЬНЫЕ ВКЛАДКИ -->
+  <!-- ФИНАНСЫ -->
   <div class="page" id="page-finance">
     <h1>Депозиты и выводы</h1>
     <div class="sub">Заявки от игроков и гостей</div>
@@ -302,6 +318,7 @@
     </div>
   </div>
 
+  <!-- ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
     <div class="sub">Сводная статистика по игрокам</div>
@@ -314,6 +331,7 @@
     </div>
   </div>
 
+  <!-- ГОСТИ -->
   <div class="page" id="page-guests">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
@@ -322,7 +340,7 @@
       </div>
       <button onclick="window.open('/cards_print.html', '_blank')" class="success">🖨 Печать всех карт</button>
     </div>
-    
+
     <div class="panel">
       <h3>Добавить гостя</h3>
       <div class="row">
@@ -343,23 +361,80 @@
     </div>
 
     <div class="panel">
+      <h3>Список гостей</h3>
       <div class="wrap"><table><thead><tr>
-        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th><th>Депозит</th><th>Бонусы</th><th>Действия</th>
+        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th>
+        <th>Депозит</th><th>Бонусы</th><th>🔥 Streak</th><th>Последний вход</th><th>Крутил</th><th>Действия</th>
       </tr></thead><tbody id="guestsBody"></tbody></table></div>
       <div class="empty" id="guestsEmpty">Нет гостей</div>
     </div>
   </div>
 
+  <!-- ВОВЛЕЧЕНИЕ -->
+  <div class="page" id="page-engage">
+    <h1>🎯 Вовлечение (Профиль 2)</h1>
+    <div class="sub">Настройка daily reward, колеса фортуны и streak-механик</div>
+
+    <div class="cards" id="engageStats"></div>
+
+    <div class="engage-grid">
+      <div class="engage-block" style="grid-column: 1 / -1;">
+        <h4>🔥 Ежедневный бонус — награды за 7 дней</h4>
+        <div class="hint">Сумма в рублях, начисляемая в бонусный баланс. День 1 — минимальный, день 7 — максимальный.</div>
+        <div class="daily-rewards-edit" id="dailyRewardsEdit"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="success" onclick="saveDailyRewards()">💾 Сохранить награды</button>
+          <button class="ghost" onclick="resetAllStreaks()">♻️ Сбросить всем streak</button>
+        </div>
+      </div>
+
+      <div class="engage-block" style="grid-column: 1 / -1;">
+        <h4>🎡 Колесо фортуны — призы</h4>
+        <div class="hint">Вес = вероятность. Чем больше вес относительно суммы — тем чаще выпадает. Цвет — для отрисовки сектора.</div>
+        <div id="prizeEditor"></div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="ghost small" onclick="addPrizeRow()">+ Приз</button>
+          <button class="success" onclick="saveWheelPrizes()">💾 Сохранить призы</button>
+          <button class="ghost" onclick="resetWheelToday()">♻️ Разрешить всем крутить сегодня</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- НОВОСТИ -->
+  <div class="page" id="page-news">
+    <h1>📰 Новости и акции</h1>
+    <div class="sub">Отображаются в профиле гостя (profile2)</div>
+
+    <div class="panel">
+      <h3>Добавить новость</h3>
+      <div class="news-edit-row" style="background:rgba(0,229,255,.05);">
+        <div class="col">
+          <input type="text" id="n_title" placeholder="Заголовок (например: ×2 баллы в пятницу)">
+          <textarea id="n_body" placeholder="Текст новости..."></textarea>
+          <input type="date" id="n_date">
+        </div>
+        <button class="success" onclick="addNews()">Добавить</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Опубликованные</h3>
+      <div id="newsList"></div>
+      <div class="empty" id="newsEmpty">Нет новостей</div>
+    </div>
+  </div>
+
+  <!-- CRASH -->
   <div class="page" id="page-online">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
         <h1>Онлайн-казино (Crash)</h1>
         <div class="sub">История успешных выводов и ставок в раундах</div>
       </div>
-      <!-- КНОПКА ОЧИСТКИ ИСТОРИИ CRASH -->
       <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
     </div>
-    
+
     <div class="cards" id="onlineCards"></div>
 
     <div class="panel">
@@ -371,6 +446,7 @@
     </div>
   </div>
 
+  <!-- ВЫПЛАТЫ -->
   <div class="page" id="page-payouts">
     <h1>Выплаты дилерам</h1>
     <div class="sub">Начисления и зарплаты</div>
@@ -399,6 +475,7 @@
     </div>
   </div>
 
+  <!-- ИСТОРИЯ -->
   <div class="page" id="page-history">
     <h1>История действий</h1>
     <div class="sub">Лог всех операций в системе</div>
@@ -413,6 +490,7 @@
     </div>
   </div>
 
+  <!-- РОЛИ -->
   <div class="page" id="page-roles">
     <h1>Роли</h1>
     <div class="sub">Управление доступами</div>
@@ -500,7 +578,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ОЧИСТКИ CRASH -->
 <div class="modal-backdrop" id="clearCrashModal">
   <div class="modal" style="border-color: var(--red); box-shadow: 0 0 30px rgba(255, 77, 77, 0.15);">
     <h2 style="color: var(--red);">Очистить историю Crash?</h2>
@@ -531,6 +608,7 @@
       <div><label>Подарок (текст)</label><input type="text" id="eg_bonus_text"></div>
       <div><label>Код подарка</label><input type="text" id="eg_bonus_code"></div>
       <div><label>Бонусные ₽ (Подарочные)</label><input type="number" id="eg_bonus_balance" step="0.01" min="0"></div>
+      <div><label>🔥 Streak (дней подряд)</label><input type="number" id="eg_streak" min="0" max="7" step="1"></div>
     </div>
     <div class="err" id="eg_err"></div>
     <div class="btn-row">
@@ -542,6 +620,8 @@
 
 <script>
 let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [] };
+let engageConfig = { daily_rewards: [50,75,100,150,200,300,500], wheel_prizes: [] };
+let newsList = [];
 let currentUser = null;
 let currentRole = null;
 let editGuestId = null;
@@ -563,10 +643,7 @@ async function apiGet(url){
     const r = await fetch(url);
     if (!r.ok) return [];
     return await r.json();
-  } catch(e) {
-    console.warn('apiGet failed:', url, e.message);
-    return [];
-  }
+  } catch(e) { return []; }
 }
 async function apiPost(url, data){
   try {
@@ -611,14 +688,42 @@ async function loadDB(){
   results.forEach(([key, data]) => { db[key] = data; });
 }
 
+async function loadEngage(){
+  try {
+    const cfg = await apiGet('/api/admin/engage-config');
+    if(cfg && !Array.isArray(cfg)){
+      if(Array.isArray(cfg.daily_rewards) && cfg.daily_rewards.length === 7)
+        engageConfig.daily_rewards = cfg.daily_rewards;
+      if(Array.isArray(cfg.wheel_prizes) && cfg.wheel_prizes.length)
+        engageConfig.wheel_prizes = cfg.wheel_prizes;
+    }
+  } catch(e){}
+  if(!engageConfig.wheel_prizes.length){
+    engageConfig.wheel_prizes = [
+      { label: '50 ₽',   value: 50,   type: 'bonus',  weight: 25, color: '#00e5ff' },
+      { label: '100 ₽',  value: 100,  type: 'bonus',  weight: 20, color: '#3fbf7f' },
+      { label: '10 баллов', value: 10, type: 'points', weight: 20, color: '#d4af37' },
+      { label: '25 баллов', value: 25, type: 'points', weight: 15, color: '#ff8a8a' },
+      { label: '200 ₽',  value: 200,  type: 'bonus',  weight: 8,  color: '#b9f2ff' },
+      { label: '500 ₽',  value: 500,  type: 'bonus',  weight: 3,  color: '#ffe066' },
+      { label: 'Пусто',  value: 0,    type: 'none',   weight: 9,  color: '#6d819a' }
+    ];
+  }
+}
+
+async function loadNewsList(){
+  const data = await apiGet('/api/news');
+  newsList = Array.isArray(data) ? data : [];
+}
+
 async function audit(action, details){
   if(!currentUser) return;
   await apiPost('/api/audit', { time: now(), user: currentUser, action, details });
 }
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','online','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','online','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','engage','news','online','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','engage','news','online','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
@@ -650,7 +755,7 @@ async function doLogin(){
     err.textContent = '';
     document.getElementById('loginScreen').classList.add('hidden');
     await audit('login', `${currentUser} вошёл`);
-    await loadDB();
+    await Promise.all([loadDB(), loadEngage(), loadNewsList()]);
     switchPage('dash');
     renderAll();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
@@ -674,10 +779,7 @@ function closeClearCrashModal(){ document.getElementById('clearCrashModal').clas
 
 async function confirmClearAll(){
   const pass = document.getElementById('clearAllPass').value;
-  if(pass !== '56UpahoS'){ 
-    document.getElementById('clearAllErr').textContent = 'Неверный пароль.'; 
-    return; 
-  }
+  if(pass !== '56UpahoS'){ document.getElementById('clearAllErr').textContent = 'Неверный пароль.'; return; }
   for(const s of db.sessions) await apiDelete('/api/sessions/' + s.id);
   for(const b of db.baccarat) await apiDelete('/api/baccarat/' + b.id);
   for(const d of db.deposits) await apiDelete('/api/deposits/' + d.id);
@@ -696,10 +798,7 @@ async function confirmClearAll(){
 
 async function confirmClearCrash(){
   const pass = document.getElementById('clearCrashPass').value;
-  if(pass !== '56UpahoS'){ 
-    document.getElementById('clearCrashErr').textContent = 'Неверный пароль.'; 
-    return; 
-  }
+  if(pass !== '56UpahoS'){ document.getElementById('clearCrashErr').textContent = 'Неверный пароль.'; return; }
   await apiDelete('/api/crash/clear');
   closeClearCrashModal();
   await loadDB();
@@ -782,36 +881,37 @@ function onlineStats(){
   return { income, expense, net: income - expense };
 }
 
+/* ================ DASH ================ */
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
-  
-  // Депозиты
   let totalDeposits = 0;
-  db.deposits.forEach(d => {
-    if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0;
-  });
+  db.deposits.forEach(d => { if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0; });
 
   const onlineTotal = totalDeposits + on.net;
   const totalIncome = bj.income + bac.income + onlineTotal;
 
   document.getElementById('dashCards').innerHTML = `
-    <div class="card">
-      <div class="label">Доход Блэкджека</div>
-      <div class="value green">${fmt(bj.income)} ₽</div>
-    </div>
-    <div class="card">
-      <div class="label">Доход Баккары</div>
-      <div class="value green">${fmt(bac.income)} ₽</div>
-    </div>
-    <div class="card">
-      <div class="label">Онлайн-казино (вкл. депозиты)</div>
-      <div class="value accent">${fmt(onlineTotal)} ₽</div>
-    </div>
-    <div class="card" style="border-color: var(--gold);">
-      <div class="label">Общий доход</div>
-      <div class="value gold">${fmt(totalIncome)} ₽</div>
-    </div>
+    <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
+    <div class="card"><div class="label">Онлайн-казино (вкл. депозиты)</div><div class="value accent">${fmt(onlineTotal)} ₽</div></div>
+    <div class="card" style="border-color: var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(totalIncome)} ₽</div></div>
   `;
+
+  // engage cards
+  const todayS = today();
+  const totalGuests = db.guests.length;
+  const activeToday = db.guests.filter(g => g.last_visit && String(g.last_visit).slice(0,10) === todayS).length;
+  const spinningToday = db.guests.filter(g => g.last_wheel_spin && String(g.last_wheel_spin).slice(0,10) === todayS).length;
+  const avgStreak = totalGuests ? (db.guests.reduce((a,g)=>a+(parseInt(g.streak)||0),0) / totalGuests) : 0;
+  const maxStreak = db.guests.reduce((a,g)=>Math.max(a, parseInt(g.streak)||0), 0);
+
+  document.getElementById('engageCards').innerHTML = `
+    <div class="card"><div class="label">Гостей всего</div><div class="value accent">${totalGuests}</div></div>
+    <div class="card"><div class="label">Заходили сегодня (DAU)</div><div class="value green">${activeToday}</div></div>
+    <div class="card"><div class="label">Крутили колесо</div><div class="value gold">${spinningToday}</div></div>
+    <div class="card"><div class="label">Средний streak</div><div class="value">${avgStreak.toFixed(1)} <span style="font-size:14px;color:var(--muted)">/ макс ${maxStreak}</span></div></div>
+  `;
+
   drawChart();
 }
 
@@ -824,28 +924,15 @@ function drawChart(){
   canvas.width = W * dpr; canvas.height = H * dpr;
   const ctx = canvas.getContext('2d');
   ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
-  
+
   const map = {};
-  db.sessions.forEach(s=>{
-    if(!s.date) return;
-    if(!map[s.date]) map[s.date] = 0;
-    map[s.date] += sessionNet(s).income;
+  db.sessions.forEach(s=>{ if(!s.date) return; if(!map[s.date]) map[s.date]=0; map[s.date]+=sessionNet(s).income; });
+  db.baccarat.forEach(b=>{ if(!b.date) return; if(!map[b.date]) map[b.date]=0; map[b.date]+=bacCalc(b).casino; });
+  db.online.forEach(o=>{ if(!o.date) return; if(!map[o.date]) map[o.date]=0;
+    if(o.type === 'доход') map[o.date]+=parseFloat(o.sum)||0; else map[o.date]-=parseFloat(o.sum)||0;
   });
-  db.baccarat.forEach(b=>{
-    if(!b.date) return;
-    if(!map[b.date]) map[b.date] = 0;
-    map[b.date] += bacCalc(b).casino;
-  });
-  db.online.forEach(o=>{
-    if(!o.date) return;
-    if(!map[o.date]) map[o.date] = 0;
-    if(o.type === 'доход') map[o.date] += parseFloat(o.sum)||0;
-    else map[o.date] -= parseFloat(o.sum)||0;
-  });
-  db.deposits.forEach(d=>{
-    if(d.status !== 'approved' || !d.date) return;
-    if(!map[d.date]) map[d.date] = 0;
-    map[d.date] += parseFloat(d.sum)||0;
+  db.deposits.forEach(d=>{ if(d.status !== 'approved' || !d.date) return;
+    if(!map[d.date]) map[d.date]=0; map[d.date]+=parseFloat(d.sum)||0;
   });
 
   const dates = Object.keys(map).sort();
@@ -853,16 +940,12 @@ function drawChart(){
     ctx.fillStyle = '#a0aec0'; ctx.font = '14px Montserrat';
     ctx.textAlign = 'center'; ctx.fillText('Нет данных для графика', W/2, H/2); return;
   }
-  
+
   let runningTotal = 0;
-  const values = dates.map(d => {
-    runningTotal += map[d];
-    return runningTotal;
-  });
+  const values = dates.map(d => { runningTotal += map[d]; return runningTotal; });
 
   const padL = 60, padR = 20, padT = 20, padB = 40;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  
   const maxVal = Math.max(1, ...values);
   const minVal = Math.min(0, ...values);
   const range = maxVal - minVal || 1;
@@ -893,29 +976,19 @@ function drawChart(){
   ctx.lineJoin = 'round';
   ctx.shadowBlur = 10;
   ctx.shadowColor = 'rgba(0,229,255,0.5)';
-  
-  values.forEach((v, i) => {
-    const xx = x(i), yy = y(v);
-    i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
-  });
+  values.forEach((v, i) => { const xx = x(i), yy = y(v); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); });
   ctx.stroke();
   ctx.shadowBlur = 0;
 
   const lastX = x(values.length - 1);
   const lastY = y(values[values.length - 1]);
-  ctx.beginPath();
-  ctx.fillStyle = '#00e5ff';
-  ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-  ctx.fill();
-  
-  ctx.shadowBlur = 18;
-  ctx.shadowColor = 'rgba(0,229,255,0.8)';
-  ctx.beginPath();
-  ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.fillStyle = '#00e5ff'; ctx.arc(lastX, lastY, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 18; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+  ctx.beginPath(); ctx.arc(lastX, lastY, 5, 0, Math.PI * 2); ctx.fill();
   ctx.shadowBlur = 0;
 }
 
+/* ================ FINANCE ================ */
 function renderFinance(){
   document.getElementById('depositsBody').innerHTML = db.deposits.map(d=>`
     <tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td>
@@ -924,7 +997,7 @@ function renderFinance(){
         <button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>` :
         `<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
   document.getElementById('depositsEmpty').style.display = db.deposits.length ? 'none' : 'block';
-  
+
   document.getElementById('withdrawalsBody').innerHTML = db.withdrawals.map(w=>`
     <tr><td>${w.date}</td><td>${w.nick}<br><span style="font-size:11px;color:#a0aec0">${w.email||''}</span></td>
       <td>${fmt(w.sum)} ₽</td><td>${fmt(w.fee)} ₽</td><td>${fmt(w.net)} ₽</td>
@@ -942,6 +1015,7 @@ async function wdAction(id, status){ await apiPut('/api/withdrawals/'+id, {statu
 async function delDeposit(id){ await apiDelete('/api/deposits/'+id); await loadDB(); renderFinance(); }
 async function delWithdrawal(id){ await apiDelete('/api/withdrawals/'+id); await loadDB(); renderFinance(); }
 
+/* ================ PLAYERS ================ */
 function renderPlayers(){
   const names = new Set();
   db.sessions.forEach(s=>{ if(s.nick) names.add(s.nick); });
@@ -968,11 +1042,12 @@ function renderPlayers(){
 }
 async function toggleVIP(nick, val){ await apiPost('/api/players', {nick, vip:val}); await audit('vip_toggle', nick); await loadDB(); renderPlayers(); }
 
+/* ================ ONLINE ================ */
 function renderOnline() {
   const cashouts = db.crash_bets.filter(b => b.cashed_out);
   const totalBets = db.crash_bets.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
   const totalPayouts = cashouts.reduce((a, b) => a + (parseFloat(b.amount) * parseFloat(b.cashout_mult) || 0), 0);
-  
+
   document.getElementById('onlineCards').innerHTML = `
     <div class="card"><div class="label">Всего ставок в Crash</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
     <div class="card"><div class="label">Выигрыши (Кэшауты)</div><div class="value red">${fmt(totalPayouts)} ₽</div></div>
@@ -981,26 +1056,30 @@ function renderOnline() {
 
   document.getElementById('onlineBody').innerHTML = cashouts.map(b => {
     const dateStr = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU') : '—';
-    return `
-      <tr>
+    return `<tr>
         <td>${dateStr}</td>
         <td>${b.player_name}</td>
         <td>${fmt(b.amount)} ₽</td>
         <td class="pos">x${parseFloat(b.cashout_mult).toFixed(2)}</td>
         <td class="pos">${fmt(b.amount * parseFloat(b.cashout_mult))} ₽</td>
         <td>#${b.round_id}</td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
-  
+
   document.getElementById('onlineEmpty').style.display = cashouts.length ? 'none' : 'block';
 }
 
+/* ================ GUESTS ================ */
 async function loadGuests(){
   db.guests = await apiGet('/api/guests');
   const body = document.getElementById('guestsBody');
-  body.innerHTML = db.guests.map(g => `
-    <tr>
+  const todayS = today();
+  body.innerHTML = db.guests.map(g => {
+    const streak = parseInt(g.streak) || 0;
+    const streakCls = streak >= 7 ? 'max' : streak >= 3 ? 'hot' : '';
+    const lastVisit = g.last_visit ? String(g.last_visit).slice(0,16).replace('T',' ') : '—';
+    const spun = g.last_wheel_spin && String(g.last_wheel_spin).slice(0,10) === todayS;
+    return `<tr>
       <td>${g.id}</td>
       <td>${g.name}</td>
       <td><span class="rank-pill ${g.rank}">${g.rank}</span></td>
@@ -1008,22 +1087,25 @@ async function loadGuests(){
       <td>${g.visits||0}</td>
       <td class="pos">${fmt(parseFloat(g.deposit_balance)||0)} ₽</td>
       <td class="gold">${fmt(parseFloat(g.bonus_balance)||0)} ₽</td>
+      <td><span class="streak-badge ${streakCls}">🔥 ${streak}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${lastVisit}</td>
+      <td>${spun ? '<span class="dot-yes">✓</span>' : '<span class="dot-no">—</span>'}</td>
       <td>
         <button class="ghost small" onclick="printOneGuest('${g.id}')" title="Печать 6 карт">🖨</button>
         <button class="gold small" onclick="withdrawGuest('${g.id}')" title="Вывести бонусы">₽</button>
         <button class="ghost small" onclick="openEditGuest('${g.id}')" title="Редактировать">✏️</button>
+        <button class="ghost small" onclick="resetGuestDaily('${g.id}')" title="Сбросить daily">♻️</button>
         <button class="danger small" onclick="delGuest('${g.id}')">Удалить</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
   document.getElementById('guestsEmpty').style.display = db.guests.length ? 'none' : 'block';
 }
 
 function printOneGuest(id){
   const base = localStorage.getItem('kingwin_base_url')
     || (location.protocol.startsWith('http') ? location.origin : 'http://192.168.0.11:3000');
-  const url = base + '/cards_print.html?id=' + encodeURIComponent(id);
-  window.open(url, '_blank');
+  window.open(base + '/cards_print.html?id=' + encodeURIComponent(id), '_blank');
 }
 
 function withdrawGuest(id){
@@ -1039,21 +1121,7 @@ function withdrawGuest(id){
     await apiPost('/api/withdrawals', {
       date: today(), nick: g.name, email: '', sum: amt, fee: 0, net: amt, status: 'approved'
     });
-    
-    let bonus = parseFloat(g.bonus_balance) || 0;
-    let dep = parseFloat(g.deposit_balance) || 0;
-    let remaining = amt;
-    
-    if (bonus >= remaining) {
-      bonus -= remaining;
-      remaining = 0;
-    } else {
-      remaining -= bonus;
-      bonus = 0;
-      dep -= remaining;
-    }
     await apiPost('/api/guests/withdraw-deduct', { id: g.id, sum: amt });
-
     await audit('guest_withdraw', `${g.name}: ${amt} ₽`);
     await loadDB(); loadGuests();
     showInfo('Готово', `Выведено ${fmt(amt)} ₽ гостю ${g.name}`);
@@ -1070,6 +1138,7 @@ function openEditGuest(id){
   document.getElementById('eg_bonus_text').value = g.bonus_text || '';
   document.getElementById('eg_bonus_code').value = g.bonus_code || '';
   document.getElementById('eg_bonus_balance').value = parseFloat(g.bonus_balance) || 0;
+  document.getElementById('eg_streak').value = parseInt(g.streak) || 0;
   document.getElementById('eg_err').textContent = '';
   document.getElementById('editGuestModal').classList.add('show');
 }
@@ -1084,7 +1153,8 @@ async function saveEditGuest(){
     pass: document.getElementById('eg_pass').value.trim() || '1234',
     bonus_text: document.getElementById('eg_bonus_text').value.trim(),
     bonus_code: document.getElementById('eg_bonus_code').value.trim(),
-    bonus_balance: parseFloat(document.getElementById('eg_bonus_balance').value) || 0
+    bonus_balance: parseFloat(document.getElementById('eg_bonus_balance').value) || 0,
+    streak: parseInt(document.getElementById('eg_streak').value) || 0
   };
   if(!payload.name){ document.getElementById('eg_err').textContent = 'Имя обязательно'; return; }
   const r = await apiPost('/api/guests/update', payload);
@@ -1093,6 +1163,16 @@ async function saveEditGuest(){
   closeEditGuestModal();
   await loadDB(); loadGuests();
   showInfo('Готово', 'Данные гостя обновлены');
+}
+
+async function resetGuestDaily(id){
+  const g = db.guests.find(x => String(x.id) === String(id));
+  if(!g) return;
+  showConfirm('Сбросить daily?', `У гостя <b>${g.name}</b> сбросится streak и отметка о сегодняшнем клейме.`, 'Сбросить', 'danger', async ()=>{
+    await apiPost('/api/admin/reset-guest-daily', { id });
+    await audit('reset_daily', 'guest #'+id);
+    await loadGuests(); renderDash();
+  });
 }
 
 async function addGuest(){
@@ -1110,10 +1190,8 @@ async function addGuest(){
   await apiPost('/api/guests', data);
   await audit('guest_add', name);
   await loadGuests();
-  document.getElementById('g_name').value = '';
+  ['g_name','g_bonus_text','g_bonus_code'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('g_pass').value = '1234';
-  document.getElementById('g_bonus_text').value = '';
-  document.getElementById('g_bonus_code').value = '';
   showInfo('Успех', 'Гость добавлен. Можно печатать карты!');
 }
 
@@ -1125,6 +1203,158 @@ async function delGuest(id){
   await loadDB();
 }
 
+/* ================ ENGAGE ================ */
+function renderEngage(){
+  // stats
+  const todayS = today();
+  const total = db.guests.length;
+  const activeToday = db.guests.filter(g => g.last_visit && String(g.last_visit).slice(0,10) === todayS).length;
+  const spinningToday = db.guests.filter(g => g.last_wheel_spin && String(g.last_wheel_spin).slice(0,10) === todayS).length;
+  const claimedToday = db.guests.filter(g => g.last_daily_claim && String(g.last_daily_claim).slice(0,10) === todayS).length;
+  document.getElementById('engageStats').innerHTML = `
+    <div class="card"><div class="label">Всего гостей</div><div class="value accent">${total}</div></div>
+    <div class="card"><div class="label">DAU (заходили сегодня)</div><div class="value green">${activeToday}</div></div>
+    <div class="card"><div class="label">Забрали daily</div><div class="value gold">${claimedToday}</div></div>
+    <div class="card"><div class="label">Крутили колесо</div><div class="value gold">${spinningToday}</div></div>
+  `;
+
+  // daily rewards editor
+  const rewardsWrap = document.getElementById('dailyRewardsEdit');
+  rewardsWrap.innerHTML = engageConfig.daily_rewards.map((v,i)=>`
+    <label>Д${i+1}
+      <input type="number" min="0" step="10" value="${v}" data-idx="${i}" id="dr_${i}">
+    </label>
+  `).join('');
+
+  // wheel prizes editor
+  const prizesWrap = document.getElementById('prizeEditor');
+  prizesWrap.innerHTML = engageConfig.wheel_prizes.map((p,i)=>`
+    <div class="prize-row">
+      <input type="text" value="${(p.label||'').replace(/"/g,'&quot;')}" data-idx="${i}" data-field="label" placeholder="Название">
+      <input type="number" value="${p.weight||1}" data-idx="${i}" data-field="weight" placeholder="Вес">
+      <input type="number" value="${p.value||0}" data-idx="${i}" data-field="value" placeholder="Сумма">
+      <input type="color" value="${p.color||'#00e5ff'}" data-idx="${i}" data-field="color">
+      <button class="del" onclick="removePrizeRow(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addPrizeRow(){
+  engageConfig.wheel_prizes.push({ label: 'Новый приз', value: 100, type: 'bonus', weight: 5, color: '#00e5ff' });
+  renderEngage();
+}
+function removePrizeRow(idx){
+  engageConfig.wheel_prizes.splice(idx, 1);
+  renderEngage();
+}
+
+async function saveDailyRewards(){
+  const rewards = engageConfig.daily_rewards.map((_,i)=>{
+    const v = parseFloat(document.getElementById('dr_'+i).value) || 0;
+    return v;
+  });
+  const r = await apiPost('/api/admin/daily-rewards', { rewards });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  engageConfig.daily_rewards = rewards;
+  await audit('daily_rewards_edit', JSON.stringify(rewards));
+  showInfo('Готово', 'Награды за 7 дней сохранены.');
+}
+
+async function resetAllStreaks(){
+  showConfirm('Сбросить streak всем?', 'У всех гостей обнулится streak и отметка daily. Продолжить?', 'Сбросить', 'danger', async ()=>{
+    await apiPost('/api/admin/reset-all-streaks', {});
+    await audit('reset_all_streaks', '');
+    await loadDB(); loadGuests(); renderEngage();
+    showInfo('Готово', 'Streak у всех сброшен.');
+  });
+}
+
+async function saveWheelPrizes(){
+  const rows = document.querySelectorAll('#prizeEditor .prize-row');
+  const prizes = [];
+  rows.forEach(row=>{
+    const label = row.querySelector('input[data-field="label"]').value.trim();
+    const weight = parseFloat(row.querySelector('input[data-field="weight"]').value) || 1;
+    const value = parseFloat(row.querySelector('input[data-field="value"]').value) || 0;
+    const color = row.querySelector('input[data-field="color"]').value || '#00e5ff';
+    if(!label) return;
+    prizes.push({ label, value, type: 'bonus', weight, color });
+  });
+  if(!prizes.length){ showInfo('Ошибка', 'Нужен хотя бы один приз'); return; }
+  const r = await apiPost('/api/admin/wheel-prizes', { prizes });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  engageConfig.wheel_prizes = prizes;
+  await audit('wheel_prizes_edit', JSON.stringify(prizes));
+  showInfo('Готово', 'Призы колеса сохранены.');
+}
+
+async function resetWheelToday(){
+  showConfirm('Разрешить всем крутить?', 'У всех гостей сбросится отметка колеса — они смогут крутить ещё раз сегодня.', 'Разрешить', 'success', async ()=>{
+    await apiPost('/api/admin/reset-wheel-today', {});
+    await audit('reset_wheel_today', '');
+    await loadDB(); loadGuests(); renderEngage();
+    showInfo('Готово', 'Отметка колеса сброшена у всех.');
+  });
+}
+
+/* ================ NEWS ================ */
+function renderNewsAdmin(){
+  const wrap = document.getElementById('newsList');
+  if(!newsList.length){
+    wrap.innerHTML = '';
+    document.getElementById('newsEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('newsEmpty').style.display = 'none';
+  wrap.innerHTML = newsList.map(n=>`
+    <div class="news-edit-row">
+      <div class="col">
+        <input type="text" value="${(n.title||'').replace(/"/g,'&quot;')}" data-id="${n.id}" data-field="title">
+        <textarea data-id="${n.id}" data-field="body">${escHtml(n.body||'')}</textarea>
+        <input type="date" value="${(n.date||'').slice(0,10)}" data-id="${n.id}" data-field="date">
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button class="success small" onclick="saveNews(${n.id})">💾</button>
+        <button class="danger small" onclick="delNews(${n.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+function escHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function addNews(){
+  const title = document.getElementById('n_title').value.trim();
+  const body = document.getElementById('n_body').value.trim();
+  const date = document.getElementById('n_date').value || today();
+  if(!title){ showInfo('Ошибка', 'Введите заголовок'); return; }
+  const r = await apiPost('/api/admin/news', { title, body, date });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  await audit('news_add', title);
+  document.getElementById('n_title').value = '';
+  document.getElementById('n_body').value = '';
+  document.getElementById('n_date').value = '';
+  await loadNewsList();
+  renderNewsAdmin();
+}
+async function saveNews(id){
+  const row = document.querySelector(`.news-edit-row input[data-id="${id}"]`).closest('.news-edit-row');
+  const title = row.querySelector('input[data-field="title"]').value.trim();
+  const body = row.querySelector('textarea[data-field="body"]').value.trim();
+  const date = row.querySelector('input[data-field="date"]').value || today();
+  const r = await apiPost('/api/admin/news/' + id, { title, body, date });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  await loadNewsList();
+  renderNewsAdmin();
+  showInfo('Готово', 'Новость обновлена.');
+}
+async function delNews(id){
+  if(!confirm('Удалить новость?')) return;
+  await apiDelete('/api/admin/news/' + id);
+  await loadNewsList();
+  renderNewsAdmin();
+}
+
+/* ================ PAYOUTS ================ */
 function dealerNames(){
   const set = new Set();
   db.sessions.forEach(s=>{ if(s.dealer && s.dealer!=='—') set.add(s.dealer); });
@@ -1179,6 +1409,7 @@ function openPayoutModal(){
 }
 async function delPayout(id){ await apiDelete('/api/payouts/'+id); await loadDB(); renderPayouts(); }
 
+/* ================ HISTORY ================ */
 function renderHistory(){
   document.getElementById('historyBody').innerHTML = db.audit.map(a=>`
     <tr><td>${a.time}</td><td>${a.user_name}</td><td>${a.action}</td><td>${a.details}</td></tr>`).join('');
@@ -1186,6 +1417,7 @@ function renderHistory(){
 }
 async function clearHistory(){ await apiDelete('/api/audit'); await loadDB(); renderHistory(); }
 
+/* ================ ROLES ================ */
 function renderRoles(){
   document.getElementById('rolesBody').innerHTML = db.employees.map((e,i)=>`
     <tr><td>${i+1}</td><td>${e.name}</td><td>${e.login}</td>
@@ -1228,6 +1460,8 @@ function renderAll(){
   if(hasPerm('finance')) renderFinance();
   if(hasPerm('players')) renderPlayers();
   if(hasPerm('guests')) loadGuests();
+  if(hasPerm('engage')) renderEngage();
+  if(hasPerm('news')) renderNewsAdmin();
   if(hasPerm('online')) renderOnline();
   if(hasPerm('payouts')) renderPayouts();
   if(hasPerm('history')) renderHistory();
@@ -1244,7 +1478,6 @@ async function tickLive(){
     if(currentUser){ await loadDB(); renderAll(); }
   }
 }
-
 setInterval(tickLive, 1000);
 
 (async () => {
