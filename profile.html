@@ -17,8 +17,11 @@
   /* ШАПКА */
   .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
   .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: 0.2s; }
   .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .logout-btn { background: transparent; border: 1px solid rgba(255,77,77,0.4); color: var(--red); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; transition: 0.2s; }
+  .logout-btn:hover { background: rgba(255,77,77,0.1); border-color: var(--red); }
   
   /* СЕТКА */
   .layout { display: flex; max-width: 1400px; margin: 20px auto; width: 100%; padding: 0 20px; gap: 20px; align-items: flex-start; }
@@ -129,7 +132,10 @@
 
 <div class="topbar">
   <a href="/" class="logo">KINGWIN</a>
-  <a href="/" class="back-btn">← На главную</a>
+  <div class="topbar-right">
+    <a href="/" class="back-btn">← На главную</a>
+    <button class="logout-btn" onclick="doLogout()">Выйти</button>
+  </div>
 </div>
 
 <div class="layout">
@@ -286,6 +292,13 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
   document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+/* ===== ВЫХОД ИЗ АККАУНТА ===== */
+function doLogout() {
+  localStorage.removeItem('kingwin_player_id');
+  showToast('Вы вышли из аккаунта', 'success');
+  setTimeout(() => { window.location.href = '/'; }, 500);
 }
 
 async function loadProfile() {
