@@ -60,8 +60,6 @@
   .mult-value { font-size: 80px; font-weight: 900; color: #fff; text-shadow: 0 5px 30px rgba(0,229,255,0.4); line-height: 1; }
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.4); }
   .mult-label { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; font-weight: 700; }
-  .rocket { position: absolute; z-index: 9; font-size: 60px; transform: translate(-50%, -50%) rotate(-45deg); transition: transform 0.1s linear; filter: drop-shadow(0 0 20px rgba(0,229,255,0.6)); }
-  .rocket.crashed { filter: drop-shadow(0 0 20px rgba(255,77,77,0.6)); }
 
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; display: flex; gap: 20px; }
   .bet-box { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
@@ -145,7 +143,6 @@
         <div class="mult-value" id="multValue">1.00x</div>
         <div class="mult-label" id="multLabel">Ожидание ставок...</div>
       </div>
-      <div class="rocket" id="rocket" style="display: none;">🚀</div>
     </div>
 
     <div class="control-panel">
@@ -208,22 +205,31 @@
 const PLAYER_KEY = 'kingwin_player_id';
 const MAX_BET = 100;
 const MIN_BET = 10;
+const POLL_MS = 500;
 
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
 
-// id моих ставок в текущем раунде (слот 1 и 2)
 let myBetIds = { 1: null, 2: null };
 let myCashed = { 1: false, 2: false };
 
-// для графика
+let round = {
+  id: null,
+  status: 'waiting',
+  startTime: 0,
+  crashPoint: 1,
+  serverMult: 1,
+  bets: [],
+  history: []
+};
+
 let graphPoints = [];
-let lastRoundId = null;
-let lastStatus = null;
+let lastGraphRoundId = null;
+let lastBetsSig = '';
+let lastHistorySig = '';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const rocketEl = document.getElementById('rocket');
 const multValueEl = document.getElementById('multValue');
 const multLabelEl = document.getElementById('multLabel');
 
@@ -258,105 +264,119 @@ async function loadBalance() {
   } catch(e) {}
 }
 loadBalance();
-setInterval(loadBalance, 4000);
+setInterval(loadBalance, 5000);
 
 document.getElementById('balanceBadge').addEventListener('click', () => {
   window.location.href = '/';
 });
 
-/* ---------- ПОЛЛИНГ СЕРВЕРНОГО РАУНДА ---------- */
+/* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ---------- */
+function currentLocalMultiplier() {
+  if (round.status === 'waiting') return 1;
+  if (round.status === 'crashed') return round.crashPoint;
+  if (round.status === 'flying' && round.startTime) {
+    const elapsed = Date.now() - round.startTime;
+    let m = Math.pow(1.00006, elapsed);
+    if (m >= round.crashPoint) m = round.crashPoint;
+    return m;
+  }
+  return 1;
+}
+
+/* ---------- ПОЛЛИНГ ---------- */
 async function pollRound() {
   try {
     const r = await fetch('/api/crash/current');
     const d = await r.json();
-    updateFromServer(d);
-  } catch(e) {
-    // тихо
-  }
+    applyServerState(d);
+  } catch(e) {}
 }
 
-function updateFromServer(d) {
-  // смена раунда — очищаем мои ставки
-  if (lastRoundId !== null && d.roundId !== lastRoundId) {
+function applyServerState(d) {
+  if (round.id !== null && d.roundId !== round.id) {
     myBetIds = { 1: null, 2: null };
     myCashed = { 1: false, 2: false };
     graphPoints = [];
-    // баланс мог измениться
+    lastGraphRoundId = d.roundId;
     loadBalance();
   }
-
-  // сброс графика при переходе из crashed → waiting
-  if (lastStatus === 'crashed' && d.status === 'waiting') {
+  if (lastGraphRoundId !== d.roundId) {
+    lastGraphRoundId = d.roundId;
     graphPoints = [];
   }
 
-  lastRoundId = d.roundId;
-  lastStatus = d.status;
+  round.id = d.roundId;
+  round.status = d.status;
+  round.startTime = d.startTime || 0;
+  round.crashPoint = d.crashPoint || round.crashPoint || 1;
+  round.serverMult = parseFloat(d.multiplier) || 1;
+  round.bets = d.bets || [];
+  round.history = d.history || [];
 
-  // множитель
-  const mult = parseFloat(d.multiplier) || 1;
-  multValueEl.textContent = mult.toFixed(2) + 'x';
+  renderBets(round.bets);
+  renderHistory(round.history);
+  updateBetButtons();
+}
 
-  if (d.status === 'waiting') {
-    multValueEl.classList.remove('crashed');
-    rocketEl.classList.remove('crashed');
-    multLabelEl.textContent = 'Ожидание ставок...';
-  } else if (d.status === 'flying') {
-    multValueEl.classList.remove('crashed');
-    rocketEl.classList.remove('crashed');
-    multLabelEl.textContent = '';
-    // добавляем точку для графика
-    const t = (Date.now() - d.startTime) / 1000;
-    graphPoints.push({ x: t, y: mult });
-  } else if (d.status === 'crashed') {
-    multValueEl.classList.add('crashed');
-    rocketEl.classList.add('crashed');
-    multLabelEl.textContent = 'КРАШ!';
-    if (graphPoints.length && graphPoints[graphPoints.length-1].y !== mult) {
-      graphPoints.push({ x: graphPoints[graphPoints.length-1].x + 0.1, y: mult });
-    }
+/* ---------- АНИМАЦИОННЫЙ ЦИКЛ ---------- */
+let prevMult = 1;
+
+function frame() {
+  const mult = currentLocalMultiplier();
+
+  if (Math.abs(mult - prevMult) > 0.001) {
+    multValueEl.textContent = mult.toFixed(2) + 'x';
+    prevMult = mult;
   }
 
-  // если у меня есть активная ставка в этом раунде — обновляем кэшаут-кнопку
-  updateBetButtons(d);
-
-  // таблица ставок с сервера
-  renderBets(d.bets);
-
-  // история
-  renderHistory(d.history);
-
-  // авто-кэшаут (клиентский, но серверу не доверяем — только для UX)
-  [1, 2].forEach(id => {
-    if (myBetIds[id] && !myCashed[id] && d.status === 'flying') {
-      const autoBox = document.getElementById('autoCashout' + id);
-      const autoMult = parseFloat(document.getElementById('autoMult' + id).value) || 0;
-      if (autoBox.checked && mult >= autoMult) {
-        doCashout(id);
-      }
+  if (round.status === 'waiting') {
+    multValueEl.classList.remove('crashed');
+    multLabelEl.textContent = 'Ожидание ставок...';
+    graphPoints = [];
+  } else if (round.status === 'flying') {
+    multValueEl.classList.remove('crashed');
+    multLabelEl.textContent = '';
+    const t = (Date.now() - round.startTime) / 1000;
+    const last = graphPoints[graphPoints.length - 1];
+    if (!last || t - last.x > 0.033) {
+      graphPoints.push({ x: t, y: mult });
+      if (graphPoints.length > 2000) graphPoints.shift();
     }
-  });
+    [1, 2].forEach(id => {
+      if (myBetIds[id] && !myCashed[id]) {
+        const box = document.getElementById('autoCashout' + id);
+        const target = parseFloat(document.getElementById('autoMult' + id).value) || 0;
+        if (box.checked && mult >= target) doCashout(id);
+      }
+    });
+  } else if (round.status === 'crashed') {
+    multValueEl.classList.add('crashed');
+    multLabelEl.textContent = 'КРАШ!';
+  }
 
-  drawGraph(mult, d.status);
+  drawGraph(mult, round.status);
+  updateBetButtonsLive(mult);
+
+  requestAnimationFrame(frame);
 }
 
 function drawGraph(currentMult, status) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
 
-  // сетка
   ctx.strokeStyle = 'rgba(255,255,255,0.05)';
   ctx.lineWidth = 1;
-  for (let i = 0; i < canvas.height; i += 50) {
-    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+  for (let i = 0; i < H; i += 80) {
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
   }
-  for (let i = 0; i < canvas.width; i += 50) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+  for (let i = 0; i < W; i += 80) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
   }
 
   if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
     const paddingL = 50, paddingR = 40, paddingT = 40, paddingB = 50;
-    const drawW = canvas.width - paddingL - paddingR;
-    const drawH = canvas.height - paddingT - paddingB;
+    const drawW = W - paddingL - paddingR;
+    const drawH = H - paddingT - paddingB;
 
     const maxX = Math.max(5, graphPoints[graphPoints.length - 1].x);
     const maxY = Math.max(2, currentMult);
@@ -365,37 +385,44 @@ function drawGraph(currentMult, status) {
     ctx.strokeStyle = status === 'crashed' ? '#ff4d4d' : '#00e5ff';
     ctx.lineWidth = 4;
     ctx.lineJoin = 'round';
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 12;
     ctx.shadowColor = status === 'crashed' ? 'rgba(255,77,77,0.5)' : 'rgba(0,229,255,0.5)';
 
-    graphPoints.forEach((p, i) => {
+    for (let i = 0; i < graphPoints.length; i++) {
+      const p = graphPoints[i];
       const px = paddingL + (p.x / maxX) * drawW;
       const py = paddingT + drawH - ((p.y - 1) / (maxY - 1)) * drawH;
       if (i === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
-    });
+    }
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     const lastP = graphPoints[graphPoints.length - 1];
-    const rx = paddingL + (lastP.x / maxX) * drawW;
-    const ry = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
-
-    rocketEl.style.display = 'block';
-    rocketEl.style.left = rx + 'px';
-    rocketEl.style.top = ry + 'px';
-  } else {
-    rocketEl.style.display = 'none';
+    const lx = paddingL + (lastP.x / maxX) * drawW;
+    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
+    ctx.beginPath();
+    ctx.fillStyle = status === 'crashed' ? '#ff4d4d' : '#00e5ff';
+    ctx.arc(lx, ly, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = status === 'crashed' ? 'rgba(255,77,77,0.8)' : 'rgba(0,229,255,0.8)';
+    ctx.beginPath();
+    ctx.arc(lx, ly, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
   }
 }
 
 /* ---------- ТАБЛИЦА СТАВОК ---------- */
 function renderBets(bets) {
+  const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
+  if (sig === lastBetsSig) return;
+  lastBetsSig = sig;
+
   const list = document.getElementById('betsList');
-  if (!bets || !bets.length) {
-    list.innerHTML = '';
-    return;
-  }
-  // сортировка: сначала cashed_out, потом остальные — но по id ASC как с сервера
+  if (!bets || !bets.length) { list.innerHTML = ''; return; }
+
   list.innerHTML = bets.map(b => {
     const isMine = b.player_id && String(b.player_id) === String(playerId);
     const label = (isMine ? '★ ' : '') + (b.player_name || 'Гость');
@@ -420,6 +447,10 @@ function renderBets(bets) {
 
 /* ---------- ИСТОРИЯ ---------- */
 function renderHistory(history) {
+  const sig = (history || []).join('|');
+  if (sig === lastHistorySig) return;
+  lastHistorySig = sig;
+
   const list = document.getElementById('historyList');
   if (!history || !history.length) { list.innerHTML = ''; return; }
   list.innerHTML = history.map(m => {
@@ -428,14 +459,14 @@ function renderHistory(history) {
   }).join('');
 }
 
-/* ---------- КНОПКИ СТАВОК ---------- */
-function updateBetButtons(d) {
+/* ---------- КНОПКИ ---------- */
+function updateBetButtons() {
   [1, 2].forEach(id => {
     const btn = document.getElementById('btnBet' + id);
     const betId = myBetIds[id];
     const cashed = myCashed[id];
 
-    if (d.status === 'waiting') {
+    if (round.status === 'waiting') {
       if (betId) {
         btn.className = 'btn-action btn-cancel';
         btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
@@ -446,13 +477,9 @@ function updateBetButtons(d) {
         btn.innerHTML = `Ставка <div class="subtext" id="subtext${id}">${amt} ₽</div>`;
         btn.disabled = false;
       }
-    } else if (d.status === 'flying') {
+    } else if (round.status === 'flying') {
       if (betId && !cashed) {
-        const mult = parseFloat(d.multiplier) || 1;
-        const amt = getBetAmountById(betId, d.bets);
-        const winVal = (amt * mult).toFixed(2);
         btn.className = 'btn-action btn-cancel';
-        btn.innerHTML = `Забрать <div class="subtext">${winVal} ₽</div>`;
         btn.disabled = false;
       } else if (cashed) {
         btn.className = 'btn-action btn-bet';
@@ -471,13 +498,27 @@ function updateBetButtons(d) {
   });
 }
 
+function updateBetButtonsLive(mult) {
+  [1, 2].forEach(id => {
+    if (round.status === 'flying' && myBetIds[id] && !myCashed[id]) {
+      const btn = document.getElementById('btnBet' + id);
+      const amt = getBetAmountById(myBetIds[id], round.bets);
+      if (amt > 0) {
+        const val = (amt * mult).toFixed(2);
+        const html = `Забрать <div class="subtext">${val} ₽</div>`;
+        if (btn.innerHTML !== html) btn.innerHTML = html;
+      }
+    }
+  });
+}
+
 function getBetAmountById(betId, bets) {
   if (!bets) return 0;
   const b = bets.find(x => x.id === betId);
   return b ? parseFloat(b.amount) : 0;
 }
 
-/* ---------- СТАВКИ ---------- */
+/* ---------- ДЕЙСТВИЯ ---------- */
 function changeAmount(id, diff) {
   const input = document.getElementById('betAmount' + id);
   let val = parseInt(input.value) || MIN_BET;
@@ -486,6 +527,7 @@ function changeAmount(id, diff) {
   if (val > MAX_BET) val = MAX_BET;
   input.value = val;
   document.getElementById('subtext' + id).textContent = val + ' ₽';
+  if (round.status === 'waiting' && !myBetIds[id]) updateBetButtons();
 }
 
 function setAmount(id, val) {
@@ -493,18 +535,14 @@ function setAmount(id, val) {
   if (val > MAX_BET) val = MAX_BET;
   document.getElementById('betAmount' + id).value = val;
   document.getElementById('subtext' + id).textContent = val + ' ₽';
+  if (round.status === 'waiting' && !myBetIds[id]) updateBetButtons();
 }
 
 async function placeBet(id) {
-  // если ставка уже есть — либо отмена (waiting), либо кэшаут (flying)
   if (myBetIds[id]) {
-    if (lastStatus === 'flying' && !myCashed[id]) {
-      return doCashout(id);
-    }
-    if (lastStatus === 'waiting') {
-      // отмена — просто сбрасываем локально (сервер обработает при краше как проигрыш)
-      // Но лучше предупредить: отмену сложно сделать корректно без серверного DELETE.
-      showToast('Ставка уже принята. Дождитесь раунда', 'error');
+    if (round.status === 'flying' && !myCashed[id]) return doCashout(id);
+    if (round.status === 'waiting') {
+      showToast('Ставка уже принята', 'error');
       return;
     }
     return;
@@ -514,7 +552,6 @@ async function placeBet(id) {
     showToast('Войдите в аккаунт', 'error');
     return;
   }
-
   const amt = parseInt(document.getElementById('betAmount' + id).value) || MIN_BET;
   if (amt < MIN_BET || amt > MAX_BET) {
     showToast(`Ставка от ${MIN_BET} до ${MAX_BET} ₽`, 'error');
@@ -528,11 +565,7 @@ async function placeBet(id) {
     const r = await fetch('/api/crash/bet', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        player_id: playerId,
-        player_name: 'Игрок',
-        amount: amt
-      })
+      body: JSON.stringify({ player_id: playerId, player_name: 'Игрок', amount: amt })
     });
     const d = await r.json();
     if (!r.ok) {
@@ -547,13 +580,14 @@ async function placeBet(id) {
     pollRound();
   } catch(e) {
     showToast('Ошибка соединения', 'error');
+    btn.disabled = false;
   }
 }
 
 async function doCashout(id) {
   if (!myBetIds[id] || myCashed[id]) return;
   const betId = myBetIds[id];
-  myCashed[id] = true; // блокируем повторные нажатия
+  myCashed[id] = true;
 
   try {
     const r = await fetch('/api/crash/cashout', {
@@ -592,7 +626,8 @@ function showToast(text, type='success') {
 
 /* ---------- СТАРТ ---------- */
 pollRound();
-setInterval(pollRound, 250);
+setInterval(pollRound, POLL_MS);
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
