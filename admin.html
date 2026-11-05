@@ -222,20 +222,19 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
       <div>
         <h1>Общая статистика</h1>
-        <div class="sub">Доходы и расходы</div>
+        <div class="sub">Доходы казино</div>
       </div>
       <button class="danger" onclick="openClearModal()">Очистить всё</button>
     </div>
     
+    <!-- 4 КАРТОЧКИ -->
     <div class="cards" id="dashCards"></div>
 
     <div class="panel">
-      <h3>Динамика доходов</h3>
+      <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
       <div class="legend">
-        <span><i class="dot" style="background:#00e5ff"></i>Общий доход</span>
-        <span><i class="dot" style="background:#3fbf7f"></i>Прибыль</span>
-        <span><i class="dot" style="background:#ff4d4d"></i>Расходы</span>
+        <span><i class="dot" style="background:#00e5ff"></i>Общий доход по дням</span>
       </div>
     </div>
   </div>
@@ -299,7 +298,7 @@
 
     <div class="panel">
       <div class="wrap"><table><thead><tr>
-        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th><th>Депозит (Реальные ₽)</th><th>Бонусы (Подарочные ₽)</th><th>Действия</th>
+        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th><th>Депозит</th><th>Бонусы</th><th>Действия</th>
       </tr></thead><tbody id="guestsBody"></tbody></table></div>
       <div class="empty" id="guestsEmpty">Нет гостей</div>
     </div>
@@ -400,6 +399,7 @@
   </div>
 </main>
 
+<!-- МОДАЛКИ -->
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal">
     <h2 id="confirmTitle">Подтверждение</h2>
@@ -708,47 +708,43 @@ function onlineStats(){
   return { income, expense, net: income - expense };
 }
 function payoutsTotal(){ return db.payouts.reduce((a,p)=>a+(parseFloat(p.sum)||0),0); }
-function totalExpenses(){ return payoutsTotal(); }
 
 function guestsDepositTotal(){
   return db.guests.reduce((a,g)=>a + (parseFloat(g.deposit_balance)||0), 0);
 }
-function guestsBonusTotal(){
-  return db.guests.reduce((a,g)=>a + (parseFloat(g.bonus_balance)||0), 0);
-}
 
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
-  const exp = totalExpenses(); 
   
+  // Считаем подтверждённые депозиты
   let totalDeposits = 0;
-  let totalWithdrawals = 0;
-  
   db.deposits.forEach(d => {
     if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0;
   });
-  
-  db.withdrawals.forEach(w => {
-    if (w.status === 'approved') totalWithdrawals += parseFloat(w.net) || 0;
-  });
 
-  const gameIncome = bj.income + bac.income + on.net;
-  const casinoBalance = totalDeposits - totalWithdrawals;
-  const netProfit = gameIncome - exp;
+  // Онлайн-казино включает в себя и депозиты, и чистый доход от Crash
+  const onlineTotal = totalDeposits + on.net;
+
+  // Общий доход = Блэкджек + Баккара + Онлайн-казино (вкл. депозиты)
+  const totalIncome = bj.income + bac.income + onlineTotal;
 
   document.getElementById('dashCards').innerHTML = `
-    <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
-    <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
-    <div class="card"><div class="label">Доход Crash (Онлайн)</div><div class="value green">${fmt(on.net)} ₽</div></div>
-    
-    <div class="card" style="border-color: var(--accent);"><div class="label">Депозиты (Пополнения)</div><div class="value accent">${fmt(totalDeposits)} ₽</div></div>
-    <div class="card"><div class="label">Выводы (Выплачено игрокам)</div><div class="value red">${fmt(totalWithdrawals)} ₽</div></div>
-    <div class="card" style="border-color: var(--gold);"><div class="label">Баланс казино (Касса)</div><div class="value gold">${fmt(casinoBalance)} ₽</div></div>
-    
-    <div class="card"><div class="label">Выплаты дилерам</div><div class="value red">${fmt(exp)} ₽</div></div>
-    <div class="card" style="border-color: var(--green);"><div class="label">Чистая прибыль (Игры - ЗП)</div><div class="value ${netProfit>=0?'green':'red'}">${fmt(netProfit)} ₽</div></div>
-    
-    <div class="card"><div class="label">Обязательства (Бонусы гостей)</div><div class="value" style="color:var(--muted)">${fmt(guestsBonusTotal())} ₽</div></div>
+    <div class="card">
+      <div class="label">Доход Блэкджека</div>
+      <div class="value green">${fmt(bj.income)} ₽</div>
+    </div>
+    <div class="card">
+      <div class="label">Доход Баккары</div>
+      <div class="value green">${fmt(bac.income)} ₽</div>
+    </div>
+    <div class="card">
+      <div class="label">Онлайн-казино (вкл. депозиты)</div>
+      <div class="value accent">${fmt(onlineTotal)} ₽</div>
+    </div>
+    <div class="card" style="border-color: var(--gold);">
+      <div class="label">Общий доход</div>
+      <div class="value gold">${fmt(totalIncome)} ₽</div>
+    </div>
   `;
   drawChart();
 }
@@ -763,31 +759,36 @@ function drawChart(){
   const ctx = canvas.getContext('2d');
   ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
   
+  // Собираем данные по дням для одной общей линии
   const map = {};
+  
+  // Блэкджек
   db.sessions.forEach(s=>{
     if(!s.date) return;
-    if(!map[s.date]) map[s.date] = {income:0, expense:0};
-    const r = sessionNet(s);
-    if(r.income >= 0) map[s.date].income += r.income;
-    else map[s.date].expense += -r.income;
+    if(!map[s.date]) map[s.date] = 0;
+    map[s.date] += sessionNet(s).income;
   });
+  
+  // Баккара
   db.baccarat.forEach(b=>{
     if(!b.date) return;
-    if(!map[b.date]) map[b.date] = {income:0, expense:0};
-    const r = bacCalc(b);
-    if(r.casino >= 0) map[b.date].income += r.casino;
-    else map[b.date].expense += -r.casino;
+    if(!map[b.date]) map[b.date] = 0;
+    map[b.date] += bacCalc(b).casino;
   });
+  
+  // Crash
   db.online.forEach(o=>{
     if(!o.date) return;
-    if(!map[o.date]) map[o.date] = {income:0, expense:0};
-    if(o.type === 'доход') map[o.date].income += parseFloat(o.sum)||0;
-    else map[o.date].expense += parseFloat(o.sum)||0;
+    if(!map[o.date]) map[o.date] = 0;
+    if(o.type === 'доход') map[o.date] += parseFloat(o.sum)||0;
+    else map[o.date] -= parseFloat(o.sum)||0;
   });
-  db.payouts.forEach(p=>{
-    if(!p.date) return;
-    if(!map[p.date]) map[p.date] = {income:0, expense:0};
-    map[p.date].expense += parseFloat(p.sum)||0;
+
+  // Депозиты (как доход онлайн-казино)
+  db.deposits.forEach(d=>{
+    if(d.status !== 'approved' || !d.date) return;
+    if(!map[d.date]) map[d.date] = 0;
+    map[d.date] += parseFloat(d.sum)||0;
   });
 
   const dates = Object.keys(map).sort();
@@ -796,17 +797,23 @@ function drawChart(){
     ctx.textAlign = 'center'; ctx.fillText('Нет данных для графика', W/2, H/2); return;
   }
   
+  // Накопительный итог (как растет общий доход от дня ко дню)
+  let runningTotal = 0;
+  const values = dates.map(d => {
+    runningTotal += map[d];
+    return runningTotal;
+  });
+
   const padL = 60, padR = 20, padT = 20, padB = 40;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  const incomes = dates.map(d=>map[d].income);
-  const expenses = dates.map(d=>map[d].expense);
-  const profits = dates.map(d=>map[d].income - map[d].expense);
-  const maxVal = Math.max(1, ...incomes, ...expenses, ...profits.map(Math.abs));
-  const minVal = Math.min(0, ...profits);
+  
+  const maxVal = Math.max(1, ...values);
+  const minVal = Math.min(0, ...values);
   const range = maxVal - minVal || 1;
   const y = v => padT + plotH - ((v - minVal) / range) * plotH;
   const x = i => padL + (dates.length === 1 ? plotW/2 : (i/(dates.length-1))*plotW);
 
+  // Сетка
   ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'right';
   for(let i=0; i<=4; i++){
@@ -816,6 +823,7 @@ function drawChart(){
     ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4);
   }
 
+  // Подписи дат
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'center';
   const step = Math.ceil(dates.length / 7);
   dates.forEach((d,i)=>{
@@ -825,14 +833,35 @@ function drawChart(){
     }
   });
 
-  function line(vals, color){
-    ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
-    vals.forEach((v,i)=>{ const xx=x(i), yy=y(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
-    ctx.stroke();
-  }
-  line(profits, '#3fbf7f');
-  line(expenses, '#ff4d4d');
-  line(incomes, '#00e5ff');
+  // Рисуем одну общую линию
+  ctx.beginPath();
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(0,229,255,0.5)';
+  
+  values.forEach((v, i) => {
+    const xx = x(i), yy = y(v);
+    i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Точка на конце
+  const lastX = x(values.length - 1);
+  const lastY = y(values[values.length - 1]);
+  ctx.beginPath();
+  ctx.fillStyle = '#00e5ff';
+  ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.shadowBlur = 18;
+  ctx.shadowColor = 'rgba(0,229,255,0.8)';
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
 }
 
 function renderFinance(){
@@ -959,6 +988,7 @@ function withdrawGuest(id){
       date: today(), nick: g.name, email: '', sum: amt, fee: 0, net: amt, status: 'approved'
     });
     
+    // Списываем сначала бонусы, потом депозит
     let bonus = parseFloat(g.bonus_balance) || 0;
     let dep = parseFloat(g.deposit_balance) || 0;
     let remaining = amt;
@@ -971,7 +1001,8 @@ function withdrawGuest(id){
       bonus = 0;
       dep -= remaining;
     }
-    await pool.query('UPDATE guests SET bonus_balance = $1, deposit_balance = $2 WHERE id=$3', [bonus, dep, g.id]); // В админке нет доступа к pool, тут нужен API
+    // ОБНОВЛЯЕМ БАЛАНС ЧЕРЕЗ API
+    await apiPost('/api/guests/withdraw-deduct', { id: g.id, sum: amt });
 
     await audit('guest_withdraw', `${g.name}: ${amt} ₽`);
     await loadDB(); loadGuests();
