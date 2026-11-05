@@ -244,8 +244,6 @@ async function initCases() {
       div.onclick = () => { 
         if(c.available) {
           openContentModal(c);
-        } else {
-          // Просто визуально ничего не делаем или показываем тост, но без алертов
         }
       };
 
@@ -263,7 +261,6 @@ async function initCases() {
   }
 }
 
-// Открытие модалки с содержимым
 function openContentModal(c) {
   selectedCase = c;
   
@@ -289,7 +286,6 @@ function closeContentModal() {
   document.getElementById('contentModalOverlay').classList.remove('show');
 }
 
-// Нажатие на кнопку "Крутить" в модалке
 document.getElementById('contentBtnSpin').onclick = () => {
   closeContentModal();
   startSpin(selectedCase);
@@ -306,7 +302,6 @@ function startSpin(c) {
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
-  // Визуальные заглушки
   const fakePrizes = [5, 10, 15, 20, 30, 50, 75, 100, 175, 500];
   for(let i=0; i<40; i++){
     const fakeVal = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
@@ -340,8 +335,6 @@ async function executeSpin() {
     }
 
     const prize = data.prize;
-    
-    // Сразу обновляем баланс (чтобы показать, что деньги списались)
     loadBalance();
 
     const track = document.getElementById('fsSpinTrack');
@@ -374,7 +367,7 @@ async function executeSpin() {
     setTimeout(() => {
       document.getElementById('fsSpinOverlay').classList.remove('show');
       showTopToast(prize);
-      loadBalance(); // Обновляем баланс после начисления выигрыша
+      loadBalance();
       isSpinning = false;
     }, 5600);
 
@@ -389,7 +382,6 @@ function closeFullscreenSpin() {
   document.getElementById('fsSpinOverlay').classList.remove('show');
 }
 
-// Показ верхнего уведомления
 function showTopToast(prize) {
   const toast = document.getElementById('topToast');
   document.getElementById('toastAmount').textContent = `+${fmt(prize)} ₽`;
