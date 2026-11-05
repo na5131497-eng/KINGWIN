@@ -3,438 +3,658 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KINGWIN — Кейсы</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>📦 CASES — KINGWIN</title>
 <style>
-  :root {
-    --bg-main: #0c0e14; 
-    --bg-panel: #151822; 
-    --bg-dark: #0a0c11;
-    --accent: #00e5ff; 
-    --accent-green: #00ff88;
-    --text-main: #fff; 
-    --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.05);
-    --red: #ff4d4d; 
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:Georgia,serif; -webkit-tap-highlight-color: transparent;}
+body{background: radial-gradient(ellipse at 50% 0%, #5a0f0f 0%, #2a0808 40%, #150505 70%, #0a0202 100%); color:#fff;min-height:100vh;padding:20px;display:flex;justify-content:center}
+.c{width:100%;max-width:1200px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.back{padding:10px 22px;border-radius:12px;background:linear-gradient(180deg,#2a0808,#1a0505);border:2px solid #d4af37;color:#ffd700;text-decoration:none;font-size:.85em;font-weight:700;letter-spacing:2px;transition:all .3s}
+.back:hover{transform:translateX(-4px);box-shadow:0 0 25px rgba(212,175,55,.7)}
+.bal-box{display:flex;align-items:center;gap:12px;padding:14px 26px;background:linear-gradient(180deg,#2a0808,#1a0505);border:3px solid #d4af37;border-radius:14px;box-shadow:0 0 0 1px #8a6a10 inset,0 0 30px rgba(212,175,55,.5);overflow:hidden;position:relative;min-width:210px}
+.bal-box .lbl{font-size:.65em;font-weight:700;letter-spacing:3px;color:#d4af37;margin-bottom:4px;text-transform:uppercase}
+.bal-box .num{font-size:1.4em;font-weight:700;background:linear-gradient(180deg,#fff8d0,#ffd700 50%,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-variant-numeric:tabular-nums}
+h1{text-align:center;font-size:2.5em;font-weight:800;letter-spacing:10px;background:linear-gradient(180deg,#fff8d0,#ffd700 40%,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px; transition: all 0.3s;}
+.subtitle{text-align:center;color:#d4af37;font-size:.85em;letter-spacing:2px;margin-bottom:26px;text-transform:uppercase;opacity:.85; font-style:italic;}
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:24px}
 
-  /* TOPBAR */
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: var(--bg-dark); border-bottom: 1px solid var(--border); }
-  .topbar-left { display: flex; align-items: center; gap: 20px; }
-  .topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .back-btn { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-  .back-btn:hover { color: #fff; }
-  
-  .balance-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.3); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-  .balance-badge:hover { border-color: var(--accent); }
-  .balance-badge span { color: var(--accent); }
+/* БЕЛАЯ КАРТОЧКА */
+.case-card{
+    background: #ffffff;
+    border: 2px solid #d4af37;
+    border-radius: 18px;
+    padding: 22px 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s;
+    box-shadow: 0 8px 25px rgba(0,0,0,.5);
+    position: relative;
+    overflow: hidden;
+}
+.case-card:hover{
+    transform:translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,.7), 0 0 40px rgba(212,175,55,.6);
+    border-color:#ffd700;
+}
 
-  /* MAIN */
-  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; flex: 1; width: 100%; }
+.case-card .ic{display:flex;justify-content:center;align-items:center;margin-bottom:10px;height:140px; position:relative; z-index:2;}
+.case-card .ic img { 
+    width: 140px; 
+    height: 140px; 
+    object-fit: contain; 
+    mix-blend-mode: multiply;
+    transition: transform 0.3s ease;
+}
+.case-card:hover .ic img {
+    transform: scale(1.1) rotate(3deg);
+}
 
-  /* --- ЭКРАН СПИСКА КЕЙСОВ --- */
-  .all-cases-screen { display: block; }
-  .all-cases-screen.hidden { display: none; }
-  .section-title { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; color: #fff; }
-  
-  .cases-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 40px; }
-  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-  .case-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #333; }
-  .case-card[data-rank="0"]::before { background: #cd7f32; }
-  .case-card[data-rank="1"]::before { background: #c0c0c0; }
-  .case-card[data-rank="2"]::before { background: #f1c40f; }
-  .case-card[data-rank="3"]::before { background: #e5e4e2; }
-  .case-card[data-rank="4"]::before { background: #b9f2ff; }
-  .case-card[data-rank="5"]::before { background: #d4af37; }
+.case-card .nm{font-size:1.15em;font-weight:900;letter-spacing:2px;color:#0a0505;display:block;margin-bottom:4px; position:relative; z-index:2;}
 
-  .case-name { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; }
-  .case-img { width: 70px; height: 70px; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
-  .case-img svg { width: 100%; height: 100%; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
-  .case-price { font-size: 14px; font-weight: 900; color: var(--accent-green); margin-bottom: 15px; }
-  .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; }
-  .case-card:hover .btn-select { background: rgba(255,255,255,0.1); }
+/* СТИЛИ ДЛЯ СКИДКИ */
+.price-block { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 8px; margin-bottom: 10px; position: relative; z-index:2;}
+.price-old { font-size: 0.9em; color: #888; text-decoration: line-through; font-family: Arial; font-weight: 700; }
+.price-new { font-size: 1.2em; color: #1dd1a1; font-weight: 900; font-family: Arial; }
 
-  /* --- ЭКРАН КОНКРЕТНОГО КЕЙСА --- */
-  .case-screen { display: none; }
-  .case-screen.active { display: block; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.case-card .peek{font-size:.75em;color:#8a6a10;text-decoration:underline;letter-spacing:1px;cursor:pointer;padding:4px 8px;border-radius:6px; transition: all 0.2s; position:relative; z-index:2;}
+.case-card .peek:hover{color:#0a0505;background:rgba(212,175,55,.2)}
 
-  /* История выпадений */
-  .history-bar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 12px 0; overflow: hidden; margin-bottom: 30px; position: relative; white-space: nowrap; }
-  .history-track { display: inline-flex; gap: 30px; animation: scroll 30s linear infinite; padding-left: 100%; }
-  @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-  .history-item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 600; }
-  .history-item b { color: #fff; }
-  .history-item span { color: var(--accent-green); font-weight: 800; }
+/* ЦВЕТА РАМОК */
+.case-card.common{border-color:#a8a8a8}
+.case-card.rare{border-color:#48dbfb}
+.case-card.epic{border-color:#a855f7}
+.case-card.legendary{border-color:#feca57; box-shadow: 0 8px 25px rgba(0,0,0,.5), 0 0 15px rgba(254,202,87,.4);}
 
-  /* Центральная часть */
-  .case-center { text-align: center; margin-bottom: 40px; }
-  .case-center-img { width: 120px; height: 120px; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 0 30px rgba(0,229,255,0.3)); }
-  .case-center-img svg { width: 100%; height: 100%; }
-  .case-center h1 { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-  .case-center .price-tag { font-size: 18px; color: var(--accent-green); font-weight: 800; margin-bottom: 25px; }
-  
-  .case-actions { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-  .btn-open-big { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; border-radius: 12px; padding: 16px 50px; font-size: 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0,255,136,0.4); }
-  .btn-open-big:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,255,136,0.6); }
-  .btn-back-cases { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 30px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  .btn-back-cases:hover { background: rgba(255,255,255,0.1); }
+/* КНОПКА ОТКРЫТЬ (С АНИМАЦИЕЙ) */
+.btn-open{
+    padding: 16px 40px;
+    border-radius: 14px;
+    border: 3px solid #ffd700;
+    background: linear-gradient(180deg, #ffd700, #b8860b);
+    color: #0a0505;
+    font-family: Georgia;
+    font-size: 1.2em;
+    font-weight: 900;
+    letter-spacing: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 6px 0 #7a5a10;
+    transition: all 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    position: relative;
+    z-index: 2;
+    animation: pulseGold 2s infinite;
+}
+.btn-open:hover:not(:disabled){
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 10px 0 #7a5a10, 0 0 50px rgba(255, 215, 0, 1);
+    background: linear-gradient(180deg, #ffea70, #d4af37);
+}
+.btn-open:active:not(:disabled){
+    transform: translateY(3px) scale(1);
+    box-shadow: 0 2px 0 #7a5a10;
+}
+.btn-open:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+    animation: none;
+}
 
-  /* Возможный дроп */
-  .drop-title { font-size: 18px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; text-align: center; letter-spacing: 1px; }
-  .drop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
-  .drop-item { background: var(--bg-panel); border: 2px solid var(--border); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 18px; gap: 6px; }
-  .drop-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-  
-  .drop-item.r1 { border-color: rgba(63,191,127,0.4); color: #3fbf7f; background: rgba(63,191,127,0.05); }
-  .drop-item.r2 { border-color: rgba(0,119,255,0.4); color: #00e5ff; background: rgba(0,119,255,0.05); }
-  .drop-item.r3 { border-color: rgba(168,85,247,0.4); color: #d8b4fe; background: rgba(168,85,247,0.05); }
-  .drop-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.05); box-shadow: 0 0 20px rgba(255,215,0,0.15); }
+@keyframes pulseGold {
+    0%, 100% { box-shadow: 0 6px 0 #7a5a10, 0 0 20px rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 6px 0 #7a5a10, 0 0 35px rgba(255, 215, 0, 0.8); }
+}
 
-  /* --- ПОЛНОЭКРАННАЯ КРУТКА --- */
-  .fullscreen-spin { position: fixed; inset: 0; background: #090a10; z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
-  .fullscreen-spin.show { display: flex; }
-  .fs-title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
-  .fs-spin-window { width: 100%; max-width: 1200px; height: 200px; background: var(--bg-panel); border-top: 4px solid var(--accent); border-bottom: 4px solid var(--accent); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,229,255,0.2); }
-  .fs-spin-track { display: flex; align-items: center; gap: 15px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
-  .fs-spin-item { flex-shrink: 0; width: 140px; height: 140px; border-radius: 16px; background: #1e2230; border: 2px solid var(--border); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; }
-  .fs-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 6px; background: var(--accent-green); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent-green); }
-  .fs-pointer::before, .fs-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; }
-  .fs-pointer::before { top: 0; border-top: 15px solid var(--accent-green); }
-  .fs-pointer::after { bottom: 0; border-bottom: 15px solid var(--accent-green); }
-  .fs-spin-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
-  .fs-spin-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
-  .fs-spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
-  .fs-spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+/* МОДАЛКИ */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;justify-content:center;align-items:center;z-index:300;padding:20px;backdrop-filter:blur(8px)}
+.modal.on{display:flex}
+.modal-box{background:linear-gradient(180deg,#2a0808,#0a0202);border:3px solid #d4af37;border-radius:20px;padding:26px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-box h2{text-align:center;color:#ffd700;font-size:1.4em;letter-spacing:3px;margin-bottom:6px}
+.modal-box .modal-sub{text-align:center;color:#d4af37;font-size:.75em;letter-spacing:2px;margin-bottom:20px;opacity:.85}
+.items-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:20px}
 
-  /* УВЕДОМЛЕНИЕ СВЕРХУ */
-  .top-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 16px; padding: 20px 40px; text-align: center; box-shadow: 0 10px 40px rgba(0,255,136,0.3); z-index: 4000; transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 300px; }
-  .top-toast.show { top: 20px; }
-  .top-toast .t-title { font-size: 14px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
-  .top-toast .t-amount { font-size: 36px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+.item-row{border:2px solid;border-radius:12px;padding:0;text-align:center;position:relative;overflow:hidden;aspect-ratio:1;display:flex;justify-content:center;align-items:center; background: #fff;}
+.item-row img { width: 100%; height: 100%; object-fit: cover; } 
+.item-row .pr{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#ffd700;font-family:Arial;font-weight:900;font-size:.85em;padding:4px 0;text-align:center;z-index: 2;}
+.item-row.common{border-color:#a8a8a8}
+.item-row.rare{border-color:#48dbfb}
+.item-row.epic{border-color:#a855f7}
+.item-row.legendary{border-color:#feca57; box-shadow:0 0 15px rgba(254,202,87,.5)}
 
-  @media (max-width: 900px) {
-    .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .case-name { font-size: 10px; }
-    .case-img { width: 50px; height: 50px; }
-    .case-price { font-size: 12px; }
-    .btn-select { font-size: 10px; padding: 6px; }
-    .case-center h1 { font-size: 26px; }
-    .case-center-img { width: 90px; height: 90px; }
-    .btn-open-big { padding: 14px 30px; font-size: 16px; }
-    .fs-spin-window { height: 120px; }
-    .fs-spin-item { width: 90px; height: 90px; font-size: 18px; }
-    .drop-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 500px) {
-    .cases-grid { grid-template-columns: repeat(2, 1fr); }
-    .top-toast { min-width: 90%; padding: 15px; }
-    .top-toast .t-amount { font-size: 28px; }
-  }
+.modal-close{display:block;margin:0 auto;padding:12px 32px;border-radius:10px;border:2px solid #ffd700;background:linear-gradient(180deg,#ffd700,#b8860b);color:#0a0505;font-family:Georgia;font-weight:700;letter-spacing:2px;cursor:pointer;font-size:1em}
+.open-area{display:none;margin-top:20px;position:relative;}
+.open-area.on{display:block}
+
+.scroller-wrap{position:relative;overflow:hidden;height:150px;background:linear-gradient(180deg,rgba(10,2,2,.98),rgba(42,8,8,.95));border:3px solid #d4af37;border-radius:16px;margin-bottom:18px;box-shadow:inset 0 0 30px rgba(0,0,0,.7)}
+.scroller-wrap::before,.scroller-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:5;pointer-events:none}
+.scroller-wrap::before{left:0;background:linear-gradient(90deg,#1a0505,transparent)}
+.scroller-wrap::after{right:0;background:linear-gradient(-90deg,#1a0505,transparent)}
+.scroller-pointer{position:absolute;top:0;bottom:0;left:50%;width:3px;background:linear-gradient(180deg,#ffd700,#ff6b6b,#ffd700);z-index:10;box-shadow:0 0 20px rgba(255,215,0,.9);transform:translateX(-50%)}
+.scroller-pointer::before,.scroller-pointer::after{content:'';position:absolute;left:50%;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;transform:translateX(-50%)}
+.scroller-pointer::before{top:-2px;border-top:14px solid #ffd700}
+.scroller-pointer::after{bottom:-2px;border-bottom:14px solid #ffd700}
+.scroller-track{display:flex;gap:8px;padding:25px 0;height:100%;align-items:center;position:relative}
+
+.item-card{min-width:100px;height:100px;border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;border:2px solid;position:relative;overflow:hidden; background: #fff;}
+.item-card img { width: 100%; height: 100%; object-fit: cover; }
+.item-card .pr{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#ffd700;font-family:Arial;font-weight:900;font-size:.75em;padding:2px 0;text-align:center;z-index: 2;}
+.item-card.common{border-color:#a8a8a8}
+.item-card.rare{border-color:#48dbfb}
+.item-card.epic{border-color:#a855f7}
+.item-card.legendary{border-color:#feca57;box-shadow:0 0 20px rgba(254,202,87,.5)}
+
+/* КОРОЛЕВСКОЕ УВЕДОМЛЕНИЕ */
+.top-notification {
+    position: fixed;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #2a0808, #0a0202);
+    border: 3px solid #ffd700;
+    border-radius: 16px;
+    padding: 15px 40px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(255, 215, 0, 0.2);
+    transition: all 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    backdrop-filter: blur(10px);
+    min-width: 300px;
+}
+.top-notification.on { top: 20px; }
+.top-notification .title {
+    font-size: 0.85em;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+    font-family: Georgia, serif;
+    font-weight: 700;
+}
+.top-notification .amount {
+    font-size: 2.5em;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-weight: 900;
+    background: linear-gradient(180deg, #fff8d0, #ffd700 50%, #b8860b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 25px rgba(255,215,0,0.8);
+    letter-spacing: 2px;
+}
+.top-notification.gold-win {
+    border-color: #ffd700;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.9), inset 0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+/* КОРОЛЕВСКАЯ МОДАЛКА ОШИБКИ */
+.royal-error-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.royal-error-modal.on { display: flex; }
+.royal-error-box { background: linear-gradient(180deg, #2a0808, #0a0202); border: 3px solid #ff6b6b; border-radius: 20px; padding: 30px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 0 60px rgba(255, 107, 107, 0.5); animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.royal-error-icon { font-size: 3em; margin-bottom: 10px; color: #ff6b6b; text-shadow: 0 0 20px #ff6b6b; }
+.royal-error-title { font-size: 1.3em; color: #ff6b6b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; font-weight: 900; }
+.royal-error-text { color: #ddd; margin-bottom: 20px; font-size: 0.95em; }
+.royal-error-btn { padding: 10px 30px; border-radius: 10px; border: 2px solid #ffd700; background: linear-gradient(180deg, #ffd700, #b8860b); color: #0a0505; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: Georgia; }
+
+/* КНОПКА "ВЫБРАТЬ ДРУГОЙ" */
+.btn-cancel {
+    padding: 16px 40px;
+    border-radius: 14px;
+    border: 2px solid #d4af37;
+    background: linear-gradient(180deg, #3a0a0a, #1a0505);
+    color: #ffd700;
+    font-family: Georgia;
+    font-size: 1.1em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #7a5a10;
+    transition: all 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+.btn-cancel:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 0 #7a5a10, 0 0 30px rgba(212, 175, 55, 0.8);
+    background: linear-gradient(180deg, #4a0a0a, #2a0505);
+}
+.btn-cancel:active:not(:disabled) {
+    transform: translateY(2px) scale(1);
+    box-shadow: 0 2px 0 #7a5a10;
+}
+.btn-cancel:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media(max-width:700px){
+  h1{font-size:1.6em;letter-spacing:4px}
+  .cases-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .case-card{padding:16px 10px}
+  .case-card .ic{height:100px;}
+  .case-card .ic img { width: 90px; height: 90px; }
+  .case-card .nm{font-size:.85em}
+  .price-old { font-size: 0.75em; }
+  .price-new { font-size: 1em; }
+  .item-card{min-width:80px;height:80px}
+  .scroller-wrap{height:120px}
+  .top-notification { padding: 15px 20px; width: 90%; text-align: center; }
+  .top-notification .amount { font-size: 2em; }
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-logo">KINGWIN</div>
-    <a href="/" class="back-btn">← На главную</a>
-  </div>
-  <div class="balance-badge" id="balanceBadge">
-    Баланс: <span id="balanceVal">0.00</span> ₽
+<!-- КОРОЛЕВСКОЕ УВЕДОМЛЕНИЕ О ВЫИГРЫШЕ -->
+<div class="top-notification" id="topNotification">
+  <div class="title">👑 ВЫПАЛО</div>
+  <div class="amount" id="topNotificationVal">0 ₽</div>
+</div>
+
+<!-- КОРОЛЕВСКАЯ МОДАЛКА ОШИБКИ -->
+<div class="royal-error-modal" id="royalErrorModal">
+  <div class="royal-error-box">
+    <div class="royal-error-icon">👑</div>
+    <div class="royal-error-title">Недостаточно средств</div>
+    <div class="royal-error-text" id="royalErrorText">Пополните баланс для открытия кейса!</div>
+    <button class="royal-error-btn" onclick="document.getElementById('royalErrorModal').classList.remove('on')">ПОНЯТНО</button>
   </div>
 </div>
 
-<div class="container">
-
-  <!-- СПИСОК ВСЕХ КЕЙСОВ -->
-  <div class="all-cases-screen" id="allCasesScreen">
-    <div class="section-title">Кейсы</div>
-    <div class="cases-grid" id="casesGrid"></div>
+<div class="c">
+  <div class="top">
+    <a href="index.html" class="back">← НАЗАД</a>
+    <div class="bal-box">
+      <span>👑</span>
+      <div>
+        <div class="lbl">Баланс</div>
+        <div class="num">₽<span id="bal">0</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- ЭКРАН КОНКРЕТНОГО КЕЙСА -->
-  <div class="case-screen" id="caseScreen">
+  <h1 id="pageTitle">📦 КЕЙСЫ</h1>
+  <div class="subtitle" id="pageSubtitle">✦ Выбери свой кейс и испытай удачу ✦</div>
+
+  <div class="cases-grid" id="casesGrid"></div>
+
+  <div class="open-area" id="openArea">
+    <div class="scroller-wrap">
+      <div class="scroller-pointer"></div>
+      <div class="scroller-track" id="scrollerTrack"></div>
+    </div>
     
-    <!-- История последних выпадений -->
-    <div class="history-bar">
-      <div class="history-track" id="historyTrack">
-        <!-- Заполняется скриптом -->
-      </div>
+    <div class="open-controls">
+      <button class="btn-open" id="openBtn">ОТКРЫТЬ</button>
+      <button class="btn-cancel" id="cancelBtn">ВЫБРАТЬ ДРУГОЙ</button>
     </div>
-
-    <!-- Центр -->
-    <div class="case-center">
-      <div class="case-center-img" id="caseCenterImg"></div>
-      <h1 id="caseCenterName">Новичок</h1>
-      <div class="price-tag" id="caseCenterPrice">39.99 ₽</div>
-      
-      <div class="case-actions">
-        <button class="btn-open-big" id="btnOpenCase">Открыть за 39.99 ₽</button>
-        <button class="btn-back-cases" onclick="backToAllCases()">К другим кейсам</button>
-      </div>
-    </div>
-
-    <!-- Возможный дроп -->
-    <div class="drop-title">Возможный дроп</div>
-    <div class="drop-grid" id="dropGrid"></div>
-
-  </div>
-
-</div>
-
-<!-- ПОЛНОЭКРАННАЯ КРУТКА -->
-<div class="fullscreen-spin" id="fsSpinOverlay">
-  <div class="fs-title" id="fsTitle">Открытие кейса...</div>
-  <div class="fs-spin-window">
-    <div class="fs-pointer"></div>
-    <div class="fs-spin-track" id="fsSpinTrack"></div>
   </div>
 </div>
 
-<!-- УВЕДОМЛЕНИЕ -->
-<div class="top-toast" id="topToast">
-  <div class="t-title">Ваш выигрыш</div>
-  <div class="t-amount" id="toastAmount">+0 ₽</div>
+<div class="modal" id="peekModal">
+  <div class="modal-box">
+    <h2 id="peekTitle">Содержимое</h2>
+    <div class="modal-sub" id="peekSub"></div>
+    <div class="items-list" id="peekItems"></div>
+    <button class="modal-close" onclick="closePeek()">ЗАКРЫТЬ</button>
+  </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const PLAYER_KEY = 'kingwin_player_id';
-let playerId = localStorage.getItem(PLAYER_KEY);
-let casesData = [];
-let selectedCase = null;
-let isSpinning = false;
-
-function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
-
-function getRarityClass(val) {
-  if (val >= 1000) return 'r4';
-  if (val >= 200) return 'r3';
-  if (val >= 50) return 'r2';
-  if (val > 0) return 'r1';
-  return 'r0';
-}
-
-const caseIcons = {
-  'Новичок': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(205,127,50,0.2)" stroke="#cd7f32" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#cd7f32"/></svg>',
-  'Бронза': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(192,192,192,0.2)" stroke="#c0c0c0" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#c0c0c0"/></svg>',
-  'Сильвер': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(241,196,15,0.2)" stroke="#f1c40f" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#f1c40f"/></svg>',
-  'Голд': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(229,228,226,0.2)" stroke="#e5e4e2" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#e5e4e2"/></svg>',
-  'Платина': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(185,242,255,0.2)" stroke="#b9f2ff" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#b9f2ff"/></svg>',
-  'Алмаз': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(212,175,55,0.2)" stroke="#d4af37" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#d4af37"/></svg>',
-  'Королевский': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(255,215,0,0.2)" stroke="#ffd700" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#ffd700"/></svg>'
+var firebaseConfig = {
+  apiKey: "AIzaSyC8PI8bCzGB_tODO6MnOKAjkxXaASbA3vM",
+  authDomain: "kingwin-260a8.firebaseapp.com",
+  databaseURL: "https://kingwin-260a8-default-rtdb.firebaseio.com",
+  projectId: "kingwin-260a8",
+  storageBucket: "kingwin-260a8.firebasestorage.app",
+  messagingSenderId: "1085884746167",
+  appId: "1:1085884746167:web:9962cbc9eb5c876ae78032"
 };
 
-async function loadBalance() {
-  if (!playerId) return;
-  try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-    const d = await r.json();
-    if (r.ok && d.guest) {
-      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      document.getElementById('balanceVal').textContent = total.toFixed(2);
-    }
-  } catch(e) {}
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var auth = firebase.auth();
+
+var CURRENT_USER_KEY = 'kw_current_user';
+var B = 0;
+var currentCase = null;
+var opening = false;
+
+function $(i){ return document.getElementById(i); }
+function fmt(n){
+  var r = Math.round(n*100)/100;
+  if(r%1===0) return Math.floor(r).toLocaleString('ru-RU');
+  return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 }
 
-async function initCases() {
-  await loadBalance();
-  
-  if (!playerId) {
-    document.getElementById('casesGrid').innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#8b92a5;">Войдите в аккаунт, чтобы играть</div>`;
-    return;
-  }
-
-  try {
-    const r = await fetch('/api/cases/list?guest_id=' + encodeURIComponent(playerId));
-    casesData = await r.json();
-    casesData.sort((a,b) => a.price - b.price);
-
-    const grid = document.getElementById('casesGrid');
-    grid.innerHTML = '';
-
-    casesData.forEach((c, idx) => {
-      const div = document.createElement('div');
-      div.className = 'case-card';
-      div.dataset.rank = c.minRank;
-      
-      div.onclick = () => { 
-        if(c.available) {
-          openCaseScreen(c);
-        }
-      };
-
-      div.innerHTML = `
-        <div class="case-name">${c.name}</div>
-        <div class="case-img">${caseIcons[c.name] || ''}</div>
-        <div class="case-price">${fmt(c.price)} ₽</div>
-        <button class="btn-select">Открыть</button>
-      `;
-
-      grid.appendChild(div);
-    });
-  } catch(e) {
-    console.error(e);
-  }
+function showRoyalError(text) {
+  $('royalErrorText').textContent = text;
+  $('royalErrorModal').classList.add('on');
 }
 
-async function openCaseScreen(c) {
-  selectedCase = c;
-  
-  document.getElementById('allCasesScreen').classList.add('hidden');
-  document.getElementById('caseScreen').classList.add('active');
+function loadBalance(){
+  var uid = localStorage.getItem(CURRENT_USER_KEY);
+  if(!uid){ window.location.replace('auth.html?need_auth=1'); return; }
 
-  document.getElementById('caseCenterImg').innerHTML = caseIcons[c.name] || '';
-  document.getElementById('caseCenterName').textContent = c.name;
-  document.getElementById('caseCenterPrice').textContent = `${fmt(c.price)} ₽`;
-  
-  const btn = document.getElementById('btnOpenCase');
-  btn.textContent = `Открыть за ${fmt(c.price)} ₽`;
-  btn.onclick = startSpin;
-
-  // Возможный дроп
-  const dropGrid = document.getElementById('dropGrid');
-  dropGrid.innerHTML = c.prizes.map(p => {
-    const rar = getRarityClass(p);
-    return `
-      <div class="drop-item ${rar}">
-        ${p} ₽
-      </div>
-    `;
-  }).join('');
-
-  // Загружаем историю выпадений
-  loadHistory();
-}
-
-function backToAllCases() {
-  document.getElementById('caseScreen').classList.remove('active');
-  document.getElementById('allCasesScreen').classList.remove('hidden');
-}
-
-async function loadHistory() {
-  try {
-    const r = await fetch('/api/cases/last-drops');
-    const drops = await r.json();
-    const track = document.getElementById('historyTrack');
-    
-    if (!drops || drops.length === 0) {
-      track.innerHTML = `<div class="history-item">Пока нет выпадений...</div>`;
+  db.ref('users/' + uid).once('value').then(function(snapshot){
+    var user = snapshot.val();
+    if(!user){
+      localStorage.removeItem(CURRENT_USER_KEY);
+      window.location.replace('auth.html?need_auth=1');
       return;
     }
-    
-    // Дублируем элементы, чтобы бегущая строка была бесконечной
-    const items = drops.map(d => `
-      <div class="history-item">
-        <b>${d.guest_name}</b> выбил <span>${fmt(d.prize)} ₽</span> из «${d.case_name}»
-      </div>
-    `).join('');
-    
-    track.innerHTML = items + items; // Дублируем для плавности
+    B = (user.realBalance || 0) + (user.bonusBalance || 0);
+    $('bal').textContent = fmt(B);
+  });
+}
+
+function setBalDisplay(newTotal){
+  B = newTotal;
+  $('bal').textContent = fmt(B);
+}
+
+async function safeChangeBalance(delta, type){
+  var uid = localStorage.getItem(CURRENT_USER_KEY);
+  if(!uid) return null;
+
+  var ref = db.ref('users/' + uid);
+  try {
+    var result = await ref.transaction(function(user) {
+      if (!user) return user;
+      var real = user.realBalance || 0;
+      var bonus = user.bonusBalance || 0;
+      if (delta < 0) {
+        var toTake = -delta;
+        var fromReal = Math.min(real, toTake);
+        toTake -= fromReal;
+        var fromBonus = Math.min(bonus, toTake);
+        if (fromReal + fromBonus < -delta) return;
+        user.realBalance = real - fromReal;
+        user.bonusBalance = bonus - fromBonus;
+      } else {
+        user.realBalance = real + delta;
+      }
+      if (!user.stats) user.stats = { totalBets: 0, totalWins: 0, biggestWin: 0, gamesPlayed: 0, casesOpened: 0 };
+      if (delta < 0) {
+        user.stats.totalBets = (user.stats.totalBets || 0) + (-delta);
+        user.stats.gamesPlayed = (user.stats.gamesPlayed || 0) + 1;
+        user.stats.casesOpened = (user.stats.casesOpened || 0) + 1;
+      } else {
+        user.stats.totalWins = (user.stats.totalWins || 0) + delta;
+        if (delta > (user.stats.biggestWin || 0)) user.stats.biggestWin = delta;
+      }
+      return user;
+    });
+    if (!result.committed) return null;
+    var u = result.snapshot.val();
+    return (u.realBalance || 0) + (u.bonusBalance || 0);
   } catch(e) {
-    console.error(e);
+    console.error('safeChangeBalance error:', e);
+    return null;
   }
 }
 
-function startSpin() {
-  if (isSpinning) return;
-  isSpinning = true;
+// ==================== ЗВУКИ ====================
+var AC = null;
+function getAC(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === 'suspended') AC.resume(); return AC; }
+
+var scrollAudio = new Audio('case_open.mp3');
+scrollAudio.volume = 0.6;
+
+function startScrollSound() {
+    scrollAudio.currentTime = 0;
+    scrollAudio.play().catch(function(e){ console.log('Звук не загружен:', e); });
+}
+
+function stopScrollSound() {
+    scrollAudio.pause();
+    scrollAudio.currentTime = 0;
+}
+
+function sWin(){ var c = getAC(); if(!c) return; [523,659,784,1047,1319].forEach(function(f,i){ setTimeout(function(){ var o = c.createOscillator(); o.type='triangle'; o.frequency.value=f; var g=c.createGain(); g.gain.setValueAtTime(.2,c.currentTime); g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.4); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.45); }, i*90) }) }
+function sLegendary(){ var c = getAC(); if(!c) return; [523,659,784,1047,1319,1568,2093].forEach(function(f,i){ setTimeout(function(){ var o = c.createOscillator(); o.type='triangle'; o.frequency.value=f; var g=c.createGain(); g.gain.setValueAtTime(.25,c.currentTime); g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.6); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.65); }, i*100) }) }
+function sLose(){
+  var c = getAC(); if(!c) return;
+  var o = c.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(330, c.currentTime); o.frequency.exponentialRampToValueAtTime(180, c.currentTime+.4);
+  var g = c.createGain(); g.gain.setValueAtTime(0, c.currentTime); g.gain.linearRampToValueAtTime(.1, c.currentTime+.03); g.gain.exponentialRampToValueAtTime(.001, c.currentTime+.5);
+  var f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 800;
+  o.connect(f); f.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.55);
+}
+
+var CASES = [
+  { id:'novice', name:'НОВИЧОК', quote:'✦ Первый шаг к богатству ✦', price:39.99, oldPrice: 50, icon:'📦', image:'case_novice.png', rarity:'common', items:[{img:'money.png', price:10, weight:600, rarity:'common', bg:'money'},{img:'money.png', price:25, weight:250, rarity:'common', bg:'money'},{img:'money.png', price:60, weight:100, rarity:'common', bg:'money'},{img:'money.png', price:150, weight:40, rarity:'rare', bg:'money'},{img:'bag.png', price:400, weight:8, rarity:'epic', bg:'bag'},{img:'crown.png', price:1000, weight:2, rarity:'legendary', bg:'crown'}]},
+  { id:'wanderer', name:'БРОДЯГА', quote:'✦ Искатель приключений и золота ✦', price:79, oldPrice: 100, icon:'🎒', image:'case_wanderer.png', rarity:'common', items:[{img:'money.png', price:20, weight:550, rarity:'common', bg:'money'},{img:'money.png', price:60, weight:300, rarity:'common', bg:'money'},{img:'money.png', price:150, weight:100, rarity:'common', bg:'money'},{img:'money.png', price:400, weight:35, rarity:'rare', bg:'money'},{img:'bag.png', price:1000, weight:12, rarity:'epic', bg:'bag'},{img:'crown.png', price:2500, weight:3, rarity:'legendary', bg:'crown'}]},
+  { id:'experienced', name:'БЫВАЛЫЙ', quote:'✦ Опыт решает всё ✦', price:169.99, oldPrice: 200, icon:'🥈', image:'case_experienced.png', rarity:'rare', items:[{img:'money.png', price:40, weight:550, rarity:'common', bg:'money'},{img:'money.png', price:100, weight:300, rarity:'common', bg:'money'},{img:'money.png', price:300, weight:100, rarity:'common', bg:'money'},{img:'money.png', price:600, weight:35, rarity:'rare', bg:'money'},{img:'bag.png', price:1500, weight:12, rarity:'epic', bg:'bag'},{img:'crown.png', price:3000, weight:3, rarity:'legendary', bg:'crown'}]},
+  { id:'stranger', name:'СТРАННИК', quote:'✦ Кто ищет, тот всегда найдёт ✦', price:349.99, oldPrice: 400, icon:'🧭', image:'case_stranger.png', rarity:'rare', items:[{img:'money.png', price:80, weight:500, rarity:'common', bg:'money'},{img:'money.png', price:250, weight:320, rarity:'common', bg:'money'},{img:'money.png', price:600, weight:120, rarity:'common', bg:'money'},{img:'bag.png', price:1200, weight:45, rarity:'rare', bg:'bag'},{img:'bag.png', price:2500, weight:12, rarity:'epic', bg:'bag'},{img:'crown.png', price:4500, weight:3, rarity:'legendary', bg:'crown'}]},
+  { id:'knight', name:'РЫЦАРЬ', quote:'✦ Честь и золото превыше всего ✦', price:499.99, oldPrice: 600, icon:'⚔️', image:'case_knight.png', rarity:'epic', items:[{img:'money.png', price:120, weight:500, rarity:'common', bg:'money'},{img:'money.png', price:300, weight:300, rarity:'common', bg:'money'},{img:'money.png', price:800, weight:130, rarity:'common', bg:'money'},{img:'bag.png', price:1500, weight:55, rarity:'rare', bg:'bag'},{img:'bag.png', price:3500, weight:12, rarity:'epic', bg:'bag'},{img:'crown.png', price:6000, weight:3, rarity:'legendary', bg:'crown'}]},
+  { id:'baron', name:'БАРОН', quote:'✦ Власть и роскошь в каждом кейсе ✦', price:899.99, oldPrice: 1000, icon:'🎩', image:'case_baron.png', rarity:'epic', items:[{img:'money.png', price:200, weight:480, rarity:'common', bg:'money'},{img:'money.png', price:500, weight:300, rarity:'common', bg:'money'},{img:'money.png', price:1200, weight:150, rarity:'common', bg:'money'},{img:'bag.png', price:2500, weight:50, rarity:'rare', bg:'bag'},{img:'bag.png', price:6000, weight:15, rarity:'epic', bg:'bag'},{img:'crown.png', price:10000, weight:5, rarity:'legendary', bg:'crown'}]},
+  { id:'count', name:'ГРАФ', quote:'✦ Тайны и магия старых денег ✦', price:1299.99, oldPrice: 1500, icon:'🔮', image:'case_count.png', rarity:'epic', items:[{img:'money.png', price:300, weight:480, rarity:'common', bg:'money'},{img:'money.png', price:800, weight:300, rarity:'common', bg:'money'},{img:'money.png', price:2000, weight:150, rarity:'common', bg:'money'},{img:'bag.png', price:4000, weight:50, rarity:'rare', bg:'bag'},{img:'bag.png', price:9000, weight:15, rarity:'epic', bg:'bag'},{img:'crown.png', price:15000, weight:5, rarity:'legendary', bg:'crown'}]},
+  { id:'duke', name:'ГЕРЦОГ', quote:'✦ Наследие королей в твоих руках ✦', price:2199.99, oldPrice: 2500, icon:'🛡️', image:'case_duke.png', rarity:'legendary', items:[{img:'money.png', price:500, weight:450, rarity:'common', bg:'money'},{img:'money.png', price:1500, weight:320, rarity:'common', bg:'money'},{img:'money.png', price:3500, weight:150, rarity:'common', bg:'money'},{img:'bag.png', price:7000, weight:60, rarity:'rare', bg:'bag'},{img:'bag.png', price:15000, weight:15, rarity:'epic', bg:'bag'},{img:'crown.png', price:25000, weight:5, rarity:'legendary', bg:'crown'}]},
+  { id:'king', name:'КОРОЛЬ', quote:'✦ Корона ждёт своего героя ✦', price:5000, oldPrice: 5000, icon:'👑', image:'case_king.png', rarity:'legendary', items:[{img:'money.png', price:1000, weight:450, rarity:'common', bg:'money'},{img:'money.png', price:3000, weight:320, rarity:'common', bg:'money'},{img:'money.png', price:7000, weight:150, rarity:'common', bg:'money'},{img:'bag.png', price:15000, weight:60, rarity:'rare', bg:'bag'},{img:'bag.png', price:30000, weight:15, rarity:'epic', bg:'bag'},{img:'crown.png', price:50000, weight:5, rarity:'legendary', bg:'crown'}]},
+  { id:'royal', name:'ЦАРСКИЙ', quote:'✦ Легенда, достойная только избранных ✦', price:9999.99, oldPrice: 10000, icon:'💠', image:'case_royal.png', rarity:'legendary', items:[{img:'money.png', price:2000, weight:450, rarity:'common', bg:'money'},{img:'money.png', price:6000, weight:320, rarity:'common', bg:'money'},{img:'money.png', price:15000, weight:150, rarity:'common', bg:'money'},{img:'bag.png', price:35000, weight:60, rarity:'rare', bg:'bag'},{img:'bag.png', price:70000, weight:15, rarity:'epic', bg:'bag'},{img:'crown.png', price:100000, weight:5, rarity:'legendary', bg:'crown'}]}
+];
+
+function getItemClass(item) {
+    return 'bg-' + item.bg;
+}
+
+function renderCases(){
+  var grid = $('casesGrid');
+  var html = '';
+  for(var i=0;i<CASES.length;i++){
+    var c = CASES[i];
+    html += '<div class="case-card ' + c.rarity + '">';
+    
+    if(c.image){
+        html += '<span class="ic"><img src="' + c.image + '" alt="case" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'' + c.icon + '\';"></span>';
+    } else {
+        html += '<span class="ic">' + c.icon + '</span>';
+    }
+    
+    html += '<span class="nm">' + c.name + '</span>';
+    
+    html += '<div class="price-block">';
+    if (c.oldPrice && c.oldPrice > c.price) {
+        html += '<span class="price-old">₽' + fmt(c.oldPrice) + '</span>';
+    }
+    html += '<span class="price-new">₽' + fmt(c.price) + '</span>';
+    html += '</div>';
+
+    html += '<span class="peek" onclick="event.stopPropagation();peekCase(\'' + c.id + '\')">👁 Содержимое</span>';
+    html += '<div style="margin-top:10px"><button class="btn-open" style="padding:10px 24px;font-size:.85em" onclick="selectCase(\'' + c.id + '\')">🎁 ОТКРЫТЬ</button></div>';
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function peekCase(id){
+  var c = null;
+  for(var i=0;i<CASES.length;i++) if(CASES[i].id === id){ c = CASES[i]; break; }
+  if(!c) return;
+  $('peekTitle').textContent = c.name;
+  $('peekSub').textContent = 'Цена кейса: ₽' + fmt(c.price);
+  var html = '';
+  var items = c.items.slice().sort(function(a,b){ return b.price - a.price });
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    html += '<div class="item-row ' + it.rarity + ' ' + getItemClass(it) + '"><img src="' + it.img + '" alt="item"><div class="pr">₽' + fmt(it.price) + '</div></div>';
+  }
+  $('peekItems').innerHTML = html;
+  $('peekModal').classList.add('on');
+}
+function closePeek(){ $('peekModal').classList.remove('on'); }
+
+function selectCase(id){
+  if(opening) return;
+  var c = null;
+  for(var i=0;i<CASES.length;i++) if(CASES[i].id === id){ c = CASES[i]; break; }
+  if(!c) return;
+  currentCase = c;
   
-  document.getElementById('fsSpinOverlay').classList.add('show');
-  document.getElementById('fsTitle').textContent = selectedCase.name;
+  $('pageTitle').textContent = c.name;
+  $('pageSubtitle').textContent = c.quote;
+
+  $('casesGrid').style.display = 'none';
+  $('openArea').classList.add('on');
+  buildScroller();
+  $('openBtn').disabled = false;
+  $('openBtn').textContent = 'ОТКРЫТЬ';
+}
+
+function cancelOpen(){
+  if(opening) return;
+  $('openArea').classList.remove('on');
+  $('casesGrid').style.display = 'grid';
   
-  const track = document.getElementById('fsSpinTrack');
-  track.innerHTML = '';
+  $('pageTitle').textContent = '📦 КЕЙСЫ';
+  $('pageSubtitle').textContent = '✦ Выбери свой кейс и испытай удачу ✦';
+
+  currentCase = null;
+}
+
+function rollItem(caseItems){
+  var total = 0;
+  for(var i=0;i<caseItems.length;i++) total += caseItems[i].weight;
+  var r = Math.random() * total;
+  for(var i=0;i<caseItems.length;i++){ r -= caseItems[i].weight; if(r <= 0) return caseItems[i]; }
+  return caseItems[0];
+}
+
+function buildScroller(){
+  var track = $('scrollerTrack');
+  var html = '';
+  for(var i=0;i<60;i++){
+    var item = rollItem(currentCase.items);
+    html += '<div class="item-card ' + item.rarity + ' ' + getItemClass(item) + '"><img src="' + item.img + '" alt="item"><div class="pr">₽' + fmt(item.price) + '</div></div>';
+  }
+  track.innerHTML = html;
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
-
-  const fakePrizes = selectedCase.prizes.length > 0 ? selectedCase.prizes : [5, 10, 20];
-  for(let i=0; i<40; i++){
-    const fakeVal = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
-    const rar = getRarityClass(fakeVal);
-    track.innerHTML += `
-      <div class="fs-spin-item ${rar}">
-        ${fakeVal} ₽
-      </div>
-    `;
-  }
-
-  executeSpin();
 }
 
-async function executeSpin() {
-  try {
-    const res = await fetch('/api/cases/open', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, case_name: selectedCase.name })
-    });
-    const data = await res.json();
-    
-    if (!res.ok) {
-      document.getElementById('fsSpinOverlay').classList.remove('show');
-      isSpinning = false;
-      return;
-    }
+async function openCase(){
+  if(opening || !currentCase) return;
+  if(B < currentCase.price){ showRoyalError('На вашем балансе недостаточно средств для открытия этого кейса. Пополните счёт и попробуйте снова.'); return; }
 
-    const prize = data.prize;
-    loadBalance();
-
-    const track = document.getElementById('fsSpinTrack');
-    track.innerHTML = '';
-    const fakePrizes = selectedCase.prizes.length > 0 ? selectedCase.prizes : [5, 10, 20];
-    
-    for(let i=0; i<40; i++){
-      let val = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
-      if (i === 35) val = prize; 
-      
-      const rar = getRarityClass(val);
-      track.innerHTML += `
-        <div class="fs-spin-item ${rar}">
-          ${val} ₽
-        </div>
-      `;
-    }
-
-    const containerWidth = document.querySelector('.fs-spin-window').clientWidth;
-    const itemWidth = 155; 
-    const centerOffset = containerWidth / 2;
-    const randomOffset = (Math.random() * 40) - 20;
-    const targetScroll = (35 * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
-
-    setTimeout(() => {
-      track.style.transition = 'transform 5.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
-      track.style.transform = `translateX(-${targetScroll}px)`;
-    }, 50);
-
-    setTimeout(() => {
-      document.getElementById('fsSpinOverlay').classList.remove('show');
-      showTopToast(prize);
-      loadBalance();
-      loadHistory(); // Обновляем историю после прокрутки
-      isSpinning = false;
-    }, 5600);
-
-  } catch(e) {
-    document.getElementById('fsSpinOverlay').classList.remove('show');
-    isSpinning = false;
-  }
-}
-
-function showTopToast(prize) {
-  const toast = document.getElementById('topToast');
-  document.getElementById('toastAmount').textContent = `+${fmt(prize)} ₽`;
-  toast.classList.add('show');
+  opening = true;
+  $('openBtn').disabled = true;
+  $('cancelBtn').disabled = true;
   
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 4000);
+  $('topNotification').classList.remove('on');
+  $('topNotification').classList.remove('gold-win');
+
+  var newTotal = await safeChangeBalance(-currentCase.price, 'bet');
+  if(newTotal === null){
+    opening = false;
+    $('openBtn').disabled = false;
+    $('cancelBtn').disabled = false;
+    showRoyalError('Произошла ошибка при списании средств. Попробуйте ещё раз.');
+    return;
+  }
+  setBalDisplay(newTotal);
+
+  var winItem = rollItem(currentCase.items);
+  
+  var track = $('scrollerTrack');
+  var html = '';
+  var WIN_INDEX = 50;
+  
+  for(var i=0;i<WIN_INDEX;i++){
+    var item = rollItem(currentCase.items);
+    html += '<div class="item-card ' + item.rarity + ' ' + getItemClass(item) + '"><img src="' + item.img + '" alt="item"><div class="pr">₽' + fmt(item.price) + '</div></div>';
+  }
+  
+  html += '<div class="item-card ' + winItem.rarity + ' ' + getItemClass(winItem) + '"><img src="' + winItem.img + '" alt="item"><div class="pr">₽' + fmt(winItem.price) + '</div></div>';
+  
+  for(var i=WIN_INDEX+1;i<80;i++){
+    var item = rollItem(currentCase.items);
+    html += '<div class="item-card ' + item.rarity + ' ' + getItemClass(item) + '"><img src="' + item.img + '" alt="item"><div class="pr">₽' + fmt(item.price) + '</div></div>';
+  }
+  
+  track.innerHTML = html;
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+  void track.offsetWidth;
+
+  startScrollSound();
+
+  var containerWidth = track.parentElement.offsetWidth;
+  var itemWidth = 100 + 8;
+  var targetX = -(WIN_INDEX * itemWidth) + (containerWidth/2) - (itemWidth/2) + (Math.random()*40 - 20);
+
+  track.style.transition = 'transform 2.5s linear';
+  track.style.transform = 'translateX(-3000px)';
+
+  setTimeout(function(){
+      track.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.3, 1)';
+      track.style.transform = 'translateX(' + targetX + 'px)';
+      
+      setTimeout(async function(){
+        opening = false;
+        $('cancelBtn').disabled = false;
+        $('openBtn').textContent = 'ОТКРЫТЬ';
+        
+        stopScrollSound();
+
+        var winTotal = await safeChangeBalance(winItem.price, 'win');
+        if(winTotal !== null) setBalDisplay(winTotal);
+
+        var notify = $('topNotification');
+        $('topNotificationVal').textContent = fmt(winItem.price) + ' ₽';
+        
+        if(winItem.price >= currentCase.price * 5) {
+            notify.classList.add('gold-win');
+        } else {
+            notify.classList.remove('gold-win');
+        }
+
+        notify.classList.add('on');
+
+        if(winItem.price >= currentCase.price * 5){ sLegendary(); showFloat('+₽' + fmt(winItem.price), '#feca57'); }
+        else if(winItem.price >= currentCase.price){ sWin(); showFloat('+₽' + fmt(winItem.price), '#1dd1a1'); }
+        else { sLose(); }
+
+        setTimeout(function(){ $('openBtn').disabled = false; }, 500);
+        
+        setTimeout(function() {
+            notify.classList.remove('on');
+        }, 3500);
+
+      }, 3000);
+
+  }, 2500);
 }
 
-initCases();
+function showFloat(text, color){
+  var el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  el.style.color = color || '#ffd700';
+  el.style.left = '50%'; el.style.top = '50%';
+  el.style.transform = 'translateX(-50%)';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2000);
+}
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    localStorage.setItem(CURRENT_USER_KEY, user.uid);
+    renderCases();
+    loadBalance();
+  } else {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    window.location.replace('auth.html?need_auth=1');
+  }
+});
+
+$('openBtn').onclick = openCase;
+$('cancelBtn').onclick = cancelOpen;
+$('peekModal').onclick = function(e){ if(e.target === this) closePeek(); };
 </script>
 </body>
 </html>
