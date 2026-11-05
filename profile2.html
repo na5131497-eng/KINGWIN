@@ -9,7 +9,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top, #1a2332, #0a0d14);
     color: #fff; min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px; }
-  .wrap { width: 100%; max-width: 440px; }
+  .wrap { width: 100%; max-width: 460px; }
   .logo { text-align: center; font-size: 28px; font-weight: 900; letter-spacing: 4px;
     background: linear-gradient(135deg, #00e5ff, #0077ff);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
@@ -17,7 +17,8 @@
     text-transform: uppercase; margin-bottom: 22px; }
 
   .card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+    border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    margin-bottom: 16px; }
   .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
   .name { font-size: 24px; font-weight: 800; }
   .cid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 2px; margin-top: 4px; }
@@ -62,6 +63,8 @@
     cursor: pointer; font-family: inherit; transition: .3s; margin-top: 6px; }
   .btn:hover { box-shadow: 0 0 20px rgba(0,229,255,.5); }
   .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.15); }
+  .btn.green { background: #3fbf7f; color: #000; }
+  .btn.gold  { background: #d4af37; color: #000; }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
 
   .footer { text-align: center; font-size: 11px; color: #6d819a; margin-top: 20px; line-height: 1.6; }
@@ -80,98 +83,99 @@
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
   .live-label { font-size: 10px; color: #3fbf7f; text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
 
-  /* ---------- МОДАЛКА ДЕПОЗИТА ---------- */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
-    animation: fadeIn 0.3s ease;
-  }
+  /* ---------- DAILY REWARD ---------- */
+  .daily-card { background: linear-gradient(135deg, rgba(0,229,255,.08), rgba(63,191,127,.06));
+    border: 1px solid rgba(0,229,255,.25); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .daily-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .daily-title .streak { font-size: 11px; color: #3fbf7f; }
+  .daily-sub { font-size: 11px; color: #8fa2b8; margin-bottom: 14px; }
+  .daily-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+  .daily-day { aspect-ratio: 1; border-radius: 8px; background: rgba(0,0,0,.4);
+    border: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 10px; color: #8fa2b8;
+    font-weight: 700; transition: .3s; }
+  .daily-day .num { font-size: 9px; opacity: .6; }
+  .daily-day .reward { font-size: 11px; font-weight: 800; margin-top: 2px; }
+  .daily-day.done { background: rgba(63,191,127,.18); border-color: #3fbf7f; color: #3fbf7f; }
+  .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff;
+    box-shadow: 0 0 12px rgba(0,229,255,.5); animation: pulseGlow 1.6s infinite; }
+  @keyframes pulseGlow { 0%,100%{box-shadow: 0 0 12px rgba(0,229,255,.4);} 50%{box-shadow: 0 0 22px rgba(0,229,255,.8);} }
+  .daily-day.claimed { background: rgba(63,191,127,.3); border-color: #3fbf7f; color: #3fbf7f; }
+  .daily-claim-btn { width: 100%; }
+
+  /* ---------- WHEEL ---------- */
+  .wheel-card { background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(0,229,255,.06));
+    border: 1px solid rgba(212,175,55,.35); border-radius: 16px; padding: 18px; margin-bottom: 16px;
+    text-align: center; }
+  .wheel-card .t { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #d4af37; margin-bottom: 6px; }
+  .wheel-card .s { font-size: 11px; color: #8fa2b8; margin-bottom: 12px; }
+  .wheel-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 12px; }
+  .wheel-pointer { position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+    font-size: 22px; color: #00e5ff; z-index: 5; filter: drop-shadow(0 0 6px rgba(0,229,255,.8)); }
+  #wheelCanvas { display: block; width: 220px; height: 220px; border-radius: 50%;
+    box-shadow: 0 0 30px rgba(212,175,55,.3), inset 0 0 20px rgba(0,0,0,.5); }
+  .wheel-result { font-size: 13px; font-weight: 700; min-height: 20px; color: #3fbf7f; margin-top: 8px; }
+
+  /* ---------- NEWS ---------- */
+  .news-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .news-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 12px; }
+  .news-item { padding: 12px; background: rgba(0,0,0,.25); border-radius: 10px; margin-bottom: 8px;
+    border-left: 3px solid #00e5ff; }
+  .news-item .nt { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .news-item .nb { font-size: 12px; color: #a0aec0; line-height: 1.5; }
+  .news-item .nd { font-size: 10px; color: #6d819a; margin-top: 6px; }
+  .news-empty { font-size: 12px; color: #6d819a; text-align: center; padding: 10px; font-style: italic; }
+
+  /* ---------- HISTORY ---------- */
+  .hist-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .hist-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 12px; }
+  .hist-item { display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; background: rgba(0,0,0,.25); border-radius: 10px; margin-bottom: 6px;
+    font-size: 12px; }
+  .hist-item .hl { color: #a0aec0; }
+  .hist-item .hr { font-weight: 700; }
+  .hist-item .hr.pos { color: #3fbf7f; }
+  .hist-item .hr.neg { color: #ff8a8a; }
+  .hist-item .hstat { font-size: 10px; color: #6d819a; margin-left: 6px; }
+  .hist-empty { font-size: 12px; color: #6d819a; text-align: center; padding: 10px; font-style: italic; }
+
+  /* ---------- QR ---------- */
+  .qr-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px; padding: 18px; margin-bottom: 16px; text-align: center; }
+  .qr-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 10px; }
+  .qr-box { display: inline-block; background: #fff; padding: 10px; border-radius: 12px; }
+  #qrCanvas { display: block; }
+
+  /* ---------- MODAL THANKS ---------- */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .thanks-modal {
-    background: linear-gradient(135deg, #111625, #0a0d14);
-    border: 2px solid #00e5ff;
-    border-radius: 24px;
-    padding: 40px 32px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(0,229,255,0.35), inset 0 0 40px rgba(0,229,255,0.05);
-    position: relative;
-    overflow: hidden;
-    animation: slideUp 0.4s ease;
-  }
+  .thanks-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid #00e5ff;
+    border-radius: 24px; padding: 40px 32px; max-width: 400px; width: 100%; text-align: center;
+    box-shadow: 0 0 60px rgba(0,229,255,0.35); animation: slideUp 0.4s ease; }
   @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-  .thanks-modal::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 60%);
-    animation: rotate 6s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  .thanks-logo {
-    font-size: 42px; font-weight: 900; letter-spacing: 4px;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
-  }
-  .thanks-sub {
-    font-size: 11px; color: #8fa2b8; letter-spacing: 3px;
-    text-transform: uppercase; margin-bottom: 28px;
-    position: relative;
-    z-index: 1;
-  }
-  .thanks-title {
-    font-size: 24px; font-weight: 900; color: #fff;
-    margin-bottom: 12px;
-    position: relative;
-    z-index: 1;
-  }
+  .thanks-logo { font-size: 42px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+  .thanks-sub { font-size: 11px; color: #8fa2b8; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 28px; }
+  .thanks-title { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 12px; }
   .thanks-title span { color: #3fbf7f; }
-  .thanks-text {
-    font-size: 15px; color: #a0aec0; line-height: 1.6;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
-  }
-  .thanks-amount {
-    display: inline-block;
-    font-size: 34px; font-weight: 900;
-    color: #00e5ff;
-    text-shadow: 0 0 20px rgba(0,229,255,0.5);
-    margin: 12px 0 20px;
-    position: relative;
-    z-index: 1;
-  }
-  .thanks-luck {
-    font-size: 16px;
-    color: #3fbf7f;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 26px;
-    position: relative;
-    z-index: 1;
-  }
-  .thanks-btn {
-    background: #00e5ff; color: #000;
-    border: none; border-radius: 12px;
-    padding: 14px 44px;
-    font-size: 16px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    transition: 0.3s;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 0 20px rgba(0,229,255,0.4);
-  }
+  .thanks-text { font-size: 15px; color: #a0aec0; line-height: 1.6; margin-bottom: 8px; }
+  .thanks-amount { display: inline-block; font-size: 34px; font-weight: 900; color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0,229,255,0.5); margin: 12px 0 20px; }
+  .thanks-luck { font-size: 16px; color: #3fbf7f; font-weight: 800; letter-spacing: 1px; margin-bottom: 26px; }
+  .thanks-btn { background: #00e5ff; color: #000; border: none; border-radius: 12px;
+    padding: 14px 44px; font-size: 16px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    box-shadow: 0 0 20px rgba(0,229,255,0.4); }
   .thanks-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.7); transform: translateY(-2px); }
 </style>
 </head>
@@ -196,7 +200,11 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
+/* ============================================================
+   KINGWIN — Profile 2 (Guest) v2.0
+   ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
   Silver:   { next: 300,  label: 'Gold',     gift: 50   },
@@ -206,13 +214,36 @@ const RANKS_INFO = {
   VIP:      { next: null, label: null,       gift: 3000 }
 };
 
+/* Награды за 7-дневный streak (можно переопределить с бэка, если придёт daily_config) */
+let DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
+
+/* Призы колеса — дефолт; бэк может прислать /api/guest/wheel-config */
+let WHEEL_PRIZES = [
+  { label: '50 ₽',   value: 50,   type: 'bonus',  weight: 25, color: '#00e5ff' },
+  { label: '100 ₽',  value: 100,  type: 'bonus',  weight: 20, color: '#3fbf7f' },
+  { label: '10 баллов', value: 10, type: 'points', weight: 20, color: '#d4af37' },
+  { label: '25 баллов', value: 25, type: 'points', weight: 15, color: '#ff8a8a' },
+  { label: '200 ₽',  value: 200,  type: 'bonus',  weight: 8,  color: '#b9f2ff' },
+  { label: '500 ₽',  value: 500,  type: 'bonus',  weight: 3,  color: '#ffe066' },
+  { label: 'Пусто',  value: 0,    type: 'none',   weight: 9,  color: '#6d819a' }
+];
+
 let session = null;
 let refreshTimer = null;
 let pendingDeposits = [];
 
+let dailyState = null;      // { streak, claimed_today, history: [bool x7], rewards }
+let wheelState = null;      // { can_spin, next_spin_at }
+let newsList = [];
+let historyList = [];
+let isSpinning = false;
+
+/* ---------------- utils ---------------- */
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
 
+/* ---------------- login ---------------- */
 function renderLogin(prefillId){
   document.getElementById('content').innerHTML = `
     <div class="card">
@@ -250,19 +281,20 @@ async function doLogin(){
   } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
 }
 
+/* ---------------- load profile ---------------- */
 async function loadMe(){
   if(!session) return;
   try {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(session.id));
     const data = await r.json();
-    if(r.ok){
-      session = data.guest;
-      renderProfile();
-      if (data.unseen_deposits && data.unseen_deposits.length > 0) {
-        pendingDeposits = data.unseen_deposits;
-        showThanksModal(pendingDeposits[0]);
-      }
+    if(!r.ok) return;
+    session = data.guest;
+    if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+      pendingDeposits = data.unseen_deposits;
+      showThanksModal(pendingDeposits[0]);
     }
+    await Promise.all([loadDaily(), loadWheel(), loadNews(), loadHistory()]);
+    renderProfile();
   } catch(e){ /* тихо */ }
 }
 
@@ -271,25 +303,342 @@ function startAutoRefresh(){
   refreshTimer = setInterval(loadMe, 5000);
 }
 
-function showThanksModal(dep) {
-  if (!dep) return;
-  document.getElementById('thanksAmount').textContent = '+' + fmt(dep.sum) + ' ₽';
-  document.getElementById('thanksModal').classList.add('show');
+/* ---------------- daily reward ---------------- */
+async function loadDaily(){
+  try {
+    const r = await fetch('/api/guest/daily?id=' + encodeURIComponent(session.id));
+    if(!r.ok) return;
+    const data = await r.json();
+    dailyState = {
+      streak: data.streak || 0,
+      claimed_today: !!data.claimed_today,
+      history: Array.isArray(data.history) ? data.history : [],
+      rewards: Array.isArray(data.rewards) ? data.rewards : DAILY_REWARDS
+    };
+    if(dailyState.rewards.length) DAILY_REWARDS = dailyState.rewards;
+  } catch(e){ dailyState = null; }
 }
 
-async function closeThanksModal() {
-  document.getElementById('thanksModal').classList.remove('show');
-  if (pendingDeposits.length > 0) {
-    const dep = pendingDeposits.shift();
-    try {
-      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
-    } catch(e) {}
-    if (pendingDeposits.length > 0) {
-      setTimeout(() => showThanksModal(pendingDeposits[0]), 500);
+async function claimDaily(){
+  if(!session || !dailyState || dailyState.claimed_today) return;
+  const box = document.getElementById('dailyMsg');
+  if(box) box.innerHTML = '';
+  try {
+    const r = await fetch('/api/guest/daily-claim', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: session.id })
+    });
+    const data = await r.json();
+    if(!r.ok){
+      if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
+      return;
     }
+    await loadMe();
+    if(data.reward){
+      if(box) box.innerHTML = `<div class="ok">+${fmt(data.reward)} ₽ зачислено! Streak: ${data.streak} 🔥</div>`;
+    }
+  } catch(e){
+    if(box) box.innerHTML = `<div class="err">Ошибка соединения</div>`;
   }
 }
 
+function renderDailyHtml(){
+  if(!dailyState){
+    return `<div class="daily-card">
+      <div class="daily-title">Ежедневный бонус</div>
+      <div class="daily-sub">Заходи каждый день — серия растёт, награды тоже.</div>
+      <div class="err" style="margin:0">Не удалось загрузить. Попробуйте позже.</div>
+    </div>`;
+  }
+  const cur = dailyState.streak; // сколько уже забирал подряд
+  const claimed = dailyState.claimed_today;
+  const todayIdx = claimed ? Math.max(0, Math.min(6, cur - 1)) : Math.min(6, cur);
+
+  let daysHtml = '';
+  for(let i=0; i<7; i++){
+    let cls = 'daily-day';
+    let state = 'future';
+    if(i < cur) { cls += ' done'; state = 'done'; }
+    else if(i === todayIdx && !claimed) { cls += ' today'; state = 'today'; }
+    else if(i === todayIdx && claimed) { cls += ' claimed'; state = 'claimed'; }
+    daysHtml += `<div class="${cls}" title="День ${i+1}">
+      <div class="num">Д${i+1}</div>
+      <div class="reward">${fmt(DAILY_REWARDS[i] || 0)}</div>
+    </div>`;
+  }
+
+  const btnDisabled = claimed ? 'disabled' : '';
+  const btnText = claimed
+    ? '✓ Получено сегодня'
+    : `Забрать ${fmt(DAILY_REWARDS[todayIdx] || 0)} ₽`;
+
+  return `<div class="daily-card">
+    <div class="daily-title">
+      <span>🔥 Ежедневный бонус</span>
+      <span class="streak">Streak: ${cur} дн.</span>
+    </div>
+    <div class="daily-sub">Заходи каждый день — серия растёт, награды тоже. Пропуск = сброс серии.</div>
+    <div class="daily-days">${daysHtml}</div>
+    <div id="dailyMsg"></div>
+    <button class="btn ${claimed?'ghost':'green'} daily-claim-btn" ${btnDisabled} onclick="claimDaily()">${btnText}</button>
+  </div>`;
+}
+
+/* ---------------- wheel ---------------- */
+async function loadWheel(){
+  try {
+    const [rCfg, rState] = await Promise.all([
+      fetch('/api/guest/wheel-config').then(x=>x.ok?x.json():null).catch(()=>null),
+      fetch('/api/guest/wheel-state?id=' + encodeURIComponent(session.id)).then(x=>x.ok?x.json():null).catch(()=>null)
+    ]);
+    if(rCfg && Array.isArray(rCfg.prizes) && rCfg.prizes.length) {
+      WHEEL_PRIZES = rCfg.prizes;
+    }
+    if(rState){
+      wheelState = { can_spin: !!rState.can_spin, next_spin_at: rState.next_spin_at || null };
+    } else {
+      wheelState = { can_spin: true, next_spin_at: null };
+    }
+  } catch(e){ wheelState = { can_spin: true, next_spin_at: null }; }
+}
+
+function drawWheelStatic(){
+  const canvas = document.getElementById('wheelCanvas');
+  if(!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const size = 220;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,size,size);
+  const cx = size/2, cy = size/2, R = size/2 - 4;
+  const n = WHEEL_PRIZES.length;
+  const totalW = WHEEL_PRIZES.reduce((a,p)=>a+(p.weight||1),0);
+  let startAngle = -Math.PI/2;
+  WHEEL_PRIZES.forEach((p) => {
+    const slice = ((p.weight||1)/totalW) * Math.PI*2;
+    const endAngle = startAngle + slice;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = p.color || '#00e5ff';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + slice/2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 11px Montserrat';
+    ctx.fillText(p.label || '', R - 10, 4);
+    ctx.restore();
+
+    startAngle = endAngle;
+  });
+  // center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 26, 0, Math.PI*2);
+  ctx.fillStyle = '#0a0d14';
+  ctx.fill();
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#00e5ff';
+  ctx.font = 'bold 11px Montserrat';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPIN', cx, cy+4);
+}
+
+function pickWeightedIndex(){
+  const totalW = WHEEL_PRIZES.reduce((a,p)=>a+(p.weight||1),0);
+  let r = Math.random() * totalW;
+  for(let i=0; i<WHEEL_PRIZES.length; i++){
+    r -= (WHEEL_PRIZES[i].weight||1);
+    if(r <= 0) return i;
+  }
+  return WHEEL_PRIZES.length - 1;
+}
+
+async function spinWheel(){
+  if(isSpinning || !session || !wheelState || !wheelState.can_spin) return;
+  isSpinning = true;
+  const canvas = document.getElementById('wheelCanvas');
+  const resultBox = document.getElementById('wheelResult');
+  const btn = document.getElementById('spinBtn');
+  if(btn) btn.disabled = true;
+  if(resultBox) resultBox.textContent = '';
+
+  // Сначала спрашиваем бэк, какой приз выпал (если бэк есть)
+  let prize = null;
+  try {
+    const r = await fetch('/api/guest/wheel-spin', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: session.id })
+    });
+    if(r.ok){
+      const data = await r.json();
+      if(data && data.prize) prize = data.prize;
+    }
+  } catch(e){ /* fallback ниже */ }
+
+  // Фолбэк: локально выбираем
+  let idx;
+  if(prize && typeof prize.index === 'number' && prize.index >= 0 && prize.index < WHEEL_PRIZES.length){
+    idx = prize.index;
+  } else {
+    idx = pickWeightedIndex();
+  }
+  if(!prize) prize = WHEEL_PRIZES[idx];
+
+  // рассчитываем угол так, чтобы выбранный сектор оказался под стрелкой (сверху)
+  const n = WHEEL_PRIZES.length;
+  const totalW = WHEEL_PRIZES.reduce((a,p)=>a+(p.weight||1),0);
+  // угол начала сектора idx
+  let startAngle = -Math.PI/2;
+  for(let i=0; i<idx; i++){
+    startAngle += ((WHEEL_PRIZES[i].weight||1)/totalW) * Math.PI*2;
+  }
+  const slice = ((WHEEL_PRIZES[idx].weight||1)/totalW) * Math.PI*2;
+  const midAngle = startAngle + slice/2;
+  // нам нужно, чтобы midAngle оказался на -PI/2 (сверху) → поворот на (targetAngle - midAngle)
+  const targetAngle = -Math.PI/2;
+  const rotationRad = targetAngle - midAngle;
+  const extraTurns = 4 + Math.floor(Math.random()*3);
+  const finalRotation = wheelRotation + rotationRad + extraTurns*Math.PI*2;
+  wheelRotation = finalRotation;
+
+  canvas.style.transition = 'transform 4s cubic-bezier(.17,.67,.3,1)';
+  canvas.style.transform = `rotate(${finalRotation}rad)`;
+
+  setTimeout(() => {
+    isSpinning = false;
+    if(btn) btn.disabled = false;
+    if(resultBox){
+      if(prize.type === 'none'){
+        resultBox.innerHTML = `Пусто 😔 Попробуйте завтра!`;
+        resultBox.style.color = '#a0aec0';
+      } else {
+        resultBox.innerHTML = `🎉 Выигрыш: <b>${esc(prize.label || prize.value)}</b>`;
+        resultBox.style.color = '#3fbf7f';
+      }
+    }
+    // Обновим профиль (баланс мог измениться)
+    loadMe();
+  }, 4200);
+}
+
+function renderWheelHtml(){
+  if(!wheelState){
+    return `<div class="wheel-card">
+      <div class="t">🎡 Колесо фортуны</div>
+      <div class="s">Загрузка…</div>
+    </div>`;
+  }
+  const canSpin = wheelState.can_spin;
+  return `<div class="wheel-card">
+    <div class="t">🎡 Колесо фортуны</div>
+    <div class="s">${canSpin ? '1 бесплатное вращение в день' : 'Возвращайтесь завтра за новым вращением'}</div>
+    <div class="wheel-wrap">
+      <div class="wheel-pointer">▼</div>
+      <canvas id="wheelCanvas"></canvas>
+    </div>
+    <div class="wheel-result" id="wheelResult"></div>
+    <button class="btn gold" id="spinBtn" ${canSpin?'':'disabled'} onclick="spinWheel()">
+      ${canSpin ? 'Крутить!' : 'Уже крутили сегодня'}
+    </button>
+  </div>`;
+}
+
+/* ---------------- news ---------------- */
+async function loadNews(){
+  try {
+    const r = await fetch('/api/news');
+    if(!r.ok){ newsList = []; return; }
+    const data = await r.json();
+    newsList = Array.isArray(data) ? data : [];
+  } catch(e){ newsList = []; }
+}
+function renderNewsHtml(){
+  if(!newsList || !newsList.length) return '';
+  return `<div class="news-card">
+    <div class="news-title">📰 Новости и акции</div>
+    ${newsList.slice(0,5).map(n=>`
+      <div class="news-item">
+        <div class="nt">${esc(n.title||'')}</div>
+        <div class="nb">${esc(n.body||'')}</div>
+        ${n.date ? `<div class="nd">${esc(n.date)}</div>` : ''}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+/* ---------------- history ---------------- */
+async function loadHistory(){
+  try {
+    const r = await fetch('/api/guest/history?id=' + encodeURIComponent(session.id));
+    if(!r.ok){ historyList = []; return; }
+    const data = await r.json();
+    historyList = Array.isArray(data) ? data : [];
+  } catch(e){ historyList = []; }
+}
+function renderHistoryHtml(){
+  if(!historyList || !historyList.length) return '';
+  return `<div class="hist-card">
+    <div class="hist-title">📋 История операций</div>
+    ${historyList.slice(0,8).map(h=>{
+      const sum = parseFloat(h.sum) || 0;
+      const isPos = sum >= 0;
+      const label = h.label || h.type || 'операция';
+      return `<div class="hist-item">
+        <div class="hl">${esc(h.date||'')} · ${esc(label)}<span class="hstat">${esc(h.status||'')}</span></div>
+        <div class="hr ${isPos?'pos':'neg'}">${isPos?'+':''}${fmt(sum)} ₽</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---------------- QR ---------------- */
+function renderQrHtml(){
+  const url = location.origin + location.pathname + '?id=' + encodeURIComponent(session.id);
+  return `<div class="qr-card">
+    <div class="qr-title">📱 Карта для входа</div>
+    <div class="qr-box"><canvas id="qrCanvas" width="160" height="160"></canvas></div>
+    <div style="font-size:11px;color:#8fa2b8;margin-top:10px;">Покажите QR на кассе — вас найдут по номеру карты</div>
+  </div>`;
+}
+function drawQr(){
+  const canvas = document.getElementById('qrCanvas');
+  if(!canvas) return;
+  const url = location.origin + location.pathname + '?id=' + encodeURIComponent(session.id);
+  if(window.QRCode && QRCode.toCanvas){
+    QRCode.toCanvas(canvas, url, { width: 160, margin: 1, color: { dark: '#0a0d14', light: '#ffffff' } }, (err)=>{
+      if(err) drawQrFallback(canvas, session.id);
+    });
+  } else {
+    drawQrFallback(canvas, session.id);
+  }
+}
+function drawQrFallback(canvas, text){
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0,0,160,160);
+  ctx.fillStyle = '#0a0d14';
+  ctx.font = 'bold 14px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('CARD', 80, 70);
+  ctx.font = 'bold 16px Courier New';
+  ctx.fillText(String(text), 80, 95);
+}
+
+/* ---------------- profile render ---------------- */
 function renderProfile(){
   const g = session;
   const info = RANKS_INFO[g.rank] || RANKS_INFO.Bronze;
@@ -324,6 +673,9 @@ function renderProfile(){
 
   document.getElementById('content').innerHTML = `
     <div class="live-label"><span class="live-dot"></span>Автообновление · каждые 5 сек</div>
+
+    ${renderDailyHtml()}
+
     <div class="card">
       <div class="head">
         <div>
@@ -357,9 +709,19 @@ function renderProfile(){
       ${withdrawBtn}
 
       <button class="btn ghost" onclick="doLogout()">Выйти</button>
-    </div>`;
+    </div>
+
+    ${renderWheelHtml()}
+    ${renderQrHtml()}
+    ${renderNewsHtml()}
+    ${renderHistoryHtml()}
+  `;
+
+  drawWheelStatic();
+  drawQr();
 }
 
+/* ---------------- withdraw ---------------- */
 async function withdrawBonus(){
   if(!session) return;
   const g = session;
@@ -381,6 +743,26 @@ async function withdrawBonus(){
   }
 }
 
+/* ---------------- deposit thanks ---------------- */
+function showThanksModal(dep) {
+  if (!dep) return;
+  document.getElementById('thanksAmount').textContent = '+' + fmt(dep.sum) + ' ₽';
+  document.getElementById('thanksModal').classList.add('show');
+}
+async function closeThanksModal() {
+  document.getElementById('thanksModal').classList.remove('show');
+  if (pendingDeposits.length > 0) {
+    const dep = pendingDeposits.shift();
+    try {
+      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
+    } catch(e) {}
+    if (pendingDeposits.length > 0) {
+      setTimeout(() => showThanksModal(pendingDeposits[0]), 500);
+    }
+  }
+}
+
+/* ---------------- logout ---------------- */
 function doLogout(){
   if(refreshTimer) clearInterval(refreshTimer);
   session = null;
@@ -388,6 +770,7 @@ function doLogout(){
   renderLogin('');
 }
 
+/* ---------------- init ---------------- */
 (function init(){
   const params = new URLSearchParams(location.search);
   const cardId = params.get('id');
