@@ -10,7 +10,6 @@
     --bg-body: #0b0e14;
     --bg-panel: #131620;
     --bg-dark: #0f111a;
-    --bg-item: #1a1e2b;
     --border: rgba(255,255,255,0.05);
     --accent: #00e5ff;
     --accent-green: #00ff88;
@@ -22,9 +21,10 @@
   body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
   
   /* ШАПКА */
-  .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+  .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
-  .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; }
+  .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
   
   /* СЕТКА */
   .layout { display: flex; max-width: 1400px; margin: 20px auto; width: 100%; padding: 0 20px; gap: 20px; align-items: flex-start; }
@@ -36,7 +36,7 @@
   /* ПРОФИЛЬ */
   .user-head { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
   .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #2a2d3e, #1a1e2b); display: flex; justify-content: center; align-items: center; font-size: 30px; border: 2px solid var(--border); }
-  .user-info .name { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+  .user-info .name { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
   .user-info .id { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
   
   /* БАЛАНСЫ */
@@ -66,10 +66,10 @@
   .rank-progress { background: var(--bg-dark); border-radius: 10px; padding: 15px; border: 1px solid var(--border); margin-top: 15px; }
   .rank-head { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; }
   .rank-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-  .rank-bar > div { height: 100%; background: var(--accent-green); width: 20%; border-radius: 3px; }
+  .rank-bar > div { height: 100%; background: var(--accent-green); width: 0%; border-radius: 3px; transition: width 0.5s; }
 
   /* ПРАВАЯ ПАНЕЛЬ (ИСТОРИЯ) */
-  .main-content { flex: 1; background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  .main-content { flex: 1; background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; min-width: 0; }
   
   .tabs-header { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
   .tabs-header::-webkit-scrollbar { display: none; }
@@ -102,8 +102,10 @@
   .modal-box h2 { font-size: 20px; margin-bottom: 15px; }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 20px; text-align: center; margin-bottom: 15px; outline: none; }
-  .modal-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+  .modal-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+  .modal-btn:hover { box-shadow: 0 0 15px rgba(0,229,255,0.4); }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .modal-btn.cancel:hover { box-shadow: none; border: 1px solid var(--border); }
   .modal-btn.green { background: var(--accent-green); color: #000; }
   
   .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
@@ -112,11 +114,22 @@
   .toast.error { border-left-color: var(--red); }
   .toast.success { border-left-color: var(--accent-green); }
 
+  /* ========== АДАПТИВНОСТЬ ========== */
   @media (max-width: 900px) {
-    .layout { flex-direction: column; padding: 10px; gap: 10px; }
+    .layout { flex-direction: column; padding: 10px; gap: 10px; margin: 10px auto; }
     .sidebar { width: 100%; }
-    .history-table th, .history-table td { padding: 12px 10px; font-size: 12px; }
+    .main-content { width: 100%; }
+    
+    .user-head { flex-direction: column; text-align: center; }
+    .bal-actions { flex-direction: column; }
+    
+    .history-table th { padding: 12px 10px; font-size: 10px; }
+    .history-table td { padding: 12px 10px; font-size: 12px; }
     .type-cell { font-size: 11px; }
+    .type-icon { font-size: 14px; }
+    
+    .tabs-header { padding: 0 10px; }
+    .tab-btn { padding: 15px 10px; font-size: 12px; }
   }
 </style>
 </head>
@@ -173,11 +186,11 @@
       
       <div class="stats-grid">
         <div class="stat-item">
-          <div class="val">73</div>
+          <div class="val" id="uiGamesCount">0</div>
           <div class="lbl">Игр</div>
         </div>
         <div class="stat-item">
-          <div class="val">147</div>
+          <div class="val" id="uiWinsCount">0</div>
           <div class="lbl">Выиграно</div>
         </div>
         <div class="stat-item">
@@ -188,7 +201,7 @@
 
       <div class="rank-progress">
         <div class="rank-head">
-          <span>👑 ЛЮБИТЕЛЬ</span>
+          <span id="uiRankName">👑 ЛЮБИТЕЛЬ</span>
           <span id="uiRankPoints">0 / 1500</span>
         </div>
         <div class="rank-bar">
@@ -229,11 +242,11 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ВЫВОДА (ПЕРЕВОД НА КАЗИНО) -->
+<!-- МОДАЛКА ВЫВОДА (ВВОД СУММЫ) -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box" style="border-color: var(--accent);">
     <button class="modal-close" onclick="closeModal('withdrawModal')">✕</button>
-    <h2>Перевод на баланс казино</h2>
+    <h2>Перевод на баланс</h2>
     <input type="number" id="withdrawAmount" placeholder="0" value="">
     <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Доступно: <span id="uiMaxWithdraw">0.00</span> ₽</div>
     <button class="modal-btn confirm" onclick="doWithdraw()">Подтвердить</button>
@@ -319,6 +332,11 @@ async function loadHistory(id) {
     const myW = withdrawals.filter(w => w.nick.toLowerCase() === currentPlayer.name.toLowerCase());
     const myD = deposits.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
     
+    // Считаем статистику
+    document.getElementById('uiGamesCount').textContent = myW.length + myD.length;
+    const wins = myD.filter(d => d.status === 'approved').length;
+    document.getElementById('uiWinsCount').textContent = wins;
+
     const all = [
       ...myW.map(w => ({ type: 'Вывод', desc: 'Заявка на вывод средств', sum: w.sum, date: w.date, status: w.status })),
       ...myD.map(d => ({ type: 'Депозит', desc: 'Пополнение баланса', sum: d.sum, date: d.date, status: d.status }))
