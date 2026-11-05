@@ -77,6 +77,29 @@
   .jackpot-check .txt small { display: block; color: #8fa2b8; font-size: 11px; font-weight: 500; margin-top: 2px; }
   .jackpot-check input:checked ~ .txt { color: #f1c40f; }
 
+  /* БОНУС ЗА ТИШИНУ */
+  .silence-card {
+    background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.08));
+    border: 1px solid rgba(0,229,255,.35);
+    border-radius: 16px; padding: 18px; margin-bottom: 18px;
+  }
+  .silence-card .s-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .silence-card .s-title { font-size: 14px; font-weight: 800; color: #00e5ff; text-transform: uppercase; letter-spacing: .5px; }
+  .silence-card .s-percent {
+    font-size: 26px; font-weight: 900; line-height: 1;
+    color: #3fbf7f;
+  }
+  .silence-card .s-percent.bad { color: #ff4d4d; }
+  .silence-card .s-percent small { font-size: 12px; font-weight: 700; color: #8fa2b8; display: block; margin-top: 2px; }
+  .silence-card .s-desc { font-size: 12px; color: #a0aec0; line-height: 1.45; margin-bottom: 12px; }
+  .silence-card .s-bar { height: 10px; background: rgba(255,255,255,.08); border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .silence-card .s-bar > div { height: 100%; background: linear-gradient(90deg, #00e5ff, #3fbf7f); border-radius: 5px; transition: width .4s; }
+  .silence-card .s-bar.bad > div { background: linear-gradient(90deg, #ff4d4d, #ff8a00); }
+  .silence-card .s-foot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #8fa2b8; }
+  .silence-card .s-status { font-weight: 700; }
+  .silence-card .s-status.ok { color: #3fbf7f; }
+  .silence-card .s-status.bad { color: #ff4d4d; }
+
   .balance-card { background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.35); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
   .balance-card .lbl { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
   .balance-card .amount { font-size: 38px; font-weight: 900; color: #3fbf7f; line-height: 1; }
@@ -203,6 +226,24 @@
   <div class="tab" id="tab-balance">
     <h2>Мой баланс</h2>
     <div class="sub">Зарплата + награды за задания</div>
+
+    <!-- БОНУС ЗА ТИШИНУ -->
+    <div class="silence-card" id="silenceCard">
+      <div class="s-top">
+        <div class="s-title">Бонус за тишину</div>
+        <div class="s-percent" id="silencePercent">15%<small>от сессии</small></div>
+      </div>
+      <div class="s-desc">
+        Если за последние 7 дней никто не узнал об этом приложении — ваш процент от сессии 15%.
+        Если кто-то узнал — 7%.
+      </div>
+      <div class="s-bar" id="silenceBar"><div id="silenceBarFill" style="width:0%"></div></div>
+      <div class="s-foot">
+        <span id="silenceDays">Осталось дней: —</span>
+        <span class="s-status ok" id="silenceStatus">Всё чисто</span>
+      </div>
+    </div>
+
     <div class="balance-card">
       <div class="lbl">Доступно к выводу</div>
       <div class="amount"><span id="dealerBalance">0</span> ₽</div>
@@ -262,7 +303,7 @@ function switchTab(name){
   document.querySelector(`.tabs > button[data-tab="${name}"]`).classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
   if(name === 'tasks') loadTasks();
-  if(name === 'balance') loadBalance();
+  if(name === 'balance') { loadBalance(); loadSilence(); }
 }
 
 function showMsg(id, text, ok){
@@ -295,6 +336,7 @@ async function doLogin(){
     document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
     loadTasks();
+    loadSilence();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
   finally { btn.textContent = 'Войти'; btn.disabled = false; }
 }
@@ -344,6 +386,7 @@ async function saveRound(){
       document.getElementById('winAmount').value = '';
       document.getElementById('jackpotCheck').checked = false;
       loadTasks();
+      loadSilence();
     } else {
       showInfo('Ошибка', data.error || 'Не удалось сохранить');
     }
@@ -396,6 +439,40 @@ async function claimTask(taskId){
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
     loadTasks();
   } catch(e){ showInfo('Ошибка', 'Ошибка соединения'); }
+}
+
+/* --- БОНУС ЗА ТИШИНУ --- */
+async function loadSilence(){
+  if(!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/silence?id=' + currentDealer.id);
+    const data = await r.json();
+    if(!r.ok) return;
+    const pctEl = document.getElementById('silencePercent');
+    const barEl = document.getElementById('silenceBar');
+    const fillEl = document.getElementById('silenceBarFill');
+    const daysEl = document.getElementById('silenceDays');
+    const statusEl = document.getElementById('silenceStatus');
+
+    const good = data.percent >= 15;
+    pctEl.className = 's-percent' + (good ? '' : ' bad');
+    pctEl.innerHTML = data.percent + '%<small>от сессии</small>';
+
+    const totalDays = 7;
+    const elapsed = Math.max(0, Math.min(totalDays, data.days_passed || 0));
+    const widthPct = Math.round((elapsed / totalDays) * 100);
+    barEl.className = 's-bar' + (good ? '' : ' bad');
+    fillEl.style.width = widthPct + '%';
+
+    daysEl.textContent = 'Осталось дней: ' + (data.days_left != null ? data.days_left : '—');
+    if (good) {
+      statusEl.className = 's-status ok';
+      statusEl.textContent = 'Всё чисто';
+    } else {
+      statusEl.className = 's-status bad';
+      statusEl.textContent = 'Был инцидент';
+    }
+  } catch(e){}
 }
 
 /* --- БАЛАНС --- */
