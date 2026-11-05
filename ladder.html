@@ -48,6 +48,7 @@
   .qbet { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
   .qbet:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
+  /* ВЫБОР КАМНЕЙ */
   .stones-select { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
   .stone-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted); font-weight: 900; cursor: pointer; transition: 0.2s; }
   .stone-btn:hover { border-color: var(--accent); color: #fff; }
@@ -60,13 +61,19 @@
   .btn-main.cashout:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,255,136,0.6); }
 
   /* ИГРОВОЕ ПОЛЕ */
-  .game-area { display: flex; justify-content: center; align-items: center; position: relative; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; }
+  .game-area { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; display: flex; justify-content: center; }
   
-  .grid-scroll { max-height: 600px; overflow-y: auto; padding: 10px 10px 10px 90px; scrollbar-width: none; display: flex; justify-content: center; width: 100%; }
+  .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 10px; }
   .grid-scroll::-webkit-scrollbar { display: none; }
-  .grid-wrap { display: flex; flex-direction: column; gap: 8px; }
-  .row { display: flex; gap: 6px; justify-content: center; }
   
+  .grid-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 6px; justify-content: center; align-items: center; }
+  
+  /* МНОЖИТЕЛЬ ВНУТРИ РЯДА */
+  .m-val { width: 60px; padding: 6px 0; text-align: center; font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; margin-right: 15px; flex-shrink: 0; }
+  .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+  .m-val.passed { color: var(--accent-green); border-color: rgba(0,255,136,0.3); }
+
   .cell { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-dark); border: 2px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center; font-size: 16px; }
   .cell:hover:not(:disabled):not(.opened) { border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
   
@@ -84,12 +91,6 @@
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
 
-  /* МНОЖИТЕЛИ */
-  .multipliers { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 10; }
-  .m-val { background: var(--bg-dark); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); text-align: center; width: 60px; font-size: 11px; font-weight: 900; color: var(--text-muted); }
-  .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.5); }
-  .m-val.passed { color: var(--accent-green); border-color: rgba(0,255,136,0.3); }
-
   /* ТОСТ */
   .toast { position: fixed; top: 80px; left: 50%; transform: translate(-50%, -20px); background: var(--bg-panel); border: 1px solid var(--accent-green); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 700; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   .toast.on { opacity: 1; transform: translate(-50%, 0); }
@@ -97,9 +98,8 @@
 
   @media(max-width: 800px) {
     .layout { grid-template-columns: 1fr; margin: 10px auto; }
-    .multipliers { display: none; }
-    .grid-scroll { padding-left: 10px; }
     .cell { width: 26px; height: 26px; font-size: 12px; }
+    .m-val { width: 50px; margin-right: 10px; font-size: 10px; }
   }
 </style>
 </head>
@@ -134,10 +134,9 @@
       <button class="qbet" onclick="setBet(1000)">1000</button>
     </div>
 
-    <h2>Количество камней</h2>
+    <h2>Количество камней (от 3)</h2>
     <div class="stones-select" id="stonesSelect">
-      <button class="stone-btn" data-stones="1">1</button>
-      <button class="stone-btn" data-stones="2">2</button>
+      <!-- Убраны 1 и 2 -->
       <button class="stone-btn" data-stones="3">3</button>
       <button class="stone-btn" data-stones="4">4</button>
       <button class="stone-btn" data-stones="5">5</button>
@@ -149,7 +148,6 @@
   </div>
 
   <div class="game-area">
-    <div class="multipliers" id="multipliers"></div>
     <div class="grid-scroll" id="gridScroll">
         <div class="grid-wrap" id="gridWrap"></div>
     </div>
@@ -164,7 +162,7 @@ let B = 0;
 
 const STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
 const TOTAL_STEPS = STEP_WIDTHS.length;
-let TOTAL_STONES = 6; 
+let TOTAL_STONES = 6; // По умолчанию 6
 let playing = false;
 let currentBet = 0;
 let currentStep = 0;
@@ -244,24 +242,26 @@ $('stonesSelect').addEventListener('click', function(e){
 });
 
 function renderGrid(){
-  var mHtml = '';
-  for(var i = TOTAL_STEPS; i >= 1; i--){
-    var m = calcMult(i);
-    var isPassed = (i <= currentStep && playing);
-    var isCurrent = (i === currentStep + 1 && playing);
-    mHtml += '<div class="m-val ' + (isPassed ? 'passed' : '') + ' ' + (isCurrent ? 'active' : '') + '">x' + m.toFixed(2) + '</div>';
-  }
-  $('multipliers').innerHTML = mHtml;
-
   var grid = $('gridWrap');
   grid.innerHTML = '';
   
+  // Рисуем сетку снизу вверх, встраивая множитель прямо в строку
   for(var step = TOTAL_STEPS - 1; step >= 0; step--){
     var row = document.createElement('div');
     row.className = 'row';
     
-    var cellsInRow = STEP_WIDTHS[step];
+    // Добавляем множитель слева
+    var m = calcMult(step + 1);
+    var isPassed = (step < currentStep && playing);
+    var isCurrent = (step === currentStep && playing);
     
+    var mEl = document.createElement('div');
+    mEl.className = 'm-val ' + (isPassed ? 'passed' : '') + ' ' + (isCurrent ? 'active' : '');
+    mEl.textContent = 'x' + calcMult(step + 1).toFixed(2);
+    row.appendChild(mEl);
+
+    // Добавляем сами клетки
+    var cellsInRow = STEP_WIDTHS[step];
     for(var c = 0; c < cellsInRow; c++){
         var cell = document.createElement('div');
         cell.className = 'cell';
@@ -295,7 +295,7 @@ async function clickCell(step, cellIdx, cellEl){
   
   var currentRow = cellEl.parentElement;
   var rowCells = currentRow.children;
-  for(var i=0; i<rowCells.length; i++){
+  for(var i=1; i<rowCells.length; i++){ // Пропускаем 0-й (это множитель)
       rowCells[i].classList.remove('current');
   }
   
@@ -326,10 +326,10 @@ async function clickCell(step, cellIdx, cellEl){
             var row = grid.children[visualIndex];
             if(!row) continue;
             var cells = row.children;
-            for(var c=0; c<cells.length; c++){
+            for(var c=1; c<cells.length; c++){ // Пропускаем множитель
                 cells[c].classList.remove('current');
                 cells[c].classList.add('opened');
-                if(stonePositions[r] && stonePositions[r].indexOf(c) !== -1){
+                if(stonePositions[r] && stonePositions[r].indexOf(c-1) !== -1){
                     cells[c].classList.add('revealed-stone', 'stone-icon');
                 } else {
                     cells[c].classList.add('revealed-diamond', 'diamond-icon');
@@ -445,7 +445,7 @@ async function cashOut(){
         var row = grid.children[visualIndex];
         if(!row) continue;
         var cells = row.children;
-        for(var c=0; c<cells.length; c++){
+        for(var c=1; c<cells.length; c++){ // Пропускаем множитель
             cells[c].classList.remove('current');
             if(r < currentStep){
                 cells[c].classList.add('opened', 'revealed-diamond', 'diamond-icon');
