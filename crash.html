@@ -474,24 +474,24 @@ function frame() {
     multValueEl.classList.remove('crashed');
     multValueEl.classList.remove('golden');
     
-    // ЛОГИКА ТЕКСТОВ:
+    // СКРЫВАЕМ СТАРОЕ ЧИСЛО - ставим 1.00x
+    multValueEl.style.opacity = '0.3'; 
+    multValueEl.textContent = '1.00x';
+
     if (round.status === 'crashed') {
-      // Сервер сказал, что был краш, сейчас пауза
       multLabelEl.textContent = 'Готовимся к вылету...';
     } else if (!round.hasRealBet) {
-      // Нет ни одной ставки (ни бота, ни игрока)
       multLabelEl.textContent = 'Ожидание первой ставки...';
     } else {
-      // Есть ставки, идет отсчет до старта
       multLabelEl.textContent = 'Готовимся к росту...';
     }
     
     graphPoints = [];
   } else if (effStatus === 'flying') {
     multValueEl.classList.remove('crashed');
+    multValueEl.style.opacity = '1';
     multLabelEl.textContent = ''; 
     
-    // Если больше 10x — делаем цифру золотой
     if (mult >= 10) {
       multValueEl.classList.add('golden');
     } else {
@@ -517,8 +517,8 @@ function frame() {
     });
   } else if (effStatus === 'crashed') {
     multValueEl.classList.add('crashed');
-    // Убрали текст "КРАШ!", оставили пустым, чтобы только цифра горела
-    multLabelEl.textContent = '';
+    multValueEl.style.opacity = '1';
+    multLabelEl.textContent = ''; // Убрали слово "КРАШ"
     
     if (round.startTime) {
       const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
@@ -540,7 +540,6 @@ function drawGraph(currentMult, status) {
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
 
-  // Сетка
   ctx.strokeStyle = 'rgba(255,255,255,0.05)';
   ctx.lineWidth = 1;
   for (let i = 0; i < H; i += 60) {
@@ -559,7 +558,6 @@ function drawGraph(currentMult, status) {
     const maxX = Math.max(3, lastX);
     const maxY = Math.max(currentMult * 1.15, 1.5);
 
-    // Цвет линии
     let lineColor = '#00e5ff';
     let shadowColor = 'rgba(0,229,255,0.5)';
     
@@ -567,7 +565,7 @@ function drawGraph(currentMult, status) {
       lineColor = '#ff4d4d';
       shadowColor = 'rgba(255,77,77,0.5)';
     } else if (currentMult >= 10) {
-      lineColor = '#ffd700'; // Золотой
+      lineColor = '#ffd700';
       shadowColor = 'rgba(255,215,0,0.6)';
     }
 
@@ -588,7 +586,6 @@ function drawGraph(currentMult, status) {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Точка на конце линии
     const lastP = graphPoints[graphPoints.length - 1];
     const lx = paddingL + (lastP.x / maxX) * drawW;
     const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
