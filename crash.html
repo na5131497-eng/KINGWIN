@@ -80,13 +80,20 @@
   .check-group { display: flex; gap: 10px; }
   .check-label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); font-weight: 600; cursor: pointer; }
   .check-label input { accent-color: var(--accent); cursor: pointer; }
+  .check-label input:disabled { opacity: 0.4; cursor: not-allowed; }
+  .check-label input:disabled + span { opacity: 0.4; }
+  
   .mult-input { font-size: 11px; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
   .mult-input input { width: 46px; background: transparent; border: none; color: #fff; font-weight: 700; outline: none; font-size: 12px; }
+  .mult-input input:disabled { opacity: 0.4; cursor: not-allowed; }
+  
   .amount-row { display: flex; gap: 8px; }
   .amount-input-wrap { flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 4px; min-width: 0; }
   .amount-input-wrap button { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 18px; cursor: pointer; font-weight: 700; transition: 0.2s; flex-shrink: 0; }
   .amount-input-wrap button:hover { background: rgba(255,255,255,0.1); }
   .amount-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 800; outline: none; font-family: inherit; }
+  .amount-input-wrap input:disabled { opacity: 0.6; cursor: not-allowed; }
+  
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; min-width: 0; padding: 8px 10px; }
   .btn-action .subtext { font-size: 11px; font-weight: 600; opacity: 0.85; margin-top: 3px; }
   .btn-bet { background: var(--yellow); color: #000; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
@@ -214,15 +221,15 @@
       <div class="bet-box">
         <div class="bet-options">
           <div class="check-group">
-            <label class="check-label"><input type="checkbox" id="autoCashout1" checked> Автовывод</label>
+            <label class="check-label"><input type="checkbox" id="autoCashout1" checked> <span>Автовывод</span></label>
           </div>
           <div class="mult-input">x <input type="number" id="autoMult1" value="2.00" step="0.1"></div>
         </div>
         <div class="amount-row">
           <div class="amount-input-wrap">
-            <button onclick="changeAmount(1, -10)">−</button>
+            <button id="btnMinus1" onclick="changeAmount(1, -10)">−</button>
             <input type="number" id="betAmount1" value="10" min="10" max="100">
-            <button onclick="changeAmount(1, 10)">+</button>
+            <button id="btnPlus1" onclick="changeAmount(1, 10)">+</button>
           </div>
           <button class="btn-action btn-bet" id="btnBet1" onclick="placeBet(1)">
             Ставка
@@ -230,25 +237,25 @@
           </button>
         </div>
         <div class="quick-bets">
-          <button onclick="setAmount(1, 10)">10</button>
-          <button onclick="setAmount(1, 25)">25</button>
-          <button onclick="setAmount(1, 50)">50</button>
-          <button onclick="setAmount(1, 100)">100</button>
+          <button id="quick1_1" onclick="setAmount(1, 10)">10</button>
+          <button id="quick1_2" onclick="setAmount(1, 25)">25</button>
+          <button id="quick1_3" onclick="setAmount(1, 50)">50</button>
+          <button id="quick1_4" onclick="setAmount(1, 100)">100</button>
         </div>
       </div>
 
       <div class="bet-box">
         <div class="bet-options">
           <div class="check-group">
-            <label class="check-label"><input type="checkbox" id="autoCashout2" checked> Автовывод</label>
+            <label class="check-label"><input type="checkbox" id="autoCashout2" checked> <span>Автовывод</span></label>
           </div>
           <div class="mult-input">x <input type="number" id="autoMult2" value="2.00" step="0.1"></div>
         </div>
         <div class="amount-row">
           <div class="amount-input-wrap">
-            <button onclick="changeAmount(2, -10)">−</button>
+            <button id="btnMinus2" onclick="changeAmount(2, -10)">−</button>
             <input type="number" id="betAmount2" value="10" min="10" max="100">
-            <button onclick="changeAmount(2, 10)">+</button>
+            <button id="btnPlus2" onclick="changeAmount(2, 10)">+</button>
           </div>
           <button class="btn-action btn-bet" id="btnBet2" onclick="placeBet(2)">
             Ставка
@@ -256,10 +263,10 @@
           </button>
         </div>
         <div class="quick-bets">
-          <button onclick="setAmount(2, 10)">10</button>
-          <button onclick="setAmount(2, 25)">25</button>
-          <button onclick="setAmount(2, 50)">50</button>
-          <button onclick="setAmount(2, 100)">100</button>
+          <button id="quick2_1" onclick="setAmount(2, 10)">10</button>
+          <button id="quick2_2" onclick="setAmount(2, 25)">25</button>
+          <button id="quick2_3" onclick="setAmount(2, 50)">50</button>
+          <button id="quick2_4" onclick="setAmount(2, 100)">100</button>
         </div>
       </div>
     </div>
@@ -297,6 +304,7 @@ let lastHistorySig = '';
 let localCrashed = false;
 let localCrashMult = 1;
 let crashedRoundId = null;
+let timeOffset = 0;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -360,7 +368,8 @@ function currentLocalMultiplier() {
   if (round.status === 'waiting') return 1;
   if (round.status === 'crashed' || localCrashed) return localCrashMult;
   if (round.status === 'flying' && round.startTime) {
-    const elapsed = Date.now() - round.startTime;
+    const elapsed = Date.now() - round.startTime - timeOffset;
+    if (elapsed <= 0) return 1;
     return Math.pow(1.00006, elapsed);
   }
   return 1;
@@ -370,7 +379,7 @@ function rebuildGraphFromStart() {
   graphPoints = [];
   if (!round.startTime) return;
 
-  const elapsedMs = Date.now() - round.startTime;
+  const elapsedMs = Date.now() - round.startTime - timeOffset;
   if (elapsedMs <= 0) {
     graphPoints.push({ x: 0, y: 1 });
     return;
@@ -409,6 +418,15 @@ async function pollRound() {
 }
 
 function applyServerState(d) {
+  if (d.status === 'flying' && d.startTime) {
+    const serverElapsed = parseFloat(d.multiplier) > 1 ? Math.log(parseFloat(d.multiplier)) / Math.log(1.00006) : 0;
+    const clientElapsed = Date.now() - d.startTime;
+    if (clientElapsed > 0) {
+      const offset = clientElapsed - serverElapsed;
+      timeOffset = timeOffset * 0.8 + offset * 0.2;
+    }
+  }
+
   const isNewRound = round.id !== null && d.roundId !== round.id;
   const roundChanged = round.id !== d.roundId;
 
@@ -474,10 +492,9 @@ function frame() {
     multValueEl.classList.remove('crashed');
     multValueEl.classList.remove('golden');
     
-    // СКРЫВАЕМ СТАРОЕ ЧИСЛО - ставим 1.00x
-    multValueEl.style.opacity = '0.3'; 
+    multValueEl.style.opacity = '0.3';
     multValueEl.textContent = '1.00x';
-
+    
     if (round.status === 'crashed') {
       multLabelEl.textContent = 'Готовимся к вылету...';
     } else if (!round.hasRealBet) {
@@ -492,6 +509,10 @@ function frame() {
     multValueEl.style.opacity = '1';
     multLabelEl.textContent = ''; 
     
+    if (mult < 1) {
+      multValueEl.textContent = '1.00x';
+    }
+
     if (mult >= 10) {
       multValueEl.classList.add('golden');
     } else {
@@ -499,7 +520,7 @@ function frame() {
     }
 
     if (round.startTime) {
-      const t = (Date.now() - round.startTime) / 1000;
+      const t = (Date.now() - round.startTime - timeOffset) / 1000;
       const last = graphPoints[graphPoints.length - 1];
       if (!last || t > last.x + 0.001) {
         graphPoints.push({ x: t, y: mult });
@@ -518,7 +539,7 @@ function frame() {
   } else if (effStatus === 'crashed') {
     multValueEl.classList.add('crashed');
     multValueEl.style.opacity = '1';
-    multLabelEl.textContent = ''; // Убрали слово "КРАШ"
+    multLabelEl.textContent = ''; 
     
     if (round.startTime) {
       const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
@@ -657,10 +678,34 @@ function renderHistory(history) {
 
 function updateBetButtons() {
   const effStatus = localCrashed ? 'crashed' : round.status;
+  
   [1, 2].forEach(id => {
     const btn = document.getElementById('btnBet' + id);
     const betId = myBetIds[id];
     const cashed = myCashed[id];
+    
+    // Блокировка/разблокировка элементов управления
+    const autoCashoutCheck = document.getElementById('autoCashout' + id);
+    const autoMultInput = document.getElementById('autoMult' + id);
+    const betAmountInput = document.getElementById('betAmount' + id);
+    const btnMinus = document.getElementById('btnMinus' + id);
+    const btnPlus = document.getElementById('btnPlus' + id);
+    const quickBtns = [
+      document.getElementById('quick' + id + '_1'),
+      document.getElementById('quick' + id + '_2'),
+      document.getElementById('quick' + id + '_3'),
+      document.getElementById('quick' + id + '_4')
+    ];
+
+    // Блокируем, если есть активная ставка или раунд уже начался/крашнулся
+    const shouldLock = betId !== null || effStatus === 'flying' || effStatus === 'crashed';
+
+    autoCashoutCheck.disabled = shouldLock;
+    autoMultInput.disabled = shouldLock;
+    betAmountInput.disabled = shouldLock;
+    btnMinus.disabled = shouldLock;
+    btnPlus.disabled = shouldLock;
+    quickBtns.forEach(b => { if(b) b.disabled = shouldLock; });
 
     if (effStatus === 'waiting') {
       if (betId) {
@@ -668,7 +713,7 @@ function updateBetButtons() {
         btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
         btn.disabled = false;
       } else {
-        const amt = parseInt(document.getElementById('betAmount' + id).value) || 10;
+        const amt = parseInt(betAmountInput.value) || 10;
         btn.className = 'btn-action btn-bet';
         btn.innerHTML = `Ставка <div class="subtext" id="subtext${id}">${amt} ₽</div>`;
         btn.disabled = false;
@@ -715,6 +760,7 @@ function getBetAmountById(betId, bets) {
 }
 
 function changeAmount(id, diff) {
+  if (myBetIds[id]) return; // Если ставка сделана - ничего не меняем
   const input = document.getElementById('betAmount' + id);
   let val = parseInt(input.value) || MIN_BET;
   val += diff;
@@ -726,6 +772,7 @@ function changeAmount(id, diff) {
 }
 
 function setAmount(id, val) {
+  if (myBetIds[id]) return; // Если ставка сделана - ничего не меняем
   if (val < MIN_BET) val = MIN_BET;
   if (val > MAX_BET) val = MAX_BET;
   document.getElementById('betAmount' + id).value = val;
