@@ -20,9 +20,49 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
-  
-  .crash-layout { display: flex; width: 100%; height: 100%; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; }
+  body { background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar-logo {
+    font-size: 20px; font-weight: 900; letter-spacing: 2px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .home-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    text-decoration: none; transition: 0.3s;
+  }
+  .home-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .balance-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,229,255,0.35);
+    padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s;
+  }
+  .balance-badge:hover { border-color: var(--accent); }
+  .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 15px; }
+
+  /* ---------- LAYOUT ---------- */
+  .crash-layout { display: flex; width: 100%; height: 100%; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; flex: 1; min-height: 0; overflow: hidden; }
   
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
   
@@ -43,18 +83,42 @@
   .bet-mult.lose { background: transparent; color: var(--text-muted); }
   .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); }
   
-  .game-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+  .game-area { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px 20px; }
   .history-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-right: 10px; }
   .history-list { display: flex; gap: 8px; overflow-x: auto; flex: 1; scrollbar-width: none; }
   .history-list::-webkit-scrollbar { display: none; }
   .history-item { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; flex-shrink: 0; }
-  .history-item.high { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.3); }
-  .history-item.mid { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }
-  .history-item.low { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* ---------- ЦВЕТА ИСТОРИИ ---------- */
+  /* 1.00 – 1.50 → красный */
+  .history-item.red {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff8a8a;
+    border: 1px solid rgba(255, 77, 77, 0.45);
+  }
+  /* 1.51 – 3.99 → синий */
+  .history-item.blue {
+    background: rgba(0, 119, 255, 0.2);
+    color: #66b3ff;
+    border: 1px solid rgba(0, 119, 255, 0.45);
+  }
+  /* 4.00 – 9.99 → фиолетовый */
+  .history-item.purple {
+    background: rgba(168, 85, 247, 0.2);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.45);
+  }
+  /* 10.00 – 100 → золотой */
+  .history-item.gold {
+    background: rgba(241, 196, 15, 0.2);
+    color: #ffe066;
+    border: 1px solid rgba(241, 196, 15, 0.55);
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.35);
+  }
   
-  .canvas-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+  .canvas-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 0; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   
   .multiplier-display { position: absolute; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
@@ -96,7 +160,7 @@
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast-container { position: fixed; top: 70px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 12px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
@@ -108,10 +172,23 @@
     .game-area { order: 1; min-height: 500px; }
     .control-panel { flex-direction: column; }
     .mult-value { font-size: 60px; }
+    .balance-badge .lbl { display: none; }
   }
 </style>
 </head>
 <body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">KINGWIN</div>
+    <a href="/" class="home-btn">← На главную</a>
+  </div>
+  <div class="balance-badge" id="balanceBadge">
+    <span class="lbl">Баланс</span>
+    <span class="val" id="balanceVal">0.00 ₽</span>
+  </div>
+</div>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -212,10 +289,11 @@
 
 <script>
 /* =========================================
-   ЛОГИКА ИГРЫ CRASH (с сохранением ставки)
+   ЛОГИКА ИГРЫ CRASH
    ========================================= */
 
 const LS_KEY = 'kingwin_crash_state';
+const PLAYER_KEY = 'kingwin_player_id';
 
 let gameState = 'waiting';
 let currentMultiplier = 1.00;
@@ -239,13 +317,36 @@ let bets = {
 let history = [];
 let points = [];
 
-function resizeCanvas() {
-  const parent = canvas.parentElement;
-  canvas.width = parent.clientWidth;
-  canvas.height = parent.clientHeight;
+/* ---------- БАЛАНС ---------- */
+let playerBalance = 0;
+let playerName = 'Гость';
+
+async function loadBalance() {
+  const id = localStorage.getItem(PLAYER_KEY);
+  if (!id) {
+    playerBalance = 0;
+    document.getElementById('balanceVal').textContent = '0.00 ₽';
+    return;
+  }
+  try {
+    const res = await fetch('/api/guest/me?id=' + encodeURIComponent(id));
+    const data = await res.json();
+    if (res.ok && data.guest) {
+      playerBalance = parseFloat(data.guest.bonus_balance) || 0;
+      playerName = data.guest.name || 'Гость';
+      document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽';
+    }
+  } catch(e) {
+    console.error(e);
+  }
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+
+document.getElementById('balanceBadge').addEventListener('click', () => {
+  window.location.href = '/';
+});
+
+loadBalance();
+setInterval(loadBalance, 5000);
 
 /* ---------- СОХРАНЕНИЕ / ВОССТАНОВЛЕНИЕ ---------- */
 function saveState() {
@@ -279,6 +380,22 @@ function generateCrashPoint() {
 
 function getMultiplierAtTime(ms) {
   return Math.pow(1.00006, ms);
+}
+
+function resizeCanvas() {
+  const parent = canvas.parentElement;
+  canvas.width = parent.clientWidth;
+  canvas.height = parent.clientHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+/* ---------- ЦВЕТА ИСТОРИИ ---------- */
+function historyColorClass(mult) {
+  if (mult >= 10) return 'gold';     // 10.00 – 100
+  if (mult >= 4)  return 'purple';   // 4.00 – 9.99
+  if (mult > 1.50) return 'blue';    // 1.51 – 3.99
+  return 'red';                      // 1.00 – 1.50
 }
 
 /* ---------- ОТРИСОВКА ---------- */
@@ -356,7 +473,7 @@ function startRound() {
 function startFlight() {
   gameState = 'flying';
   roundStartTime = Date.now();
-  multLabelEl.textContent = 'Текущий коэффициент';
+  multLabelEl.textContent = '';
   saveState();
 
   function tick() {
@@ -428,11 +545,9 @@ function setAmount(id, val) {
 
 function placeBet(id) {
   if (bets[id].active) {
-    // Если ставка активна и летим — это КЭШАУТ
     if (gameState === 'flying' && !bets[id].cashedOut) {
       cashOut(id);
     } else if (gameState === 'waiting') {
-      // Отмена до старта
       bets[id].active = false;
       addBetToPanel(id, 0, null, 'cancelled');
       updateBetButtons();
@@ -441,7 +556,6 @@ function placeBet(id) {
     return;
   }
 
-  // Ставка разрешена ТОЛЬКО в фазе ожидания
   if (gameState === 'waiting') {
     bets[id].active = true;
     bets[id].cashedOut = false;
@@ -452,7 +566,6 @@ function placeBet(id) {
     saveState();
     showToast(`Ставка ${bets[id].amount} ₽ принята!`, 'success');
   } else {
-    // В полёте — нельзя
     showToast('Раунд уже начался, ждите следующего', 'error');
   }
 }
@@ -496,7 +609,6 @@ function updateBetButtons() {
       }
     } else if (gameState === 'flying') {
       if (bet.active && !bet.cashedOut) {
-        // У тебя есть ставка — можно забрать
         btn.className = 'btn-action btn-cancel';
         btn.innerHTML = `Забрать <div class="subtext">${(bet.amount * currentMultiplier).toFixed(2)} ₽</div>`;
         btn.disabled = false;
@@ -505,7 +617,6 @@ function updateBetButtons() {
         btn.innerHTML = `Выведено <div class="subtext">+${(bet.amount * bet.cashoutMultiplier).toFixed(2)} ₽</div>`;
         btn.disabled = true;
       } else {
-        // Нет ставки — нельзя войти в идущий раунд
         btn.className = 'btn-action btn-bet';
         btn.innerHTML = `Ставка <div class="subtext">Раунд идёт</div>`;
         btn.disabled = true;
@@ -527,7 +638,7 @@ function addBetToPanel(id, mult, win, status) {
   row.className = 'bet-row';
   row.dataset.betId = id;
   row.dataset.panelId = panelIdCounter++;
-  const playerName = id === 1 ? 'Вы (1)' : 'Вы (2)';
+  const label = id === 1 ? 'Вы (1)' : 'Вы (2)';
   let multHtml = '--';
   if (mult > 0) {
     multHtml = `<span class="bet-mult ${win ? 'win' : 'lose'}">${mult.toFixed(2)}x</span>`;
@@ -539,7 +650,7 @@ function addBetToPanel(id, mult, win, status) {
     winHtml = 'отменено';
   }
   row.innerHTML = `
-    <div class="bet-user"><div class="user-avatar">Y</div>${playerName}</div>
+    <div class="bet-user"><div class="user-avatar">Y</div>${label}</div>
     <div class="bet-amount">${bets[id].amount} ₽</div>
     <div>${multHtml}</div>
     <div class="bet-cashout">${winHtml}</div>
@@ -586,10 +697,7 @@ function addToHistory(mult) {
   if (history.length > 15) history.pop();
   const list = document.getElementById('historyList');
   const item = document.createElement('div');
-  item.className = 'history-item';
-  if (mult >= 10) item.classList.add('high');
-  else if (mult >= 2) item.classList.add('mid');
-  else item.classList.add('low');
+  item.className = 'history-item ' + historyColorClass(mult);
   item.textContent = mult.toFixed(2) + 'x';
   list.prepend(item);
   if (list.children.length > 15) list.lastChild.remove();
@@ -629,10 +737,7 @@ function restoreFromState() {
   list.innerHTML = '';
   history.forEach(m => {
     const item = document.createElement('div');
-    item.className = 'history-item';
-    if (m >= 10) item.classList.add('high');
-    else if (m >= 2) item.classList.add('mid');
-    else item.classList.add('low');
+    item.className = 'history-item ' + historyColorClass(m);
     item.textContent = m.toFixed(2) + 'x';
     list.appendChild(item);
   });
@@ -657,12 +762,10 @@ function restoreFromState() {
     points.push({ x: elapsed / 1000, y: currentMultiplier });
 
     multValueEl.textContent = currentMultiplier.toFixed(2) + 'x';
-    multLabelEl.textContent = 'Текущий коэффициент';
+    multLabelEl.textContent = '';
 
     [1, 2].forEach(id => {
-      if (bets[id].active) {
-        addBetToPanel(id, 0, null);
-      }
+      if (bets[id].active) addBetToPanel(id, 0, null);
     });
 
     updateBetButtons();
