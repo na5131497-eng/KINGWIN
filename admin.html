@@ -205,6 +205,7 @@
     <button data-page="finance">Депозиты и выводы</button>
     <button data-page="players">Игроки</button>
     <button data-page="guests">Гости (Профиль 2)</button>
+    <button data-page="online">Онлайн-казино (Crash)</button> <!-- НОВАЯ ВКЛАДКА -->
     <button data-page="payouts">Выплаты дилерам</button>
     <button data-page="history">История</button>
     <button data-page="roles">Роли</button>
@@ -301,6 +302,22 @@
         <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th><th>Бонусные ₽</th><th>Действия</th>
       </tr></thead><tbody id="guestsBody"></tbody></table></div>
       <div class="empty" id="guestsEmpty">Нет гостей</div>
+    </div>
+  </div>
+
+  <!-- НОВАЯ ВКЛАДКА ОНЛАЙН-КАЗИНО -->
+  <div class="page" id="page-online">
+    <h1>Онлайн-казино (Crash)</h1>
+    <div class="sub">История успешных выводов и ставок в раундах</div>
+    
+    <div class="cards" id="onlineCards"></div>
+
+    <div class="panel">
+      <h3>Успешные выводы (Кэшауты)</h3>
+      <div class="wrap"><table><thead><tr>
+        <th>Дата</th><th>Игрок</th><th>Ставка</th><th>Кэф вывода</th><th>Сумма к выплате</th><th>Раунд</th>
+      </tr></thead><tbody id="onlineBody"></tbody></table></div>
+      <div class="empty" id="onlineEmpty">Пока нет кэшаутов</div>
     </div>
   </div>
 
@@ -423,7 +440,7 @@
 <div class="modal-backdrop" id="clearAllModal">
   <div class="modal" style="border-color: var(--red); box-shadow: 0 0 30px rgba(255, 77, 77, 0.15);">
     <h2 style="color: var(--red);">ВНИМАНИЕ!</h2>
-    <p>Вы собираетесь <b>ПОЛНОСТЬЮ ОЧИСТИТЬ</b> базу данных. Будут удалены все сессии, баккара, депозиты, выводы, выплаты и история.<br><br>Введите пароль владельца для подтверждения:</p>
+    <p>Вы собираетесь <b>ПОЛНОСТЬЮ ОЧИСТИТЬ</b> базу данных. Будут удалены ВСЕ сессии, баккара, депозиты, выводы, выплаты, история, база гостей, доходы онлайн-казино и история Crash.<br><br>Введите пароль владельца для подтверждения:</p>
     <input type="password" class="modal-input" id="clearAllPass" placeholder="Пароль владельца">
     <div class="err" id="clearAllErr"></div>
     <div class="btn-row">
@@ -460,7 +477,7 @@
 </div>
 
 <script>
-let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [] };
+let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [] };
 let currentUser = null;
 let currentRole = null;
 let editGuestId = null;
@@ -499,7 +516,6 @@ async function apiDelete(url){
 }
 
 async function loadDB(){
-  // Загружаем последовательно с защитой от падений
   const endpoints = {
     sessions: '/api/sessions',
     baccarat: '/api/baccarat',
@@ -511,7 +527,8 @@ async function loadDB(){
     employees: '/api/employees',
     dealers: '/api/dealers',
     online: '/api/online',
-    guests: '/api/guests'
+    guests: '/api/guests',
+    crash_bets: '/api/crash/all-bets' // ДОБАВЛЕН ЭНДПОИНТ ДЛЯ ВСЕХ СТАВОК CRASH
   };
   const results = await Promise.all(
     Object.entries(endpoints).map(async ([key, url]) => {
@@ -528,8 +545,8 @@ async function audit(action, details){
 }
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','online','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','online','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
@@ -583,22 +600,32 @@ async function confirmLogout(){
 
 function openClearModal(){ document.getElementById('clearAllModal').classList.add('show'); }
 function closeClearAllModal(){ document.getElementById('clearAllModal').classList.remove('show'); }
+
 async function confirmClearAll(){
   const pass = document.getElementById('clearAllPass').value;
   if(pass !== '56UpahoS'){ 
     document.getElementById('clearAllErr').textContent = 'Неверный пароль.'; 
     return; 
   }
+  // Очищаем ВСЁ
   for(const s of db.sessions) await apiDelete('/api/sessions/' + s.id);
   for(const b of db.baccarat) await apiDelete('/api/baccarat/' + b.id);
   for(const d of db.deposits) await apiDelete('/api/deposits/' + d.id);
   for(const w of db.withdrawals) await apiDelete('/api/withdrawals/' + w.id);
   for(const p of db.payouts) await apiDelete('/api/payouts/' + p.id);
+  for(const o of db.online) await apiDelete('/api/online/' + o.id);
   await apiDelete('/api/audit');
+  
+  // Очищаем базу гостей (чтобы обнулились бонусы и история)
+  for(const g of db.guests) await apiPost('/api/guests/delete', { id: g.id });
+
+  // Очищаем историю Crash
+  await apiDelete('/api/crash/clear');
+
   closeClearAllModal();
   await loadDB();
   renderAll();
-  showInfo('Успех', 'Все данные успешно удалены.');
+  showInfo('Успех', 'Все данные (включая доходы онлайн-казино и историю Crash) успешно удалены.');
 }
 
 document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
@@ -854,6 +881,38 @@ function renderPlayers(){
 }
 async function toggleVIP(nick, val){ await apiPost('/api/players', {nick, vip:val}); await audit('vip_toggle', nick); await loadDB(); renderPlayers(); }
 
+/* ---------- ОНЛАЙН-КАЗИНО (CRASH) ---------- */
+function renderOnline() {
+  // Считаем статистику по кэшаутам
+  const cashouts = db.crash_bets.filter(b => b.cashed_out);
+  
+  // Успешные ставки (кто сколько выиграл)
+  const totalBets = db.crash_bets.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+  const totalPayouts = cashouts.reduce((a, b) => a + (parseFloat(b.amount) * parseFloat(b.cashout_mult) || 0), 0);
+  
+  document.getElementById('onlineCards').innerHTML = `
+    <div class="card"><div class="label">Всего ставок в Crash</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
+    <div class="card"><div class="label">Выигрыши (Кэшауты)</div><div class="value red">${fmt(totalPayouts)} ₽</div></div>
+    <div class="card"><div class="label">Прибыль казино</div><div class="value green">${fmt(totalBets - totalPayouts)} ₽</div></div>
+  `;
+
+  document.getElementById('onlineBody').innerHTML = cashouts.map(b => {
+    const dateStr = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU') : '—';
+    return `
+      <tr>
+        <td>${dateStr}</td>
+        <td>${b.player_name}</td>
+        <td>${fmt(b.amount)} ₽</td>
+        <td class="pos">x${parseFloat(b.cashout_mult).toFixed(2)}</td>
+        <td class="pos">${fmt(b.amount * parseFloat(b.cashout_mult))} ₽</td>
+        <td>#${b.round_id}</td>
+      </tr>
+    `;
+  }).join('');
+  
+  document.getElementById('onlineEmpty').style.display = cashouts.length ? 'none' : 'block';
+}
+
 /* ---------- ГОСТИ ---------- */
 async function loadGuests(){
   db.guests = await apiGet('/api/guests');
@@ -1073,6 +1132,7 @@ function renderAll(){
   if(hasPerm('finance')) renderFinance();
   if(hasPerm('players')) renderPlayers();
   if(hasPerm('guests')) loadGuests();
+  if(hasPerm('online')) renderOnline();
   if(hasPerm('payouts')) renderPayouts();
   if(hasPerm('history')) renderHistory();
   if(hasPerm('roles')) renderRoles();
