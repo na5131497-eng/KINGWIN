@@ -236,6 +236,7 @@ async function initDB() {
         round_id INTEGER REFERENCES crash_rounds(id) ON DELETE CASCADE,
         player_id TEXT,
         player_name TEXT,
+        player_rank TEXT DEFAULT 'Bronze',
         amount NUMERIC NOT NULL,
         cashout_mult NUMERIC,
         cashed_out BOOLEAN DEFAULT FALSE,
@@ -248,7 +249,8 @@ async function initDB() {
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS bonus_balance NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS wagering_required NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS wagering_done NUMERIC DEFAULT 0`,
-      `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rank TEXT DEFAULT 'Bronze'`
+      `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rank TEXT DEFAULT 'Bronze'`,
+      `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
@@ -410,7 +412,7 @@ const server = http.createServer(async (req, res) => {
       if (crashState.roundId) {
         try {
           const betsRes = await pool.query(
-            `SELECT id, player_id, player_name, amount, cashout_mult, cashed_out
+            `SELECT id, player_id, player_name, player_rank, amount, cashout_mult, cashed_out
              FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`,
             [crashState.roundId]
           );
@@ -446,10 +448,14 @@ const server = http.createServer(async (req, res) => {
       if (amt < 10) return sendJSON(res, 400, { error: 'Мин. ставка 10 ₽' });
       if (amt > 100) return sendJSON(res, 400, { error: 'Макс. ставка 100 ₽' });
 
+      let maskName = '••••';
+      let playerRank = 'Bronze';
+
       if (b.player_id) {
         const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1`, [String(b.player_id)]);
         if (gRes.rows.length > 0) {
-          const bal = parseFloat(gRes.rows[0].bonus_balance) || 0;
+          const guest = gRes.rows[0];
+          const bal = parseFloat(guest.bonus_balance) || 0;
           if (bal < amt) {
             return sendJSON(res, 400, { error: 'Недостаточно бонусных рублей' });
           }
@@ -457,13 +463,16 @@ const server = http.createServer(async (req, res) => {
             `UPDATE guests SET bonus_balance = bonus_balance - $1 WHERE id=$2`,
             [amt, String(b.player_id)]
           );
+          const s = String(guest.id);
+          maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••';
+          playerRank = guest.rank || 'Bronze';
         }
       }
 
       const r = await pool.query(
-        `INSERT INTO crash_bets (round_id, player_id, player_name, amount)
-         VALUES ($1,$2,$3,$4) RETURNING *`,
-        [crashState.roundId, b.player_id || null, b.player_name || 'Гость', amt]
+        `INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount)
+         VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+        [crashState.roundId, b.player_id || null, maskName, playerRank, amt]
       );
       return sendJSON(res, 200, { ok: true, bet: r.rows[0] });
     }
