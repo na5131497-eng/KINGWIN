@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KINGWIN — Кейсы</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
+    --accent: #00e5ff; --accent-green: #00ff88;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.06);
+    --red: #ff4d4d; --yellow: #f1c40f; --gold: #ffd700;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  html, body { height: 100%; }
+  body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* TOPBAR */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
+  .home-btn { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; transition: 0.3s; white-space: nowrap; }
+  .home-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+  .balance-badge:hover { border-color: var(--accent); }
+  .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
+
+  /* MAIN LAYOUT */
+  .cases-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
+
+  /* КЕЙСЫ (СЕТКА) */
+  .cases-sidebar { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+  .cases-header { padding: 15px; border-bottom: 1px solid var(--border); background: var(--bg-dark); text-align: center; }
+  .cases-header h2 { font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .cases-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 10px; gap: 10px; }
+
+  .case-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+  .case-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+  .case-item.active { border-color: var(--accent); background: rgba(0,229,255,0.1); box-shadow: 0 0 15px rgba(0,229,255,0.15); }
+  .case-item.locked { opacity: 0.5; cursor: not-allowed; }
+  .case-item.locked:hover { background: rgba(0,0,0,0.3); border-color: var(--border); }
+
+  .case-info { display: flex; flex-direction: column; gap: 4px; }
+  .case-name { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .case-price { font-size: 12px; color: var(--accent-green); font-weight: 700; }
+  
+  /* Иконки кейсов */
+  .case-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 24px; border-radius: 8px; background: rgba(255,255,255,0.05); }
+  .case-item[data-rank="0"] .case-icon { color: #cd7f32; }
+  .case-item[data-rank="1"] .case-icon { color: #cd7f32; }
+  .case-item[data-rank="2"] .case-icon { color: #c0c0c0; }
+  .case-item[data-rank="3"] .case-icon { color: #f1c40f; }
+  .case-item[data-rank="4"] .case-icon { color: #e5e4e2; }
+  .case-item[data-rank="5"] .case-icon { color: #b9f2ff; }
+  .case-item[data-rank="6"] .case-icon { color: #d4af37; text-shadow: 0 0 10px #d4af37; }
+
+  /* ИГРОВАЯ ЗОНА */
+  .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
+
+  .wheel-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 250px; }
+  
+  /* Курсор по центру */
+  .wheel-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--accent); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px var(--accent); }
+  .wheel-pointer::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid var(--accent); }
+  .wheel-pointer::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid var(--accent); }
+
+  /* Лента */
+  .wheel-track { display: flex; align-items: center; gap: 10px; padding: 20px 0; position: absolute; left: 0; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
+  .wheel-item { width: 100px; height: 100px; flex-shrink: 0; background: var(--bg-panel); border: 2px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 16px; font-weight: 900; gap: 5px; }
+  .wheel-item span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  
+  /* Цвета карточек в ленте */
+  .wheel-item.rarity-0 { border-color: rgba(255,255,255,0.1); color: #fff; } /* Серый */
+  .wheel-item.rarity-1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); } /* Зеленый */
+  .wheel-item.rarity-2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); } /* Синий */
+  .wheel-item.rarity-3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); } /* Фиолетовый */
+  .wheel-item.rarity-4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); } /* Золото */
+
+  /* ПАНЕЛЬ УПРАВЛЕНИЯ */
+  .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+  
+  .case-details { display: flex; justify-content: space-between; align-items: center; }
+  .case-details h3 { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+  .case-details .price { font-size: 24px; font-weight: 900; color: var(--accent-green); }
+  
+  .btn-open { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,255,136,0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
+  .btn-open:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
+  .btn-open:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Модалка выигрыша */
+  .win-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
+  .win-overlay.show { display: flex; }
+  .win-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid var(--accent); border-radius: 24px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center; position: relative; overflow: hidden; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  
+  .win-modal h2 { font-size: 24px; font-weight: 900; margin-bottom: 10px; color: #fff; }
+  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 20px 0; }
+  .win-close { background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 14px 40px; font-size: 16px; font-weight: 900; cursor: pointer; margin-top: 20px; }
+
+  /* TOASTS */
+  .toast-container { position: fixed; top: 60px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: var(--accent-green); }
+  .toast.error { border-left-color: var(--red); }
+
+  /* АДАПТАЦИЯ */
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .cases-layout { flex-direction: column; padding: 10px; gap: 10px; height: auto; min-height: 100dvh; }
+    .game-area { order: 1; flex: none; height: auto; gap: 10px; }
+    .cases-sidebar { order: 2; width: 100%; height: 300px; flex-shrink: 0; }
+    .wheel-container { height: 250px; min-height: 250px; flex: none; }
+    .control-panel { padding: 15px; }
+    .case-details h3 { font-size: 18px; }
+    .case-details .price { font-size: 20px; }
+    .btn-open { font-size: 16px; padding: 14px; }
+    .topbar .balance-badge .lbl { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">KINGWIN</div>
+    <a href="/" class="home-btn">← На главную</a>
+  </div>
+  <div class="balance-badge" id="balanceBadge">
+    <span class="lbl">Баланс</span>
+    <span class="val" id="balanceVal">0.00 ₽</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="cases-layout">
+  <!-- Сайдбар с кейсами -->
+  <aside class="cases-sidebar">
+    <div class="cases-header">
+      <h2>Кейсы</h2>
+    </div>
+    <div class="cases-list" id="casesList">
+      <!-- Сюда рендерятся кейсы -->
+    </div>
+  </aside>
+
+  <!-- Игровая зона -->
+  <div class="game-area">
+    <div class="wheel-container">
+      <div class="wheel-pointer"></div>
+      <div class="wheel-track" id="wheelTrack"></div>
+    </div>
+
+    <div class="control-panel">
+      <div class="case-details">
+        <h3 id="selectedCaseName">Новичок</h3>
+        <div class="price" id="selectedCasePrice">39.99 ₽</div>
+      </div>
+      <button class="btn-open" id="btnOpen" onclick="openCase()">Открыть за 39.99 ₽</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка выигрыша -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-modal">
+    <h2>Вы выиграли!</h2>
+    <div class="win-amount" id="winAmount">0 ₽</div>
+    <button class="win-close" onclick="closeWin()">Отлично</button>
+  </div>
+</div>
+
+<script>
+const PLAYER_KEY = 'kingwin_player_id';
+let playerId = localStorage.getItem(PLAYER_KEY);
+let playerRank = 0;
+let casesData = {};
+let selectedCase = 'Новичок';
+let isSpinning = false;
+
+// Визуальные веса для ленты (чтобы лента выглядела красиво)
+// В ленте мы генерируем случайные предметы, но потом подменяем центральный на реальный приз.
+const dummyItems = [0, 5, 10, 15, 20, 30, 50, 75, 100, 175, 500, 750, 1000, 0, 5, 10, 20, 50, 100];
+
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+async function loadBalance() {
+  if (!playerId) {
+    document.getElementById('balanceVal').textContent = '0.00 ₽';
+    return;
+  }
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if (r.ok && d.guest) {
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      document.getElementById('balanceVal').textContent = total.toFixed(2) + ' ₽';
+    }
+  } catch(e) {}
+}
+
+function getRarityClass(val) {
+  if (val >= 500) return 'rarity-4'; // Золото
+  if (val >= 100) return 'rarity-3'; // Фиолетовый
+  if (val >= 30)  return 'rarity-2'; // Синий
+  if (val > 0)    return 'rarity-1'; // Зеленый
+  return 'rarity-0'; // Серый
+}
+
+function renderWheelItems(prizeVal, prizeIndex = -1) {
+  const track = document.getElementById('wheelTrack');
+  track.innerHTML = '';
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+
+  let html = '';
+  for (let i = 0; i < 40; i++) {
+    let val;
+    if (i === prizeIndex) {
+      val = prizeVal; // Реальный приз
+    } else {
+      val = dummyItems[Math.floor(Math.random() * dummyItems.length)];
+    }
+    const rar = getRarityClass(val);
+    html += `
+      <div class="wheel-item ${rar}">
+        ${val} ₽
+        <span>${val > 0 ? 'Выигрыш' : 'Пусто'}</span>
+      </div>
+    `;
+  }
+  track.innerHTML = html;
+}
+
+async function initCases() {
+  await loadBalance();
+  
+  if (!playerId) {
+    document.getElementById('casesList').innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">Войдите в аккаунт, чтобы играть</div>`;
+    document.getElementById('btnOpen').disabled = true;
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/cases/list?guest_id=' + encodeURIComponent(playerId));
+    const list = await r.json();
+    
+    casesData = {};
+    const listDiv = document.getElementById('casesList');
+    listDiv.innerHTML = '';
+
+    // Сортируем по цене
+    list.sort((a,b) => a.price - b.price);
+
+    list.forEach((c, idx) => {
+      casesData[c.name] = c;
+      
+      const div = document.createElement('div');
+      div.className = `case-item ${c.available ? '' : 'locked'} ${idx === 0 ? 'active' : ''}`;
+      div.dataset.name = c.name;
+      div.dataset.rank = c.minRank;
+      
+      const icon = c.name === 'Королевский' ? '👑' : (c.available ? '📦' : '🔒');
+      
+      div.innerHTML = `
+        <div class="case-info">
+          <div class="case-name">${c.name}</div>
+          <div class="case-price">${fmt(c.price)} ₽</div>
+        </div>
+        <div class="case-icon">${icon}</div>
+      `;
+
+      div.onclick = () => {
+        if (!c.available) { showToast('Этот кейс недоступен для вашего ранга', 'error'); return; }
+        selectCase(c.name);
+      };
+
+      listDiv.appendChild(div);
+    });
+
+    // Выбираем первый доступный
+    const firstAvailable = list.find(c => c.available);
+    if (firstAvailable) {
+      selectCase(firstAvailable.name);
+    } else {
+      document.getElementById('btnOpen').disabled = true;
+    }
+
+  } catch(e) {
+    console.error(e);
+    showToast('Ошибка загрузки кейсов', 'error');
+  }
+}
+
+function selectCase(name) {
+  if (isSpinning) return;
+  selectedCase = name;
+  const c = casesData[name];
+  
+  document.querySelectorAll('.case-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.name === name);
+  });
+
+  document.getElementById('selectedCaseName').textContent = name;
+  document.getElementById('selectedCasePrice').textContent = fmt(c.price) + ' ₽';
+  document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+  
+  // Сбрасываем ленту
+  renderWheelItems(0);
+}
+
+async function openCase() {
+  if (isSpinning) return;
+  const c = casesData[selectedCase];
+  if (!c) return;
+
+  if (!playerId) { showToast('Войдите в аккаунт', 'error'); return; }
+  
+  // Проверка баланса на клиенте (для скорости)
+  const balText = document.getElementById('balanceVal').textContent.replace(/\s/g, '').replace('₽', '');
+  if (parseFloat(balText) < c.price) {
+    showToast('Недостаточно средств', 'error');
+    return;
+  }
+
+  isSpinning = true;
+  document.getElementById('btnOpen').disabled = true;
+  document.getElementById('btnOpen').innerHTML = 'Открытие...';
+
+  try {
+    const res = await fetch('/api/cases/open', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ guest_id: playerId, case_name: selectedCase })
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      showToast(data.error || 'Ошибка', 'error');
+      isSpinning = false;
+      document.getElementById('btnOpen').disabled = false;
+      document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+      return;
+    }
+
+    // Сервер вернул приз
+    const prize = data.prize;
+    
+    // Настраиваем ленту (ставим приз на 35-й элемент)
+    const prizeIdx = 35;
+    renderWheelItems(prize, prizeIdx);
+
+    // Анимация
+    const track = document.getElementById('wheelTrack');
+    const containerWidth = document.querySelector('.wheel-container').clientWidth;
+    const itemWidth = 110; // 100px ширина + 10px gap
+    const centerOffset = containerWidth / 2;
+    // Прокручиваем так, чтобы центр курсора указывал на prizeIdx + небольшой сдвиг
+    const randomOffset = (Math.random() * 60) - 30; // сдвиг "на клетку вперед"
+    const targetScroll = (prizeIdx * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
+
+    setTimeout(() => {
+      track.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
+      track.style.transform = `translateX(-${targetScroll}px)`;
+    }, 50);
+
+    // Ждем окончания анимации
+    setTimeout(() => {
+      showWinModal(prize);
+      loadBalance();
+      isSpinning = false;
+      document.getElementById('btnOpen').disabled = false;
+      document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+    }, 4100);
+
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+    isSpinning = false;
+    document.getElementById('btnOpen').disabled = false;
+    document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+  }
+}
+
+function showWinModal(prize) {
+  if (prize > 0) {
+    document.getElementById('winAmount').textContent = `+${fmt(prize)} ₽`;
+    document.getElementById('winAmount').style.color = 'var(--accent-green)';
+  } else {
+    document.getElementById('winAmount').textContent = 'Пусто';
+    document.getElementById('winAmount').style.color = 'var(--text-muted)';
+  }
+  document.getElementById('winOverlay').classList.add('show');
+}
+
+function closeWin() {
+  document.getElementById('winOverlay').classList.remove('show');
+  renderWheelItems(0); // Сброс ленты
+}
+
+function showToast(text, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div style="font-size:13px;font-weight:600;color:#fff">${text}</div>`;
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
+// Инициализация
+initCases();
+</script>
+</body>
+</html>
