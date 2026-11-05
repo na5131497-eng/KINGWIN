@@ -52,6 +52,31 @@
   .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
   .hidden { display: none !important; }
 
+  /* ЧЕКБОКС ДЖЕКПОТА */
+  .jackpot-check {
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(255,77,77,.06));
+    border: 1px solid rgba(241,196,15,.35); border-radius: 12px;
+    padding: 14px; margin: 6px 0 4px; user-select: none;
+    transition: all .2s;
+  }
+  .jackpot-check:hover { border-color: rgba(241,196,15,.7); }
+  .jackpot-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .jackpot-check .box {
+    width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px;
+    border: 2px solid rgba(241,196,15,.5); background: rgba(0,0,0,.3);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 16px; font-weight: 900; color: #000; transition: all .2s;
+  }
+  .jackpot-check input:checked ~ .box {
+    background: #f1c40f; border-color: #f1c40f;
+    box-shadow: 0 0 15px rgba(241,196,15,.6);
+  }
+  .jackpot-check input:checked ~ .box::after { content: '✓'; }
+  .jackpot-check .txt { font-size: 13px; font-weight: 600; line-height: 1.35; }
+  .jackpot-check .txt small { display: block; color: #8fa2b8; font-size: 11px; font-weight: 500; margin-top: 2px; }
+  .jackpot-check input:checked ~ .txt { color: #f1c40f; }
+
   .balance-card { background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.35); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
   .balance-card .lbl { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
   .balance-card .amount { font-size: 38px; font-weight: 900; color: #3fbf7f; line-height: 1; }
@@ -151,6 +176,15 @@
         <input type="number" id="winAmount" min="0" max="100000" placeholder="0">
       </div>
     </div>
+
+    <!-- ГАЛОЧКА ДЖЕКПОТА -->
+    <label class="jackpot-check" for="jackpotCheck">
+      <input type="checkbox" id="jackpotCheck">
+      <span class="box"></span>
+      <span class="txt">Джекпот выпал
+        <small>Прогрессирующий джекпот сбросится до 0 ₽</small>
+      </span>
+    </label>
 
     <button class="btn-submit" id="btnSubmit" onclick="saveRound()">Внести раунд</button>
     <div class="msg" id="msgData"></div>
@@ -280,6 +314,7 @@ async function saveRound(){
   const playerNick = document.getElementById('playerNick').value.trim();
   const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
   const winAmount = parseFloat(document.getElementById('winAmount').value) || 0;
+  const jackpot = document.getElementById('jackpotCheck').checked;
 
   if(!playerNick){ showInfo('Ошибка', 'Введите ник игрока'); return; }
   if(betAmount < 10 || betAmount > 10000){ showInfo('Ошибка', 'Ставка от 10 до 10 000 ₽'); return; }
@@ -296,16 +331,18 @@ async function saveRound(){
         game_type: gameType,
         nick: playerNick,
         bet: betAmount,
-        win: winAmount
+        win: winAmount,
+        jackpot: jackpot
       })
     });
     const data = await res.json();
     
     if(res.ok) {
-      showMsg('msgData', 'Раунд сохранен!', true);
+      showMsg('msgData', jackpot ? 'Раунд сохранен! Джекпот сброшен до 0 ₽' : 'Раунд сохранен!', true);
       document.getElementById('playerNick').value = '';
       document.getElementById('betAmount').value = '';
       document.getElementById('winAmount').value = '';
+      document.getElementById('jackpotCheck').checked = false;
       loadTasks();
     } else {
       showInfo('Ошибка', data.error || 'Не удалось сохранить');
