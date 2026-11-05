@@ -50,23 +50,21 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
-/* ---------- DAILY & WHEEL ---------- */
-const DAILY_REWARDS = [15, 30, 40, 50, 60, 60, 100];
-const WHEEL_PRIZES = [
-  { index: 0, label: '10 баллов',  type: 'points', value: 10,  weight: 26, color: '#00e5ff' },
-  { index: 1, label: '10 ₽',       type: 'money',  value: 10,  weight: 22, color: '#3fbf7f' },
-  { index: 2, label: '25 баллов',  type: 'points', value: 25,  weight: 18, color: '#d4af37' },
-  { index: 3, label: '50 ₽',       type: 'money',  value: 50,  weight: 14, color: '#ff8a8a' },
-  { index: 4, label: '100 ₽',      type: 'money',  value: 100, weight: 10, color: '#b9f2ff' },
-  { index: 5, label: '100 баллов', type: 'points', value: 100, weight: 7,  color: '#e67e22' },
-  { index: 6, label: '500 баллов', type: 'points', value: 500, weight: 3,  color: '#ffe066' }
-];
+/* ---------- DAILY: 10/15/20/25/30/35/40 ---------- */
+const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 
-function pickWheelPrize(){
-  const total = WHEEL_PRIZES.reduce((a,p)=>a+p.weight,0);
-  let r = Math.random()*total;
-  for(const p of WHEEL_PRIZES){ if(r < p.weight) return p; r -= p.weight; }
-  return WHEEL_PRIZES[0];
+function todayStr(){ return new Date().toISOString().slice(0, 10); }
+
+// нормализует Date | string | null → 'YYYY-MM-DD' | null
+function dateStr(v){
+  if(!v) return null;
+  if(v instanceof Date){
+    const y = v.getFullYear();
+    const m = String(v.getMonth()+1).padStart(2,'0');
+    const d = String(v.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  }
+  return String(v).slice(0,10);
 }
 
 /* ---------- Джекпот ---------- */
@@ -161,8 +159,6 @@ const DEALER_TASKS = [
   { id: 'hands_50',  title: 'Сыграй 50 раздач за день',  goal: 50,  reward: 50,  type: 'any' },
   { id: 'hands_100', title: 'Сыграй 100 раздач за день', goal: 100, reward: 100, type: 'any' }
 ];
-
-function todayStr(){ return new Date().toISOString().slice(0, 10); }
 
 async function getDealerHandsToday(dealerName){
   try {
@@ -939,7 +935,7 @@ const server = http.createServer(async (req, res) => {
       if(String(pass) !== String(realPass)) return sendJSON(res, 401, { error: 'Неверный пароль' });
       try {
         await pool.query('UPDATE guests SET visits = visits + 1, last_visit = NOW() WHERE id=$1', [g.id]);
-      } catch(e){ /* если last_visit ещё нет — пропускаем */ }
+      } catch(e){}
       return sendJSON(res, 200, { ok: true, guest: g });
     }
 
@@ -969,24 +965,33 @@ const server = http.createServer(async (req, res) => {
       if(!g) return sendJSON(res, 404, { error: 'not found' });
 
       const today = todayStr();
-      const last = g.daily_last_claim ? String(g.daily_last_claim).slice(0,10) : null;
+      const last = dateStr(g.daily_last_claim);
       let level = parseInt(g.daily_level) || 0;
+      let pending = parseFloat(g.pending_bonus) || 0;
+      let changed = false;
 
       if(last && last !== today){
         const diff = (new Date(today) - new Date(last)) / 86400000;
         if(diff > 1){
           level = 0;
-          await pool.query(`UPDATE guests SET daily_level=0, pending_bonus=0 WHERE id=$1`, [id]);
+          pending = 0;
+          changed = true;
         }
       }
 
-      const claimed_today = last === today;
+      if(changed){
+        await pool.query(`UPDATE guests SET daily_level=0, pending_bonus=0 WHERE id=$1`, [id]);
+      }
+
+      const claimed_today = (last === today);
       const nextReward = claimed_today ? 0 : DAILY_REWARDS[Math.min(level, 6)];
 
       return sendJSON(res, 200, {
-        level, claimed_today, rewards: DAILY_REWARDS,
+        level,
+        claimed_today,
+        rewards: DAILY_REWARDS,
         next_reward: nextReward,
-        pending_bonus: parseFloat(g.pending_bonus)||0
+        pending_bonus: pending
       });
     }
 
@@ -998,8 +1003,11 @@ const server = http.createServer(async (req, res) => {
       if(!g) return sendJSON(res, 404, { error: 'not found' });
 
       const today = todayStr();
-      const last = g.daily_last_claim ? String(g.daily_last_claim).slice(0,10) : null;
-      if(last === today) return sendJSON(res, 400, { error: 'Сегодня уже забрали' });
+      const last = dateStr(g.daily_last_claim);
+
+      if(last === today) {
+        return sendJSON(res, 400, { error: 'Сегодня уже забрали' });
+      }
 
       let level = parseInt(g.daily_level) || 0;
       let pending = parseFloat(g.pending_bonus) || 0;
@@ -1012,16 +1020,18 @@ const server = http.createServer(async (req, res) => {
 
       const reward = DAILY_REWARDS[level] || 0;
       const newLevel = level + 1;
+      const newPending = pending + reward;
 
       await pool.query(`
-        UPDATE guests SET daily_level=$1, daily_last_claim=$2, pending_bonus=$3, last_visit=NOW()
+        UPDATE guests
+        SET daily_level=$1, daily_last_claim=$2::date, pending_bonus=$3, last_visit=NOW()
         WHERE id=$4
-      `, [newLevel, today, pending + reward, id]);
+      `, [newLevel, today, newPending, id]);
 
-      return sendJSON(res, 200, { reward, level: newLevel, pending_bonus: pending + reward });
+      return sendJSON(res, 200, { reward, level: newLevel, pending_bonus: newPending });
     }
 
-    /* ================= WHEEL ================= */
+    /* ================= WHEEL (оставлен для совместимости) ================= */
     if (url === '/api/guest/wheel-state' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -1029,32 +1039,8 @@ const server = http.createServer(async (req, res) => {
       const g = await getGuestById(id);
       if(!g) return sendJSON(res, 404, { error: 'not found' });
       const today = todayStr();
-      const last = g.wheel_last_spin ? String(g.wheel_last_spin).slice(0,10) : null;
-      return sendJSON(res, 200, {
-        can_spin: last !== today,
-        prizes: WHEEL_PRIZES
-      });
-    }
-
-    if (url === '/api/guest/wheel-spin' && method === 'POST') {
-      const b = await parseBody(req);
-      const id = b.id;
-      if(!id) return sendJSON(res, 400, { error: 'no id' });
-      const g = await getGuestById(id);
-      if(!g) return sendJSON(res, 404, { error: 'not found' });
-      const today = todayStr();
-      const last = g.wheel_last_spin ? String(g.wheel_last_spin).slice(0,10) : null;
-      if(last === today) return sendJSON(res, 400, { error: 'Сегодня уже крутили' });
-
-      const prize = pickWheelPrize();
-      if(prize.type === 'points'){
-        await pool.query(`UPDATE guests SET points = points + $1, wheel_last_spin=$2, last_visit=NOW() WHERE id=$3`,
-          [prize.value, today, id]);
-      } else {
-        await pool.query(`UPDATE guests SET pending_bonus = pending_bonus + $1, wheel_last_spin=$2, last_visit=NOW() WHERE id=$3`,
-          [prize.value, today, id]);
-      }
-      return sendJSON(res, 200, { prize });
+      const last = dateStr(g.wheel_last_spin);
+      return sendJSON(res, 200, { can_spin: last !== today, prizes: [] });
     }
 
     /* ================= СВОДКА ================= */
