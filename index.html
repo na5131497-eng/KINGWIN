@@ -101,13 +101,6 @@
   .welcome-modal::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 60%); animation: rotate 6s linear infinite; pointer-events: none; }
   @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-  /* Модалка подтверждения перевода */
-  .confirm-modal { border: 2px solid var(--accent); box-shadow: 0 0 40px rgba(0,229,255,0.2); }
-  .confirm-modal .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-  .confirm-modal .btn-row button { flex: 1; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 15px; cursor: pointer; border: none; }
-  .btn-cancel-modal { background: rgba(255,255,255,0.1); color: #fff; }
-  .btn-confirm-modal { background: var(--accent-green); color: #000; }
-
   /* АДАПТИВ */
   @media (max-width: 900px) {
     body { overflow: hidden; flex-direction: column; }
@@ -260,20 +253,7 @@
       <button class="modal-close-btn" onclick="closeModal('depositModal')">✕</button>
       <div class="spinner"></div>
       <h2 style="font-size: 18px; margin-bottom: 10px;">Не закрывайте окно</h2>
-      <p style="font-size: 14px; color: #8b92a5;">Ищем ваш перевод. Обычно это занимает до 5 минут. Как только администратор подтвердит, баланс обновится.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ОКНО ПОДТВЕРЖДЕНИЯ ПЕРЕВОДА -->
-<div class="modal-overlay" id="confirmTransferModal">
-  <div class="modal-box confirm-modal">
-    <button class="modal-close-btn" onclick="closeModal('confirmTransferModal')">✕</button>
-    <h2 style="color: var(--accent);">Перевод на онлайн-казино</h2>
-    <p>Вы уверены, что хотите перевести <b id="transferAmountDisplay" style="color: #fff;">0.00</b> ₽ на баланс онлайн-казино? Средства сразу поступят на игровой счёт.</p>
-    <div class="btn-row">
-      <button class="btn-cancel-modal" onclick="closeModal('confirmTransferModal')">Отмена</button>
-      <button class="btn-confirm-modal" onclick="executeWithdraw()">Подтвердить</button>
+      <p style="font-size: 14px; color: #8b92a5;">Ищем ваш перевод. Обычно это занимает до 5 минут.</p>
     </div>
   </div>
 </div>
@@ -306,6 +286,12 @@ function showToast(text, type='success') {
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+// ГЛАВНОЕ ИСПРАВЛЕНИЕ: ПЕРЕХОД НА ПРОФИЛЬ КАЗИНО (profile.html)
+function goToProfile() {
+  if(currentPlayer) window.location.href = `/profile.html?id=${currentPlayer.id}`;
+  else openModal('loginModal');
+}
+
 async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pass = document.getElementById('loginPass').value;
@@ -332,10 +318,6 @@ function updateUI() {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
   }
-}
-
-function goToProfile() {
-  if(currentPlayer) window.location.href = `/profile2.html?id=${currentPlayer.id}`;
 }
 
 async function openDeposit() {
@@ -466,40 +448,6 @@ async function sendDeposit() {
     closeModal('depositModal');
   }
 }
-
-// ПЕРЕВОД НА ОНЛАЙН-КАЗИНО (КАСТОМНОЕ ОКНО)
-window.transferAmount = 0;
-window.openTransferModal = function(amount) {
-  window.transferAmount = amount;
-  document.getElementById('transferAmountDisplay').textContent = amount.toFixed(2);
-  openModal('confirmTransferModal');
-};
-
-window.executeWithdraw = async function() {
-  if(!currentPlayer) return;
-  const amount = window.transferAmount;
-  if(amount <= 0) return;
-  
-  closeModal('confirmTransferModal');
-  
-  try {
-    const res = await fetch('/api/guest/withdraw-to-casino', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ id: currentPlayer.id })
-    });
-    const data = await res.json();
-    
-    if(res.ok) {
-      showToast(`Успешно переведено ${amount.toFixed(2)} ₽ на баланс казино!`, 'success');
-      const userRes = await fetch('/api/guest/me?id=' + currentPlayer.id);
-      const userData = await userRes.json();
-      currentPlayer = userData.guest;
-      updateUI();
-    } else {
-      showToast(data.error || 'Ошибка перевода', 'error');
-    }
-  } catch(e) { showToast('Ошибка соединения', 'error'); }
-};
 
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
