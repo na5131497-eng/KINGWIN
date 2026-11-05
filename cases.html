@@ -7,118 +7,119 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
-    --accent: #00e5ff; --accent-green: #00ff88;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.06);
-    --red: #ff4d4d; --yellow: #f1c40f; --gold: #ffd700;
+    --bg-main: #0c0e14; 
+    --bg-panel: #151822; 
+    --bg-dark: #0a0c11;
+    --accent: #00e5ff; 
+    --accent-green: #00ff88;
+    --text-main: #fff; 
+    --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.05);
+    --red: #ff4d4d; 
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  html, body { height: 100%; }
-  body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
   /* TOPBAR */
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-  .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
-  .home-btn { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; transition: 0.3s; white-space: nowrap; }
-  .home-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-  .balance-badge:hover { border-color: var(--accent); }
-  .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
-  .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: var(--bg-dark); border-bottom: 1px solid var(--border); }
+  .topbar-left { display: flex; align-items: center; gap: 20px; }
+  .topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .back-btn { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+  .back-btn:hover { color: #fff; }
+  .balance-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.3); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .balance-badge span { color: var(--accent); }
 
-  /* MAIN LAYOUT */
-  .cases-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
+  /* MAIN CONTENT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
+  .section-title { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; color: #fff; }
 
-  /* КЕЙСЫ (СЕТКА) */
-  .cases-sidebar { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
-  .cases-header { padding: 15px; border-bottom: 1px solid var(--border); background: var(--bg-dark); text-align: center; }
-  .cases-header h2 { font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-  .cases-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 10px; gap: 10px; }
-
-  .case-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: 0.2s; }
-  .case-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
-  .case-item.active { border-color: var(--accent); background: rgba(0,229,255,0.1); box-shadow: 0 0 15px rgba(0,229,255,0.15); }
-  .case-item.locked { opacity: 0.5; cursor: not-allowed; }
-  .case-item.locked:hover { background: rgba(0,0,0,0.3); border-color: var(--border); }
-
-  .case-info { display: flex; flex-direction: column; gap: 4px; }
-  .case-name { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .case-price { font-size: 12px; color: var(--accent-green); font-weight: 700; }
+  /* CASES GRID */
+  .cases-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 40px; }
   
-  /* Иконки кейсов */
-  .case-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 24px; border-radius: 8px; background: rgba(255,255,255,0.05); }
-  .case-item[data-rank="0"] .case-icon { color: #cd7f32; }
-  .case-item[data-rank="1"] .case-icon { color: #cd7f32; }
-  .case-item[data-rank="2"] .case-icon { color: #c0c0c0; }
-  .case-item[data-rank="3"] .case-icon { color: #f1c40f; }
-  .case-item[data-rank="4"] .case-icon { color: #e5e4e2; }
-  .case-item[data-rank="5"] .case-icon { color: #b9f2ff; }
-  .case-item[data-rank="6"] .case-icon { color: #d4af37; text-shadow: 0 0 10px #d4af37; }
-
-  /* ИГРОВАЯ ЗОНА */
-  .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
-
-  .wheel-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 250px; }
+  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
+  .case-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .case-card.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(0,229,255,0.15); }
   
-  /* Курсор по центру */
-  .wheel-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--accent); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px var(--accent); }
-  .wheel-pointer::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid var(--accent); }
-  .wheel-pointer::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid var(--accent); }
+  .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #333; transition: 0.3s; }
+  .case-card[data-rank="0"]::before { background: #cd7f32; }
+  .case-card[data-rank="1"]::before { background: #c0c0c0; }
+  .case-card[data-rank="2"]::before { background: #f1c40f; }
+  .case-card[data-rank="3"]::before { background: #e5e4e2; }
+  .case-card[data-rank="4"]::before { background: #b9f2ff; }
+  .case-card[data-rank="5"]::before { background: #d4af37; }
 
-  /* Лента */
-  .wheel-track { display: flex; align-items: center; gap: 10px; padding: 20px 0; position: absolute; left: 0; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
-  .wheel-item { width: 100px; height: 100px; flex-shrink: 0; background: var(--bg-panel); border: 2px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 16px; font-weight: 900; gap: 5px; }
-  .wheel-item span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .case-name { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; }
+  .case-img { width: 70px; height: 70px; margin-bottom: 15px; position: relative; display: flex; justify-content: center; align-items: center; }
+  .case-img svg { width: 100%; height: 100%; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
   
-  /* Цвета карточек в ленте */
-  .wheel-item.rarity-0 { border-color: rgba(255,255,255,0.1); color: #fff; } /* Серый */
-  .wheel-item.rarity-1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); } /* Зеленый */
-  .wheel-item.rarity-2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); } /* Синий */
-  .wheel-item.rarity-3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); } /* Фиолетовый */
-  .wheel-item.rarity-4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); } /* Золото */
+  .case-price { font-size: 14px; font-weight: 900; color: var(--accent-green); margin-bottom: 15px; }
+  .case-price span { font-size: 10px; color: var(--text-muted); text-decoration: line-through; margin-left: 4px; }
+  
+  .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+  .case-card:hover .btn-select { background: rgba(255,255,255,0.1); }
+  .case-card.active .btn-select { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  /* ПАНЕЛЬ УПРАВЛЕНИЯ */
-  .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
-  
-  .case-details { display: flex; justify-content: space-between; align-items: center; }
-  .case-details h3 { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-  .case-details .price { font-size: 24px; font-weight: 900; color: var(--accent-green); }
-  
-  .btn-open { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,255,136,0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
-  .btn-open:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
-  .btn-open:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  /* ROULETTE AREA */
+  .roulette-container { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 30px; display: none; position: relative; }
+  .roulette-container.show { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 
-  /* Модалка выигрыша */
-  .win-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
+  .roulette-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .roulette-title { font-size: 20px; font-weight: 900; text-transform: uppercase; }
+  .roulette-chances { font-size: 12px; color: var(--text-muted); }
+
+  .spin-window { position: relative; height: 140px; background: var(--bg-dark); border-radius: 16px; overflow: hidden; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
+  .spin-track { display: flex; align-items: center; gap: 10px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
+  
+  .spin-item { flex-shrink: 0; width: 110px; height: 110px; border-radius: 12px; background: #1e2230; border: 2px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 18px; gap: 4px; position: relative; }
+  .spin-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+  
+  /* Курсор */
+  .spin-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--accent); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px var(--accent); }
+  .spin-pointer::before, .spin-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; }
+  .spin-pointer::before { top: 0; border-top: 10px solid var(--accent); }
+  .spin-pointer::after { bottom: 0; border-bottom: 10px solid var(--accent); }
+
+  /* Цвета призов */
+  .spin-item.r0 { color: #fff; }
+  .spin-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
+  .spin-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
+  .spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
+  .spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+
+  .btn-spin { width: 100%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,229,255,0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
+  .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.5); }
+  .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* WIN MODAL */
+  .win-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; }
   .win-overlay.show { display: flex; }
-  .win-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid var(--accent); border-radius: 24px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center; position: relative; overflow: hidden; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .win-modal { background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 24px; padding: 40px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 0 50px rgba(0,229,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  
-  .win-modal h2 { font-size: 24px; font-weight: 900; margin-bottom: 10px; color: #fff; }
+  .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
   .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 20px 0; }
-  .win-close { background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 14px 40px; font-size: 16px; font-weight: 900; cursor: pointer; margin-top: 20px; }
+  .btn-close-win { background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 15px 40px; font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; }
 
-  /* TOASTS */
-  .toast-container { position: fixed; top: 60px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
-  .toast.show { transform: translateX(0); }
-  .toast.success { border-left-color: var(--accent-green); }
-  .toast.error { border-left-color: var(--red); }
+  /* CHANCES TABLE */
+  .chances-table { display: none; background: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
+  .chances-table.show { display: block; }
+  .chances-table h3 { font-size: 16px; margin-bottom: 15px; color: var(--text-muted); }
+  .chance-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .chance-row:last-child { border-bottom: none; }
+  .chance-row .val { font-weight: 800; }
+  .chance-row .pct { color: var(--text-muted); }
 
-  /* АДАПТАЦИЯ */
   @media (max-width: 900px) {
-    body { overflow: auto; }
-    .cases-layout { flex-direction: column; padding: 10px; gap: 10px; height: auto; min-height: 100dvh; }
-    .game-area { order: 1; flex: none; height: auto; gap: 10px; }
-    .cases-sidebar { order: 2; width: 100%; height: 300px; flex-shrink: 0; }
-    .wheel-container { height: 250px; min-height: 250px; flex: none; }
-    .control-panel { padding: 15px; }
-    .case-details h3 { font-size: 18px; }
-    .case-details .price { font-size: 20px; }
-    .btn-open { font-size: 16px; padding: 14px; }
-    .topbar .balance-badge .lbl { display: none; }
+    .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .case-name { font-size: 10px; }
+    .case-img { width: 50px; height: 50px; }
+    .case-price { font-size: 12px; }
+    .btn-select { font-size: 10px; padding: 6px; }
+    .topbar { padding: 15px; }
+    .roulette-container { padding: 15px; }
+  }
+  @media (max-width: 500px) {
+    .cases-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
@@ -127,261 +128,253 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-logo">KINGWIN</div>
-    <a href="/" class="home-btn">← На главную</a>
+    <a href="/" class="back-btn">← На главную</a>
   </div>
   <div class="balance-badge" id="balanceBadge">
-    <span class="lbl">Баланс</span>
-    <span class="val" id="balanceVal">0.00 ₽</span>
+    Баланс: <span id="balanceVal">0.00</span> ₽
   </div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="container">
+  <div class="section-title">Кейсы</div>
 
-<div class="cases-layout">
-  <!-- Сайдбар с кейсами -->
-  <aside class="cases-sidebar">
-    <div class="cases-header">
-      <h2>Кейсы</h2>
-    </div>
-    <div class="cases-list" id="casesList">
-      <!-- Сюда рендерятся кейсы -->
-    </div>
-  </aside>
+  <!-- Сетка кейсов -->
+  <div class="cases-grid" id="casesGrid">
+    <!-- Генерируется скриптом -->
+  </div>
 
-  <!-- Игровая зона -->
-  <div class="game-area">
-    <div class="wheel-container">
-      <div class="wheel-pointer"></div>
-      <div class="wheel-track" id="wheelTrack"></div>
+  <!-- Таблица шансов выбранного кейса -->
+  <div class="chances-table" id="chancesTable">
+    <h3 id="chancesTitle">Содержимое кейса</h3>
+    <div id="chancesList"></div>
+  </div>
+
+  <!-- Зона прокрутки -->
+  <div class="roulette-container" id="rouletteContainer">
+    <div class="roulette-header">
+      <div class="roulette-title" id="rouletteCaseName">Новичок</div>
+      <div class="roulette-chances">RTP 95%</div>
     </div>
 
-    <div class="control-panel">
-      <div class="case-details">
-        <h3 id="selectedCaseName">Новичок</h3>
-        <div class="price" id="selectedCasePrice">39.99 ₽</div>
-      </div>
-      <button class="btn-open" id="btnOpen" onclick="openCase()">Открыть за 39.99 ₽</button>
+    <div class="spin-window">
+      <div class="spin-pointer"></div>
+      <div class="spin-track" id="spinTrack"></div>
     </div>
+
+    <button class="btn-spin" id="btnSpin" onclick="spin()">Крутить за 39.99 ₽</button>
   </div>
 </div>
 
 <!-- Модалка выигрыша -->
 <div class="win-overlay" id="winOverlay">
   <div class="win-modal">
-    <h2>Вы выиграли!</h2>
+    <div class="win-title">Вы выиграли!</div>
     <div class="win-amount" id="winAmount">0 ₽</div>
-    <button class="win-close" onclick="closeWin()">Отлично</button>
+    <button class="btn-close-win" onclick="closeWin()">Забрать</button>
   </div>
 </div>
 
 <script>
 const PLAYER_KEY = 'kingwin_player_id';
 let playerId = localStorage.getItem(PLAYER_KEY);
-let playerRank = 0;
-let casesData = {};
-let selectedCase = 'Новичок';
+let casesData = [];
+let selectedCase = null;
 let isSpinning = false;
-
-// Визуальные веса для ленты (чтобы лента выглядела красиво)
-// В ленте мы генерируем случайные предметы, но потом подменяем центральный на реальный приз.
-const dummyItems = [0, 5, 10, 15, 20, 30, 50, 75, 100, 175, 500, 750, 1000, 0, 5, 10, 20, 50, 100];
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 
 async function loadBalance() {
-  if (!playerId) {
-    document.getElementById('balanceVal').textContent = '0.00 ₽';
-    return;
-  }
+  if (!playerId) return;
   try {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
     const d = await r.json();
     if (r.ok && d.guest) {
       const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      document.getElementById('balanceVal').textContent = total.toFixed(2) + ' ₽';
+      document.getElementById('balanceVal').textContent = total.toFixed(2);
     }
   } catch(e) {}
 }
 
+// Цвета для редкости призов
 function getRarityClass(val) {
-  if (val >= 500) return 'rarity-4'; // Золото
-  if (val >= 100) return 'rarity-3'; // Фиолетовый
-  if (val >= 30)  return 'rarity-2'; // Синий
-  if (val > 0)    return 'rarity-1'; // Зеленый
-  return 'rarity-0'; // Серый
+  if (val >= 1000) return 'r4';
+  if (val >= 200) return 'r3';
+  if (val >= 50) return 'r2';
+  if (val > 0) return 'r1';
+  return 'r0';
 }
 
-function renderWheelItems(prizeVal, prizeIndex = -1) {
-  const track = document.getElementById('wheelTrack');
-  track.innerHTML = '';
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
-
-  let html = '';
-  for (let i = 0; i < 40; i++) {
-    let val;
-    if (i === prizeIndex) {
-      val = prizeVal; // Реальный приз
-    } else {
-      val = dummyItems[Math.floor(Math.random() * dummyItems.length)];
-    }
-    const rar = getRarityClass(val);
-    html += `
-      <div class="wheel-item ${rar}">
-        ${val} ₽
-        <span>${val > 0 ? 'Выигрыш' : 'Пусто'}</span>
-      </div>
-    `;
-  }
-  track.innerHTML = html;
-}
+// Иконки для кейсов
+const caseIcons = {
+  'Новичок': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(205,127,50,0.2)" stroke="#cd7f32" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#cd7f32"/></svg>',
+  'Бронза': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(192,192,192,0.2)" stroke="#c0c0c0" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#c0c0c0"/></svg>',
+  'Сильвер': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(241,196,15,0.2)" stroke="#f1c40f" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#f1c40f"/></svg>',
+  'Голд': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(229,228,226,0.2)" stroke="#e5e4e2" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#e5e4e2"/></svg>',
+  'Платина': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(185,242,255,0.2)" stroke="#b9f2ff" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#b9f2ff"/></svg>',
+  'Алмаз': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(212,175,55,0.2)" stroke="#d4af37" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#d4af37"/></svg>',
+  'Королевский': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(255,215,0,0.2)" stroke="#ffd700" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#ffd700"/></svg>'
+};
 
 async function initCases() {
   await loadBalance();
   
   if (!playerId) {
-    document.getElementById('casesList').innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">Войдите в аккаунт, чтобы играть</div>`;
-    document.getElementById('btnOpen').disabled = true;
+    document.getElementById('casesGrid').innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#8b92a5;">Войдите в аккаунт, чтобы играть</div>`;
     return;
   }
 
   try {
     const r = await fetch('/api/cases/list?guest_id=' + encodeURIComponent(playerId));
-    const list = await r.json();
+    casesData = await r.json();
     
-    casesData = {};
-    const listDiv = document.getElementById('casesList');
-    listDiv.innerHTML = '';
-
     // Сортируем по цене
-    list.sort((a,b) => a.price - b.price);
+    casesData.sort((a,b) => a.price - b.price);
 
-    list.forEach((c, idx) => {
-      casesData[c.name] = c;
-      
+    const grid = document.getElementById('casesGrid');
+    grid.innerHTML = '';
+
+    casesData.forEach((c, idx) => {
       const div = document.createElement('div');
-      div.className = `case-item ${c.available ? '' : 'locked'} ${idx === 0 ? 'active' : ''}`;
-      div.dataset.name = c.name;
+      div.className = `case-card ${c.available ? '' : 'locked'}`;
       div.dataset.rank = c.minRank;
-      
-      const icon = c.name === 'Королевский' ? '👑' : (c.available ? '📦' : '🔒');
-      
+      div.onclick = () => { if(c.available) selectCase(c); else alert('Этот кейс недоступен для вашего ранга'); };
+
       div.innerHTML = `
-        <div class="case-info">
-          <div class="case-name">${c.name}</div>
-          <div class="case-price">${fmt(c.price)} ₽</div>
-        </div>
-        <div class="case-icon">${icon}</div>
+        <div class="case-name">${c.name}</div>
+        <div class="case-img">${caseIcons[c.name] || ''}</div>
+        <div class="case-price">${fmt(c.price)} ₽</div>
+        <button class="btn-select">Открыть</button>
       `;
 
-      div.onclick = () => {
-        if (!c.available) { showToast('Этот кейс недоступен для вашего ранга', 'error'); return; }
-        selectCase(c.name);
-      };
-
-      listDiv.appendChild(div);
+      grid.appendChild(div);
     });
 
-    // Выбираем первый доступный
-    const firstAvailable = list.find(c => c.available);
-    if (firstAvailable) {
-      selectCase(firstAvailable.name);
-    } else {
-      document.getElementById('btnOpen').disabled = true;
-    }
+    // Автовыбор первого
+    const first = casesData.find(c => c.available);
+    if(first) selectCase(first);
 
   } catch(e) {
     console.error(e);
-    showToast('Ошибка загрузки кейсов', 'error');
   }
 }
 
-function selectCase(name) {
-  if (isSpinning) return;
-  selectedCase = name;
-  const c = casesData[name];
+function selectCase(c) {
+  selectedCase = c;
   
-  document.querySelectorAll('.case-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.name === name);
-  });
+  // Подсветка карточки
+  document.querySelectorAll('.case-card').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.case-card:nth-child(${casesData.indexOf(c)+1})`).classList.add('active');
 
-  document.getElementById('selectedCaseName').textContent = name;
-  document.getElementById('selectedCasePrice').textContent = fmt(c.price) + ' ₽';
-  document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+  // Показываем зону крутки
+  document.getElementById('rouletteContainer').classList.add('show');
+  document.getElementById('rouletteCaseName').textContent = c.name;
+  document.getElementById('btnSpin').textContent = `Крутить за ${fmt(c.price)} ₽`;
+
+  // Рендер шансов
+  const chancesTable = document.getElementById('chancesTable');
+  const chancesList = document.getElementById('chancesList');
+  chancesTable.classList.add('show');
+  document.getElementById('chancesTitle').textContent = `Содержимое кейса "${c.name}"`;
   
-  // Сбрасываем ленту
-  renderWheelItems(0);
+  // У нас на клиенте нет полного списка призов, только те, что передаст сервер,
+  // но для отображения шансов мы можем сделать запрос или использовать захардкоженные данные,
+  // которые пришли с сервера. В данном случае мы просто создадим заглушку, так как
+  // сервер отдает только список кейсов. В реальности, шансы можно передать в /api/cases/list.
+  
+  chancesList.innerHTML = `<div class="chance-row"><span>Шансы и призы генерируются на сервере для честности</span></div>`;
+  
+  // Инициализация ленты
+  renderTrack(c);
 }
 
-async function openCase() {
-  if (isSpinning) return;
-  const c = casesData[selectedCase];
-  if (!c) return;
+function renderTrack(c) {
+  const track = document.getElementById('spinTrack');
+  track.innerHTML = '';
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
 
-  if (!playerId) { showToast('Войдите в аккаунт', 'error'); return; }
-  
-  // Проверка баланса на клиенте (для скорости)
-  const balText = document.getElementById('balanceVal').textContent.replace(/\s/g, '').replace('₽', '');
-  if (parseFloat(balText) < c.price) {
-    showToast('Недостаточно средств', 'error');
-    return;
+  // Заглушки для визуала (сервер вернет реальный приз)
+  for(let i=0; i<40; i++){
+    const fakeVal = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
+    const rar = getRarityClass(fakeVal);
+    track.innerHTML += `
+      <div class="spin-item ${rar}">
+        ${fakeVal} ₽
+        <span>${fakeVal > 0 ? 'Приз' : 'Пусто'}</span>
+      </div>
+    `;
   }
+}
 
+async function spin() {
+  if (isSpinning || !selectedCase) return;
+  
+  if (!playerId) { alert('Войдите в аккаунт'); return; }
+  
   isSpinning = true;
-  document.getElementById('btnOpen').disabled = true;
-  document.getElementById('btnOpen').innerHTML = 'Открытие...';
+  document.getElementById('btnSpin').disabled = true;
+  document.getElementById('btnSpin').textContent = 'Крутим...';
 
   try {
     const res = await fetch('/api/cases/open', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, case_name: selectedCase })
+      body: JSON.stringify({ guest_id: playerId, case_name: selectedCase.name })
     });
     const data = await res.json();
     
     if (!res.ok) {
-      showToast(data.error || 'Ошибка', 'error');
+      alert(data.error || 'Ошибка');
       isSpinning = false;
-      document.getElementById('btnOpen').disabled = false;
-      document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+      document.getElementById('btnSpin').disabled = false;
+      document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
       return;
     }
 
-    // Сервер вернул приз
     const prize = data.prize;
     
-    // Настраиваем ленту (ставим приз на 35-й элемент)
-    const prizeIdx = 35;
-    renderWheelItems(prize, prizeIdx);
+    // Обновляем ленту, подставляя реальный приз на 35-й элемент
+    const track = document.getElementById('spinTrack');
+    track.innerHTML = '';
+    
+    for(let i=0; i<40; i++){
+      let val = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
+      if (i === 35) val = prize; // Реальный приз
+      
+      const rar = getRarityClass(val);
+      track.innerHTML += `
+        <div class="spin-item ${rar}">
+          ${val} ₽
+          <span>${val > 0 ? 'Приз' : 'Пусто'}</span>
+        </div>
+      `;
+    }
 
-    // Анимация
-    const track = document.getElementById('wheelTrack');
-    const containerWidth = document.querySelector('.wheel-container').clientWidth;
-    const itemWidth = 110; // 100px ширина + 10px gap
+    // Анимация (5 секунд)
+    const containerWidth = document.querySelector('.spin-window').clientWidth;
+    const itemWidth = 120; // 110 + 10 gap
     const centerOffset = containerWidth / 2;
-    // Прокручиваем так, чтобы центр курсора указывал на prizeIdx + небольшой сдвиг
-    const randomOffset = (Math.random() * 60) - 30; // сдвиг "на клетку вперед"
-    const targetScroll = (prizeIdx * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
+    const randomOffset = (Math.random() * 40) - 20; // Сдвиг
+    const targetScroll = (35 * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
 
     setTimeout(() => {
-      track.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
+      track.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.1, 1)';
       track.style.transform = `translateX(-${targetScroll}px)`;
     }, 50);
 
-    // Ждем окончания анимации
     setTimeout(() => {
       showWinModal(prize);
       loadBalance();
       isSpinning = false;
-      document.getElementById('btnOpen').disabled = false;
-      document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
-    }, 4100);
+      document.getElementById('btnSpin').disabled = false;
+      document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
+    }, 5100);
 
   } catch(e) {
-    showToast('Ошибка соединения', 'error');
+    alert('Ошибка соединения');
     isSpinning = false;
-    document.getElementById('btnOpen').disabled = false;
-    document.getElementById('btnOpen').innerHTML = `Открыть за ${fmt(c.price)} ₽`;
+    document.getElementById('btnSpin').disabled = false;
+    document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
   }
 }
 
@@ -398,23 +391,8 @@ function showWinModal(prize) {
 
 function closeWin() {
   document.getElementById('winOverlay').classList.remove('show');
-  renderWheelItems(0); // Сброс ленты
 }
 
-function showToast(text, type='success') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div style="font-size:13px;font-weight:600;color:#fff">${text}</div>`;
-  c.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => {
-    t.classList.remove('show');
-    setTimeout(() => t.remove(), 300);
-  }, 3000);
-}
-
-// Инициализация
 initCases();
 </script>
 </body>
