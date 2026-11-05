@@ -5,11 +5,9 @@ const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
 
-// Строка подключения: берём из переменной, и если sslmode нет — добавляем verify-full
 let DATABASE_URL = process.env.DATABASE_URL
   || 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea-beqrez4i.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
-// Нормализуем sslmode для Neon: require → verify-full (убирает предупреждение и стабилизирует SSL)
 if (DATABASE_URL.includes('sslmode=require')) {
   DATABASE_URL = DATABASE_URL.replace('sslmode=require', 'sslmode=verify-full');
 }
@@ -19,13 +17,12 @@ if (!DATABASE_URL.includes('sslmode=')) {
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Neon требует SSL; rejectUnauthorized false — чтобы не падало на цепочке сертификатов
-  connectionTimeoutMillis: 15000,     // ждать подключения до 15 сек (Neon просыпается)
-  idleTimeoutMillis: 30000,           // держать idle-соединение 30 сек
+  ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 30000,
   max: 10
 });
 
-// Логируем ошибки пула, чтобы не падало молча
 pool.on('error', (err) => {
   console.error('PG Pool error:', err.message);
 });
@@ -293,12 +290,9 @@ async function initDB() {
     }
 
     console.log('База готова');
-
-    // запускаем первый раунд crash
     crashStartRound();
   } catch (e) {
     console.error('Ошибка initDB:', e.message);
-    // если не удалось с первого раза — повторим через 5 секунд
     setTimeout(initDB, 5000);
   }
 }
@@ -373,6 +367,21 @@ async function accruePointsByNick(nick, rubAmount, source){
   return { guestId: guest.id, addPoints, newPoints, newRank, giftMoney, source };
 }
 
+/* ---------- Начисление баланса гостю по нику ---------- */
+async function addBalanceByNick(nick, amount){
+  if(!nick || !amount) return false;
+  const g = await pool.query(
+    `SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`,
+    [String(nick).trim()]
+  );
+  if(g.rows.length === 0) return false;
+  await pool.query(
+    `UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2`,
+    [parseFloat(amount) || 0, g.rows[0].id]
+  );
+  return true;
+}
+
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
@@ -406,7 +415,7 @@ const server = http.createServer(async (req, res) => {
             [crashState.roundId]
           );
           bets = betsRes.rows;
-        } catch(e) { /* таблица может ещё не создаться — игнорируем */ }
+        } catch(e) {}
       }
 
       let history = [];
@@ -647,7 +656,31 @@ const server = http.createServer(async (req, res) => {
     if(url.startsWith('/api/deposits/') && method === 'PUT'){
       const id = url.split('/')[3];
       const d = await parseBody(req);
+
+      const beforeRes = await pool.query('SELECT * FROM deposits WHERE id=$1', [id]);
+      if(beforeRes.rows.length === 0) return sendJSON(res, 404, { error: 'not found' });
+      const dep = beforeRes.rows[0];
+
       await pool.query('UPDATE deposits SET status=$1 WHERE id=$2', [d.status, id]);
+
+      if(d.status === 'approved' && dep.status !== 'approved'){
+        const ok = await addBalanceByNick(dep.nick, dep.sum);
+        if(!ok) console.warn('Депозит #' + id + ' подтверждён, но гость "' + dep.nick + '" не найден — баланс не начислен');
+      }
+
+      if(d.status === 'rejected' && dep.status === 'approved'){
+        const g = await pool.query(
+          'SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1',
+          [dep.nick]
+        );
+        if(g.rows.length > 0){
+          await pool.query(
+            'UPDATE guests SET bonus_balance = GREATEST(0, bonus_balance - $1) WHERE id=$2',
+            [parseFloat(dep.sum) || 0, g.rows[0].id]
+          );
+        }
+      }
+
       return sendJSON(res, 200, { ok: true });
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){
