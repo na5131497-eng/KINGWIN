@@ -4,117 +4,120 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🪜 ЛЕСЕНКА — KINGWIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Georgia,serif; -webkit-tap-highlight-color: transparent;}
-body{background: radial-gradient(ellipse at 50% 0%, #5a0f0f 0%, #2a0808 40%, #150505 70%, #0a0202 100%); color:#fff;min-height:100vh;padding:10px;display:flex;justify-content:center;align-items:center;overflow:hidden;}
+  :root {
+    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
+    --accent: #00e5ff; --accent-green: #00ff88;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-.layout{display:grid;grid-template-columns:280px 1fr;gap:20px;max-width:1000px;width:100%;height:95vh;}
+  /* ТОПБАР */
+  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
+  .back-btn { padding: 8px 16px; border-radius: 10px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 700; transition: 0.3s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 700; }
+  .balance-badge .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+  .balance-badge .num { color: var(--accent-green); }
 
-/* ЛЕВАЯ ПАНЕЛЬ */
-.sidebar{background:linear-gradient(180deg,rgba(42,8,8,.95),rgba(10,2,2,.98));border:2px solid #d4af37;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:15px;box-shadow:0 0 30px rgba(212,175,55,.2);}
-.sidebar h2{font-size:0.75em;color:#d4af37;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
-.sidebar .bet-input{display:flex;align-items:center;background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:12px;margin-bottom:5px;}
-.sidebar .bet-input input{background:transparent;border:none;color:#fff;font-size:1.4em;font-weight:900;width:100%;outline:none;font-family:Arial;}
-.sidebar .bet-input span{color:#d4af37;font-size:0.9em;font-weight:700;}
-.quick-bets{display:flex;gap:5px;flex-wrap:wrap;}
-.qbet{background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:#d4af37;padding:6px 10px;border-radius:6px;font-size:0.75em;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:Arial;}
-.qbet:hover{background:rgba(212,175,55,0.3);color:#fff;}
+  /* ИСТОРИЯ */
+  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .history-bar::-webkit-scrollbar { display: none; }
+  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
+  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .history-item .h-name { color: var(--text-muted); }
+  .history-item .h-res { color: var(--accent-green); font-weight: 900; }
 
-.stones-select{display:flex;gap:5px;flex-wrap:wrap;}
-.stone-btn{width:34px;height:34px;border-radius:8px;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:#d4af37;font-weight:900;font-family:Arial;cursor:pointer;transition:all 0.2s;}
-.stone-btn:hover{background:rgba(212,175,55,0.3);color:#fff;}
-.stone-btn.active{background:#d4af37;color:#0a0505;}
+  /* ЛЕЙАУТ */
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1100px; width: 100%; margin: 20px auto; padding: 0 15px; flex: 1; align-items: start; }
+  @media(max-width: 800px) { .layout { grid-template-columns: 1fr; } }
 
-.btn-cashout-main{width:100%;padding:16px;border-radius:10px;background:linear-gradient(180deg,#ffd700,#b8860b);color:#0a0505;border:2px solid #ffd700;font-size:1.1em;font-weight:900;cursor:pointer;transition:all 0.2s;margin-top:auto;font-family:Georgia; box-shadow:0 4px 0 #7a5a10;text-transform:uppercase;letter-spacing:1px;}
-.btn-cashout-main:hover{transform:translateY(-2px);box-shadow:0 6px 0 #7a5a10, 0 0 20px rgba(255,215,0,0.6);}
-.btn-cashout-main:disabled{background:#333;color:#666;border-color:#333;cursor:not-allowed;box-shadow:none;transform:none;}
+  /* ПАНЕЛЬ УПРАВЛЕНИЯ */
+  .sidebar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .sidebar h2 { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
+  
+  .bet-input { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+  .bet-input span { color: var(--gold); font-size: 18px; font-weight: 700; margin-right: 8px; }
+  .bet-input input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; width: 100%; outline: none; }
 
-/* ИГРОВОЕ ПОЛЕ */
-.game-area{display:flex;justify-content:center;align-items:center;position:relative; background:rgba(15,5,5,0.6); border:2px solid rgba(212,175,55,0.15); border-radius:16px; padding:10px;}
+  .quick-bets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .qbet { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+  .qbet:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* МНОЖИТЕЛИ */
-.multipliers{position:absolute;left:15px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;font-family:Arial;font-weight:900;font-size:0.75em;color:#8a6a10;z-index:10;}
-.multipliers .m-val{background:#1a0505;padding:4px 8px;border-radius:4px;border:1px solid #4a1a1a;text-align:center;width:55px;}
-.multipliers .m-val.active{background:#d4af37;color:#0a0505;border-color:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.6);}
-.multipliers .m-val.passed{color:#1dd1a1;border-color:#1dd1a1;}
+  .stones-select { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stone-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted); font-weight: 900; cursor: pointer; transition: 0.2s; }
+  .stone-btn:hover { border-color: var(--accent); color: #fff; }
+  .stone-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.4); }
 
-/* СЕТКА */
-.grid-scroll { 
-    max-height: 100%; 
-    overflow-y: auto; 
-    padding-left: 80px; 
-    padding-right: 20px;
-    scrollbar-width: none;
-    display: flex;
-    justify-content: center;
-}
-.grid-scroll::-webkit-scrollbar { display: none; }
+  .btn-main { width: 100%; padding: 18px; border-radius: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
+  .btn-main:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.6); }
+  .btn-main:disabled { background: #333; color: #888; cursor: not-allowed; box-shadow: none; }
+  .btn-main.cashout { background: linear-gradient(135deg, #00ff88, #00b366); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+  .btn-main.cashout:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,255,136,0.6); }
 
-.grid-wrap{display:flex;flex-direction:column;gap:6px;padding:10px 0;}
-.row{display:flex;gap:4px;justify-content:center;}
-.cell{width:28px;height:28px;border-radius:6px;background:linear-gradient(160deg,#2a0808,#1a0505);border:1px solid #4a2a5a;cursor:pointer;transition:all 0.15s;position:relative;display:flex;justify-content:center;align-items:center;font-size:0.9em;}
+  /* ИГРОВОЕ ПОЛЕ */
+  .game-area { display: flex; justify-content: center; align-items: center; position: relative; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; }
+  
+  .grid-scroll { max-height: 600px; overflow-y: auto; padding: 10px 10px 10px 90px; scrollbar-width: none; display: flex; justify-content: center; width: 100%; }
+  .grid-scroll::-webkit-scrollbar { display: none; }
+  .grid-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 6px; justify-content: center; }
+  
+  .cell { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-dark); border: 2px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center; font-size: 16px; }
+  .cell:hover:not(:disabled):not(.opened) { border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+  
+  .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1s infinite; cursor: pointer; box-shadow: 0 0 15px rgba(0,229,255,0.4); }
+  .cell.opened { cursor: default; border-color: var(--border); }
+  .cell.selected { border-width: 2px; transform: scale(1.15); z-index: 5; }
+  .cell.selected.safe { background: rgba(0,255,136,0.2); border-color: var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+  .cell.selected.boom { background: rgba(255,77,77,0.3); border-color: var(--red); color: var(--red); animation: shake 0.4s; }
+  
+  .cell.revealed-stone { background: rgba(255,77,77,0.1); border-color: rgba(255,77,77,0.3); }
+  .cell.revealed-diamond { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.2); }
+  .cell.stone-icon::after { content: '💣'; font-size: 14px; }
+  .cell.diamond-icon::after { content: '💎'; font-size: 14px; }
 
-.cell:hover:not(:disabled):not(.opened){ border-color: #d4af37; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
 
-/* СТИЛИ ДЛЯ КЛЕТОК */
-.cell.opened{background:#1a0505;border-color:#4a2a5a;cursor:default;}
-.cell.opened.stone{background:#ff4444;border-color:#ff4444;box-shadow:0 0 10px rgba(255,68,68,0.5);}
-.cell.opened.diamond{background:#0a3a2a;border-color:#1dd1a1; box-shadow: inset 0 0 10px rgba(29,209,161,0.3);}
+  /* МНОЖИТЕЛИ */
+  .multipliers { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+  .m-val { background: var(--bg-dark); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); text-align: center; width: 60px; font-size: 11px; font-weight: 900; color: var(--text-muted); }
+  .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+  .m-val.passed { color: var(--accent-green); border-color: rgba(0,255,136,0.3); }
 
-/* ПОДСВЕТКА ТОЛЬКО КОГДА ИГРОК СХОДИЛ */
-.cell.selected { border-width: 2px; transform: scale(1.15); z-index: 5; box-shadow: 0 0 15px currentColor; }
-.cell.selected.safe { background: #1dd1a1; border-color: #fff; color: #1dd1a1; }
-.cell.selected.boom { background: #ff4444; border-color: #fff; color: #ff4444; animation: shake 0.4s; }
+  /* ТОСТ */
+  .toast { position: fixed; top: 80px; left: 50%; transform: translate(-50%, -20px); background: var(--bg-panel); border: 1px solid var(--accent-green); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 700; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .toast.error { border-color: var(--red); }
 
-/* ТЕКУЩАЯ СТУПЕНЬ */
-.cell.current{background:#d4af37;border-color:#ffd700;animation:pulse 1s infinite;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.6);}
-
-/* ИКОНКИ */
-.cell.stone-icon::after { content:'💣'; font-size: 1em; }
-.cell.diamond-icon::after { content:'💎'; font-size: 0.9em; }
-
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.shake{animation:shake 0.4s;}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-
-/* УВЕДОМЛЕНИЯ */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:#1dd1a1;color:#0a1a14;padding:10px 20px;border-radius:8px;font-weight:900;transition:all 0.3s;z-index:1000;opacity:0;}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
-.toast.error{background:#ff6b6b;color:#fff;}
-
-/* КНОПКИ И БАЛАНС */
-.back-btn { position: fixed; top: 20px; left: 20px; color: #d4af37; text-decoration: none; font-size: 0.85em; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); transition: all 0.2s; z-index: 100;}
-.back-btn:hover { color: #ffd700; background: rgba(212, 175, 55, 0.2); border-color: #ffd700; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
-
-.bal-box{position:fixed;top:20px;right:20px;display:flex;align-items:center;gap:8px;padding:9px 16px;background:linear-gradient(180deg,#2a0808,#1a0505);border:3px solid #d4af37;border-radius:12px;box-shadow:0 0 0 1px #8a6a10 inset,0 0 22px rgba(212,175,55,.5);min-width:150px;z-index:100;}
-.bal-box .lbl{font-size:.55em;font-weight:700;letter-spacing:2px;color:#d4af37;margin-bottom:2px;text-transform:uppercase;}
-.bal-box .num{font-size:1.1em;font-weight:700;background:linear-gradient(180deg,#fff8d0,#ffd700 50%,#b8860b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-variant-numeric:tabular-nums; font-family: Arial;}
-
-@media(max-width:800px){
-  body { padding: 5px; align-items: flex-start; }
-  .layout{grid-template-columns:1fr; height:auto; gap: 10px;}
-  .multipliers{display:none;}
-  .grid-scroll{padding-left:0; padding-right:0; max-height: 60vh;}
-  .cell{width:22px; height:22px;}
-  .sidebar { padding: 15px; }
-  .bal-box { top: 10px; right: 10px; padding: 5px 10px; min-width: 100px; }
-  .back-btn { top: 10px; left: 10px; padding: 5px 10px; font-size: 0.75em; }
-}
+  @media(max-width: 800px) {
+    .layout { grid-template-columns: 1fr; margin: 10px auto; }
+    .multipliers { display: none; }
+    .grid-scroll { padding-left: 10px; }
+    .cell { width: 26px; height: 26px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
 
-<a href="index.html" class="back-btn">← НА ГЛАВНУЮ</a>
-
-<div class="bal-box">
-  <span style="font-size:1.2em;">👑</span>
-  <div>
-    <div class="lbl">Баланс</div>
-    <div class="num">₽<span id="bal">0</span></div>
+<div class="topbar">
+  <a href="/" class="logo">KINGWIN</a>
+  <a href="/" class="back-btn">← На главную</a>
+  <div class="balance-badge">
+    <span class="lbl">Баланс</span>
+    <span class="num"><span id="bal">0</span> ₽</span>
   </div>
 </div>
 
-<div class="toast" id="toast">Сообщение</div>
+<div class="history-bar" id="historyBar">
+  <div class="history-title">Последние игры:</div>
+  <div id="historyList" style="display:flex; gap:8px;"></div>
+</div>
 
 <div class="layout">
   <div class="sidebar">
@@ -131,7 +134,7 @@ body{background: radial-gradient(ellipse at 50% 0%, #5a0f0f 0%, #2a0808 40%, #15
       <button class="qbet" onclick="setBet(1000)">1000</button>
     </div>
 
-    <h2 style="margin-top:10px;">Количество камней</h2>
+    <h2>Количество камней</h2>
     <div class="stones-select" id="stonesSelect">
       <button class="stone-btn" data-stones="1">1</button>
       <button class="stone-btn" data-stones="2">2</button>
@@ -142,7 +145,7 @@ body{background: radial-gradient(ellipse at 50% 0%, #5a0f0f 0%, #2a0808 40%, #15
       <button class="stone-btn" data-stones="7">7</button>
     </div>
 
-    <button class="btn-cashout-main" id="mainBtn" onclick="handleMainBtn()">СДЕЛАТЬ СТАВКУ</button>
+    <button class="btn-main" id="mainBtn" onclick="handleMainBtn()">СДЕЛАТЬ СТАВКУ</button>
   </div>
 
   <div class="game-area">
@@ -153,36 +156,20 @@ body{background: radial-gradient(ellipse at 50% 0%, #5a0f0f 0%, #2a0808 40%, #15
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<div class="toast" id="toast">Сообщение</div>
 
 <script>
-var firebaseConfig = {
-  apiKey: "AIzaSyC8PI8bCzGB_tODO6MnOKAjkxXaASbA3vM",
-  authDomain: "kingwin-260a8.firebaseapp.com",
-  databaseURL: "https://kingwin-260a8-default-rtdb.firebaseio.com",
-  projectId: "kingwin-260a8",
-  storageBucket: "kingwin-260a8.firebasestorage.app",
-  messagingSenderId: "1085884746167",
-  appId: "1:1085884746167:web:9962cbc9eb5c876ae78032"
-};
+let playerId = localStorage.getItem('kingwin_player_id');
+let B = 0;
 
-firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
-var auth = firebase.auth();
-
-var CURRENT_USER_KEY = 'kw_current_user';
-var B = 0;
-
-var STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
-var TOTAL_STEPS = STEP_WIDTHS.length;
-var TOTAL_STONES = 6; 
-var playing = false;
-var currentBet = 0;
-var currentStep = 0;
-var stonePositions = []; 
-var isWaiting = false;
+const STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
+const TOTAL_STEPS = STEP_WIDTHS.length;
+let TOTAL_STONES = 6; 
+let playing = false;
+let currentBet = 0;
+let currentStep = 0;
+let stonePositions = []; 
+let isWaiting = false;
 
 function $(id){ return document.getElementById(id); }
 function fmt(n){ 
@@ -199,49 +186,34 @@ function showToast(text, isError) {
 }
 
 // ==================== БАЛАНС ====================
-function loadBalance(){
-  var uid = localStorage.getItem(CURRENT_USER_KEY);
-  if(!uid){ window.location.replace('auth.html?need_auth=1'); return; }
-  db.ref('users/' + uid).once('value').then(function(snapshot){
-    var user = snapshot.val();
-    if(user){
-      B = (user.realBalance || 0) + (user.bonusBalance || 0);
+async function loadBalance(){
+  if(!playerId) { window.location.replace('/'); return; }
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if(r.ok && d.guest) {
+      B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
       $('bal').textContent = fmt(B);
     }
-  });
+  } catch(e) {}
 }
 
-function setBalDisplay(newTotal){
-  B = newTotal;
-  $('bal').textContent = fmt(B);
-}
-
-async function safeChangeBalance(delta){
-  var uid = localStorage.getItem(CURRENT_USER_KEY);
-  if(!uid) return null;
-  var ref = db.ref('users/' + uid);
+async function loadHistory() {
   try {
-    var result = await ref.transaction(function(user) {
-      if (!user) return user;
-      var real = user.realBalance || 0;
-      var bonus = user.bonusBalance || 0;
-      if (delta < 0) {
-        var toTake = -delta;
-        var fromReal = Math.min(real, toTake);
-        toTake -= fromReal;
-        var fromBonus = Math.min(bonus, toTake);
-        if (fromReal + fromBonus < -delta) return;
-        user.realBalance = real - fromReal;
-        user.bonusBalance = bonus - fromBonus;
-      } else {
-        user.realBalance = real + delta;
-      }
-      return user;
-    });
-    if (!result.committed) return null;
-    var u = result.snapshot.val();
-    return (u.realBalance || 0) + (u.bonusBalance || 0);
-  } catch(e) { return null; }
+    const r = await fetch('/api/ladder/history');
+    const data = await r.json();
+    const list = document.getElementById('historyList');
+    if(!data || data.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет игр</div>';
+      return;
+    }
+    list.innerHTML = data.map(h => `
+      <div class="history-item">
+        <span class="h-name">${h.name}</span>
+        <span class="h-res">x${parseFloat(h.result).toFixed(2)}</span>
+      </div>
+    `).join('');
+  } catch(e) {}
 }
 
 // ==================== ЛОГИКА ====================
@@ -273,7 +245,6 @@ $('stonesSelect').addEventListener('click', function(e){
 
 function renderGrid(){
   var mHtml = '';
-  // ИСПРАВЛЕНИЕ: Генерируем множители СНИЗУ ВВЕРХ, чтобы они совпадали со ступенями
   for(var i = TOTAL_STEPS; i >= 1; i--){
     var m = calcMult(i);
     var isPassed = (i <= currentStep && playing);
@@ -285,11 +256,9 @@ function renderGrid(){
   var grid = $('gridWrap');
   grid.innerHTML = '';
   
-  // Рисуем сетку снизу вверх
   for(var step = TOTAL_STEPS - 1; step >= 0; step--){
     var row = document.createElement('div');
     row.className = 'row';
-    row.dataset.step = step;
     
     var cellsInRow = STEP_WIDTHS[step];
     
@@ -298,7 +267,7 @@ function renderGrid(){
         cell.className = 'cell';
         
         if (step < currentStep) {
-            cell.classList.add('opened', 'diamond', 'selected', 'safe');
+            cell.classList.add('opened', 'revealed-diamond', 'diamond-icon');
         } else if (step === currentStep && playing) {
             cell.classList.add('current');
             (function(s, idx){
@@ -322,7 +291,6 @@ function renderGrid(){
 
 async function clickCell(step, cellIdx, cellEl){
   if(!playing || step !== currentStep || isWaiting) return;
-  
   isWaiting = true;
   
   var currentRow = cellEl.parentElement;
@@ -338,6 +306,13 @@ async function clickCell(step, cellIdx, cellEl){
     cellEl.classList.add('stone-icon');
     showToast('💥 Камень! Вы проиграли', true);
     playing = false;
+
+    // Отправляем проигрыш в историю
+    fetch('/api/ladder/play', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 })
+    });
+
   } else {
     cellEl.classList.add('opened', 'selected', 'safe');
     cellEl.classList.add('diamond-icon');
@@ -355,17 +330,15 @@ async function clickCell(step, cellIdx, cellEl){
                 cells[c].classList.remove('current');
                 cells[c].classList.add('opened');
                 if(stonePositions[r] && stonePositions[r].indexOf(c) !== -1){
-                    cells[c].classList.add('stone', 'stone-icon');
-                    cells[c].classList.remove('diamond-icon', 'safe');
+                    cells[c].classList.add('revealed-stone', 'stone-icon');
                 } else {
-                    cells[c].classList.add('diamond', 'diamond-icon');
-                    cells[c].classList.remove('safe');
+                    cells[c].classList.add('revealed-diamond', 'diamond-icon');
                 }
             }
         }
         
         $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-        $('mainBtn').style.background = '#48dbfb';
+        $('mainBtn').className = 'btn-main';
         
         setTimeout(function(){
             playing = false;
@@ -374,7 +347,7 @@ async function clickCell(step, cellIdx, cellEl){
             currentBet = 0;
             renderGrid();
             $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-            $('mainBtn').style.background = '#48dbfb';
+            $('mainBtn').className = 'btn-main';
         }, 2500);
     } else {
         currentStep++;
@@ -387,8 +360,8 @@ async function clickCell(step, cellIdx, cellEl){
         
         var newMult = calcMult(currentStep);
         var winAmt = Math.floor(currentBet * newMult);
-        $('mainBtn').textContent = 'ЗАБРАТЬ ₽' + fmt(winAmt);
-        $('mainBtn').style.background = '#1dd1a1';
+        $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(winAmt) + ' ₽';
+        $('mainBtn').className = 'btn-main cashout';
         
         renderGrid();
     }
@@ -406,43 +379,65 @@ async function handleMainBtn(){
   var bet = parseInt($('betInput').value) || 0;
   if(bet < 1){ showToast('Мин. ставка 1₽', true); return; }
   if(bet > 10000){ showToast('Макс. ставка 10 000₽', true); return; }
-  if(bet > B){ showToast('Мало денег', true); return; }
+  if(bet > B){ showToast('Недостаточно средств', true); return; }
 
-  var newTotal = await safeChangeBalance(-bet);
-  if(newTotal === null){ showToast('Ошибка списания', true); return; }
-  
-  setBalDisplay(newTotal);
-  currentBet = bet;
-  currentStep = 0;
-  playing = true;
+  try {
+    const r = await fetch('/api/ladder/play', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 })
+    });
+    const d = await r.json();
+    if(!r.ok){ showToast(d.error || 'Ошибка списания', true); return; }
 
-  stonePositions = [];
-  for(var s=0; s<TOTAL_STEPS; s++){
-      var cellsCount = STEP_WIDTHS[s];
-      var positions = [];
-      var stonesToPlace = Math.min(TOTAL_STONES, cellsCount - 1);
-      
-      while(positions.length < stonesToPlace){
-          var p = Math.floor(Math.random() * cellsCount);
-          if(positions.indexOf(p) === -1) positions.push(p);
-      }
-      stonePositions.push(positions);
+    B = d.new_balance;
+    $('bal').textContent = fmt(B);
+    
+    currentBet = bet;
+    currentStep = 0;
+    playing = true;
+
+    stonePositions = [];
+    for(var s=0; s<TOTAL_STEPS; s++){
+        var cellsCount = STEP_WIDTHS[s];
+        var positions = [];
+        var stonesToPlace = Math.min(TOTAL_STONES, cellsCount - 1);
+        
+        while(positions.length < stonesToPlace){
+            var p = Math.floor(Math.random() * cellsCount);
+            if(positions.indexOf(p) === -1) positions.push(p);
+        }
+        stonePositions.push(positions);
+    }
+
+    $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(currentBet * calcMult(currentStep)) + ' ₽';
+    $('mainBtn').className = 'btn-main cashout';
+    
+    renderGrid();
+  } catch(e) {
+    showToast('Ошибка соединения', true);
   }
-
-  $('mainBtn').textContent = 'ЗАБРАТЬ ₽' + fmt(currentBet * calcMult(currentStep));
-  $('mainBtn').style.background = '#48dbfb';
-  
-  renderGrid();
 }
 
 async function cashOut(){
   if(!playing || currentStep === 0 || isWaiting) return;
   
   var win = Math.floor(currentBet * calcMult(currentStep));
-  var newTotal = await safeChangeBalance(win);
-  if(newTotal !== null) setBalDisplay(newTotal);
+  var mult = calcMult(currentStep);
   
-  showToast('✅ Вы забрали ₽' + fmt(win), false);
+  try {
+    const r = await fetch('/api/ladder/play', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: mult })
+    });
+    const d = await r.json();
+    if(r.ok) {
+      B = d.new_balance;
+      $('bal').textContent = fmt(B);
+      loadHistory();
+    }
+  } catch(e) {}
+  
+  showToast('✅ Вы забрали ' + fmt(win) + ' ₽', false);
   
   var grid = $('gridWrap');
   for(var r=0; r<TOTAL_STEPS; r++){
@@ -453,13 +448,13 @@ async function cashOut(){
         for(var c=0; c<cells.length; c++){
             cells[c].classList.remove('current');
             if(r < currentStep){
-                cells[c].classList.add('opened', 'diamond', 'selected', 'safe');
+                cells[c].classList.add('opened', 'revealed-diamond', 'diamond-icon');
             }
         }
     }
   
   $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-  $('mainBtn').style.background = '#48dbfb';
+  $('mainBtn').className = 'btn-main';
   
   setTimeout(function(){
       playing = false;
@@ -467,21 +462,16 @@ async function cashOut(){
       currentBet = 0;
       renderGrid();
       $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-      $('mainBtn').style.background = '#48dbfb';
+      $('mainBtn').className = 'btn-main';
   }, 2000);
 }
 
 // ==================== СТАРТ ====================
 renderGrid();
-
-auth.onAuthStateChanged(function(user){
-  if(user){
-    localStorage.setItem(CURRENT_USER_KEY, user.uid);
-    loadBalance();
-  } else {
-    window.location.replace('auth.html?need_auth=1');
-  }
-});
+loadBalance();
+loadHistory();
+setInterval(loadBalance, 5000);
+setInterval(loadHistory, 5000);
 
 $('betInput').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
