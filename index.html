@@ -74,13 +74,35 @@
     text-decoration: none;
     display: flex;
     flex-direction: column;
+    aspect-ratio: 3 / 4; /* Пропорции как на референсе */
   }
   .game-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
   
-  .game-img-wrap { height: 140px; display: flex; align-items: center; justify-content: center; padding: 10px; }
-  .game-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  /* ИДЕАЛЬНАЯ КАРТИНКА */
+  .game-img-wrap { 
+    width: 100%; 
+    flex: 1; /* Занимает всё свободное место сверху */
+    position: relative;
+    overflow: hidden;
+  }
+  .game-img-wrap img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* Растягивает без искажений, заполняя всё */
+    display: block;
+    transition: 0.3s;
+  }
+  .game-card:hover .game-img-wrap img {
+    transform: scale(1.05); /* Легкий зум при наведении */
+  }
   
-  .game-info { padding: 12px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border); flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .game-info { 
+    padding: 12px; 
+    background: rgba(0,0,0,0.4); 
+    border-top: 1px solid var(--border); 
+    flex-shrink: 0;
+    backdrop-filter: blur(5px);
+  }
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -112,8 +134,6 @@
     .nav-menu { display: none; }
     .header-right { gap: 10px; }
     .balance-info { display: none; }
-    .game-img-wrap { height: 100px; }
-    .game-title { font-size: 11px; }
   }
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; }
@@ -121,7 +141,6 @@
     .btn-deposit { padding: 8px 12px; font-size: 11px; }
     .btn-login { padding: 8px 12px; font-size: 11px; }
     .games-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .game-img-wrap { height: 80px; }
     .game-info { padding: 8px; }
     .game-title { font-size: 10px; }
     .game-sub { font-size: 8px; }
@@ -195,8 +214,8 @@
   <div class="games-grid">
     <!-- Crash -->
     <a href="/crash.html" class="game-card">
-      <div class="game-img-wrap" style="background: linear-gradient(135deg, #2a0a3a, #11051a);">
-        <img src="/crash_card.webp" onerror="this.style.display='none'" alt="Crash">
+      <div class="game-img-wrap">
+        <img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash">
       </div>
       <div class="game-info">
         <div class="game-title">Crash</div>
@@ -206,8 +225,8 @@
 
     <!-- Cases -->
     <a href="/cases.html" class="game-card">
-      <div class="game-img-wrap" style="background: linear-gradient(135deg, #0a2a3a, #05101a);">
-        <img src="/cases_card.jpg" onerror="this.style.display='none'" alt="Cases">
+      <div class="game-img-wrap">
+        <img src="/cases_card.jpg" alt="Cases">
       </div>
       <div class="game-info">
         <div class="game-title">Cases</div>
@@ -217,8 +236,8 @@
 
     <!-- Miner -->
     <a href="/miner.html" class="game-card">
-      <div class="game-img-wrap" style="background: linear-gradient(135deg, #3a1a0a, #1a0a05);">
-        <img src="/miner_card.jpg" onerror="this.style.display='none'" alt="Miner">
+      <div class="game-img-wrap">
+        <img src="/miner_card.jpg" alt="Miner">
       </div>
       <div class="game-info">
         <div class="game-title">Miner</div>
@@ -228,8 +247,8 @@
 
     <!-- Ladder -->
     <a href="/ladder.html" class="game-card">
-      <div class="game-img-wrap" style="background: linear-gradient(135deg, #0a3a2a, #051a15);">
-        <img src="/ladder_card.jpg" onerror="this.style.display='none'" alt="Ladder">
+      <div class="game-img-wrap">
+        <img src="/ladder_card.jpg" alt="Ladder">
       </div>
       <div class="game-info">
         <div class="game-title">Ladder</div>
@@ -239,8 +258,8 @@
 
     <!-- Plinko -->
     <a href="/plinko.html" class="game-card">
-      <div class="game-img-wrap" style="background: linear-gradient(135deg, #2a0a2a, #150515);">
-        <img src="/plinko_card.jpg" onerror="this.style.display='none'" alt="Plinko">
+      <div class="game-img-wrap">
+        <img src="/plinko_card.jpg" alt="Plinko">
       </div>
       <div class="game-info">
         <div class="game-title">Plinko</div>
@@ -301,7 +320,6 @@ function openDeposit() {
 
 function goToPayment() {
   closeModal('depositModal');
-  // В реальности здесь будет редирект на платежную систему
   showToast('Переход к оплате...', 'success');
 }
 
