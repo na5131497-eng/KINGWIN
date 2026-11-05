@@ -16,7 +16,7 @@
   body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
   
   /* Сайдбар */
-  .sidebar { width: 250px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; }
+  .sidebar { width: 250px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 100; transition: transform 0.3s; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px; padding-left: 10px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
   .logo-mark { width: 24px; height: 24px; background: linear-gradient(135deg, #00e5ff, #0077ff); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
   .nav-menu { display: flex; flex-direction: column; gap: 4px; }
@@ -26,15 +26,20 @@
   .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
   
   /* Контент */
-  .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); }
+  .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); position: relative; }
   .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9,10,16,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
   .mobile-burger { display: none; font-size: 24px; color: var(--accent); cursor: pointer; background: none; border: none; padding: 10px; font-weight: 900; }
   .header-actions { display: flex; align-items: center; gap: 15px; }
   .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
   .btn-wallet { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; }
   .btn-login { background: var(--accent-green); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; }
-  .profile-avatar { width: 36px; height: 36px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); }
+  
+  /* ПРОФИЛЬ (АВАТАРКА) */
+  .profile-avatar { width: 40px; height: 40px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+  .profile-avatar:hover { border-color: var(--accent); background: rgba(0,229,255,0.1); }
   .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
+  .profile-avatar:hover svg { fill: var(--accent); }
+
   .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
 
   /* Баннер */
@@ -67,7 +72,7 @@
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; }
   
-  /* Стили депозита */
+  /* Депозит */
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
   .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; cursor: pointer; }
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
@@ -81,7 +86,6 @@
   
   .card-box { background: #fff; color: #000; font-size: 24px; font-weight: 900; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; margin: 15px 0; letter-spacing: 2px; }
   
-  /* Окно загрузки */
   .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
   .spinner { width: 50px; height: 50px; border: 4px solid rgba(0,229,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -91,6 +95,11 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
+
+  /* Королевское окно */
+  .welcome-modal { border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14); box-shadow: 0 0 60px rgba(0,255,136,0.3); position: relative; overflow: hidden; }
+  .welcome-modal::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 60%); animation: rotate 6s linear infinite; pointer-events: none; }
+  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   @media (max-width: 900px) {
     body { overflow: auto; }
@@ -128,9 +137,14 @@
   <header class="topbar">
     <button class="mobile-burger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
     <div style="flex:1;"></div>
+    
+    <!-- ПРОФИЛЬ ТУТ (ПОЯВЛЯЕТСЯ ПРИ ВХОДЕ) -->
     <div class="header-actions" id="userArea" style="display:none">
       <div class="balance-btn">Баланс: <span id="topBalance">0.00</span> ₽</div>
       <button class="btn-wallet" onclick="openDeposit()">Кошелек</button>
+      <div class="profile-avatar" onclick="goToProfile()">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
     </div>
     <div class="header-actions" id="loginArea">
       <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
@@ -199,16 +213,13 @@
       <div class="dep-methods">
         <div class="dep-method active">Перевод на карту</div>
       </div>
-      
       <div class="dep-amount-row">
         <button class="dep-amount-btn" onclick="changeDepAmount(-100)">−</button>
         <input type="number" id="depAmount" class="dep-amount-input" value="500" min="200" max="100000" step="1">
         <button class="dep-amount-btn" onclick="changeDepAmount(100)">+</button>
       </div>
-      
       <div class="dep-info-row"><span>К оплате:</span> <b id="depSumDisplay">500.00</b> ₽</div>
       <div class="dep-info-row"><span>Будет зачислено:</span> <b id="depSumDisplay2">500.00</b> ₽</div>
-      
       <button class="dep-pay-btn" onclick="showDepDetails()">Перейти к оплате</button>
     </div>
 
@@ -222,17 +233,17 @@
     <div id="depStep3" style="display: none;" class="loading-wrap">
       <div class="spinner"></div>
       <h2 style="font-size: 18px; margin-bottom: 10px;">Не закрывайте окно</h2>
-      <p style="font-size: 14px; color: #8b92a5;">Ищем ваш перевод. Обычно это занимает до 5 минут. Как только администратор подтвердит, баланс обновится, и вы получите уведомление.</p>
+      <p style="font-size: 14px; color: #8b92a5;">Ищем ваш перевод. Обычно это занимает до 5 минут.</p>
     </div>
   </div>
 </div>
 
-<!-- ФИРМЕННОЕ ОКНО УСПЕХА -->
+<!-- КОРОЛЕВСКОЕ ОКНО УСПЕХА -->
 <div class="modal-overlay" id="welcomeModal">
-  <div class="modal-box" style="border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14); box-shadow: 0 0 50px rgba(0,255,136,0.2);">
+  <div class="modal-box welcome-modal" style="position: relative; z-index: 1;">
     <h2 style="color: var(--accent-green); font-size: 26px; margin-bottom: 10px;">Добро пожаловать<br>в королевскую игру</h2>
-    <p style="font-size: 15px; margin-bottom: 20px;">Баланс успешно пополнен на <b id="welcomeAmount" style="color: #fff;">0</b> ₽.</p>
-    <button class="dep-pay-btn" style="background: var(--accent-green); color: #000;" onclick="closeModal('welcomeModal')">В бой!</button>
+    <p style="font-size: 15px; margin-bottom: 20px; position: relative; z-index: 1;">Баланс успешно пополнен на <b id="welcomeAmount" style="color: #fff;">0</b> ₽.</p>
+    <button class="dep-pay-btn" style="background: var(--accent-green); color: #000; position: relative; z-index: 1;" onclick="closeModal('welcomeModal')">В бой!</button>
   </div>
 </div>
 
@@ -240,6 +251,7 @@
 let currentPlayer = null;
 let isFirstDeposit = false;
 let pollInterval = null;
+let currentDepositAmount = 0;
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
@@ -266,6 +278,7 @@ async function doLogin() {
     closeModal('loginModal');
     updateUI();
     checkBonusAvailability();
+    checkPendingDeposits(); // Проверяем, вдруг админ уже подтвердил прошлый депозит
   } catch(e) { showToast('Ошибка соединения', 'error'); }
 }
 
@@ -275,7 +288,14 @@ function updateUI() {
     document.getElementById('loginArea').style.display = 'none';
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
+  } else {
+    document.getElementById('userArea').style.display = 'none';
+    document.getElementById('loginArea').style.display = 'flex';
   }
+}
+
+function goToProfile() {
+  if(currentPlayer) window.location.href = `/profile2.html?id=${currentPlayer.id}`;
 }
 
 async function openDeposit() {
@@ -285,7 +305,6 @@ async function openDeposit() {
   document.getElementById('depStep2').style.display = 'none';
   document.getElementById('depStep3').style.display = 'none';
   
-  // Проверяем бонус
   try {
     const res = await fetch('/api/deposits');
     const deps = await res.json();
@@ -315,8 +334,36 @@ function checkBonusAvailability() {
   });
 }
 
-// ГЕНЕРАЦИЯ УНИКАЛЬНОЙ СУММЫ С КОПЕЙКАМИ
-let currentDepositAmount = 0;
+// ПРОВЕРКА ОДОБРЕННЫХ ДЕПОЗИТОВ (КОРОЛЕВСКОЕ ОКНО)
+async function checkPendingDeposits() {
+  if(!currentPlayer) return;
+  try {
+    const res = await fetch('/api/deposits');
+    const deps = await res.json();
+    // Ищем депозиты этого игрока, которые уже подтверждены (approved), но еще не показаны
+    const approvedNotSeen = deps.find(d => 
+      d.nick.toLowerCase() === currentPlayer.name.toLowerCase() && 
+      d.status === 'approved' && 
+      d.seen === false
+    );
+
+    if(approvedNotSeen) {
+      // Показываем королевское окно!
+      document.getElementById('welcomeAmount').textContent = approvedNotSeen.sum.toFixed(2);
+      openModal('welcomeModal');
+      
+      // Отмечаем, что мы его показали (чтобы не показывать дважды)
+      fetch('/api/deposits/' + approvedNotSeen.id + '/seen', { method: 'POST' });
+      
+      // Обновляем баланс
+      const userRes = await fetch('/api/guest/me?id=' + currentPlayer.id);
+      const userData = await userRes.json();
+      currentPlayer = userData.guest;
+      updateUI();
+    }
+  } catch(e) {}
+}
+
 function changeDepAmount(diff) {
   const input = document.getElementById('depAmount');
   let val = parseInt(input.value) || 500;
@@ -329,7 +376,6 @@ document.getElementById('depAmount').addEventListener('input', updateDepDisplay)
 
 function updateDepDisplay() {
   const val = parseInt(document.getElementById('depAmount').value) || 200;
-  // Генерируем копейки для идентификации (от 1 до 99)
   const kopecks = Math.floor(Math.random() * 99) + 1; 
   const totalWithKopecks = val + (kopecks / 100);
   currentDepositAmount = totalWithKopecks;
@@ -361,12 +407,11 @@ async function sendDeposit() {
     });
     
     if(res.ok) {
-      // Начинаем опрос сервера каждые 3 секунды на предмет подтверждения
       if(pollInterval) clearInterval(pollInterval);
       pollInterval = setInterval(async () => {
         const check = await fetch('/api/deposits');
         const deps = await check.json();
-        const myDep = deps.find(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase() && d.status === 'approved' && Math.abs(d.sum - currentDepositAmount) < 0.01);
+        const myDep = deps.find(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase() && d.status === 'approved' && d.seen === false);
         
         if(myDep) {
           clearInterval(pollInterval);
@@ -374,7 +419,9 @@ async function sendDeposit() {
           document.getElementById('welcomeAmount').textContent = myDep.sum.toFixed(2);
           openModal('welcomeModal');
           
-          // Обновляем баланс на странице
+          // Отмечаем как просмотренное
+          fetch('/api/deposits/' + myDep.id + '/seen', { method: 'POST' });
+          
           const userRes = await fetch('/api/guest/me?id=' + currentPlayer.id);
           const userData = await userRes.json();
           currentPlayer = userData.guest;
@@ -392,7 +439,12 @@ window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => { 
-      if(data.guest) { currentPlayer = data.guest; updateUI(); checkBonusAvailability(); } 
+      if(data.guest) { 
+        currentPlayer = data.guest; 
+        updateUI(); 
+        checkBonusAvailability(); 
+        checkPendingDeposits(); // Проверяем при загрузке страницы
+      } 
     });
   }
 };
