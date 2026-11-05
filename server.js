@@ -876,6 +876,74 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
+    /* РАУНД С ПАНЕЛИ ДИЛЕРА (Блэкджек/Баккара + джекпот) */
+    if (url === '/api/sessions/round' && method === 'POST') {
+      const b = await parseBody(req);
+      const dealer = b.dealer || '';
+      const gameType = b.game_type || 'bj';
+      const nick = String(b.nick || '').trim();
+      const bet = parseFloat(b.bet) || 0;
+      const win = parseFloat(b.win) || 0;
+      const jackpotHit = b.jackpot === true;
+
+      if (!nick) return sendJSON(res, 400, { error: 'Введите ник игрока' });
+      if (bet < 10 || bet > 10000) return sendJSON(res, 400, { error: 'Ставка от 10 до 10 000 ₽' });
+      if (win < 0 || win > 100000) return sendJSON(res, 400, { error: 'Выигрыш от 0 до 100 000 ₽' });
+
+      const today = new Date().toISOString().slice(0, 10);
+      let sessionRow = null;
+
+      if (gameType === 'bj') {
+        const dep = bet;
+        const outSum = win;
+        const net = dep - outSum;
+        const result = net >= 0 ? 'win' : 'lose';
+        const r = await pool.query(
+          `INSERT INTO sessions (date,nick,decks,dep,out_sum,fee,net,result,dealer)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+          [today, nick, 1, dep, outSum, 0, net, result, dealer]
+        );
+        sessionRow = r.rows[0];
+        await accruePointsByNick(nick, dep, 'blackjack');
+      } else {
+        const r = await pool.query(
+          `INSERT INTO baccarat (date,player,bet,sum,result,dealer)
+           VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+          [today, nick, 'player', bet, win > 0 ? 'win' : 'lose', dealer]
+        );
+        sessionRow = r.rows[0];
+        await accruePointsByNick(nick, bet, 'baccarat');
+      }
+
+      // Логика джекпота
+      let currentJP = await getActualJackpot();
+      if (jackpotHit) {
+        currentJP = 0;
+      } else {
+        currentJP += Math.max(1, bet * 0.15);
+        if (currentJP >= JACKPOT_MAX) currentJP = 0;
+      }
+      await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
+      await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
+
+      // Учёт в online
+      try {
+        const net = bet - win;
+        const type = net >= 0 ? 'доход' : 'расход';
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+          [today, type, Math.abs(net), `${gameType === 'bj' ? 'Blackjack' : 'Baccarat'} (${nick})`]
+        );
+      } catch(e) {}
+
+      return sendJSON(res, 200, {
+        ok: true,
+        session: sessionRow,
+        jackpot: currentJP,
+        jackpot_reset: jackpotHit
+      });
+    }
+
     /* БАККАРА */
     if(url === '/api/baccarat' && method === 'GET'){
       const r = await pool.query('SELECT * FROM baccarat ORDER BY id DESC');
