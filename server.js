@@ -50,8 +50,8 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
-/* ---------- DAILY & WHEEL конфиг ---------- */
-const DAILY_REWARDS = [15, 30, 40, 50, 60, 60, 100]; // Д1..Д7
+/* ---------- DAILY & WHEEL ---------- */
+const DAILY_REWARDS = [15, 30, 40, 50, 60, 60, 100];
 const WHEEL_PRIZES = [
   { index: 0, label: '10 баллов',  type: 'points', value: 10,  weight: 26, color: '#00e5ff' },
   { index: 1, label: '10 ₽',       type: 'money',  value: 10,  weight: 22, color: '#3fbf7f' },
@@ -438,6 +438,7 @@ async function initDB() {
         daily_last_claim DATE,
         wheel_last_spin DATE,
         pending_bonus NUMERIC DEFAULT 0,
+        last_visit TIMESTAMP DEFAULT NOW(),
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS crash_rounds (
@@ -491,10 +492,11 @@ async function initDB() {
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS daily_last_claim DATE`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS wheel_last_spin DATE`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS pending_bonus NUMERIC DEFAULT 0`,
+      `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_visit TIMESTAMP DEFAULT NOW()`,
       `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`,
       `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`
     ];
-    for (const c of cols){ try { await pool.query(c); } catch(e){} }
+    for (const c of cols){ try { await pool.query(c); } catch(e){ console.error('ALTER err:', e.message); } }
 
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){
@@ -605,7 +607,6 @@ async function addBalanceByNick(nick, amount, isBonus = false){
   return true;
 }
 
-/* ---------- Хелперы гостя ---------- */
 async function getGuestById(id){
   const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id)]);
   return r.rows[0] || null;
@@ -624,7 +625,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
-    /* ================= ЗАДАНИЯ ДИЛЕРА ================= */
+    /* ================= ДИЛЕР ================= */
     if (url === '/api/dealer/silence' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
@@ -936,7 +937,9 @@ const server = http.createServer(async (req, res) => {
       const g = r.rows[0];
       const realPass = g.pass || '1234';
       if(String(pass) !== String(realPass)) return sendJSON(res, 401, { error: 'Неверный пароль' });
-      await pool.query('UPDATE guests SET visits = visits + 1, last_visit = NOW() WHERE id=$1', [g.id]);
+      try {
+        await pool.query('UPDATE guests SET visits = visits + 1, last_visit = NOW() WHERE id=$1', [g.id]);
+      } catch(e){ /* если last_visit ещё нет — пропускаем */ }
       return sendJSON(res, 200, { ok: true, guest: g });
     }
 
@@ -981,9 +984,7 @@ const server = http.createServer(async (req, res) => {
       const nextReward = claimed_today ? 0 : DAILY_REWARDS[Math.min(level, 6)];
 
       return sendJSON(res, 200, {
-        level,
-        claimed_today,
-        rewards: DAILY_REWARDS,
+        level, claimed_today, rewards: DAILY_REWARDS,
         next_reward: nextReward,
         pending_bonus: parseFloat(g.pending_bonus)||0
       });
@@ -1007,7 +1008,6 @@ const server = http.createServer(async (req, res) => {
         const diff = (new Date(today) - new Date(last)) / 86400000;
         if(diff > 1){ level = 0; pending = 0; }
       }
-
       if(level >= 7) level = 0;
 
       const reward = DAILY_REWARDS[level] || 0;
@@ -1057,7 +1057,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { prize });
     }
 
-    /* ================= СВОДКА ПРОФИЛЯ ================= */
+    /* ================= СВОДКА ================= */
     if (url === '/api/guest/summary' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -1084,7 +1084,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    /* ================= ВЫВОД: на онлайн-баланс ================= */
+    /* ================= ВЫВОД: на баланс казино ================= */
     if (url === '/api/guest/withdraw-to-casino' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
@@ -1101,7 +1101,6 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} баллов` });
       }
 
-      // переводим pending_bonus → deposit_balance (доступно для игры и вывода на онлайн)
       await pool.query(`
         UPDATE guests SET deposit_balance = deposit_balance + pending_bonus, pending_bonus = 0
         WHERE id=$1
@@ -1137,7 +1136,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* ================= ВЫВОД: старая версия (совместимость) ================= */
+    /* старая версия для совместимости */
     if(url === '/api/guest/withdraw' && method === 'POST'){
       const { id, sum } = await parseBody(req);
       if(!id) return sendJSON(res, 400, { error: 'no id' });
