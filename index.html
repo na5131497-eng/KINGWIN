@@ -54,6 +54,86 @@
 
   .section-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 40px; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
+
+  /* ---------- CRASH CARD 1:1 С КАРТИНКОЙ ---------- */
+  .crash-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(0,229,255,0.25);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,229,255,0.1);
+    transition: 0.3s;
+    background: linear-gradient(135deg, #131624, #090a10);
+  }
+  .crash-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0,229,255,0.6);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(0,229,255,0.25);
+  }
+  .crash-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .crash-card .crash-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 40%, transparent 70%);
+    pointer-events: none;
+  }
+  .crash-card .crash-info {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+    z-index: 2;
+  }
+  .crash-card .crash-title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,229,255,0.4);
+    text-transform: uppercase;
+  }
+  .crash-card .crash-sub {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .crash-card .crash-play {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ff88, #00b366);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(0,255,136,0.5);
+    flex-shrink: 0;
+  }
+  .crash-card .crash-play svg {
+    width: 22px;
+    height: 22px;
+    fill: #000;
+    margin-left: 3px;
+  }
+
+  /* остальные карточки — как были */
   .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
   .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
   .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
@@ -113,95 +193,14 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: #ff4d4d; }
-
-  /* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
-  .thanks-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
-  }
-  .thanks-backdrop.show { display: flex; }
-
-  .thanks-modal {
-    background: linear-gradient(135deg, #111625, #0a0d14);
-    border: 2px solid #00e5ff;
-    border-radius: 24px;
-    padding: 40px 32px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(0,229,255,0.35), inset 0 0 40px rgba(0,229,255,0.05);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .thanks-modal::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 60%);
-    animation: rotate 6s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  .thanks-logo {
-    font-size: 42px; font-weight: 900; letter-spacing: 4px;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 8px;
-    position: relative; z-index: 1;
-  }
-  .thanks-sub {
-    font-size: 11px; color: #8fa2b8; letter-spacing: 3px;
-    text-transform: uppercase; margin-bottom: 28px;
-    position: relative; z-index: 1;
-  }
-  .thanks-title {
-    font-size: 24px; font-weight: 900; color: #fff;
-    margin-bottom: 12px;
-    position: relative; z-index: 1;
-  }
-  .thanks-title span { color: #3fbf7f; }
-  .thanks-text {
-    font-size: 15px; color: #a0aec0; line-height: 1.6;
-    margin-bottom: 8px;
-    position: relative; z-index: 1;
-  }
-  .thanks-amount {
-    display: inline-block;
-    font-size: 34px; font-weight: 900;
-    color: #00e5ff;
-    text-shadow: 0 0 20px rgba(0,229,255,0.5);
-    margin: 12px 0 20px;
-    position: relative; z-index: 1;
-  }
-  .thanks-luck {
-    font-size: 16px;
-    color: #3fbf7f;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 26px;
-    position: relative; z-index: 1;
-  }
-  .thanks-btn {
-    background: #00e5ff; color: #000;
-    border: none; border-radius: 12px;
-    padding: 14px 44px;
-    font-size: 16px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    transition: 0.3s;
-    position: relative; z-index: 1;
-    box-shadow: 0 0 20px rgba(0,229,255,0.4);
-  }
-  .thanks-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.7); transform: translateY(-2px); }
-
+  
   /* АДАПТАЦИЯ */
   @media (max-width: 768px) {
     .sidebar { display: none; }
     .topbar { padding: 0 15px; height: 60px; }
     .content { padding: 15px; padding-bottom: 80px; }
+    .crash-card { max-width: 100%; }
+    .crash-card .crash-title { font-size: 22px; }
     .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .mobile-bottom-nav { display: flex; }
     .hero { border-radius: 12px !important; }
@@ -209,11 +208,6 @@
     .dep-methods { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .dep-method { padding: 12px 15px; }
     .dep-content { padding: 15px; }
-
-    .thanks-modal { padding: 30px 24px; }
-    .thanks-logo { font-size: 34px; }
-    .thanks-title { font-size: 20px; }
-    .thanks-amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -256,21 +250,38 @@
 
   <div class="content">
     
-    <!-- НОВЫЙ БАННЕР С КАРТИНКОЙ -->
+    <!-- БАННЕР -->
     <div class="hero">
       <img src="/main_banner.jpg" alt="KINGWIN Casino">
       <button class="hero-btn" onclick="showToast('Бонусы в разработке')">Забрать сейчас</button>
     </div>
 
     <div class="section-title">Наши игры</div>
-    <div class="our-games-grid">
-      <div class="our-game-card" onclick="window.location.href='/crash.html'">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
-        <div class="our-game-title">Crash</div>
+
+    <!-- CRASH КАРТОЧКА 1:1 С КАРТИНКОЙ -->
+    <div class="crash-card" onclick="window.location.href='/crash.html'">
+      <img src="/crash_card.jpg" alt="Crash" onerror="this.style.display='none'">
+      <div class="crash-overlay"></div>
+      <div class="crash-info">
+        <div>
+          <div class="crash-title">Crash</div>
+          <div class="crash-sub">Успей забрать</div>
+        </div>
+        <div class="crash-play">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
       </div>
+    </div>
+
+    <div class="section-title">Другие игры</div>
+    <div class="our-games-grid">
       <div class="our-game-card" onclick="window.location.href='/dealer.html'">
         <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div>
         <div class="our-game-title">Блэкджек</div>
+      </div>
+      <div class="our-game-card" onclick="window.location.href='/jackpot.html'">
+        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg></div>
+        <div class="our-game-title">Джекпот</div>
       </div>
     </div>
   </div>
@@ -359,22 +370,8 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: ДЕПОЗИТ ЗАЧИСЛЕН -->
-<div class="thanks-backdrop" id="thanksModal">
-  <div class="thanks-modal">
-    <div class="thanks-logo">KINGWIN</div>
-    <div class="thanks-sub">Club Card</div>
-    <div class="thanks-title">Депозит <span>зачислен</span></div>
-    <div class="thanks-text">Ваш баланс успешно пополнен на</div>
-    <div class="thanks-amount" id="thanksAmount">+0 ₽</div>
-    <div class="thanks-luck">Удачи в игре!</div>
-    <button class="thanks-btn" onclick="closeThanksModal()">Отлично</button>
-  </div>
-</div>
-
 <script>
 let currentPlayer = null;
-let pendingDeposits = [];
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
@@ -484,58 +481,15 @@ async function sendDeposit() {
   }
 }
 
-/* ---------- МОДАЛКА "ДЕПОЗИТ ЗАЧИСЛЕН" ---------- */
-function showThanksModal(dep) {
-  if (!dep) return;
-  pendingDeposits = [dep];
-  document.getElementById('thanksAmount').textContent = '+' + (Math.round(dep.sum*100)/100).toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('thanksModal').classList.add('show');
-}
-
-async function closeThanksModal() {
-  document.getElementById('thanksModal').classList.remove('show');
-  if (pendingDeposits.length > 0) {
-    const dep = pendingDeposits.shift();
-    try {
-      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
-    } catch(e) {}
-  }
-}
-
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId)
       .then(r => r.json())
-      .then(data => {
-        if(data.guest) { currentPlayer = data.guest; updateUI(); }
-        if (data.unseen_deposits && data.unseen_deposits.length > 0) {
-          showThanksModal(data.unseen_deposits[0]);
-        }
-      })
+      .then(data => { if(data.guest) { currentPlayer = data.guest; updateUI(); } })
       .catch(() => {});
   }
 };
-
-/* Периодическая проверка новых подтверждённых депозитов */
-setInterval(() => {
-  if (!currentPlayer) return;
-  fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id))
-    .then(r => r.json())
-    .then(data => {
-      if (data.guest) {
-        currentPlayer = data.guest;
-        document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
-      }
-      if (data.unseen_deposits && data.unseen_deposits.length > 0) {
-        const modal = document.getElementById('thanksModal');
-        if (!modal.classList.contains('show')) {
-          showThanksModal(data.unseen_deposits[0]);
-        }
-      }
-    })
-    .catch(() => {});
-}, 5000);
 </script>
 </body>
 </html>
