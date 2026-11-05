@@ -60,6 +60,10 @@
   .bonus-tag .tag-lbl { font-size: 12px; font-weight: 900; color: var(--accent-green); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
   .bonus-tag .tag-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
   .bonus-tag .tag-amount { font-size: 22px; font-weight: 900; color: var(--accent-green); margin-top: 6px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+  
+  /* КНОПКА "ЗАБРАТЬ" НА БАННЕРЕ */
+  .btn-claim-bonus { display: block; width: 100%; margin-top: 12px; background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+  .btn-claim-bonus:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,255,136,0.7); }
 
   @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
@@ -156,7 +160,6 @@
 <aside class="sidebar" id="sidebar">
   <a href="/" class="logo"><div class="logo-mark"></div><span>KINGWIN</span></a>
   
-  <!-- ВЕРТИКАЛЬНЫЙ СПИСОК ИГР -->
   <div class="nav-menu">
     <a href="/" class="nav-item active">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
@@ -200,12 +203,16 @@
   </header>
 
   <div class="content">
+    
     <div class="hero">
       <img src="/main_banner.jpg" alt="KINGWIN Bonus">
+      
       <div class="bonus-tag">
         <div class="tag-lbl">🎁 Bonus</div>
         <div class="tag-title">На первый депозит от 200 ₽</div>
         <div class="tag-amount">+100 ₽ ПОДАРОК</div>
+        <!-- КНОПКА ЗАБРАТЬ -->
+        <button class="btn-claim-bonus" onclick="claimBonus()">Забрать</button>
       </div>
     </div>
 
@@ -261,24 +268,95 @@
   </div>
 </main>
 
-<!-- МОДАЛКИ ТУТ (ВОЗЬМИ ИХ ИЗ ПРЕДЫДУЩЕГО ФАЙЛА, ОНИ НЕ ИЗМЕНИЛИСЬ) -->
+<!-- МОДАЛКА ВХОДА -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box" style="position:relative;">
+    <button style="position:absolute;top:15px;right:15px;background:none;border:none;color:#8b92a5;font-size:20px;cursor:pointer;" onclick="closeModal('loginModal')">✕</button>
+    <h2>Вход в аккаунт</h2>
+    <input type="text" id="loginId" placeholder="Номер карты">
+    <input type="password" id="loginPass" placeholder="Пароль">
+    <button class="dep-pay-btn" onclick="doLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА ПОПОЛНЕНИЯ -->
+<div class="modal-overlay" id="depositModal">
+  <div class="deposit-modal">
+    <div class="dep-header">
+      <h2>Пополнить баланс</h2>
+      <button class="dep-close" onclick="closeModal('depositModal')">×</button>
+    </div>
+    
+    <div class="dep-body">
+      <div class="dep-methods">
+        <div class="dep-method active"><span>SberPay</span> <span style="color:#00e5ff">●</span></div>
+        <div class="dep-method"><span>ВТБ</span></div>
+        <div class="dep-method"><span>T-pay</span></div>
+        <div class="dep-method"><span>СБП</span></div>
+      </div>
+      
+      <div class="dep-content">
+        <div id="depStep1">
+          <div class="dep-banner" id="depBanner"><span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽</div>
+          
+          <div class="dep-amount-title">Введите сумму пополнения (₽)</div>
+          <div class="dep-amount-row">
+            <button class="dep-amount-btn" onclick="changeDepAmount(-100)">−</button>
+            <input type="number" id="depAmount" class="dep-amount-input" value="500" min="200" max="10000">
+            <button class="dep-amount-btn" onclick="changeDepAmount(100)">+</button>
+          </div>
+          <div class="dep-quick">
+            <span onclick="setDepAmount(200)">200.00</span>
+            <span onclick="setDepAmount(500)">500.00</span>
+            <span onclick="setDepAmount(1000)">1000.00</span>
+          </div>
+          <div class="dep-info-row"><span>Сумма к оплате:</span> <b id="depSumDisplay">500.00 ₽</b></div>
+          <div class="dep-info-row"><span>Будет зачислено:</span> <b id="depSumDisplay2">500.00 ₽</b></div>
+          <button class="dep-pay-btn" onclick="showDepDetails()">Пополнить</button>
+        </div>
+
+        <div class="dep-details" id="depStep2">
+          <h3>Перевод на карту</h3>
+          <p>Переведите <b id="depAmountCard" style="color:#fff">500 ₽</b> по номеру карты или СБП:</p>
+          <div class="card-box">2200 7010 1234 5678</div>
+          <p style="margin-bottom: 20px;">Получатель: КИНГВИН КАЗИНО</p>
+          <button class="dep-pay-btn" onclick="sendDeposit()">Я оплатил (Отправить)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА ОЖИДАНИЯ -->
+<div class="modal-overlay" id="waitingModal">
+  <div class="modal-box" style="position:relative;">
+    <button style="position:absolute;top:15px;right:15px;background:none;border:none;color:#8b92a5;font-size:20px;cursor:pointer;" onclick="closeModal('waitingModal')">✕</button>
+    <h2>Ожидайте</h2>
+    <p>Ваша заявка отправлена администратору.<br>Ожидайте подтверждения.</p>
+    <button class="dep-pay-btn" onclick="closeModal('waitingModal')">ОК</button>
+  </div>
+</div>
+
 <script>
 let currentPlayer = null;
 let isFirstDeposit = false;
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('active');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  if (sidebar.classList.contains('open')) overlay.classList.add('active');
+  else overlay.classList.remove('active');
 }
 
 function showToast(text, type='success') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div style="font-size:14px;font-weight:600;color:#fff">${text}</div>`;
-  c.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000); 
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<div style="font-size:14px;font-weight:600;color:#fff">${text}</div>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
 }
 
 function openModal(id) { 
@@ -290,7 +368,30 @@ function openModal(id) {
   document.getElementById(id).classList.add('show'); 
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-function openDeposit() { openModal('depositModal'); }
+
+function openDeposit() { 
+  openModal('depositModal'); 
+  if(currentPlayer && currentPlayer.deposit_balance == 0) {
+    isFirstDeposit = true;
+    document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽';
+  } else {
+    isFirstDeposit = false;
+    document.getElementById('depBanner').innerHTML = 'ПОПОЛНЕНИЕ БАЛАНСА';
+  }
+  updateDepDisplay();
+}
+
+// НОВАЯ ФУНКЦИЯ ДЛЯ КНОПКИ "ЗАБРАТЬ" НА БАННЕРЕ
+function claimBonus() {
+  openDeposit(); // Открываем модалку оплаты
+  // Подсвечиваем, что бонус активирован
+  document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> ВАШ ПОДАРОК АКТИВИРОВАН';
+  setTimeout(() => {
+    const banner = document.getElementById('depBanner');
+    if(banner) banner.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.5)';
+  }, 100);
+}
+
 function goToProfile() { if(currentPlayer) window.location.href = `/profile2.html?id=${currentPlayer.id}`; else openModal('loginModal'); }
 
 async function doLogin() {
@@ -298,7 +399,10 @@ async function doLogin() {
   const pass = document.getElementById('loginPass').value;
   if(!id || !pass) { showToast('Введите номер и пароль', 'error'); return; }
   try {
-    const res = await fetch('/api/guest/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id, pass }) });
+    const res = await fetch('/api/guest/login', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id, pass })
+    });
     const data = await res.json();
     if(!res.ok) { showToast(data.error || 'Ошибка входа', 'error'); return; }
     currentPlayer = data.guest;
@@ -321,10 +425,72 @@ function updateUI() {
   }
 }
 
+function changeDepAmount(diff) {
+  const input = document.getElementById('depAmount');
+  let val = parseInt(input.value) || 200;
+  val += diff;
+  if(val < 200) val = 200;
+  if(val > 10000) val = 10000;
+  input.value = val;
+  updateDepDisplay();
+}
+function setDepAmount(val) {
+  document.getElementById('depAmount').value = val;
+  updateDepDisplay();
+}
+function updateDepDisplay() {
+  const val = parseInt(document.getElementById('depAmount').value) || 200;
+  document.getElementById('depSumDisplay').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
+  
+  if (isFirstDeposit && val >= 200) {
+    document.getElementById('depSumDisplay2').innerHTML = `${val.toLocaleString('ru-RU')}.00 ₽ <span style="color:#00ff88; font-size:11px; margin-left:5px;">(+100 ₽ БОНУС)</span>`;
+  } else {
+    document.getElementById('depSumDisplay2').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
+  }
+}
+document.getElementById('depAmount').addEventListener('input', updateDepDisplay);
+
+function showDepDetails() {
+  const val = parseInt(document.getElementById('depAmount').value) || 200;
+  if(val < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
+  document.getElementById('depAmountCard').textContent = val + ' ₽';
+  document.getElementById('depStep1').style.display = 'none';
+  document.getElementById('depStep2').classList.add('active');
+}
+
+async function sendDeposit() {
+  const amount = parseInt(document.getElementById('depAmount').value) || 200;
+  try {
+    const res = await fetch('/api/deposits', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        date: new Date().toISOString().slice(0,10),
+        nick: currentPlayer.name, email: '', sum: amount, status: 'pending'
+      })
+    });
+    if(res.ok) {
+      closeModal('depositModal');
+      document.getElementById('depStep1').style.display = 'block';
+      document.getElementById('depStep2').classList.remove('active');
+      document.getElementById('waitingModal').classList.add('show');
+    } else {
+      showToast('Ошибка при создании заявки', 'error');
+    }
+  } catch(e) { showToast('Ошибка соединения', 'error'); }
+}
+
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
-    fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => { if(data.guest) { currentPlayer = data.guest; updateUI(); } }).catch(() => {});
+    fetch('/api/guest/me?id=' + savedId)
+      .then(r => r.json())
+      .then(data => { 
+        if(data.guest) { 
+          currentPlayer = data.guest; 
+          updateUI(); 
+        } 
+      })
+      .catch(() => {});
   }
 };
 </script>
