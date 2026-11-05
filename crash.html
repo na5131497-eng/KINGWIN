@@ -470,18 +470,19 @@ function frame() {
 
   const effStatus = localCrashed ? 'crashed' : round.status;
 
-  // Сброс золотого цвета
-  multValueEl.classList.remove('golden');
-
   if (effStatus === 'waiting') {
     multValueEl.classList.remove('crashed');
+    multValueEl.classList.remove('golden');
     
-    // Красивые тексты статусов
-    if (!round.hasRealBet) {
-      multLabelEl.textContent = 'Ожидание первой ставки...';
-    } else if (round.status === 'crashed') {
+    // ЛОГИКА ТЕКСТОВ:
+    if (round.status === 'crashed') {
+      // Сервер сказал, что был краш, сейчас пауза
       multLabelEl.textContent = 'Готовимся к вылету...';
+    } else if (!round.hasRealBet) {
+      // Нет ни одной ставки (ни бота, ни игрока)
+      multLabelEl.textContent = 'Ожидание первой ставки...';
     } else {
+      // Есть ставки, идет отсчет до старта
       multLabelEl.textContent = 'Готовимся к росту...';
     }
     
@@ -493,6 +494,8 @@ function frame() {
     // Если больше 10x — делаем цифру золотой
     if (mult >= 10) {
       multValueEl.classList.add('golden');
+    } else {
+      multValueEl.classList.remove('golden');
     }
 
     if (round.startTime) {
