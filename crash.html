@@ -353,13 +353,8 @@ document.getElementById('balanceBadge').addEventListener('click', () => {
   window.location.href = '/';
 });
 
-/* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ----------
-   ВАЖНО: клиент НЕ решает, когда краш. Он просто считает
-   множитель по времени. Краш приходит только с сервера.
-   Это убирает рассинхрон, когда клиент думает что краш
-   на 1.55, а сервер летит до 1.70. */
+/* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ---------- */
 function currentLocalMultiplier() {
-  // локальный краш от другого раунда — сброс
   if (localCrashed && crashedRoundId !== round.id) {
     resetLocalCrash();
   }
@@ -442,7 +437,6 @@ function applyServerState(d) {
   round.history = d.history || [];
   round.hasRealBet = d.hasRealBet || false;
 
-  // КРАШ ТОЛЬКО ОТ СЕРВЕРА — больше никакой локальной самодеятельности
   if (d.status === 'crashed') {
     if (!localCrashed) {
       localCrashed = true;
@@ -509,10 +503,7 @@ function frame() {
     });
   } else if (effStatus === 'crashed') {
     multValueEl.classList.add('crashed');
-    multLabelEl.textContent = 'КРАШ!';
-    if (graphPoints.length < 2 && round.startTime) {
-      rebuildGraphFromStart();
-    }
+    // При краше ставим точное значение краша
     if (round.startTime) {
       const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
       const last = graphPoints[graphPoints.length - 1];
