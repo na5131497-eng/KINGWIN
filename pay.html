@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KINGWIN — Оплата</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #090a10; --panel: #181a24; --accent: #00e5ff; --green: #00ff88; --border: rgba(255,255,255,0.06); }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg) 60%); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+  
+  .pay-card { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
+  .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #8b92a5; font-size: 24px; cursor: pointer; }
+  .close-btn:hover { color: #fff; }
+  
+  h1 { font-size: 22px; font-weight: 900; margin-bottom: 20px; text-align: center; }
+  
+  .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #8b92a5; }
+  .info-row b { color: #fff; font-size: 16px; }
+  
+  .card-box { background: #fff; color: #000; font-size: 24px; font-weight: 900; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; text-align: center; letter-spacing: 2px; margin: 15px 0; }
+  
+  .amount-box { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
+  .amount-box .lbl { font-size: 11px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .amount-box .val { font-size: 32px; font-weight: 900; color: #00ff88; }
+  
+  .pay-btn { width: 100%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
+  .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.6); }
+  
+  .loader { display: none; flex-direction: column; align-items: center; text-align: center; }
+  .spinner { width: 50px; height: 50px; border: 4px solid rgba(0,229,255,0.1); border-top-color: #00e5ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--panel); border: 2px solid var(--green); border-radius: 20px; padding: 30px; text-align: center; max-width: 400px; width: 100%; }
+  .modal-box h2 { color: var(--green); font-size: 24px; margin-bottom: 10px; }
+  .modal-box p { font-size: 14px; color: #8b92a5; margin-bottom: 20px; line-height: 1.5; }
+  .modal-btn { background: var(--green); color: #000; border: none; border-radius: 10px; padding: 14px 30px; font-weight: 900; font-size: 15px; cursor: pointer; width: 100%; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="pay-card" id="payCard">
+  <button class="close-btn" onclick="window.location.href='/'">✕</button>
+  <h1>Пополнение баланса</h1>
+  
+  <div class="info-row">
+    <span>Сумма к оплате:</span>
+    <b id="paySumDisplay">0.00 ₽</b>
+  </div>
+  <div class="info-row">
+    <span>Способ оплаты:</span>
+    <b>Перевод на карту</b>
+  </div>
+
+  <div class="card-box">2200 7010 1234 5678</div>
+  <p style="font-size: 12px; color: #8b92a5; text-align: center; margin-bottom: 20px;">Получатель: КИНГВИН КАЗИНО</p>
+
+  <div class="amount-box">
+    <div class="lbl">Переведите ровно эту сумму</div>
+    <div class="val" id="payExactSum">0.00 ₽</div>
+  </div>
+
+  <button class="pay-btn" id="payBtn" onclick="confirmPayment()">Я оплатил (Проверить)</button>
+</div>
+
+<div class="pay-card loader" id="loaderCard">
+  <div class="spinner"></div>
+  <h2 style="font-size: 18px; margin-bottom: 10px;">Ищем ваш перевод</h2>
+  <p style="font-size: 14px; color: #8b92a5; text-align: center;">Обычно это занимает до 5 минут. Пожалуйста, не закрывайте страницу.</p>
+</div>
+
+<!-- ОКНО УСПЕХА -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <h2>Добро пожаловать<br>в королевскую игру</h2>
+    <p>Баланс успешно пополнен на <b id="successAmount" style="color:#fff;">0</b> ₽.</p>
+    <button class="modal-btn" onclick="window.location.href='/'">В бой!</button>
+  </div>
+</div>
+
+<script>
+let playerId = localStorage.getItem('kingwin_player_id');
+let playerName = '';
+let currentAmount = 0;
+
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+// Генерация уникальной суммы (добавляем случайные копейки, чтобы отличать переводы)
+function generateUniqueAmount(baseAmount) {
+  const kopecks = Math.floor(Math.random() * 99) + 1;
+  return baseAmount + (kopecks / 100);
+}
+
+async function init() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const baseAmount = parseFloat(urlParams.get('amount')) || 500;
+  
+  currentAmount = generateUniqueAmount(baseAmount);
+  
+  document.getElementById('paySumDisplay').textContent = currentAmount.toFixed(2) + ' ₽';
+  document.getElementById('payExactSum').textContent = currentAmount.toFixed(2) + ' ₽';
+  
+  if(playerId) {
+    try {
+      const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+      const d = await r.json();
+      if(d.guest) playerName = d.guest.name;
+    } catch(e) {}
+  }
+}
+
+async function confirmPayment() {
+  if(!playerId) { alert('Войдите в аккаунт'); return; }
+  
+  document.getElementById('payCard').style.display = 'none';
+  document.getElementById('loaderCard').style.display = 'flex';
+  
+  // Создаем заявку в базе
+  try {
+    await fetch('/api/deposits', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        date: new Date().toISOString().slice(0,10),
+        nick: playerName, email: '', sum: currentAmount, status: 'pending'
+      })
+    });
+    
+    // Начинаем опрос сервера на предмет подтверждения админом
+    const pollInterval = setInterval(async () => {
+      const check = await fetch('/api/deposits');
+      const deps = await check.json();
+      
+      // Ищем наш депозит, который уже одобрен
+      const myDep = deps.find(d => 
+        d.nick.toLowerCase() === playerName.toLowerCase() && 
+        d.status === 'approved' && 
+        Math.abs(d.sum - currentAmount) < 0.01
+      );
+      
+      if(myDep) {
+        clearInterval(pollInterval);
+        document.getElementById('successAmount').textContent = myDep.sum.toFixed(2);
+        document.getElementById('successModal').classList.add('show');
+        fetch('/api/deposits/' + myDep.id + '/seen', { method: 'POST' });
+      }
+    }, 3000);
+  } catch(e) {}
+}
+
+init();
+</script>
+</body>
+</html>
