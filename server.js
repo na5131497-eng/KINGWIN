@@ -95,19 +95,13 @@ async function getActualJackpot() {
   }
 }
 
-/* ---------- КЕЙСЫ ---------- */
+/* ---------- КЕЙСЫ (ОСТАВЛЕНО РОВНО 5) ---------- */
 const CASES = {
   'Новичок':  { price: 39.99,  minRank: 0, prizes: [
     { v: 5,    w: 2500 }, { v: 10,   w: 3000 }, { v: 15,   w: 2000 },
     { v: 20,   w: 1000 }, { v: 30,   w: 800 },  { v: 50,   w: 400 },
     { v: 75,   w: 150 },  { v: 100,  w: 100 },  { v: 175,  w: 30 },
     { v: 500,  w: 15 },   { v: 750,  w: 4 },    { v: 1000, w: 1 }
-  ]},
-  'Бронза':   { price: 99,   minRank: 1, prizes: [
-    { v: 10,   w: 2500 }, { v: 20,   w: 3000 }, { v: 30,   w: 2000 },
-    { v: 50,   w: 1000 }, { v: 75,   w: 800 },  { v: 100,  w: 400 },
-    { v: 150,  w: 150 },  { v: 200,  w: 100 },  { v: 300,  w: 30 },
-    { v: 500,  w: 15 },   { v: 1000, w: 4 },    { v: 2000, w: 1 }
   ]},
   'Сильвер':  { price: 199,  minRank: 2, prizes: [
     { v: 25,   w: 2500 }, { v: 40,   w: 3000 }, { v: 60,   w: 2000 },
@@ -126,12 +120,6 @@ const CASES = {
     { v: 500,  w: 1000 }, { v: 750,  w: 800 },  { v: 1000, w: 400 },
     { v: 1500, w: 150 },  { v: 2000, w: 100 },  { v: 3000, w: 30 },
     { v: 5000, w: 15 },   { v: 7500, w: 4 },    { v: 15000, w: 1 }
-  ]},
-  'Алмаз':    { price: 1999, minRank: 5, prizes: [
-    { v: 250,  w: 2500 }, { v: 500,  w: 3000 }, { v: 750,  w: 2000 },
-    { v: 1000, w: 1000 }, { v: 1500, w: 800 },  { v: 2000, w: 400 },
-    { v: 3000, w: 150 },  { v: 5000, w: 100 },  { v: 7500, w: 30 },
-    { v: 10000, w: 15 },  { v: 15000, w: 4 },   { v: 30000, w: 1 }
   ]},
   'Королевский': { price: 4999, minRank: 6, prizes: [
     { v: 500,  w: 2500 }, { v: 1000, w: 3000 }, { v: 1500, w: 2000 },
@@ -278,6 +266,11 @@ async function crashStartWaiting() {
     crashState.status = 'waiting';
     crashState.hasRealBet = false;
     crashState.waitTimer = null;
+    console.log('CRASH round #' + crashState.roundId + ' waiting, point=' + cp.toFixed(2));
+
+    crashTimeouts.push(setTimeout(() => {
+      if (crashState.status === 'waiting') crashStartFlight();
+    }, 10000));
 
     if (queuedBets.length > 0) {
       const toApply = queuedBets.slice();
@@ -306,9 +299,9 @@ async function crashStartWaiting() {
       }
       if (crashState.hasRealBet) tryStartFlightCountdown();
     }
-
     scheduleBotsForRound();
   } catch (e) {
+    console.error('ОШИБКА crashStartWaiting:', e.message);
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), 3000));
   }
 }
@@ -349,6 +342,7 @@ async function crashStartFlight() {
     const msToCrash = Math.log(crashState.crashPoint) / Math.log(1.00006);
     crashTimeouts.push(setTimeout(() => crashEndRound(), Math.max(msToCrash, 200)));
   } catch (e) {
+    console.error('ОШИБКА crashStartFlight:', e.message);
     crashTimeouts.push(setTimeout(() => crashEndRound(), 1000));
   }
 }
@@ -381,6 +375,7 @@ async function crashEndRound() {
     } catch(err) {}
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), CRASH_CRASH_PAUSE));
   } catch (e) {
+    console.error('ОШИБКА crashEndRound:', e.message);
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), 3000));
   }
 }
