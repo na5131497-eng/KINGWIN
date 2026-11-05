@@ -27,12 +27,14 @@
     min-height: 100vh;
   }
   
+  /* SIDEBAR */
   aside {
     width: 240px;
     background: rgba(18, 24, 38, 0.95);
     border-right: 1px solid var(--line);
     padding: 25px 15px;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
   }
   .brand { padding: 0 10px 25px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
   .brand .name {
@@ -62,7 +64,7 @@
   }
   .logout-btn:hover { border-color: var(--red); color: var(--red); }
 
-  main { flex: 1; padding: 30px 40px; overflow-y: auto; max-height: 100vh; }
+  main { flex: 1; padding: 30px 40px; overflow-y: auto; max-height: 100vh; min-width: 0; }
   .page { display: none; }
   .page.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -137,6 +139,7 @@
   .rank-pill.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border: 1px solid #b9f2ff; }
   .rank-pill.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border: 1px solid #d4af37; box-shadow: 0 0 8px rgba(212,175,55,.5); }
 
+  /* MODALS */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
@@ -154,6 +157,7 @@
   .modal .form-row label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .modal .form-row input, .modal .form-row select { width: 100%; }
 
+  /* LOGIN */
   .login-screen { position: fixed; inset: 0; background: radial-gradient(circle at top left, #1a2332, #0a0d14);
     display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
   .login-screen.hidden { display: none; }
@@ -167,20 +171,64 @@
   .login-box button { width: 100%; padding: 15px; font-size: 16px; }
   .login-err { color: var(--red); font-size: 13px; height: 18px; font-weight: 600; margin-bottom: 10px; }
 
-  .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; }
-  
+  /* MOBILE MENU BTN */
+  .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; backdrop-filter: blur(5px); }
+  .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 240; backdrop-filter: blur(2px); }
+
+  /* ============ АДАПТИВ ============ */
   @media (max-width: 900px) {
     .mobile-menu-btn { display: block; }
-    aside { position: fixed; top: 0; left: 0; height: 100vh; z-index: 250; transform: translateX(-100%); transition: 0.3s; }
+    
+    aside {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 250;
+      transform: translateX(-100%);
+      box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
     aside.open { transform: translateX(0); }
-    main { padding: 70px 20px 20px; }
-    .cards { grid-template-columns: 1fr 1fr; }
+    
+    .mobile-overlay.show { display: block; }
+
+    main { padding: 70px 15px 20px; }
+
+    h1 { font-size: 22px; }
+    .sub { font-size: 13px; margin-bottom: 20px; }
+
+    .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card { padding: 15px; }
+    .card .value { font-size: 20px; }
+    .card .label { font-size: 11px; }
+
+    .panel { padding: 15px; }
+    .panel h3 { font-size: 16px; margin-bottom: 15px; }
+
+    .chart-wrap { height: 220px; }
+
+    .row { gap: 10px; }
+    label { font-size: 11px; width: 100%; }
+    label input, label select { width: 100%; }
+    .row button { width: 100%; }
+
+    .modal { padding: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .cards { grid-template-columns: 1fr; }
+    .chart-wrap { height: 180px; }
+    .card .value { font-size: 18px; }
+    h1 { font-size: 20px; }
+    .panel { padding: 12px; }
+    th, td { padding: 8px 5px; }
   }
 </style>
 </head>
 <body>
 
-<button class="mobile-menu-btn" onclick="document.querySelector('aside').classList.toggle('open')">Меню</button>
+<button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
 
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
@@ -195,20 +243,20 @@
   </div>
 </div>
 
-<aside>
+<aside id="sidebar">
   <div class="brand">
     <div class="name">KINGWIN</div>
     <div class="sub">Admin Panel</div>
   </div>
   <div class="nav">
-    <button class="active" data-page="dash">Главная</button>
-    <button data-page="finance">Депозиты и выводы</button>
-    <button data-page="players">Игроки</button>
-    <button data-page="guests">Гости (Профиль 2)</button>
-    <button data-page="online">Онлайн-казино (Crash)</button>
-    <button data-page="payouts">Выплаты дилерам</button>
-    <button data-page="history">История</button>
-    <button data-page="roles">Роли</button>
+    <button class="active" data-page="dash" onclick="switchPage('dash')">Главная</button>
+    <button data-page="finance" onclick="switchPage('finance')">Депозиты и выводы</button>
+    <button data-page="players" onclick="switchPage('players')">Игроки</button>
+    <button data-page="guests" onclick="switchPage('guests')">Гости (Профиль 2)</button>
+    <button data-page="online" onclick="switchPage('online')">Онлайн-казино (Crash)</button>
+    <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
+    <button data-page="history" onclick="switchPage('history')">История</button>
+    <button data-page="roles" onclick="switchPage('roles')">Роли</button>
   </div>
   <div class="user-box">
     Вы вошли как: <b id="currentUser">—</b>
@@ -218,8 +266,9 @@
 </aside>
 
 <main>
+  <!-- ГЛАВНАЯ -->
   <div class="page active" id="page-dash">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
         <h1>Общая статистика</h1>
         <div class="sub">Доходы казино</div>
@@ -227,18 +276,15 @@
       <button class="danger" onclick="openClearModal()">Очистить всё</button>
     </div>
     
-    <!-- 4 КАРТОЧКИ -->
     <div class="cards" id="dashCards"></div>
 
     <div class="panel">
       <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
-      <div class="legend">
-        <span><i class="dot" style="background:#00e5ff"></i>Общий доход по дням</span>
-      </div>
     </div>
   </div>
 
+  <!-- ОСТАЛЬНЫЕ ВКЛАДКИ -->
   <div class="page" id="page-finance">
     <h1>Депозиты и выводы</h1>
     <div class="sub">Заявки от игроков и гостей</div>
@@ -269,7 +315,7 @@
   </div>
 
   <div class="page" id="page-guests">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
         <h1>Гости (Профиль 2)</h1>
         <div class="sub">База постоянных гостей и клубных карт</div>
@@ -305,8 +351,14 @@
   </div>
 
   <div class="page" id="page-online">
-    <h1>Онлайн-казино (Crash)</h1>
-    <div class="sub">История успешных выводов и ставок в раундах</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <h1>Онлайн-казино (Crash)</h1>
+        <div class="sub">История успешных выводов и ставок в раундах</div>
+      </div>
+      <!-- КНОПКА ОЧИСТКИ ИСТОРИИ CRASH -->
+      <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
+    </div>
     
     <div class="cards" id="onlineCards"></div>
 
@@ -448,6 +500,20 @@
   </div>
 </div>
 
+<!-- МОДАЛКА ОЧИСТКИ CRASH -->
+<div class="modal-backdrop" id="clearCrashModal">
+  <div class="modal" style="border-color: var(--red); box-shadow: 0 0 30px rgba(255, 77, 77, 0.15);">
+    <h2 style="color: var(--red);">Очистить историю Crash?</h2>
+    <p>Будут удалены ВСЕ раунды Crash, все ставки (включая ботов) и все записи о доходах Crash из онлайн-казино.<br><br>Введите пароль владельца для подтверждения:</p>
+    <input type="password" class="modal-input" id="clearCrashPass" placeholder="Пароль владельца">
+    <div class="err" id="clearCrashErr"></div>
+    <div class="btn-row">
+      <button class="ghost" onclick="closeClearCrashModal()">Отмена</button>
+      <button class="danger" onclick="confirmClearCrash()">ОЧИСТИТЬ CRASH</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="editGuestModal">
   <div class="modal">
     <h2>Редактировать гостя</h2>
@@ -483,6 +549,14 @@ let editGuestId = null;
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 function today(){ return new Date().toISOString().slice(0,10); }
 function now(){ return new Date().toLocaleString('ru-RU'); }
+
+function toggleMenu() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  sidebar.classList.toggle('open');
+  if (sidebar.classList.contains('open')) overlay.classList.add('show');
+  else overlay.classList.remove('show');
+}
 
 async function apiGet(url){
   try {
@@ -549,17 +623,15 @@ const ROLES = {
 };
 function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
 
-function goToDash(){
+function switchPage(page) {
+  if(!hasPerm(page)){ showInfo('Нет доступа', 'У вашей роли нет доступа.'); return; }
   document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  const b = document.querySelector('.nav button[data-page="dash"]');
+  const b = document.querySelector(`.nav button[data-page="${page}"]`);
   if(b) b.classList.add('active');
-  document.getElementById('page-dash').classList.add('active');
-}
-function updateNavVisibility(){
-  document.querySelectorAll('.nav button').forEach(b=>{
-    b.style.display = hasPerm(b.dataset.page) ? '' : 'none';
-  });
+  document.getElementById('page-'+page).classList.add('active');
+  renderAll();
+  if(window.innerWidth <= 900) toggleMenu();
 }
 
 async function doLogin(){
@@ -579,8 +651,7 @@ async function doLogin(){
     document.getElementById('loginScreen').classList.add('hidden');
     await audit('login', `${currentUser} вошёл`);
     await loadDB();
-    goToDash();
-    updateNavVisibility();
+    switchPage('dash');
     renderAll();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
 }
@@ -598,6 +669,8 @@ async function confirmLogout(){
 
 function openClearModal(){ document.getElementById('clearAllModal').classList.add('show'); }
 function closeClearAllModal(){ document.getElementById('clearAllModal').classList.remove('show'); }
+function openClearCrashModal(){ document.getElementById('clearCrashModal').classList.add('show'); }
+function closeClearCrashModal(){ document.getElementById('clearCrashModal').classList.remove('show'); }
 
 async function confirmClearAll(){
   const pass = document.getElementById('clearAllPass').value;
@@ -621,19 +694,20 @@ async function confirmClearAll(){
   showInfo('Успех', 'Все данные успешно удалены.');
 }
 
-document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+async function confirmClearCrash(){
+  const pass = document.getElementById('clearCrashPass').value;
+  if(pass !== '56UpahoS'){ 
+    document.getElementById('clearCrashErr').textContent = 'Неверный пароль.'; 
+    return; 
+  }
+  await apiDelete('/api/crash/clear');
+  closeClearCrashModal();
+  await loadDB();
+  renderAll();
+  showInfo('Успех', 'История Crash полностью очищена.');
+}
 
-document.querySelectorAll('.nav button').forEach(b=>{
-  b.onclick = ()=>{
-    if(!hasPerm(b.dataset.page)){ showInfo('Нет доступа', 'У вашей роли нет доступа.'); return; }
-    document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('page-'+b.dataset.page).classList.add('active');
-    renderAll();
-    if(window.innerWidth <= 900) document.querySelector('aside').classList.remove('open');
-  };
-});
+document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
 
 let confirmAction = null;
 function showConfirm(title, text, btnLabel, btnClass, action){
@@ -707,25 +781,17 @@ function onlineStats(){
   });
   return { income, expense, net: income - expense };
 }
-function payoutsTotal(){ return db.payouts.reduce((a,p)=>a+(parseFloat(p.sum)||0),0); }
-
-function guestsDepositTotal(){
-  return db.guests.reduce((a,g)=>a + (parseFloat(g.deposit_balance)||0), 0);
-}
 
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
   
-  // Считаем подтверждённые депозиты
+  // Депозиты
   let totalDeposits = 0;
   db.deposits.forEach(d => {
     if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0;
   });
 
-  // Онлайн-казино включает в себя и депозиты, и чистый доход от Crash
   const onlineTotal = totalDeposits + on.net;
-
-  // Общий доход = Блэкджек + Баккара + Онлайн-казино (вкл. депозиты)
   const totalIncome = bj.income + bac.income + onlineTotal;
 
   document.getElementById('dashCards').innerHTML = `
@@ -759,32 +825,23 @@ function drawChart(){
   const ctx = canvas.getContext('2d');
   ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
   
-  // Собираем данные по дням для одной общей линии
   const map = {};
-  
-  // Блэкджек
   db.sessions.forEach(s=>{
     if(!s.date) return;
     if(!map[s.date]) map[s.date] = 0;
     map[s.date] += sessionNet(s).income;
   });
-  
-  // Баккара
   db.baccarat.forEach(b=>{
     if(!b.date) return;
     if(!map[b.date]) map[b.date] = 0;
     map[b.date] += bacCalc(b).casino;
   });
-  
-  // Crash
   db.online.forEach(o=>{
     if(!o.date) return;
     if(!map[o.date]) map[o.date] = 0;
     if(o.type === 'доход') map[o.date] += parseFloat(o.sum)||0;
     else map[o.date] -= parseFloat(o.sum)||0;
   });
-
-  // Депозиты (как доход онлайн-казино)
   db.deposits.forEach(d=>{
     if(d.status !== 'approved' || !d.date) return;
     if(!map[d.date]) map[d.date] = 0;
@@ -797,7 +854,6 @@ function drawChart(){
     ctx.textAlign = 'center'; ctx.fillText('Нет данных для графика', W/2, H/2); return;
   }
   
-  // Накопительный итог (как растет общий доход от дня ко дню)
   let runningTotal = 0;
   const values = dates.map(d => {
     runningTotal += map[d];
@@ -813,7 +869,6 @@ function drawChart(){
   const y = v => padT + plotH - ((v - minVal) / range) * plotH;
   const x = i => padL + (dates.length === 1 ? plotW/2 : (i/(dates.length-1))*plotW);
 
-  // Сетка
   ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'right';
   for(let i=0; i<=4; i++){
@@ -823,7 +878,6 @@ function drawChart(){
     ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4);
   }
 
-  // Подписи дат
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'center';
   const step = Math.ceil(dates.length / 7);
   dates.forEach((d,i)=>{
@@ -833,7 +887,6 @@ function drawChart(){
     }
   });
 
-  // Рисуем одну общую линию
   ctx.beginPath();
   ctx.strokeStyle = '#00e5ff';
   ctx.lineWidth = 3;
@@ -848,7 +901,6 @@ function drawChart(){
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Точка на конце
   const lastX = x(values.length - 1);
   const lastY = y(values[values.length - 1]);
   ctx.beginPath();
@@ -988,7 +1040,6 @@ function withdrawGuest(id){
       date: today(), nick: g.name, email: '', sum: amt, fee: 0, net: amt, status: 'approved'
     });
     
-    // Списываем сначала бонусы, потом депозит
     let bonus = parseFloat(g.bonus_balance) || 0;
     let dep = parseFloat(g.deposit_balance) || 0;
     let remaining = amt;
@@ -1001,7 +1052,6 @@ function withdrawGuest(id){
       bonus = 0;
       dep -= remaining;
     }
-    // ОБНОВЛЯЕМ БАЛАНС ЧЕРЕЗ API
     await apiPost('/api/guests/withdraw-deduct', { id: g.id, sum: amt });
 
     await audit('guest_withdraw', `${g.name}: ${amt} ₽`);
