@@ -6,6 +6,10 @@
 <title>💎 MINER — KINGWIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px 15px; }
+
   /* ВЫДВИЖНОЕ МЕНЮ */
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
@@ -15,21 +19,11 @@
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
   .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
 
-  /* СТИЛИ MINER */
-  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px 15px; }
   .c { width: 100%; max-width: 1000px; margin: 0 auto; }
   .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; padding-left: 60px; }
-  .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 700; }
-  .balance-badge .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
-  .balance-badge .num { color: var(--accent-green); }
-  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; border-radius: 20px; margin-bottom: 20px; }
-  .history-bar::-webkit-scrollbar { display: none; }
-  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
-  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
-  .history-item .h-name { color: var(--text-muted); }
-  .history-item .h-res { color: var(--accent-green); font-weight: 900; }
+  .balance-badge { display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; min-width: 160px; }
+  .balance-badge .lbl { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; }
+  .balance-badge .num { font-size: 18px; font-weight: 900; color: var(--accent-green); font-variant-numeric: tabular-nums; }
   h1 { text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 4px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
   .subtitle { text-align: center; color: var(--text-muted); font-size: 11px; letter-spacing: 3px; margin-bottom: 25px; text-transform: uppercase; }
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
@@ -62,9 +56,16 @@
   .btn-cashout.on { display: block; }
   .btn-cashout:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
   #status { font-size: 13px; color: var(--text-muted); min-height: 40px; margin: 10px 0; text-align: center; line-height: 1.5; font-weight: 600; }
+  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; border-radius: 20px; margin-bottom: 20px; }
+  .history-bar::-webkit-scrollbar { display: none; }
+  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
+  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .history-item .h-name { color: var(--text-muted); }
+  .history-item .h-res { color: var(--accent-green); font-weight: 900; }
 </style>
 </head>
 <body>
+
 <button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
 <div class="float-menu" id="floatMenu">
   <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
@@ -94,37 +95,158 @@
   </div>
 
   <div class="layout">
-    <div class="field-wrap">
-      <div class="field" id="field"></div>
-    </div>
-
+    <div class="field-wrap"><div class="field" id="field"></div></div>
     <div class="panel">
-      <div class="mult-line">
-        <span class="lbl">Множитель</span>
-        <span class="val" id="multVal">x1.00</span>
-      </div>
-
+      <div class="mult-line"><span class="lbl">Множитель</span><span class="val" id="multVal">x1.00</span></div>
       <div class="settings-row">
-        <div class="setting-box">
-          <label>Ставка (₽)</label>
-          <input type="text" id="betInput" value="100">
-        </div>
-        <div class="setting-box">
-          <label>Бомбы (3-24)</label>
-          <input type="text" id="minesInput" value="3">
-        </div>
+        <div class="setting-box"><label>Ставка (₽)</label><input type="text" id="betInput" value="100"></div>
+        <div class="setting-box"><label>Бомбы (3-24)</label><input type="text" id="minesInput" value="3"></div>
       </div>
-
       <button class="btn-start" id="startBtn">Начать игру</button>
       <button class="btn-cashout" id="cashoutBtn" disabled>Забрать</button>
-
       <div id="status">Настрой ставку и бомбы, жми НАЧАТЬ</div>
     </div>
   </div>
 </div>
 
 <script>
-// JS код из оригинального miner.html
+var playerId = localStorage.getItem('kingwin_player_id');
+var B = 0;
+var HOUSE_EDGE = 0.03;
+var CELLS = 25;
+var playing = false;
+var mineCount = 3;
+var currentBet = 0;
+var currentMult = 1;
+var opened = 0;
+var mines = [];
+
+function $(id){ return document.getElementById(id); }
+function fmt(n){ var r = Math.round(n*100)/100; if(r%1===0) return Math.floor(r).toLocaleString('ru-RU'); return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+
+async function loadBalance(){
+  if(!playerId){ window.location.replace('/'); return; }
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if(r.ok && d.guest) { B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0); $('bal').textContent = fmt(B); }
+  } catch(e) {}
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/miner/history');
+    const data = await r.json();
+    const list = document.getElementById('historyList');
+    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет игр</div>'; return; }
+    list.innerHTML = data.map(h => `<div class="history-item"><span class="h-name">${h.name}</span><span class="h-res">x${parseFloat(h.result).toFixed(2)}</span></div>`).join('');
+  } catch(e) {}
+}
+
+var AC = null;
+function getAC(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === 'suspended') AC.resume(); return AC; }
+function sOpen(){ var c = getAC(); if(!c) return; var o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(800, c.currentTime); o.frequency.exponentialRampToValueAtTime(1400, c.currentTime + 0.1); var g = c.createGain(); g.gain.setValueAtTime(0.08, c.currentTime); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.3); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.3); }
+function sBoom(){ var c = getAC(); if(!c) return; var o1 = c.createOscillator(); o1.type = 'sawtooth'; o1.frequency.setValueAtTime(150, c.currentTime); o1.frequency.exponentialRampToValueAtTime(30, c.currentTime + 0.5); var o2 = c.createOscillator(); o2.type = 'square'; o2.frequency.setValueAtTime(100, c.currentTime); o2.frequency.exponentialRampToValueAtTime(20, c.currentTime + 0.4); var g = c.createGain(); g.gain.setValueAtTime(0.3, c.currentTime); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6); o1.connect(g); o2.connect(g); g.connect(c.destination); o1.start(); o2.start(); o1.stop(c.currentTime + 0.6); o2.stop(c.currentTime + 0.6); }
+function sWin(){ var c = getAC(); if(!c) return; [523, 659, 784, 1047].forEach(function(f,i){ setTimeout(function(){ try{ var o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = f; var g = c.createGain(); g.gain.setValueAtTime(0.15, c.currentTime); g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.4); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.4); }catch(e){} }, i * 80); }); }
+
+function buildField(){ var f = $('field'); f.innerHTML = ''; for(var i=0;i<CELLS;i++){ var c = document.createElement('div'); c.className = 'cell'; c.dataset.idx = i; c.onclick = (function(idx){ return function(){ clickCell(idx); }; })(i); f.appendChild(c); } }
+function getCellsEls(){ return $('field').querySelectorAll('.cell'); }
+function calcMult(k){ if(k === 0) return 1; var m = 1 - HOUSE_EDGE; for(var i=0;i<k;i++){ m = m * (CELLS - i) / (CELLS - mineCount - i); } return m; }
+
+async function handleStart(){
+  if(playing) return;
+  var betStr = $('betInput').value.replace(/[^0-9]/g, ''); $('betInput').value = betStr;
+  var bet = parseInt(betStr) || 0;
+  if(bet < 1){ alert('Мин. ставка 1₽'); return; }
+  if(bet > 10000){ alert('Макс. ставка 10 000₽'); return; }
+  if(bet > B){ alert('Недостаточно средств'); return; }
+
+  var minesStr = $('minesInput').value.replace(/[^0-9]/g, ''); $('minesInput').value = minesStr;
+  var mCount = parseInt(minesStr) || 0;
+  if(mCount < 3){ alert('Минимум 3 бомбы'); $('minesInput').value = 3; return; }
+  if(mCount > 24){ alert('Максимум 24 бомбы'); $('minesInput').value = 24; return; }
+  mineCount = mCount;
+
+  try {
+    const r = await fetch('/api/miner/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 }) });
+    const d = await r.json();
+    if(!r.ok){ alert(d.error || 'Ошибка списания'); return; }
+
+    B = d.new_balance; $('bal').textContent = fmt(B);
+    currentBet = bet; currentMult = 1; opened = 0; playing = true;
+
+    mines = []; var pool = []; for(var i=0;i<CELLS;i++) pool.push(i);
+    for(var m=0;m<mineCount;m++){ var rIdx = Math.floor(Math.random() * pool.length); mines.push(pool.splice(rIdx,1)[0]); }
+
+    buildField();
+    $('startBtn').disabled = true; $('cashoutBtn').disabled = true; $('cashoutBtn').classList.add('on');
+    $('betInput').disabled = true; $('minesInput').disabled = true;
+    updateUI();
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
+function clickCell(idx){
+  if(!playing) return;
+  var els = getCellsEls(); var el = els[idx];
+  if(el.classList.contains('opened')) return;
+
+  if(mines.indexOf(idx) !== -1){
+    el.classList.add('opened','mine-revealed','mine-hit'); el.innerHTML = '💣'; sBoom(); playing = false;
+    for(var i=0;i<mines.length;i++){ var mi = mines[i]; if(mi !== idx){ els[mi].classList.add('opened','mine-revealed'); els[mi].innerHTML = '💣'; } }
+    $('startBtn').disabled = false; $('betInput').disabled = false; $('minesInput').disabled = false;
+    $('cashoutBtn').classList.remove('on'); $('cashoutBtn').disabled = true;
+    $('status').innerHTML = '💥 Мина! Потеряно <b style="color:#ff4d4d">' + fmt(currentBet) + ' ₽</b>';
+    $('multVal').textContent = 'x1.00'; $('multVal').className = 'val';
+
+    fetch('/api/miner/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 }) });
+
+    currentBet = 0; currentMult = 1; opened = 0; updateUI(); return;
+  }
+
+  el.classList.add('opened','diamond'); el.innerHTML = '💎'; opened++; sOpen();
+  currentMult = calcMult(opened); updateUI();
+  if(opened === CELLS - mineCount){ cashOut(); }
+}
+
+function updateUI(){
+  $('multVal').textContent = 'x' + currentMult.toFixed(2);
+  $('multVal').className = currentMult > 1.001 ? 'val green' : 'val';
+  if(playing && opened > 0){
+    $('cashoutBtn').disabled = false;
+    $('cashoutBtn').textContent = 'Забрать ' + fmt(Math.floor(currentBet * currentMult)) + ' ₽';
+    $('status').innerHTML = 'Открыто: <b>' + opened + '</b> · x' + currentMult.toFixed(2);
+  } else if(playing){
+    $('cashoutBtn').disabled = true; $('cashoutBtn').textContent = 'Забрать';
+    $('status').innerHTML = 'Жми клетку · Первая: ' + fmt(Math.floor(currentBet * calcMult(1))) + ' ₽';
+  } else { $('status').textContent = 'Настрой ставку и бомбы, жми НАЧАТЬ'; }
+}
+
+async function cashOut(){
+  if(!playing) return; if(opened === 0) return;
+  var win = Math.floor(currentBet * currentMult);
+  try {
+    const r = await fetch('/api/miner/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: currentMult }) });
+    const d = await r.json();
+    if(r.ok) { B = d.new_balance; $('bal').textContent = fmt(B); loadHistory(); }
+  } catch(e) {}
+  sWin();
+  var els = getCellsEls();
+  for(var i=0;i<mines.length;i++){ var mi = mines[i]; els[mi].classList.add('opened','mine-revealed'); els[mi].innerHTML = '💣'; }
+  $('status').innerHTML = '✅ Забрал <b style="color:#00ff88">' + fmt(win) + ' ₽</b> · x' + currentMult.toFixed(2);
+  $('multVal').textContent = '+' + fmt(win) + ' ₽'; $('multVal').className = 'val green';
+  playing = false;
+  $('startBtn').disabled = false; $('betInput').disabled = false; $('minesInput').disabled = false;
+  $('cashoutBtn').classList.remove('on'); $('cashoutBtn').disabled = true;
+  setTimeout(function(){ $('multVal').textContent = 'x1.00'; $('multVal').className = 'val'; currentBet = 0; currentMult = 1; opened = 0; updateUI(); }, 1800);
+}
+
+$('betInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+$('minesInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+$('startBtn').onclick = handleStart;
+$('cashoutBtn').onclick = cashOut;
+
+buildField(); loadBalance(); loadHistory();
+setInterval(loadBalance, 5000); setInterval(loadHistory, 5000);
 </script>
 </body>
 </html>
