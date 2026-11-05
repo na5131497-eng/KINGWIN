@@ -27,21 +27,30 @@
   .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 15px; }
 
   .crash-layout { display: flex; width: 100%; height: 100%; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; flex: 1; min-height: 0; overflow: hidden; }
-  .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+  .sidebar-bets { width: 340px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
   .tabs { display: flex; padding: 15px; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg-dark); }
   .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 12px; font-weight: 700; padding: 8px 0; cursor: pointer; border-radius: 8px; transition: 0.2s; text-transform: uppercase; }
   .tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
-  .bets-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; padding: 10px 15px; font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .bets-header { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.3fr; padding: 10px 15px; font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border); }
   .bets-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-  .bet-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; padding: 12px 15px; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .bet-row { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.3fr; padding: 12px 15px; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); }
   .bet-row:hover { background: rgba(255,255,255,0.03); }
-  .bet-user { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #2a2d3e; display: flex; justify-content: center; align-items: center; font-size: 12px; color: var(--accent); }
-  .bet-amount { color: var(--text-muted); font-weight: 600; }
+  .bet-user { display: flex; align-items: center; gap: 8px; font-weight: 600; min-width: 0; }
+  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #2a2d3e; display: flex; justify-content: center; align-items: center; font-size: 11px; color: var(--accent); flex-shrink: 0; }
+  .user-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .user-name { font-weight: 700; font-size: 12px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-rank { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .user-rank.Bronze   { color: #e8a76a; }
+  .user-rank.Silver   { color: #d9d9d9; }
+  .user-rank.Gold     { color: #f1c40f; }
+  .user-rank.Platinum { color: #e5e4e2; }
+  .user-rank.Diamond  { color: #b9f2ff; }
+  .user-rank.VIP      { color: #ffe066; text-shadow: 0 0 6px rgba(212,175,55,0.7); }
+  .bet-amount { color: var(--text-muted); font-weight: 600; font-size: 12px; }
   .bet-mult { display: inline-block; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-align: center; }
   .bet-mult.win { background: rgba(63,191,127,0.2); color: var(--accent-green); }
   .bet-mult.lose { background: transparent; color: var(--text-muted); }
-  .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); }
+  .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); font-size: 12px; }
 
   .game-area { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px 20px; }
@@ -291,21 +300,18 @@ function rebuildGraphFromStart(serverMult) {
   const elapsedMs = Date.now() - round.startTime;
   if (elapsedMs <= 0) return;
 
-  // строим точки от 0 до текущего момента, ~каждые 100 мс
   const stepMs = 100;
   const maxMult = (round.status === 'crashed') ? round.crashPoint : serverMult;
 
   for (let t = 0; t <= elapsedMs; t += stepMs) {
     let m = Math.pow(1.00006, t);
     if (m >= round.crashPoint) {
-      // дошли до краша — последняя точка ровно crashPoint
-      graphPoints.push({ x: round.crashPoint ? Math.log(round.crashPoint)/Math.log(1.00006)/1000 : t/1000, y: round.crashPoint });
+      graphPoints.push({ x: Math.log(round.crashPoint)/Math.log(1.00006)/1000, y: round.crashPoint });
       break;
     }
     graphPoints.push({ x: t / 1000, y: m });
   }
 
-  // добиваем текущей точкой
   const lastT = elapsedMs / 1000;
   const lastM = Math.min(maxMult, Math.pow(1.00006, elapsedMs));
   const last = graphPoints[graphPoints.length - 1];
@@ -346,7 +352,6 @@ function applyServerState(d) {
   round.bets = d.bets || [];
   round.history = d.history || [];
 
-  // Если зашли в середине раунда или после F5 — восстанавливаем график
   if (roundChanged || isFirstLoad) {
     lastGraphRoundId = d.roundId;
     graphPoints = [];
@@ -396,7 +401,6 @@ function frame() {
   } else if (round.status === 'crashed') {
     multValueEl.classList.add('crashed');
     multLabelEl.textContent = 'КРАШ!';
-    // если после краша точек нет — строим заново
     if (graphPoints.length < 2 && round.startTime) {
       rebuildGraphFromStart(round.crashPoint);
     }
@@ -463,6 +467,13 @@ function drawGraph(currentMult, status) {
 }
 
 /* ---------- ТАБЛИЦА СТАВОК ---------- */
+function maskCard(id) {
+  if (!id) return '••••';
+  const s = String(id);
+  if (s.length <= 4) return s;
+  return s.slice(0, 4) + '••••';
+}
+
 function renderBets(bets) {
   const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
   if (sig === lastBetsSig) return;
@@ -473,7 +484,10 @@ function renderBets(bets) {
 
   list.innerHTML = bets.map(b => {
     const isMine = b.player_id && String(b.player_id) === String(playerId);
-    const label = (isMine ? '★ ' : '') + (b.player_name || 'Гость');
+    const masked = b.player_name || maskCard(b.player_id);
+    const rank = b.player_rank || '';
+    const label = (isMine ? '★ ' : '') + masked;
+    const avatarChar = (masked && masked[0]) ? masked[0] : '?';
     let multHtml = '--';
     let winHtml = '--';
     if (b.cashed_out) {
@@ -484,7 +498,13 @@ function renderBets(bets) {
     }
     return `
       <div class="bet-row">
-        <div class="bet-user"><div class="user-avatar">${(b.player_name||'Г')[0].toUpperCase()}</div>${label}</div>
+        <div class="bet-user">
+          <div class="user-avatar">${avatarChar}</div>
+          <div class="user-meta">
+            <div class="user-name">${label}</div>
+            ${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}
+          </div>
+        </div>
         <div class="bet-amount">${parseFloat(b.amount).toFixed(2)} ₽</div>
         <div>${multHtml}</div>
         <div class="bet-cashout">${winHtml}</div>
@@ -613,7 +633,7 @@ async function placeBet(id) {
     const r = await fetch('/api/crash/bet', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ player_id: playerId, player_name: 'Игрок', amount: amt })
+      body: JSON.stringify({ player_id: playerId, amount: amt })
     });
     const d = await r.json();
     if (!r.ok) {
