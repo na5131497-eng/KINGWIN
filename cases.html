@@ -26,7 +26,9 @@
   .topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .back-btn { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
   .back-btn:hover { color: #fff; }
-  .balance-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.3); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  
+  .balance-badge { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.3); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+  .balance-badge:hover { border-color: var(--accent); }
   .balance-badge span { color: var(--accent); }
 
   /* MAIN CONTENT */
@@ -38,7 +40,6 @@
   
   .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
   .case-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  .case-card.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(0,229,255,0.15); }
   
   .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #333; transition: 0.3s; }
   .case-card[data-rank="0"]::before { background: #cd7f32; }
@@ -56,7 +57,6 @@
   
   .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
   .case-card:hover .btn-select { background: rgba(255,255,255,0.1); }
-  .case-card.active .btn-select { background: var(--accent); color: #000; border-color: var(--accent); }
 
   /* --- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ ДЛЯ ОТКРЫТИЯ --- */
   .fullscreen-spin { position: fixed; inset: 0; background: #090a10; z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
@@ -73,7 +73,6 @@
   .fs-spin-track { display: flex; align-items: center; gap: 15px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
   
   .fs-spin-item { flex-shrink: 0; width: 140px; height: 140px; border-radius: 16px; background: #1e2230; border: 2px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; gap: 6px; position: relative; }
-  .fs-spin-item span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
   
   /* Курсор по центру */
   .fs-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 6px; background: var(--accent-green); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent-green); }
@@ -88,20 +87,33 @@
   .fs-spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
   .fs-spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
 
-  /* --- МАЛЕНЬКОЕ ОКНО ВЫИГРЫША --- */
-  .win-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 3000; }
-  .win-modal-overlay.show { display: flex; }
-  .win-modal-box { background: var(--bg-panel); border: 2px solid var(--accent); border-radius: 20px; padding: 30px; text-align: center; max-width: 350px; width: 90%; box-shadow: 0 0 40px rgba(0,229,255,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* МОДАЛКА СОДЕРЖИМОГО КЕЙСА */
+  .content-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
+  .content-modal-overlay.show { display: flex; }
+  .content-modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 30px; max-width: 600px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; }
   @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .win-modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 10px; color: var(--text-muted); }
-  .win-modal-box .amount { font-size: 40px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 10px 0 20px; }
-  .win-modal-box .btn-ok { background: var(--accent-green); color: #000; border: none; border-radius: 10px; padding: 12px 30px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
-  .win-modal-box .btn-ok:hover { filter: brightness(1.1); }
+  .content-modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
+  
+  .prizes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 25px; }
+  .prize-item { background: #1e2230; border: 1px solid var(--border); border-radius: 12px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; }
+  .prize-item.r0 { border-color: rgba(255,255,255,0.1); color: #fff; }
+  .prize-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
+  .prize-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
+  .prize-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
+  .prize-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
 
-  /* --- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (ТОСТ) --- */
-  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--bg-panel); border-left: 4px solid var(--red); padding: 15px 25px; border-radius: 10px; color: #fff; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; transition: transform 0.3s ease; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-left-color: var(--accent-green); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button { flex: 1; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+  .btn-spin { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+  .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
+
+  /* УВЕДОМЛЕНИЕ СВЕРХУ */
+  .top-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 16px; padding: 20px 40px; text-align: center; box-shadow: 0 10px 40px rgba(0,255,136,0.3); z-index: 4000; transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 300px; }
+  .top-toast.show { top: 20px; }
+  .top-toast .t-title { font-size: 14px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+  .top-toast .t-amount { font-size: 36px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
 
   @media (max-width: 900px) {
     .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -114,9 +126,12 @@
     .fs-title { font-size: 24px; margin-bottom: 20px; }
     .fs-spin-window { height: 120px; }
     .fs-spin-item { width: 90px; height: 90px; font-size: 18px; }
+    .content-modal-box { padding: 20px; }
   }
   @media (max-width: 500px) {
     .cases-grid { grid-template-columns: repeat(2, 1fr); }
+    .top-toast { min-width: 90%; padding: 15px; }
+    .top-toast .t-amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -137,6 +152,18 @@
   <div class="cases-grid" id="casesGrid"></div>
 </div>
 
+<!-- МОДАЛКА СОДЕРЖИМОГО -->
+<div class="content-modal-overlay" id="contentModalOverlay">
+  <div class="content-modal-box">
+    <h2 id="contentModalTitle">Содержимое кейса</h2>
+    <div class="prizes-grid" id="contentPrizesGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeContentModal()">Отмена</button>
+      <button class="btn-spin" id="contentBtnSpin">Крутить</button>
+    </div>
+  </div>
+</div>
+
 <!-- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ -->
 <div class="fullscreen-spin" id="fsSpinOverlay">
   <button class="close-fs" onclick="closeFullscreenSpin()">✕</button>
@@ -148,17 +175,11 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ВЫИГРЫША (маленькая) -->
-<div class="win-modal-overlay" id="winModalOverlay">
-  <div class="win-modal-box">
-    <h2>Ваш выигрыш:</h2>
-    <div class="amount" id="winAmount">0 ₽</div>
-    <button class="btn-ok" onclick="closeWinModal()">Забрать</button>
-  </div>
+<!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ СВЕРХУ -->
+<div class="top-toast" id="topToast">
+  <div class="t-title">Ваш выигрыш</div>
+  <div class="t-amount" id="toastAmount">+0 ₽</div>
 </div>
-
-<!-- ТОСТ -->
-<div class="toast" id="toastMsg">Уведомление</div>
 
 <script>
 const PLAYER_KEY = 'kingwin_player_id';
@@ -168,25 +189,6 @@ let selectedCase = null;
 let isSpinning = false;
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
-
-function showToast(text, isSuccess = false) {
-  const toast = document.getElementById('toastMsg');
-  toast.textContent = text;
-  toast.className = `toast ${isSuccess ? 'success' : ''} show`;
-  setTimeout(() => { toast.classList.remove('show'); }, 3000);
-}
-
-async function loadBalance() {
-  if (!playerId) return;
-  try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-    const d = await r.json();
-    if (r.ok && d.guest) {
-      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      document.getElementById('balanceVal').textContent = total.toFixed(2);
-    }
-  } catch(e) {}
-}
 
 function getRarityClass(val) {
   if (val >= 1000) return 'r4';
@@ -206,6 +208,18 @@ const caseIcons = {
   'Королевский': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(255,215,0,0.2)" stroke="#ffd700" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#ffd700"/></svg>'
 };
 
+async function loadBalance() {
+  if (!playerId) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if (r.ok && d.guest) {
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      document.getElementById('balanceVal').textContent = total.toFixed(2);
+    }
+  } catch(e) {}
+}
+
 async function initCases() {
   await loadBalance();
   
@@ -224,15 +238,14 @@ async function initCases() {
 
     casesData.forEach((c, idx) => {
       const div = document.createElement('div');
-      div.className = `case-card ${c.available ? '' : 'locked'}`;
+      div.className = 'case-card';
       div.dataset.rank = c.minRank;
       
       div.onclick = () => { 
         if(c.available) {
-          startCase(c);
+          openContentModal(c);
         } else {
-          // Вместо alert показываем красивый тост
-          showToast('Этот кейс недоступен для вашего ранга');
+          // Просто визуально ничего не делаем или показываем тост, но без алертов
         }
       };
 
@@ -250,38 +263,66 @@ async function initCases() {
   }
 }
 
-function startCase(c) {
-  if (isSpinning) return;
+// Открытие модалки с содержимым
+function openContentModal(c) {
   selectedCase = c;
   
-  // Открываем полноэкранный оверлей
+  document.getElementById('contentModalTitle').textContent = `Содержимое кейса "${c.name}"`;
+  
+  const grid = document.getElementById('contentPrizesGrid');
+  grid.innerHTML = c.prizes.map(p => {
+    const rar = getRarityClass(p);
+    return `
+      <div class="prize-item ${rar}">
+        ${p} ₽
+      </div>
+    `;
+  }).join('');
+
+  const btn = document.getElementById('contentBtnSpin');
+  btn.textContent = `Крутить за ${fmt(c.price)} ₽`;
+  
+  document.getElementById('contentModalOverlay').classList.add('show');
+}
+
+function closeContentModal() {
+  document.getElementById('contentModalOverlay').classList.remove('show');
+}
+
+// Нажатие на кнопку "Крутить" в модалке
+document.getElementById('contentBtnSpin').onclick = () => {
+  closeContentModal();
+  startSpin(selectedCase);
+};
+
+function startSpin(c) {
+  if (isSpinning) return;
+  
   document.getElementById('fsSpinOverlay').classList.add('show');
   document.getElementById('fsTitle').textContent = c.name;
   
-  // Инициализация визуальной ленты (заглушки)
   const track = document.getElementById('fsSpinTrack');
   track.innerHTML = '';
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
+  // Визуальные заглушки
+  const fakePrizes = [5, 10, 15, 20, 30, 50, 75, 100, 175, 500];
   for(let i=0; i<40; i++){
-    const fakeVal = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
+    const fakeVal = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
     const rar = getRarityClass(fakeVal);
     track.innerHTML += `
       <div class="fs-spin-item ${rar}">
         ${fakeVal} ₽
-        <span>${fakeVal > 0 ? 'Приз' : 'Пусто'}</span>
       </div>
     `;
   }
 
-  // Запускаем запрос на сервер
   executeSpin();
 }
 
 async function executeSpin() {
   if (isSpinning || !selectedCase) return;
-  
   isSpinning = true;
 
   try {
@@ -293,33 +334,34 @@ async function executeSpin() {
     const data = await res.json();
     
     if (!res.ok) {
-      showToast(data.error || 'Ошибка');
       closeFullscreenSpin();
       isSpinning = false;
       return;
     }
 
     const prize = data.prize;
-    const track = document.getElementById('fsSpinTrack');
     
-    // Перестраиваем ленту с реальным призом на 35-м месте
+    // Сразу обновляем баланс (чтобы показать, что деньги списались)
+    loadBalance();
+
+    const track = document.getElementById('fsSpinTrack');
     track.innerHTML = '';
+    const fakePrizes = [5, 10, 15, 20, 30, 50, 75, 100, 175, 500];
+    
     for(let i=0; i<40; i++){
-      let val = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
-      if (i === 35) val = prize; // Реальный приз
+      let val = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
+      if (i === 35) val = prize; 
       
       const rar = getRarityClass(val);
       track.innerHTML += `
         <div class="fs-spin-item ${rar}">
           ${val} ₽
-          <span>${val > 0 ? 'Приз' : 'Пусто'}</span>
         </div>
       `;
     }
 
-    // Анимация
     const containerWidth = document.querySelector('.fs-spin-window').clientWidth;
-    const itemWidth = 155; // 140px + 15px gap
+    const itemWidth = 155; 
     const centerOffset = containerWidth / 2;
     const randomOffset = (Math.random() * 40) - 20;
     const targetScroll = (35 * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
@@ -329,45 +371,33 @@ async function executeSpin() {
       track.style.transform = `translateX(-${targetScroll}px)`;
     }, 50);
 
-    // Ждем окончания анимации
     setTimeout(() => {
-      // Скрываем полноэкранный оверлей
       document.getElementById('fsSpinOverlay').classList.remove('show');
-      // Показываем маленькую модалку
-      showWinModal(prize);
-      
-      loadBalance();
+      showTopToast(prize);
+      loadBalance(); // Обновляем баланс после начисления выигрыша
       isSpinning = false;
     }, 5600);
 
   } catch(e) {
-    showToast('Ошибка соединения');
     closeFullscreenSpin();
     isSpinning = false;
   }
 }
 
 function closeFullscreenSpin() {
-  if (isSpinning) {
-    // Если крутится, нельзя просто так закрыть, чтобы не сломать логику
-    return; 
-  }
+  if (isSpinning) return;
   document.getElementById('fsSpinOverlay').classList.remove('show');
 }
 
-function showWinModal(prize) {
-  if (prize > 0) {
-    document.getElementById('winAmount').textContent = `+${fmt(prize)} ₽`;
-    document.getElementById('winAmount').style.color = 'var(--accent-green)';
-  } else {
-    document.getElementById('winAmount').textContent = 'Пусто';
-    document.getElementById('winAmount').style.color = 'var(--text-muted)';
-  }
-  document.getElementById('winModalOverlay').classList.add('show');
-}
-
-function closeWinModal() {
-  document.getElementById('winModalOverlay').classList.remove('show');
+// Показ верхнего уведомления
+function showTopToast(prize) {
+  const toast = document.getElementById('topToast');
+  document.getElementById('toastAmount').textContent = `+${fmt(prize)} ₽`;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 4000);
 }
 
 initCases();
