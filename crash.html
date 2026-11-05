@@ -304,7 +304,7 @@ let lastHistorySig = '';
 let localCrashed = false;
 let localCrashMult = 1;
 let crashedRoundId = null;
-let timeOffset = 0;
+let timeOffset = 0; // Синхронизация времени сервера и клиента
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -348,7 +348,8 @@ async function loadBalance() {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
     const d = await r.json();
     if (r.ok && d.guest) {
-      playerBalance = parseFloat(d.guest.bonus_balance) || 0;
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      playerBalance = total;
       document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽';
     }
   } catch(e) {}
@@ -684,7 +685,6 @@ function updateBetButtons() {
     const betId = myBetIds[id];
     const cashed = myCashed[id];
     
-    // Блокировка/разблокировка элементов управления
     const autoCashoutCheck = document.getElementById('autoCashout' + id);
     const autoMultInput = document.getElementById('autoMult' + id);
     const betAmountInput = document.getElementById('betAmount' + id);
@@ -697,7 +697,6 @@ function updateBetButtons() {
       document.getElementById('quick' + id + '_4')
     ];
 
-    // Блокируем, если есть активная ставка или раунд уже начался/крашнулся
     const shouldLock = betId !== null || effStatus === 'flying' || effStatus === 'crashed';
 
     autoCashoutCheck.disabled = shouldLock;
@@ -760,7 +759,7 @@ function getBetAmountById(betId, bets) {
 }
 
 function changeAmount(id, diff) {
-  if (myBetIds[id]) return; // Если ставка сделана - ничего не меняем
+  if (myBetIds[id]) return; 
   const input = document.getElementById('betAmount' + id);
   let val = parseInt(input.value) || MIN_BET;
   val += diff;
@@ -772,7 +771,7 @@ function changeAmount(id, diff) {
 }
 
 function setAmount(id, val) {
-  if (myBetIds[id]) return; // Если ставка сделана - ничего не меняем
+  if (myBetIds[id]) return; 
   if (val < MIN_BET) val = MIN_BET;
   if (val > MAX_BET) val = MAX_BET;
   document.getElementById('betAmount' + id).value = val;
