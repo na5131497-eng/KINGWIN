@@ -6,13 +6,7 @@
 <title>KINGWIN — Crash</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
-    --accent: #00e5ff; --accent-green: #00ff88;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.06);
-    --red: #ff4d4d; --yellow: #f1c40f; --gold: #ffd700;
-  }
+  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --yellow: #f1c40f; --gold: #ffd700; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
@@ -26,8 +20,7 @@
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
   .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
 
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; padding-left: 70px; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
   .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -47,28 +40,21 @@
   .user-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
   .user-name { font-weight: 700; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-rank { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-  .user-rank.Bronze   { color: #e8a76a; }
-  .user-rank.Silver   { color: #d9d9d9; }
-  .user-rank.Gold     { color: #f1c40f; }
-  .user-rank.Platinum { color: #e5e4e2; }
-  .user-rank.Diamond  { color: #b9f2ff; }
-  .user-rank.VIP      { color: #ffe066; text-shadow: 0 0 6px rgba(212,175,55,0.7); }
+  .user-rank.Bronze { color: #e8a76a; } .user-rank.Silver { color: #d9d9d9; } .user-rank.Gold { color: #f1c40f; } .user-rank.Platinum { color: #e5e4e2; } .user-rank.Diamond { color: #b9f2ff; } .user-rank.VIP { color: #ffe066; text-shadow: 0 0 6px rgba(212,175,55,0.7); }
   .bet-amount { color: var(--text-muted); font-weight: 600; font-size: 11px; }
   .bet-mult { display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-size: 11px; text-align: center; }
   .bet-mult.win { background: rgba(63,191,127,0.2); color: var(--accent-green); }
-  .bet-mult.lose { background: transparent; color: var(--text-muted); }
   .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); font-size: 11px; }
 
   .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; flex-shrink: 0; }
   .history-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-right: 6px; flex-shrink: 0; }
   .history-list { display: flex; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: none; }
-  .history-list::-webkit-scrollbar { display: none; }
   .history-item { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; flex-shrink: 0; }
-  .history-item.red    { background: rgba(255,77,77,0.2);   color: #ff8a8a; border: 1px solid rgba(255,77,77,0.45); }
-  .history-item.blue   { background: rgba(0,119,255,0.2);   color: #66b3ff; border: 1px solid rgba(0,119,255,0.45); }
-  .history-item.purple { background: rgba(168,85,247,0.2);  color: #d8b4fe; border: 1px solid rgba(168,85,247,0.45); }
-  .history-item.gold   { background: rgba(241,196,15,0.2);  color: #ffe066; border: 1px solid rgba(241,196,15,0.55); box-shadow: 0 0 10px rgba(241,196,15,0.35); }
+  .history-item.red { background: rgba(255,77,77,0.2); color: #ff8a8a; border: 1px solid rgba(255,77,77,0.45); }
+  .history-item.blue { background: rgba(0,119,255,0.2); color: #66b3ff; border: 1px solid rgba(0,119,255,0.45); }
+  .history-item.purple { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.45); }
+  .history-item.gold { background: rgba(241,196,15,0.2); color: #ffe066; border: 1px solid rgba(241,196,15,0.55); box-shadow: 0 0 10px rgba(241,196,15,0.35); }
 
   .canvas-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 200px; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -133,16 +119,13 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
-  .toast.info { border-left-color: var(--accent); }
 
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
     .topbar { padding: 10px 14px; padding-left: 70px; }
-    .topbar-logo { font-size: 16px; letter-spacing: 1px; }
     .balance-badge { padding: 6px 10px; font-size: 12px; }
     .balance-badge .lbl { display: none; }
-    .balance-badge .val { font-size: 12px; }
     .crash-layout { display: flex; flex-direction: column; padding: 10px; gap: 10px; max-width: none; min-height: auto; height: auto; overflow: visible; }
     .game-area { flex: none; display: flex; flex-direction: column; gap: 10px; min-height: auto; order: 1; }
     .history-bar { padding: 8px 12px; border-radius: 14px; }
@@ -202,11 +185,8 @@
   <a href="/plinko.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Plinko</a>
 </div>
 
-<!-- ДАЛЬШЕ ИДЕТ HTML ИГРЫ CRASH -->
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-logo">KINGWIN</div>
-  </div>
+  <div class="topbar-logo">KINGWIN</div>
   <div class="balance-badge" id="balanceBadge">
     <span class="lbl">Баланс</span>
     <span class="val" id="balanceVal">0.00 ₽</span>
@@ -304,7 +284,433 @@
 </div>
 
 <script>
-// JS код из оригинального crash.html
+const PLAYER_KEY = 'kingwin_player_id';
+const MAX_BET = 100;
+const MIN_BET = 10;
+const POLL_MS = 300;
+
+let playerId = localStorage.getItem(PLAYER_KEY);
+let playerBalance = 0;
+
+let myBetIds = { 1: null, 2: null };
+let myCashed = { 1: false, 2: false };
+let queuedBets = { 1: null, 2: null };
+let lastRoundIdSeen = null;
+
+let round = {
+  id: null, status: 'waiting', startTime: 0, crashPoint: 1,
+  serverMult: 1, bets: [], history: [], hasRealBet: false
+};
+
+let graphPoints = [];
+let lastGraphRoundId = null;
+let lastBetsSig = '';
+let lastHistorySig = '';
+
+let localCrashed = false;
+let localCrashMult = 1;
+let crashedRoundId = null;
+let timeOffset = 0;
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const multValueEl = document.getElementById('multValue');
+const multLabelEl = document.getElementById('multLabel');
+
+function resizeCanvas() {
+  const p = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = p.clientWidth * dpr;
+  canvas.height = p.clientHeight * dpr;
+  canvas.style.width = p.clientWidth + 'px';
+  canvas.style.height = p.clientHeight + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
+resizeCanvas();
+
+function historyColorClass(mult) {
+  if (mult >= 10) return 'gold';
+  if (mult >= 4) return 'purple';
+  if (mult > 1.50) return 'blue';
+  return 'red';
+}
+
+function resetLocalCrash() {
+  localCrashed = false; localCrashMult = 1; crashedRoundId = null;
+  graphPoints = []; prevMult = 1;
+}
+
+async function loadBalance() {
+  if (!playerId) { document.getElementById('balanceVal').textContent = '0.00 ₽'; return; }
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if (r.ok && d.guest) {
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      playerBalance = total;
+      document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽';
+    }
+  } catch(e) {}
+}
+loadBalance();
+setInterval(loadBalance, 5000);
+
+function currentLocalMultiplier() {
+  if (localCrashed && crashedRoundId !== round.id) resetLocalCrash();
+  if (round.status === 'waiting') return 1;
+  if (round.status === 'crashed' || localCrashed) return localCrashMult;
+  if (round.status === 'flying' && round.startTime) {
+    const elapsed = Date.now() - round.startTime - timeOffset;
+    if (elapsed <= 0) return 1;
+    return Math.pow(1.00006, elapsed);
+  }
+  return 1;
+}
+
+function rebuildGraphFromStart() {
+  graphPoints = [];
+  if (!round.startTime) return;
+  const elapsedMs = Date.now() - round.startTime - timeOffset;
+  if (elapsedMs <= 0) { graphPoints.push({ x: 0, y: 1 }); return; }
+  const stepMs = 80;
+  const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id);
+  const capMult = isCrashed ? round.crashPoint : Infinity;
+  for (let t = 0; t <= elapsedMs; t += stepMs) {
+    let m = Math.pow(1.00006, t);
+    if (isCrashed && m >= round.crashPoint) {
+      const crashMs = Math.log(round.crashPoint) / Math.log(1.00006);
+      graphPoints.push({ x: crashMs / 1000, y: round.crashPoint });
+      return;
+    }
+    graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) });
+  }
+  const lastT = elapsedMs / 1000;
+  const lastM = currentLocalMultiplier();
+  const last = graphPoints[graphPoints.length - 1];
+  if (!last || last.x < lastT) graphPoints.push({ x: lastT, y: lastM });
+  else if (last) last.y = lastM;
+}
+
+async function pollRound() {
+  try {
+    const r = await fetch('/api/crash/current');
+    const d = await r.json();
+    applyServerState(d);
+  } catch(e) {}
+}
+
+function applyServerState(d) {
+  if (d.status === 'flying' && d.startTime) {
+    const serverElapsed = parseFloat(d.multiplier) > 1 ? Math.log(parseFloat(d.multiplier)) / Math.log(1.00006) : 0;
+    const clientElapsed = Date.now() - d.startTime;
+    if (clientElapsed > 0) timeOffset = timeOffset * 0.8 + (clientElapsed - serverElapsed) * 0.2;
+  }
+  const isNewRound = round.id !== null && d.roundId !== round.id;
+  const roundChanged = round.id !== d.roundId;
+
+  if (isNewRound || roundChanged) {
+    myBetIds = { 1: null, 2: null };
+    myCashed = { 1: false, 2: false };
+    resetLocalCrash();
+    loadBalance();
+    setTimeout(() => {
+      [1, 2].forEach(id => {
+        if (queuedBets[id] && queuedBets[id].amount > 0) {
+          const candidates = (round.bets || []).filter(b => String(b.player_id) === String(playerId) && !b.cashed_out);
+          if (candidates.length > 0) {
+            myBetIds[id] = candidates[candidates.length - 1].id;
+            queuedBets[id] = null;
+          }
+        }
+      });
+      updateBetButtons();
+    }, 800);
+  }
+  const prevStatus = round.status;
+  if (prevStatus === 'crashed' && d.status !== 'crashed') resetLocalCrash();
+
+  round.id = d.roundId; round.status = d.status; round.startTime = d.startTime || 0;
+  round.crashPoint = d.crashPoint || round.crashPoint || 1;
+  round.serverMult = parseFloat(d.multiplier) || 1;
+  round.bets = d.bets || []; round.history = d.history || [];
+  round.hasRealBet = d.hasRealBet || false;
+
+  if (d.status === 'crashed' && !localCrashed) {
+    localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id;
+  }
+  if (roundChanged) {
+    lastGraphRoundId = d.roundId; graphPoints = [];
+    if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) rebuildGraphFromStart();
+  }
+  renderBets(round.bets);
+  renderHistory(round.history);
+  updateBetButtons();
+}
+
+let prevMult = 1;
+function frame() {
+  if (localCrashed && crashedRoundId !== round.id) resetLocalCrash();
+  const mult = currentLocalMultiplier();
+  if (Math.abs(mult - prevMult) > 0.001) { multValueEl.textContent = mult.toFixed(2) + 'x'; prevMult = mult; }
+  const effStatus = localCrashed ? 'crashed' : round.status;
+
+  if (effStatus === 'waiting') {
+    multValueEl.classList.remove('crashed', 'golden');
+    multValueEl.style.opacity = '0.3';
+    multValueEl.textContent = '1.00x';
+    if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...';
+    else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...';
+    else multLabelEl.textContent = 'Готовимся к росту...';
+    graphPoints = [];
+  } else if (effStatus === 'flying') {
+    multValueEl.classList.remove('crashed');
+    multValueEl.style.opacity = '1';
+    multLabelEl.textContent = '';
+    if (mult < 1) multValueEl.textContent = '1.00x';
+    if (mult >= 10) multValueEl.classList.add('golden');
+    else multValueEl.classList.remove('golden');
+    if (round.startTime) {
+      const t = (Date.now() - round.startTime - timeOffset) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || t > last.x + 0.001) { graphPoints.push({ x: t, y: mult }); if (graphPoints.length > 2000) graphPoints.shift(); }
+      else if (last) last.y = mult;
+    }
+    [1, 2].forEach(id => {
+      if (myBetIds[id] && myBetIds[id] !== 'queued' && !myCashed[id]) {
+        const box = document.getElementById('autoCashout' + id);
+        const target = parseFloat(document.getElementById('autoMult' + id).value) || 0;
+        if (box.checked && mult >= target) doCashout(id);
+      }
+    });
+  } else if (effStatus === 'crashed') {
+    multValueEl.classList.add('crashed');
+    multValueEl.style.opacity = '1';
+    multLabelEl.textContent = '';
+    if (round.startTime) {
+      const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) graphPoints.push({ x: crashSec, y: round.crashPoint });
+    }
+  }
+  drawGraph(mult, effStatus);
+  updateBetButtonsLive(mult, effStatus);
+  requestAnimationFrame(frame);
+}
+
+function drawGraph(currentMult, status) {
+  const W = canvas.width / (window.devicePixelRatio || 1);
+  const H = canvas.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  for (let i = 0; i < H; i += 60) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
+  for (let i = 0; i < W; i += 60) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
+  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
+    const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
+    const drawW = W - paddingL - paddingR;
+    const drawH = H - paddingT - paddingB;
+    const lastX = graphPoints[graphPoints.length - 1].x;
+    const maxX = Math.max(3, lastX);
+    const maxY = Math.max(currentMult * 1.15, 1.5);
+    let lineColor = '#00e5ff', shadowColor = 'rgba(0,229,255,0.5)';
+    if (status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
+    else if (currentMult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
+    ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+    ctx.shadowBlur = 10; ctx.shadowColor = shadowColor;
+    for (let i = 0; i < graphPoints.length; i++) {
+      const p = graphPoints[i];
+      const px = paddingL + (p.x / maxX) * drawW;
+      const py = paddingT + drawH - ((p.y - 1) / (maxY - 1)) * drawH;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke(); ctx.shadowBlur = 0;
+    const lastP = graphPoints[graphPoints.length - 1];
+    const lx = paddingL + (lastP.x / maxX) * drawW;
+    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
+    ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
+    ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+  }
+}
+
+function renderBets(bets) {
+  const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
+  if (sig === lastBetsSig) return;
+  lastBetsSig = sig;
+  const list = document.getElementById('betsList');
+  if (!bets || !bets.length) { list.innerHTML = ''; return; }
+  list.innerHTML = bets.map(b => {
+    const isMine = b.player_id && String(b.player_id) === String(playerId);
+    const masked = b.player_name || '••••';
+    const rank = b.player_rank || '';
+    const label = (isMine ? '★ ' : '') + masked;
+    let multHtml = '--', winHtml = '--';
+    if (b.cashed_out) {
+      const m = parseFloat(b.cashout_mult); const w = parseFloat(b.amount) * m;
+      multHtml = `<span class="bet-mult win">${m.toFixed(2)}x</span>`;
+      winHtml = `${w.toFixed(2)} ₽`;
+    }
+    return `<div class="bet-row">
+        <div class="bet-user">
+          <div class="user-avatar">KW</div>
+          <div class="user-meta">
+            <div class="user-name">${label}</div>
+            ${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}
+          </div>
+        </div>
+        <div class="bet-amount">${parseFloat(b.amount).toFixed(2)} ₽</div>
+        <div>${multHtml}</div>
+        <div class="bet-cashout">${winHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderHistory(history) {
+  const sig = (history || []).join('|');
+  if (sig === lastHistorySig) return;
+  lastHistorySig = sig;
+  const list = document.getElementById('historyList');
+  if (!history || !history.length) { list.innerHTML = ''; return; }
+  list.innerHTML = history.map(m => {
+    const cls = historyColorClass(m);
+    return `<div class="history-item ${cls}">${parseFloat(m).toFixed(2)}x</div>`;
+  }).join('');
+}
+
+function updateBetButtons() {
+  const effStatus = localCrashed ? 'crashed' : round.status;
+  [1, 2].forEach(id => {
+    const btn = document.getElementById('btnBet' + id);
+    const box = document.getElementById('betBox' + id);
+    const betId = myBetIds[id];
+    const cashed = myCashed[id];
+    const queued = queuedBets[id] && queuedBets[id].amount > 0;
+    const autoCashoutCheck = document.getElementById('autoCashout' + id);
+    const autoMultInput = document.getElementById('autoMult' + id);
+    const betAmountInput = document.getElementById('betAmount' + id);
+    const btnMinus = document.getElementById('btnMinus' + id);
+    const btnPlus = document.getElementById('btnPlus' + id);
+    const quickBtns = [document.getElementById('quick' + id + '_1'), document.getElementById('quick' + id + '_2'), document.getElementById('quick' + id + '_3'), document.getElementById('quick' + id + '_4')];
+    const settingsLocked = (betId !== null && betId !== 'queued' && !cashed) || queued;
+    autoCashoutCheck.disabled = settingsLocked;
+    autoMultInput.disabled = settingsLocked;
+    betAmountInput.disabled = settingsLocked;
+    btnMinus.disabled = settingsLocked;
+    btnPlus.disabled = settingsLocked;
+    quickBtns.forEach(b => { if(b) b.disabled = settingsLocked; });
+    if (queued) box.classList.add('queued'); else box.classList.remove('queued');
+    if (queued) {
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `В очереди <div class="subtext">${queuedBets[id].amount} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => cancelQueue(id); return;
+    }
+    if (effStatus === 'waiting') {
+      if (betId) {
+        btn.className = 'btn-action btn-cancel';
+        btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      } else {
+        const amt = parseInt(betAmountInput.value) || 10;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
+    } else if (effStatus === 'flying') {
+      if (betId && betId !== 'queued' && !cashed) {
+        btn.className = 'btn-action btn-cashout';
+        btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(betId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => doCashout(id);
+      } else if (cashed) {
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
+        btn.disabled = true;
+      } else {
+        const amt = parseInt(betAmountInput.value) || 10;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
+    } else {
+      if (betId && betId !== 'queued' && !cashed) {
+        const amt = getBetAmountById(betId, round.bets);
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = true;
+      } else {
+        const amt = parseInt(betAmountInput.value) || 10;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
+    }
+  });
+}
+
+function updateBetButtonsLive(mult, effStatus) {
+  [1, 2].forEach(id => {
+    if (effStatus === 'flying' && myBetIds[id] && myBetIds[id] !== 'queued' && !myCashed[id]) {
+      const btn = document.getElementById('btnBet' + id);
+      const amt = getBetAmountById(myBetIds[id], round.bets);
+      if (amt > 0) {
+        const val = (amt * mult).toFixed(2);
+        const html = `Забрать <div class="subtext">${val} ₽</div>`;
+        if (btn.innerHTML !== html) btn.innerHTML = html;
+      }
+    }
+  });
+}
+
+function getBetAmountById(betId, bets) { if (!bets) return 0; const b = bets.find(x => x.id === betId); return b ? parseFloat(b.amount) : 0; }
+function changeAmount(id, diff) { if (myBetIds[id] || queuedBets[id]) return; const input = document.getElementById('betAmount' + id); let val = parseInt(input.value) || MIN_BET; val += diff; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; input.value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
+function setAmount(id, val) { if (myBetIds[id] || queuedBets[id]) return; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; document.getElementById('betAmount' + id).value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
+async function cancelQueue(id) { if (!queuedBets[id]) return; queuedBets[id] = null; showToast('Ставка снята с очереди', 'info'); updateBetButtons(); }
+
+async function placeBet(id) {
+  if (myBetIds[id] && round.status === 'waiting') { showToast('Ставка уже принята', 'error'); return; }
+  if (myBetIds[id] && myBetIds[id] !== 'queued' && round.status === 'flying' && !myCashed[id] && !localCrashed) return doCashout(id);
+  if (queuedBets[id]) return cancelQueue(id);
+  if (!playerId) { showToast('Войдите в аккаунт', 'error'); return; }
+  const amt = parseInt(document.getElementById('betAmount' + id).value) || MIN_BET;
+  if (amt < MIN_BET || amt > MAX_BET) { showToast(`Ставка от ${MIN_BET} до ${MAX_BET} ₽`, 'error'); return; }
+  const btn = document.getElementById('btnBet' + id); btn.disabled = true;
+  try {
+    const r = await fetch('/api/crash/bet', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ player_id: playerId, amount: amt }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Ошибка ставки', 'error'); btn.disabled = false; updateBetButtons(); return; }
+    if (d.queued) { queuedBets[id] = { amount: amt, roundIdWhenQueued: round.id }; showToast(`Ставка ${amt} ₽ — на следующий раунд`, 'success'); updateBetButtons(); return; }
+    myBetIds[id] = d.bet.id; myCashed[id] = false;
+    if (d.bet.round_id !== crashedRoundId) resetLocalCrash();
+    showToast(`Ставка ${amt} ₽ принята`, 'success');
+    loadBalance(); pollRound();
+  } catch(e) { showToast('Ошибка соединения', 'error'); btn.disabled = false; updateBetButtons(); }
+}
+
+async function doCashout(id) {
+  if (!myBetIds[id] || myCashed[id] || myBetIds[id] === 'queued') return;
+  const betId = myBetIds[id]; myCashed[id] = true;
+  try {
+    const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed[id] = false; return; }
+    showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
+    loadBalance(); pollRound();
+  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed[id] = false; }
+}
+
+function showToast(text, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div style="font-size:13px;font-weight:600;color:#fff">${text}</div>`;
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+pollRound();
+setInterval(pollRound, POLL_MS);
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
