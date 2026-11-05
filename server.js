@@ -144,10 +144,11 @@ function botInit() {
 async function botPlaceBet(bot) {
   const amount = [10, 20, 25, 50, 100][Math.floor(Math.random() * 5)];
   try {
+    // ВАЖНО: у ботов player_id имеет префикс 'BOT', чтобы их можно было отфильтровать
     const r = await pool.query(
       `INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount)
        VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [crashState.roundId, bot.id, bot.masked, bot.rank, amount]
+      [crashState.roundId, 'BOT' + bot.id, bot.masked, bot.rank, amount]
     );
     return r.rows[0];
   } catch(e) {
@@ -250,6 +251,48 @@ async function crashEndRound() {
       [endTime, crashState.roundId]
     );
     console.log('CRASH round #' + crashState.roundId + ' CRASHED at ' + crashState.crashPoint.toFixed(2));
+
+    // --- УЧЁТ РЕАЛЬНЫХ ДЕНЕГ (исключаем ботов по префиксу 'BOT') ---
+    try {
+      const betsRes = await pool.query(
+        `SELECT amount, cashout_mult, cashed_out FROM crash_bets 
+         WHERE round_id = $1 AND (player_id IS NULL OR player_id NOT LIKE 'BOT%')`,
+        [crashState.roundId]
+      );
+
+      let totalBet = 0;
+      let totalWin = 0;
+
+      for (const bet of betsRes.rows) {
+        const amt = parseFloat(bet.amount) || 0;
+        totalBet += amt;
+        if (bet.cashed_out) {
+          totalWin += amt * (parseFloat(bet.cashout_mult) || 0);
+        }
+      }
+
+      const net = totalBet - totalWin;
+      
+      if (totalBet > 0) {
+        const type = net >= 0 ? 'доход' : 'расход';
+        const sum = Math.abs(net);
+        
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`,
+          [
+            new Date().toISOString().slice(0, 10),
+            type,
+            sum,
+            `Crash Round #${crashState.roundId} (ставки: ${totalBet.toFixed(2)}₽, выигрыши: ${totalWin.toFixed(2)}₽)`
+          ]
+        );
+        console.log(`Crash Round #${crashState.roundId} учтён: ${type} ${sum.toFixed(2)} ₽`);
+      }
+    } catch(err) {
+      console.error('Ошибка учёта реальных ставок Crash:', err.message);
+    }
+    // -------------------------------------------------------------
+
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), CRASH_CRASH_PAUSE));
   } catch (e) {
     console.error('crashEndRound:', e.message);
@@ -273,6 +316,7 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS deposits (
         id SERIAL PRIMARY KEY, date TEXT, nick TEXT, email TEXT,
         sum NUMERIC DEFAULT 0, status TEXT DEFAULT 'pending',
+        seen BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS withdrawals (
@@ -350,7 +394,8 @@ async function initDB() {
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS wagering_required NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS wagering_done NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rank TEXT DEFAULT 'Bronze'`,
-      `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`
+      `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`,
+      `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
@@ -601,7 +646,8 @@ const server = http.createServer(async (req, res) => {
         [mult, b.bet_id]
       );
 
-      if (bet.player_id) {
+      // Зачисляем только реальному игроку (не боту)
+      if (bet.player_id && !String(bet.player_id).startsWith('BOT')) {
         await pool.query(
           `UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2`,
           [winAmount, bet.player_id]
@@ -675,7 +721,20 @@ const server = http.createServer(async (req, res) => {
       if(!id) return sendJSON(res, 400, { error: 'no id' });
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
       if(r.rows.length === 0) return sendJSON(res, 404, { error: 'not found' });
-      return sendJSON(res, 200, { guest: r.rows[0] });
+      const guest = r.rows[0];
+
+      let unseen = [];
+      try {
+        const dRes = await pool.query(
+          `SELECT id, sum, date FROM deposits
+           WHERE LOWER(nick) = LOWER($1) AND status = 'approved' AND seen = FALSE
+           ORDER BY id DESC`,
+          [guest.name]
+        );
+        unseen = dRes.rows;
+      } catch(e) {}
+
+      return sendJSON(res, 200, { guest, unseen_deposits: unseen });
     }
 
     if(url === '/api/guest/withdraw' && method === 'POST'){
@@ -760,6 +819,12 @@ const server = http.createServer(async (req, res) => {
         [d.date,d.nick,d.email,d.sum,d.status||'pending']);
       return sendJSON(res, 200, { ok: true, deposit: r.rows[0] });
     }
+    if (url.startsWith('/api/deposits/') && url.endsWith('/seen') && method === 'POST') {
+      const parts = url.split('/');
+      const id = parts[3];
+      await pool.query(`UPDATE deposits SET seen = TRUE WHERE id=$1`, [id]);
+      return sendJSON(res, 200, { ok: true });
+    }
     if(url.startsWith('/api/deposits/') && method === 'PUT'){
       const id = url.split('/')[3];
       const d = await parseBody(req);
@@ -773,6 +838,8 @@ const server = http.createServer(async (req, res) => {
       if(d.status === 'approved' && dep.status !== 'approved'){
         const ok = await addBalanceByNick(dep.nick, dep.sum);
         if(!ok) console.warn('Депозит #' + id + ' подтверждён, но гость "' + dep.nick + '" не найден — баланс не начислен');
+        // Отмечаем как непросмотренное, чтобы у игрока вылезло окно
+        await pool.query(`UPDATE deposits SET seen = FALSE WHERE id=$1`, [id]);
       }
 
       if(d.status === 'rejected' && dep.status === 'approved'){
