@@ -81,17 +81,19 @@
   .daily-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
     color: #00e5ff; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
   .daily-title .streak { font-size: 11px; color: #3fbf7f; }
-  .daily-sub { font-size: 11px; color: #8fa2b8; margin-bottom: 18px; line-height: 1.5; }
-  .daily-amount { text-align: center; font-size: 48px; font-weight: 900; color: #3fbf7f;
-    text-shadow: 0 0 25px rgba(63,191,127,.5); margin: 10px 0 6px; }
-  .daily-amount-label { text-align: center; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 18px; }
-  .daily-streak-box { display: flex; align-items: center; justify-content: center; gap: 10px;
-    background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 14px;
-    padding: 14px; margin-bottom: 16px; }
-  .daily-streak-box .fire { font-size: 28px; }
-  .daily-streak-box .txt { font-size: 12px; color: #8fa2b8; line-height: 1.5; }
-  .daily-streak-box .txt b { color: #00e5ff; font-size: 18px; display: block; }
+  .daily-sub { font-size: 11px; color: #8fa2b8; margin-bottom: 16px; line-height: 1.5; }
+  .daily-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px; }
+  .daily-day { aspect-ratio: 1; border-radius: 10px; background: rgba(0,0,0,.4);
+    border: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 10px; color: #8fa2b8;
+    font-weight: 700; transition: .3s; position: relative; }
+  .daily-day .num { font-size: 9px; opacity: .6; }
+  .daily-day .reward { font-size: 11px; font-weight: 900; margin-top: 3px; }
+  .daily-day.done { background: rgba(63,191,127,.2); border-color: #3fbf7f; color: #3fbf7f; }
+  .daily-day.done::after { content: '✓'; position: absolute; font-size: 9px; top: 2px; right: 4px; }
+  .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff;
+    box-shadow: 0 0 14px rgba(0,229,255,.5); animation: pulseGlow 1.6s infinite; }
+  @keyframes pulseGlow { 0%,100%{box-shadow: 0 0 12px rgba(0,229,255,.4);} 50%{box-shadow: 0 0 24px rgba(0,229,255,.85);} }
 
   .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px; padding: 20px; margin-bottom: 14px; }
@@ -178,7 +180,7 @@
     <div class="modal-sub">Daily Bonus</div>
     <div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div>
     <div class="modal-text" id="dailyModalText">Ваш ежедневный бонус:</div>
-    <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f; text-shadow:0 0 20px rgba(63,191,127,.5);">+15 ₽</div>
+    <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f; text-shadow:0 0 20px rgba(63,191,127,.5);">+10 ₽</div>
     <div class="modal-hint" id="dailyModalHint">Streak: 1 день. Завтра снова заходите!</div>
     <button class="modal-btn" style="background:#3fbf7f; box-shadow:0 0 20px rgba(63,191,127,.4);" onclick="closeDailyModal()">Забрать</button>
   </div>
@@ -186,7 +188,8 @@
 
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 v3.2 (без колеса, daily 15 ₽ + streak)
+   KINGWIN — Profile 2 v3.3
+   Daily: 10/15/20/25/30/35/40, streak по дням подряд.
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -196,7 +199,8 @@ const RANKS_INFO = {
   Diamond:  { next: 1500, label: 'VIP',      gift: 1000 },
   VIP:      { next: null, label: null,       gift: 3000 }
 };
-const DAILY_AMOUNT = 15;
+// Прогрессия 1..7
+const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 
 let session = null;
 let summary = null;
@@ -367,29 +371,35 @@ function renderDailyHtml(){
     return `<div class="daily-card"><div class="daily-title">🔥 Ежедневный бонус</div>
       <div class="daily-sub">Загрузка…</div></div>`;
   }
-  const level = dailyState.level || 0;
+  const level = dailyState.level || 0;             // 0..7 (7 = цикл завершён)
   const claimed = dailyState.claimed_today;
-  const btnText = claimed ? '✓ Получено сегодня' : `Забрать ${DAILY_AMOUNT} ₽`;
-  const streakText = claimed ? `Streak: ${level} дн.` : `Streak: ${level} дн.`;
+  const rewards = DAILY_REWARDS;
+  // индекс «сегодняшнего» дня: если ещё не забрали — текущий уровень (0→10, 1→15...)
+  // если забрали — предыдущий (level-1)
+  const todayIdx = claimed ? Math.max(0, Math.min(6, level - 1)) : Math.min(6, level);
+
+  let daysHtml = '';
+  for(let i=0; i<7; i++){
+    let cls = 'daily-day';
+    if(i < level) cls += ' done';
+    else if(i === todayIdx && !claimed) cls += ' today';
+    daysHtml += `<div class="${cls}">
+      <div class="num">Д${i+1}</div>
+      <div class="reward">${fmt(rewards[i] || 0)}</div>
+    </div>`;
+  }
+
+  const nextReward = claimed ? 0 : (rewards[todayIdx] || 0);
+  const btnText = claimed ? '✓ Получено сегодня' : `Забрать ${fmt(nextReward)} ₽`;
+  const streakText = `Streak: ${level} / 7`;
 
   return `<div class="daily-card">
     <div class="daily-title">
       <span>🔥 Ежедневный бонус</span>
       <span class="streak">${streakText}</span>
     </div>
-    <div class="daily-sub">Заходи каждый день и забирай 15 ₽. Пропустишь день — серия сгорит и начнётся заново.</div>
-
-    <div class="daily-amount">+${DAILY_AMOUNT} ₽</div>
-    <div class="daily-amount-label">ежедневная награда</div>
-
-    <div class="daily-streak-box">
-      <div class="fire">🔥</div>
-      <div class="txt">
-        Серия дней подряд
-        <b>${level} ${level === 1 ? 'день' : level < 5 ? 'дня' : 'дней'}</b>
-      </div>
-    </div>
-
+    <div class="daily-sub">Заходи каждый день подряд — награда растёт: 10 → 15 → 20 → 25 → 30 → 35 → 40 ₽. Пропустишь день — серия сгорит и начнётся с 10 ₽.</div>
+    <div class="daily-days">${daysHtml}</div>
     <div id="dailyMsg"></div>
     <button class="btn ${claimed?'ghost':'green'}" id="dailyBtn" ${claimed?'disabled':''} onclick="claimDaily()">${btnText}</button>
   </div>`;
@@ -410,6 +420,7 @@ async function claimDaily(){
       body: JSON.stringify({ id: session.id })
     });
     const data = await r.json();
+
     if(!r.ok){
       if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
       await loadDaily();
@@ -417,15 +428,16 @@ async function claimDaily(){
       return;
     }
 
-    // локально фиксируем успех
+    // локально фиксируем успех СРАЗУ
     dailyState.claimed_today = true;
     dailyState.level = data.level;
     dailyState.next_reward = 0;
     dailyState.pending_bonus = data.pending_bonus;
 
-    showDailyModal(DAILY_AMOUNT, data.level);
+    showDailyModal(data.reward, data.level);
     renderProfile();
 
+    // и синхронизация
     await Promise.all([loadSummary(), loadDaily()]);
     renderProfile();
   } catch(e){
@@ -440,10 +452,16 @@ async function claimDaily(){
 function showDailyModal(reward, level){
   document.getElementById('dailyModalAmount').textContent = '+' + fmt(reward) + ' ₽';
   document.getElementById('dailyModalText').textContent = `День ${level} пройден! Ваш бонус:`;
-  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${level === 1 ? 'день' : level < 5 ? 'дня' : 'дней'}. Завтра снова заходите!`;
+  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${plural(level, 'день','дня','дней')}. Завтра снова заходите!`;
   document.getElementById('dailyModal').classList.add('show');
 }
 function closeDailyModal(){ document.getElementById('dailyModal').classList.remove('show'); }
+function plural(n, one, few, many){
+  const m10 = n % 10, m100 = n % 100;
+  if(m10 === 1 && m100 !== 11) return one;
+  if(m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+  return many;
+}
 
 /* ---------------- WITHDRAW ---------------- */
 function renderWithdrawHtml(){
@@ -546,7 +564,7 @@ function switchTab(tab){
   renderProfile();
 }
 
-/* ---------------- RANK UP MODAL ---------------- */
+/* ---------------- RANK UP ---------------- */
 function showRankUpModal(rank, gift){
   document.getElementById('rankUpText').innerHTML = `Поздравляем с достижением ранга <b>${rank}</b>!`;
   document.getElementById('rankUpAmount').textContent = '+' + fmt(gift) + ' ₽';
