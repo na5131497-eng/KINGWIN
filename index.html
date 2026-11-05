@@ -15,30 +15,28 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
   
-  /* Сайдбар */
-  .sidebar { width: 250px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 100; transition: transform 0.3s; }
+  /* Сайдбар (по умолчанию для ПК) */
+  .sidebar { width: 250px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 1000; transition: transform 0.3s ease; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px; padding-left: 10px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; }
   .logo-mark { width: 24px; height: 24px; background: linear-gradient(135deg, #00e5ff, #0077ff); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
   .nav-menu { display: flex; flex-direction: column; gap: 4px; }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 600; text-decoration: none; transition: 0.2s; }
   .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
   .nav-item.active { background: rgba(0,229,255,0.08); color: #fff; border: 1px solid rgba(0,229,255,0.2); box-shadow: inset 3px 0 0 var(--accent); }
-  .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+  .nav-item svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
   
   /* Контент */
-  .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); position: relative; }
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9,10,16,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
+  .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); position: relative; width: 100%; }
+  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9,10,16,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; flex-shrink: 0; }
   .mobile-burger { display: none; font-size: 24px; color: var(--accent); cursor: pointer; background: none; border: none; padding: 10px; font-weight: 900; }
   .header-actions { display: flex; align-items: center; gap: 15px; }
-  .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
-  .btn-wallet { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; }
-  .btn-login { background: var(--accent-green); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; }
+  .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .btn-wallet { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .btn-login { background: var(--accent-green); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; white-space: nowrap; }
   
-  /* ПРОФИЛЬ (АВАТАРКА) */
-  .profile-avatar { width: 40px; height: 40px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+  .profile-avatar { width: 40px; height: 40px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; flex-shrink: 0; }
   .profile-avatar:hover { border-color: var(--accent); background: rgba(0,229,255,0.1); }
   .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
-  .profile-avatar:hover svg { fill: var(--accent); }
 
   .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
 
@@ -47,7 +45,7 @@
   .hero img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 400px; }
   .bonus-tag { position: absolute; bottom: 20px; right: 20px; background: rgba(9,10,16,0.85); backdrop-filter: blur(10px); border: 2px solid var(--accent-green); border-radius: 16px; padding: 16px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,136,0.3); z-index: 2; }
   .bonus-tag .tag-lbl { font-size: 12px; font-weight: 900; color: var(--accent-green); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
-  .bonus-tag .tag-title { font-size: 18px; font-weight: 800; color: #fff; }
+  .bonus-tag .tag-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
   .bonus-tag .tag-amount { font-size: 22px; font-weight: 900; color: var(--accent-green); margin-top: 6px; }
   .btn-claim-bonus { display: block; width: 100%; margin-top: 12px; background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
   
@@ -62,19 +60,19 @@
   .crash-card .crash-info { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 2; }
   .crash-card .crash-title { font-size: 22px; font-weight: 900; text-transform: uppercase; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
   .crash-card .crash-sub { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
-  .crash-card .crash-play { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00ff88, #00b366); display: flex; justify-content: center; align-items: center; }
+  .crash-card .crash-play { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00ff88, #00b366); display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
 
   /* Модалки */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
+  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; max-height: 95vh; overflow-y: auto; }
   .modal-box h2 { font-size: 22px; margin-bottom: 12px; }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; }
   
   /* Депозит */
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
-  .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; cursor: pointer; }
+  .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; cursor: pointer; font-size: 13px; }
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
   .dep-banner { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px; font-weight: 800; font-size: 14px; color: var(--accent-green); }
   .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -101,19 +99,46 @@
   .welcome-modal::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 60%); animation: rotate 6s linear infinite; pointer-events: none; }
   @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+  /* ========== ТЕЛЕФОННАЯ АДАПТИВНОСТЬ ========== */
   @media (max-width: 900px) {
-    body { overflow: auto; }
-    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); width: 260px; z-index: 1000; }
+    body { overflow: hidden; flex-direction: column; }
+    
+    /* Выезжающее меню */
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
     .sidebar.open { transform: translateX(0); }
     .mobile-burger { display: block; }
-    .topbar { padding: 0 15px; height: 60px; }
+    
+    .topbar { padding: 0 15px; height: 60px; gap: 10px; }
     .content { padding: 15px; padding-bottom: 40px; }
+    
+    /* Баннер под мобилку */
     .hero img { max-height: 250px; }
     .bonus-tag { bottom: 10px; right: 10px; padding: 10px 14px; }
-    .bonus-tag .tag-lbl { font-size: 9px; }
+    .bonus-tag .tag-lbl { font-size: 9px; margin-bottom: 2px; }
     .bonus-tag .tag-title { font-size: 12px; }
-    .bonus-tag .tag-amount { font-size: 16px; }
+    .bonus-tag .tag-amount { font-size: 16px; margin-top: 2px; }
+    .btn-claim-bonus { margin-top: 8px; padding: 8px; font-size: 12px; }
+    
+    .section-title { font-size: 18px; margin-bottom: 15px; }
     .games-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .crash-card .crash-title { font-size: 16px; letter-spacing: 1px; }
+    .crash-card .crash-play { width: 32px; height: 32px; }
+    
+    .balance-btn { padding: 6px 10px; font-size: 12px; }
+    .btn-wallet { padding: 6px 12px; font-size: 12px; display: none; /* Скрываем кнопку кошелька в шапке на телефоне */ }
+    .profile-avatar { width: 34px; height: 34px; }
+
+    /* Модалки на весь экран */
+    .modal-box { padding: 20px; max-width: 95%; }
+    .dep-amount-input { font-size: 20px; padding: 8px; }
+    .dep-amount-btn { width: 40px; font-size: 20px; }
+    .card-box { font-size: 18px; padding: 15px; word-break: break-all; }
+    .toast { min-width: 0; width: calc(100vw - 40px); right: 20px; left: 20px; box-sizing: border-box; }
+  }
+  
+  @media (max-width: 400px) {
+    .games-grid { grid-template-columns: 1fr; }
+    .crash-card { aspect-ratio: 1.3 / 1; }
   }
 </style>
 </head>
@@ -138,7 +163,6 @@
     <button class="mobile-burger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
     <div style="flex:1;"></div>
     
-    <!-- ПРОФИЛЬ ТУТ (ПОЯВЛЯЕТСЯ ПРИ ВХОДЕ) -->
     <div class="header-actions" id="userArea" style="display:none">
       <div class="balance-btn">Баланс: <span id="topBalance">0.00</span> ₽</div>
       <button class="btn-wallet" onclick="openDeposit()">Кошелек</button>
@@ -278,7 +302,7 @@ async function doLogin() {
     closeModal('loginModal');
     updateUI();
     checkBonusAvailability();
-    checkPendingDeposits(); // Проверяем, вдруг админ уже подтвердил прошлый депозит
+    checkPendingDeposits();
   } catch(e) { showToast('Ошибка соединения', 'error'); }
 }
 
@@ -334,13 +358,11 @@ function checkBonusAvailability() {
   });
 }
 
-// ПРОВЕРКА ОДОБРЕННЫХ ДЕПОЗИТОВ (КОРОЛЕВСКОЕ ОКНО)
 async function checkPendingDeposits() {
   if(!currentPlayer) return;
   try {
     const res = await fetch('/api/deposits');
     const deps = await res.json();
-    // Ищем депозиты этого игрока, которые уже подтверждены (approved), но еще не показаны
     const approvedNotSeen = deps.find(d => 
       d.nick.toLowerCase() === currentPlayer.name.toLowerCase() && 
       d.status === 'approved' && 
@@ -348,14 +370,10 @@ async function checkPendingDeposits() {
     );
 
     if(approvedNotSeen) {
-      // Показываем королевское окно!
       document.getElementById('welcomeAmount').textContent = approvedNotSeen.sum.toFixed(2);
       openModal('welcomeModal');
-      
-      // Отмечаем, что мы его показали (чтобы не показывать дважды)
       fetch('/api/deposits/' + approvedNotSeen.id + '/seen', { method: 'POST' });
       
-      // Обновляем баланс
       const userRes = await fetch('/api/guest/me?id=' + currentPlayer.id);
       const userData = await userRes.json();
       currentPlayer = userData.guest;
@@ -418,8 +436,6 @@ async function sendDeposit() {
           closeModal('depositModal');
           document.getElementById('welcomeAmount').textContent = myDep.sum.toFixed(2);
           openModal('welcomeModal');
-          
-          // Отмечаем как просмотренное
           fetch('/api/deposits/' + myDep.id + '/seen', { method: 'POST' });
           
           const userRes = await fetch('/api/guest/me?id=' + currentPlayer.id);
@@ -443,7 +459,7 @@ window.onload = () => {
         currentPlayer = data.guest; 
         updateUI(); 
         checkBonusAvailability(); 
-        checkPendingDeposits(); // Проверяем при загрузке страницы
+        checkPendingDeposits();
       } 
     });
   }
