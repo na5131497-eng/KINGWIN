@@ -55,16 +55,40 @@
 
   .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
   
-  /* БОЛЬШОЙ БАННЕР */
-  .hero { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(135deg, #1a2332, #0a0d14); width: 100%; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-  .hero img { width: 100%; height: 220px; display: block; object-fit: cover; opacity: 0.6; }
-  .hero-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
-  .hero-badge { background: var(--accent-green); color: #000; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 900; margin-bottom: 10px; letter-spacing: 1px; }
-  .hero-title { font-size: 32px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 8px; text-shadow: 0 4px 20px rgba(0,0,0,0.8); }
-  .hero-title span { color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); }
-  .hero-sub { font-size: 14px; color: #d0d5e0; font-weight: 600; margin-bottom: 20px; }
-  .hero-btn { background: var(--accent-green); color: #000; padding: 12px 30px; border-radius: 10px; font-weight: 900; font-size: 15px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0,255,136,0.4); }
-  .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,255,136,0.6); }
+  /* КРАСИВЫЙ CSS БАННЕР */
+  .hero { 
+    position: relative; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    background: linear-gradient(135deg, #0f1a2e 0%, #1e1440 50%, #0a1a1a 100%);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.15), inset 0 0 60px rgba(168, 85, 247, 0.1);
+    width: 100%; 
+    margin-bottom: 30px; 
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  /* Декоративные элементы на баннере */
+  .hero::before {
+    content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); filter: blur(30px);
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%); filter: blur(30px);
+  }
+
+  .hero-badge { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 900; margin-bottom: 16px; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,255,136,0.5); z-index: 1; }
+  .hero-title { font-size: 42px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(0,0,0,0.8); z-index: 1; }
+  .hero-title span { background: linear-gradient(90deg, #00ff88, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
+  .hero-sub { font-size: 16px; color: #d0d5e0; font-weight: 500; margin-bottom: 25px; z-index: 1; }
+  .hero-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; padding: 14px 36px; border-radius: 12px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 1; }
+  .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 229, 255, 0.6); }
 
   .section-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 30px; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
@@ -72,7 +96,7 @@
   /* ИГРЫ */
   .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
   
-  /* Карточка Crash */
+  /* Карточки игр (Crash и Cases) */
   .crash-card {
     position: relative; width: 100%; aspect-ratio: 1 / 1;
     border-radius: 18px; overflow: hidden; cursor: pointer;
@@ -156,9 +180,9 @@
     .mobile-burger { display: block; }
     .topbar { padding: 0 15px; height: 60px; gap: 10px; }
     .content { padding: 15px; padding-bottom: 40px; }
-    .hero img { height: 180px; }
-    .hero-title { font-size: 24px; }
-    .hero-sub { font-size: 12px; }
+    .hero { padding: 30px 15px; }
+    .hero-title { font-size: 28px; }
+    .hero-sub { font-size: 14px; }
     .section-title { font-size: 18px; margin-top: 20px; }
     .games-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .balance-btn { padding: 6px 10px; font-size: 12px; }
@@ -214,19 +238,17 @@
 
   <div class="content">
     
-    <!-- БОЛЬШОЙ БАННЕР -->
+    <!-- КРАСИВЫЙ БАННЕР -->
     <div class="hero">
-      <img src="/main_banner.jpg" alt="KINGWIN Casino">
-      <div class="hero-content">
-        <div class="hero-badge">БОНУС НОВИЧКАМ</div>
-        <div class="hero-title">100 ₽ <span>БЕСПЛАТНО</span></div>
-        <div class="hero-sub">при пополнении от 200 ₽ на первый депозит</div>
-        <button class="hero-btn" onclick="openDeposit()">Пополнить сейчас</button>
-      </div>
+      <div class="hero-badge">БОНУС НОВИЧКАМ</div>
+      <div class="hero-title">100 ₽ <span>БЕСПЛАТНО</span></div>
+      <div class="hero-sub">при пополнении от 200 ₽ на первый депозит</div>
+      <button class="hero-btn" onclick="openDeposit()">Пополнить сейчас</button>
     </div>
 
     <div class="section-title">Наши игры</div>
     <div class="games-grid">
+      
       <!-- Crash -->
       <div class="crash-card" onclick="window.location.href='/crash.html'">
         <img src="/crash_card.webp" alt="Crash" onerror="this.src='/crash_card.jpg'">
@@ -242,7 +264,22 @@
         </div>
       </div>
 
-      <!-- Заготовки -->
+      <!-- Cases -->
+      <div class="crash-card" onclick="showCasesStub()">
+        <img src="/cases_card.jpg" alt="Cases" onerror="this.style.display='none'">
+        <div class="crash-overlay"></div>
+        <div class="crash-info">
+          <div>
+            <div class="crash-title">Cases</div>
+            <div class="crash-sub">Открой и выиграй</div>
+          </div>
+          <div class="crash-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Заготовки (осталось 3) -->
       <div class="placeholder-card">
         <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <div class="placeholder-text">Скоро</div>
@@ -255,10 +292,7 @@
         <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <div class="placeholder-text">Скоро</div>
       </div>
-      <div class="placeholder-card">
-        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        <div class="placeholder-text">Скоро</div>
-      </div>
+      
     </div>
   </div>
 </main>
@@ -292,7 +326,7 @@
       
       <div class="dep-content">
         <div id="depStep1">
-          <div class="dep-banner" id="depBanner"><span>+30%</span> К ДЕПОЗИТУ (ПЕРВОЕ ПОПОЛНЕНИЕ)</div>
+          <div class="dep-banner" id="depBanner"><span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽</div>
           
           <div class="dep-amount-title">Введите сумму пополнения (₽)</div>
           <div class="dep-amount-row">
@@ -369,7 +403,6 @@ function openModal(id) {
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function openDeposit() { 
   openModal('depositModal'); 
-  // Проверка на первый депозит (если баланс 0 и еще не пополнял)
   if(currentPlayer && currentPlayer.deposit_balance == 0) {
     isFirstDeposit = true;
     document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽';
@@ -430,7 +463,6 @@ function updateDepDisplay() {
   document.getElementById('depSumDisplay').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
   
   let finalSum = val;
-  // Логика бонуса: если первый депозит и сумма >= 200, начисляем +100
   if (isFirstDeposit && val >= 200) {
     finalSum = val + 100;
     document.getElementById('depSumDisplay2').innerHTML = `${val.toLocaleString('ru-RU')}.00 ₽ <span style="color:#00ff88; font-size:11px; margin-left:5px;">(+100 ₽ БОНУС)</span>`;
