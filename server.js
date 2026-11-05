@@ -81,17 +81,17 @@ async function getActualJackpot() {
 /* ==========================================
    CRASH — глобальный раунд + боты
    ========================================== */
-const CRASH_WAIT_AFTER_FIRST_BET = 5000; // 5 сек после первой ставки
-const CRASH_CRASH_PAUSE = 3000;
-const BOT_COUNT = 6;                     // сколько ботов в пуле
+const CRASH_WAIT_AFTER_FIRST_BET = 5000;
+const CRASH_CRASH_PAUSE = 1500;
+const BOT_COUNT = 6;
 
 let crashState = {
   roundId: null,
   crashPoint: 1,
   startTime: 0,
-  status: 'idle',        // idle | waiting | flying | crashed
-  waitTimer: null,       // таймер на старт после первой ставки
-  hasRealBet: false      // была ли уже настоящая ставка в этом раунде
+  status: 'idle',
+  waitTimer: null,
+  hasRealBet: false
 };
 let crashTimeouts = [];
 
@@ -116,26 +116,31 @@ function crashGeneratePoint() {
 let bots = [];
 
 function botInit() {
-  const names = ['Sarah M', 'Mark T', 'Dima B', 'Luna W', 'Alex I', 'Leo O', 'Mia G', 'Oscar U', 'Nika V', 'Roma K'];
   const ranks = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'VIP'];
+
+  function generateCardId() {
+    let s = '';
+    for (let i = 0; i < 8; i++) s += Math.floor(Math.random() * 10);
+    if (s[0] === '0') s = '1' + s.slice(1);
+    return s;
+  }
+
   bots = [];
+  const usedIds = new Set();
+
   for (let i = 0; i < BOT_COUNT; i++) {
-    const id = 'BOT' + (100000 + i);
-    const name = names[i % names.length];
+    let id;
+    do { id = generateCardId(); } while (usedIds.has(id));
+    usedIds.add(id);
+
     const rank = ranks[Math.floor(Math.random() * ranks.length)];
     const masked = id.slice(0, 4) + '••••';
-    bots.push({
-      id,
-      name,
-      rank,
-      masked,
-      // "карта" для отображения — маска
-    });
+
+    bots.push({ id, rank, masked });
   }
   console.log('Боты созданы: ' + bots.length);
 }
 
-/* Бот делает ставку (вызывается при старте waiting) */
 async function botPlaceBet(bot) {
   const amount = [10, 20, 25, 50, 100][Math.floor(Math.random() * 5)];
   try {
@@ -151,7 +156,6 @@ async function botPlaceBet(bot) {
   }
 }
 
-/* Бот кэшаутит в случайный момент */
 function scheduleBotCashout(betId, targetMult) {
   const ms = Math.log(targetMult) / Math.log(1.00006);
   if (!isFinite(ms) || ms <= 0) return;
@@ -159,7 +163,7 @@ function scheduleBotCashout(betId, targetMult) {
     if (crashState.status !== 'flying') return;
     const elapsed = Date.now() - crashState.startTime;
     let mult = Math.pow(1.00006, elapsed);
-    if (mult >= crashState.crashPoint) return; // уже краш, не успел
+    if (mult >= crashState.crashPoint) return;
     try {
       await pool.query(
         `UPDATE crash_bets SET cashed_out=true, cashout_mult=$1 WHERE id=$2 AND cashed_out=false`,
@@ -186,10 +190,6 @@ async function crashStartWaiting() {
     crashState.waitTimer = null;
 
     console.log('CRASH round #' + crashState.roundId + ' waiting (ждём первую ставку), point=' + cp.toFixed(2));
-
-    // Боты делают ставки сразу — чтобы раунд не висел вечно,
-    // но старт всё равно ждёт ЛЮБУЮ ставку (бота или игрока).
-    // Сделаем так: боты ставят с задержкой 1-3 сек, но только если нет реальной ставки.
     scheduleBotsForRound();
   } catch (e) {
     console.error('crashStartWaiting:', e.message);
@@ -197,31 +197,27 @@ async function crashStartWaiting() {
   }
 }
 
-/* Боты делают ставки в waiting */
 function scheduleBotsForRound() {
   const nBots = 1 + Math.floor(Math.random() * Math.min(BOT_COUNT, 4));
   const shuffled = [...bots].sort(() => Math.random() - 0.5).slice(0, nBots);
 
-  shuffled.forEach((bot, i) => {
-    const delay = 500 + Math.random() * 2500; // 0.5–3 сек
+  shuffled.forEach((bot) => {
+    const delay = 500 + Math.random() * 2500;
     crashTimeouts.push(setTimeout(async () => {
       if (crashState.status !== 'waiting') return;
       const bet = await botPlaceBet(bot);
       if (bet) {
-        // бот кэшаутит на случайном множителе 1.2–5.0
         const target = 1.2 + Math.random() * 3.8;
         scheduleBotCashout(bet.id, target);
-        // любая ставка (бота или игрока) запускает таймер на старт
         tryStartFlightCountdown();
       }
     }, delay));
   });
 }
 
-/* Когда появилась первая ставка — запускаем таймер на 5 сек */
 function tryStartFlightCountdown() {
   if (crashState.status !== 'waiting') return;
-  if (crashState.waitTimer) return; // уже идёт
+  if (crashState.waitTimer) return;
   console.log('CRASH round #' + crashState.roundId + ' — первая ставка, старт через ' + CRASH_WAIT_AFTER_FIRST_BET + ' мс');
   crashState.waitTimer = setTimeout(() => {
     if (crashState.status === 'waiting') crashStartFlight();
@@ -425,7 +421,6 @@ function parseBody(req){
   });
 }
 
-/* ---------- Начисление баллов ---------- */
 async function accruePointsByNick(nick, rubAmount, source){
   if(!nick || !rubAmount || rubAmount <= 0) return null;
   const g = await pool.query(
@@ -490,15 +485,12 @@ const server = http.createServer(async (req, res) => {
   const method = req.method;
 
   try {
-    /* ДЖЕКПОТ */
     if(url === '/api/jackpot' && method === 'GET'){
       const jackpot = await getActualJackpot();
       return sendJSON(res, 200, { jackpot });
     }
 
-    /* ==========================================
-       CRASH API
-       ========================================== */
+    /* CRASH */
     if (url === '/api/crash/current' && method === 'GET') {
       let multiplier = 1;
       if (crashState.status === 'flying' && crashState.startTime) {
@@ -577,10 +569,7 @@ const server = http.createServer(async (req, res) => {
         [crashState.roundId, b.player_id || null, maskName, playerRank, amt]
       );
 
-      // Это настоящая (не бот) ставка — отмечаем и запускаем таймер, если ещё не запущен
-      if (b.player_id) {
-        crashState.hasRealBet = true;
-      }
+      if (b.player_id) crashState.hasRealBet = true;
       tryStartFlightCountdown();
 
       return sendJSON(res, 200, { ok: true, bet: r.rows[0] });
