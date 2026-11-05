@@ -16,7 +16,6 @@
   .logo-sub { text-align: center; font-size: 10px; letter-spacing: 4px; color: #8fa2b8;
     text-transform: uppercase; margin-bottom: 22px; }
 
-  /* TABS */
   .tabs { display: flex; gap: 6px; background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
     padding: 6px; border-radius: 14px; margin-bottom: 16px; }
   .tab { flex: 1; padding: 11px 6px; text-align: center; border-radius: 10px; font-size: 11px;
@@ -32,7 +31,6 @@
     border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.5);
     margin-bottom: 16px; }
 
-  /* ВЕРХ ПРОФИЛЯ */
   .top-head { text-align: center; margin-bottom: 22px; }
   .top-head .name { font-size: 26px; font-weight: 900; letter-spacing: 1px; }
   .top-head .cid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace;
@@ -69,10 +67,7 @@
     margin-bottom: 10px; font-weight: 700; }
   .info-block .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
   .info-block .row b { color: #fff; }
-  .info-block .row .ok { color: #3fbf7f; }
-  .info-block .row .bad { color: #ff8a8a; }
 
-  /* КНОПКИ */
   .btn { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px;
     padding: 14px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
     cursor: pointer; font-family: inherit; transition: .3s; margin-top: 6px; }
@@ -82,7 +77,6 @@
   .btn.gold  { background: #d4af37; color: #000; }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
 
-  /* DAILY */
   .daily-card { background: linear-gradient(135deg, rgba(0,229,255,.08), rgba(63,191,127,.06));
     border: 1px solid rgba(0,229,255,.25); border-radius: 18px; padding: 20px; margin-bottom: 16px; }
   .daily-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
@@ -93,17 +87,15 @@
   .daily-day { aspect-ratio: 1; border-radius: 10px; background: rgba(0,0,0,.4);
     border: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column;
     align-items: center; justify-content: center; font-size: 10px; color: #8fa2b8;
-    font-weight: 700; transition: .3s; }
+    font-weight: 700; transition: .3s; position: relative; }
   .daily-day .num { font-size: 9px; opacity: .6; }
   .daily-day .reward { font-size: 11px; font-weight: 900; margin-top: 3px; }
   .daily-day.done { background: rgba(63,191,127,.2); border-color: #3fbf7f; color: #3fbf7f; }
   .daily-day.done::after { content: '✓'; position: absolute; font-size: 9px; top: 2px; right: 4px; }
-  .daily-day { position: relative; }
   .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff;
     box-shadow: 0 0 14px rgba(0,229,255,.5); animation: pulseGlow 1.6s infinite; }
   @keyframes pulseGlow { 0%,100%{box-shadow: 0 0 12px rgba(0,229,255,.4);} 50%{box-shadow: 0 0 24px rgba(0,229,255,.85);} }
 
-  /* КОЛЕСО */
   .wheel-card { background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(0,229,255,.06));
     border: 1px solid rgba(212,175,55,.35); border-radius: 18px; padding: 20px; margin-bottom: 16px;
     text-align: center; }
@@ -116,8 +108,7 @@
     border-top: 22px solid #00e5ff; z-index: 10;
     filter: drop-shadow(0 0 8px rgba(0,229,255,.9)); }
   .wheel-canvas { display: block; width: 280px; height: 280px; border-radius: 50%;
-    box-shadow: 0 0 40px rgba(212,175,55,.35), inset 0 0 30px rgba(0,0,0,.6);
-    transition: transform 4.5s cubic-bezier(.17,.67,.3,1); }
+    box-shadow: 0 0 40px rgba(212,175,55,.35), inset 0 0 30px rgba(0,0,0,.6); }
   .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 56px; height: 56px; border-radius: 50%; background: #0a0d14; border: 3px solid #00e5ff;
     display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900;
@@ -125,7 +116,6 @@
     box-shadow: 0 0 20px rgba(0,229,255,.5); }
   .wheel-result { font-size: 14px; font-weight: 800; min-height: 22px; color: #3fbf7f; margin-top: 10px; }
 
-  /* ВЫВОД */
   .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px; padding: 20px; margin-bottom: 14px; }
   .withdraw-block h3 { font-size: 12px; font-weight: 800; text-transform: uppercase;
@@ -140,7 +130,6 @@
   .withdraw-block .cond .title { font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
 
-  /* МОДАЛКИ */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
@@ -150,12 +139,6 @@
     position: relative; overflow: hidden; }
   @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal.rank-up { border-color: #f1c40f; box-shadow: 0 0 70px rgba(241,196,15,.5); }
-  .modal.rank-up::before {
-    content: ''; position: absolute; inset: -50%;
-    background: radial-gradient(circle, rgba(241,196,15,.2), transparent 60%);
-    animation: rotate 8s linear infinite; pointer-events: none;
-  }
-  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .modal-logo { font-size: 36px; font-weight: 900; letter-spacing: 4px;
     background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text;
     -webkit-text-fill-color: transparent; margin-bottom: 6px; position: relative; z-index: 1; }
@@ -180,7 +163,6 @@
   .modal-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,.7); }
   .modal.rank-up .modal-btn { background: #f1c40f; box-shadow: 0 0 20px rgba(241,196,15,.5); }
 
-  /* LOGIN */
   .login-form label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin: 14px 0 6px; font-weight: 600; }
   .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
@@ -188,8 +170,6 @@
   .login-form input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
   .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4); color: #ff8a8a;
     border-radius: 12px; padding: 14px; text-align: center; font-weight: 600; margin: 12px 0; }
-  .ok { background: rgba(63,191,127,.12); border: 1px solid rgba(63,191,127,.4); color: #3fbf7f;
-    border-radius: 12px; padding: 12px; text-align: center; font-weight: 600; margin: 12px 0; font-size: 13px; }
   .footer { text-align: center; font-size: 11px; color: #6d819a; margin-top: 20px; }
 </style>
 </head>
@@ -229,7 +209,7 @@
 
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 v3.0 (под новый server.js)
+   KINGWIN — Profile 2 v3.1 (фикс: daily/wheel не зацикливаются)
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -248,6 +228,9 @@ let currentTab = 'profile';
 let isSpinning = false;
 let wheelRotation = 0;
 let lastSeenRank = null;
+let refreshTimer = null;
+let spinLock = false;   // защита от двойного клика
+let claimLock = false;  // защита от двойного клика
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -326,14 +309,13 @@ function checkRankUp(){
   }
 }
 
-let refreshTimer = null;
 function startAutoRefresh(){
   if(refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(async ()=>{
     if(!session) return;
     await Promise.all([loadSummary(), loadDaily()]);
     renderProfile();
-  }, 6000);
+  }, 15000);
 }
 
 /* ---------------- RENDER ---------------- */
@@ -345,10 +327,8 @@ function renderProfile(){
   const nextMin = g.next_min;
   let progress = 0;
   let progressLabel = '';
+  const RANK_MIN = { Bronze:0, Silver:100, Gold:300, Platinum:600, Diamond:1000, VIP:1500 };
   if(info.next && nextMin !== null){
-    const curMin = RANKS_INFO[g.rank]?.next ? (g.points - (RANKS_INFO[g.rank]?.gift||0)) : 0;
-    // прогресс от текущего минимума ранга к следующему
-    const RANK_MIN = { Bronze:0, Silver:100, Gold:300, Platinum:600, Diamond:1000, VIP:1500 };
     const cur = RANK_MIN[g.rank] || 0;
     progress = Math.min(100, Math.round(((points - cur) / (nextMin - cur)) * 100));
     progressLabel = `${points} / ${nextMin}`;
@@ -372,27 +352,13 @@ function renderProfile(){
           <div class="cid">№ ${esc(g.id)}</div>
           <div class="rank-badge ${g.rank}">${g.rank}</div>
         </div>
-
         <div class="cats">
-          <div class="cat">
-            <div class="lbl">Баллы</div>
-            <div class="val">${points}</div>
-          </div>
-          <div class="cat money">
-            <div class="lbl">Рубли</div>
-            <div class="val">${fmt(g.deposit_balance)} ₽</div>
-          </div>
-          <div class="cat rank">
-            <div class="lbl">Ранг</div>
-            <div class="val">${g.rank}</div>
-          </div>
+          <div class="cat"><div class="lbl">Баллы</div><div class="val">${points}</div></div>
+          <div class="cat money"><div class="lbl">Рубли</div><div class="val">${fmt(g.deposit_balance)} ₽</div></div>
+          <div class="cat rank"><div class="lbl">Ранг</div><div class="val">${g.rank}</div></div>
         </div>
-
         <div class="progress-wrap">
-          <div class="progress-lbl">
-            <span>Прогресс до ${info.label || 'максимума'}</span>
-            <span>${progressLabel}</span>
-          </div>
+          <div class="progress-lbl"><span>Прогресс до ${info.label || 'максимума'}</span><span>${progressLabel}</span></div>
           <div class="progress"><div style="width:${progress}%"></div></div>
         </div>
       </div>
@@ -463,26 +429,52 @@ function renderDailyHtml(){
     <div class="daily-sub">Заходи каждый день — награда растёт. Пропустишь день — серия сгорит и начнётся с 15 ₽.</div>
     <div class="daily-days">${daysHtml}</div>
     <div id="dailyMsg"></div>
-    <button class="btn ${claimed?'ghost':'green'}" ${claimed?'disabled':''} onclick="claimDaily()">${btnText}</button>
+    <button class="btn ${claimed?'ghost':'green'}" id="dailyBtn" ${claimed?'disabled':''} onclick="claimDaily()">${btnText}</button>
   </div>`;
 }
 
 async function claimDaily(){
-  if(!dailyState || dailyState.claimed_today) return;
+  if(!dailyState || dailyState.claimed_today || claimLock) return;
+  claimLock = true;
+
   const box = document.getElementById('dailyMsg');
+  const btn = document.getElementById('dailyBtn');
   if(box) box.innerHTML = '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Отправка…'; }
+
   try {
     const r = await fetch('/api/guest/daily-claim', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id })
     });
     const data = await r.json();
-    if(!r.ok){ if(box) box.innerHTML = `<div class="err">${esc(data.error)}</div>`; return; }
+    if(!r.ok){
+      if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
+      // если сервер сказал "уже забрали" — синхронизируем состояние
+      await loadDaily();
+      renderProfile();
+      return;
+    }
+
+    // локально фиксируем успех сразу
+    dailyState.claimed_today = true;
+    dailyState.level = data.level;
+    dailyState.next_reward = 0;
+    dailyState.pending_bonus = data.pending_bonus;
+
     showDailyModal(data.reward, data.level, data.pending_bonus);
-    await loadSummary();
+    renderProfile();
+
+    // и синхронизируемся с сервером
+    await Promise.all([loadSummary(), loadDaily()]);
+    renderProfile();
+  } catch(e){
+    if(box) box.innerHTML = `<div class="err">Ошибка соединения</div>`;
     await loadDaily();
     renderProfile();
-  } catch(e){ if(box) box.innerHTML = `<div class="err">Ошибка соединения</div>`; }
+  } finally {
+    claimLock = false;
+  }
 }
 
 function showDailyModal(reward, level, pending){
@@ -534,7 +526,6 @@ function drawWheelStatic(){
   const totalW = prizes.reduce((a,p)=>a+(p.weight||1),0);
   let startAngle = -Math.PI/2;
 
-  // тень вокруг
   ctx.beginPath();
   ctx.arc(cx, cy, R+2, 0, Math.PI*2);
   ctx.fillStyle = 'rgba(0,0,0,.6)';
@@ -544,7 +535,6 @@ function drawWheelStatic(){
     const slice = ((p.weight||1)/totalW) * Math.PI*2;
     const endAngle = startAngle + slice;
 
-    // сектор
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, R, startAngle, endAngle);
@@ -558,7 +548,6 @@ function drawWheelStatic(){
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // текст
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(startAngle + slice/2);
@@ -566,28 +555,25 @@ function drawWheelStatic(){
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#000';
     ctx.font = 'bold 15px Montserrat';
-    // сокращаем длинные
-    let label = p.label || '';
-    ctx.fillText(label, R - 16, 0);
+    ctx.fillText(p.label || '', R - 16, 0);
     ctx.restore();
 
     startAngle = endAngle;
   });
 
-  // декоративные точки по краю
   ctx.strokeStyle = 'rgba(255,255,255,.15)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(cx, cy, R-1, 0, Math.PI*2);
   ctx.stroke();
 
-  // восстановим поворот
   canvas.style.transform = `rotate(${wheelRotation}rad)`;
 }
 
 function shadeColor(hex, percent){
-  // упрощённое затемнение
+  if(!hex) return '#00e5ff';
   const num = parseInt(hex.replace('#',''), 16);
+  if(isNaN(num)) return hex;
   const r = Math.max(0, Math.min(255, ((num >> 16) & 0xFF) + percent));
   const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + percent));
   const b = Math.max(0, Math.min(255, (num & 0xFF) + percent));
@@ -595,13 +581,22 @@ function shadeColor(hex, percent){
 }
 
 async function spinWheel(){
-  if(isSpinning || !wheelState || !wheelState.can_spin) return;
+  if(isSpinning || spinLock || !wheelState || !wheelState.can_spin) return;
+  spinLock = true;
   isSpinning = true;
+
   const canvas = document.getElementById('wheelCanvas');
   const resultBox = document.getElementById('wheelResult');
   const btn = document.getElementById('spinBtn');
   if(btn) btn.disabled = true;
-  if(resultBox) resultBox.textContent = '';
+  if(resultBox){ resultBox.textContent = ''; resultBox.style.color = '#3fbf7f'; }
+
+  // страховка: если что-то пошло не так — разблокируем через 10 сек
+  const safety = setTimeout(() => {
+    spinLock = false;
+    isSpinning = false;
+    if(btn) btn.disabled = false;
+  }, 10000);
 
   try {
     const r = await fetch('/api/guest/wheel-spin', {
@@ -609,18 +604,25 @@ async function spinWheel(){
       body: JSON.stringify({ id: session.id })
     });
     const data = await r.json();
+
     if(!r.ok){
+      clearTimeout(safety);
+      spinLock = false;
       isSpinning = false;
       if(btn) btn.disabled = false;
       if(resultBox){ resultBox.textContent = data.error || 'Ошибка'; resultBox.style.color = '#ff8a8a'; }
+      // синхронизируем состояние (например, если уже крутили)
+      await loadWheel();
+      await loadSummary();
+      renderProfile();
       return;
     }
+
     const prize = data.prize;
     const idx = prize.index;
     const prizes = wheelState.prizes || [];
     const totalW = prizes.reduce((a,p)=>a+(p.weight||1),0);
 
-    // угол для выбранного сектора
     let startAngle = -Math.PI/2;
     for(let i=0; i<idx; i++) startAngle += ((prizes[i].weight||1)/totalW) * Math.PI*2;
     const slice = ((prizes[idx].weight||1)/totalW) * Math.PI*2;
@@ -631,28 +633,34 @@ async function spinWheel(){
     const finalRotation = wheelRotation + rotationRad + extraTurns*Math.PI*2;
     wheelRotation = finalRotation;
 
+    canvas.style.transition = 'transform 4.5s cubic-bezier(.17,.67,.3,1)';
     canvas.style.transform = `rotate(${finalRotation}rad)`;
 
+    // блокируем крутить дальше СРАЗУ после ответа сервера
+    wheelState.can_spin = false;
+
     setTimeout(async ()=>{
+      clearTimeout(safety);
+      spinLock = false;
       isSpinning = false;
-      if(btn) btn.disabled = false;
+
       if(resultBox){
-        if(prize.type === 'points'){
-          resultBox.innerHTML = `🎉 ${esc(prize.label)}!`;
-          resultBox.style.color = '#00e5ff';
-        } else {
-          resultBox.innerHTML = `🎉 ${esc(prize.label)}!`;
-          resultBox.style.color = '#3fbf7f';
-        }
+        resultBox.innerHTML = `🎉 ${esc(prize.label)}!`;
+        resultBox.style.color = prize.type === 'points' ? '#00e5ff' : '#3fbf7f';
       }
-      await loadSummary();
-      await loadDaily();
+
+      // синхронизация
+      await Promise.all([loadSummary(), loadDaily(), loadWheel()]);
       renderProfile();
     }, 4700);
   } catch(e){
+    clearTimeout(safety);
+    spinLock = false;
     isSpinning = false;
     if(btn) btn.disabled = false;
     if(resultBox){ resultBox.textContent = 'Ошибка соединения'; resultBox.style.color = '#ff8a8a'; }
+    await loadWheel();
+    renderProfile();
   }
 }
 
@@ -667,7 +675,6 @@ function renderWithdrawHtml(){
   const deposit = g.deposit_balance || 0;
   const canToCasino = wageringOk && pending > 0;
   const canReal = rankOk && wageringOk && deposit > 0;
-
   const wageringLeft = Math.max(0, (g.wagering_required || 0) - (g.wagering_done || 0));
 
   return `
@@ -708,7 +715,7 @@ function renderWithdrawHtml(){
         Отправить заявку на вывод
       </button>
       <div style="font-size:11px;color:#6d819a;margin-top:10px;line-height:1.5;">
-        Заявка уходит администратору на проверку. Статус — в разделе «Профиль».
+        Заявка уходит администратору на проверку.
       </div>
     </div>
 
@@ -725,7 +732,6 @@ function renderWithdrawHtml(){
 }
 
 async function withdrawToCasino(){
-  const box = document.getElementById('withdrawMsg');
   try {
     const r = await fetch('/api/guest/withdraw-to-casino', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -772,7 +778,7 @@ function closeRankUpModal(){ document.getElementById('rankUpModal').classList.re
 function doLogout(){
   if(refreshTimer) clearInterval(refreshTimer);
   session = null; summary = null; dailyState = null; wheelState = null;
-  lastSeenRank = null;
+  lastSeenRank = null; spinLock = false; claimLock = false;
   localStorage.removeItem('kingwin_guest_id');
   renderLogin('');
 }
@@ -785,7 +791,6 @@ function doLogout(){
   const prefill = cardId || saved || '';
   if(prefill){
     renderLogin(prefill);
-    // авто-логин если сохранён
     if(saved && !cardId){
       try {
         const r = await fetch('/api/guest/me?id=' + encodeURIComponent(saved));
