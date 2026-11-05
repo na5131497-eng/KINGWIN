@@ -6,130 +6,89 @@
 <title>🪜 ЛЕСЕНКА — KINGWIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
-    --accent: #00e5ff; --accent-green: #00ff88;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f;
-  }
+  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-  /* ТОПБАР */
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
-  .back-btn { padding: 8px 16px; border-radius: 10px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 700; transition: 0.3s; }
-  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  /* ВЫДВИЖНОЕ МЕНЮ */
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
+  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
+
+  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding-left: 70px; }
   .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 700; }
   .balance-badge .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
   .balance-badge .num { color: var(--accent-green); }
-
-  /* ИСТОРИЯ */
   .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
   .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
   .history-item .h-name { color: var(--text-muted); }
   .history-item .h-res { color: var(--accent-green); font-weight: 900; }
-
-  /* ЛЕЙАУТ */
   .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1100px; width: 100%; margin: 20px auto; padding: 0 15px; flex: 1; align-items: start; }
   @media(max-width: 800px) { .layout { grid-template-columns: 1fr; } }
-
-  /* ПАНЕЛЬ УПРАВЛЕНИЯ */
   .sidebar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   .sidebar h2 { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
-  
   .bet-input { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
   .bet-input span { color: var(--gold); font-size: 18px; font-weight: 700; margin-right: 8px; }
   .bet-input input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; width: 100%; outline: none; }
-
   .quick-bets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
   .qbet { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
   .qbet:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-  /* ВЫБОР КАМНЕЙ */
   .stones-select { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
   .stone-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted); font-weight: 900; cursor: pointer; transition: 0.2s; }
   .stone-btn:hover { border-color: var(--accent); color: #fff; }
   .stone-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.4); }
-
   .btn-main { width: 100%; padding: 18px; border-radius: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
   .btn-main:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.6); }
   .btn-main:disabled { background: #333; color: #888; cursor: not-allowed; box-shadow: none; }
   .btn-main.cashout { background: linear-gradient(135deg, #00ff88, #00b366); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
   .btn-main.cashout:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,255,136,0.6); }
-
-  /* ИГРОВОЕ ПОЛЕ */
   .game-area { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; display: flex; justify-content: center; }
-  
   .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 10px 10px 10px 20px; }
   .grid-scroll::-webkit-scrollbar { display: none; }
-  
-  /* СЕТКА */
   .grid-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: max-content; }
-  
-  /* КАЖДАЯ СТРОКА (ЭТАЖ) */
-  .row { 
-    display: grid; 
-    grid-template-columns: 70px 1fr; /* Множитель | Клетки */
-    align-items: center; 
-    gap: 15px;
-  }
-
-  /* МНОЖИТЕЛЬ СЛЕВА */
-  .m-val { 
-    width: 70px; 
-    padding: 8px 0; 
-    text-align: center; 
-    font-size: 11px; 
-    font-weight: 900; 
-    color: var(--text-muted); 
-    background: var(--bg-dark); 
-    border: 1px solid var(--border); 
-    border-radius: 8px; 
-  }
+  .row { display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 15px; }
+  .m-val { width: 70px; padding: 8px 0; text-align: center; font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; }
   .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.5); }
   .m-val.passed { color: var(--accent-green); border-color: rgba(0,255,136,0.3); }
-
-  /* КОНТЕЙНЕР ДЛЯ КЛЕТОК ОДНОГО ЭТАЖА */
   .cells-container { display: flex; gap: 6px; justify-content: center; }
-
   .cell { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-dark); border: 2px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center; font-size: 16px; }
   .cell:hover:not(:disabled):not(.opened) { border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
-  
   .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1s infinite; cursor: pointer; box-shadow: 0 0 15px rgba(0,229,255,0.4); }
   .cell.opened { cursor: default; border-color: var(--border); }
   .cell.selected { border-width: 2px; transform: scale(1.15); z-index: 5; }
   .cell.selected.safe { background: rgba(0,255,136,0.2); border-color: var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(0,255,136,0.4); }
   .cell.selected.boom { background: rgba(255,77,77,0.3); border-color: var(--red); color: var(--red); animation: shake 0.4s; }
-  
   .cell.revealed-stone { background: rgba(255,77,77,0.1); border-color: rgba(255,77,77,0.3); }
   .cell.revealed-diamond { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.2); }
   .cell.stone-icon::after { content: '💣'; font-size: 14px; }
   .cell.diamond-icon::after { content: '💎'; font-size: 14px; }
-
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
-
-  /* ТОСТ */
   .toast { position: fixed; top: 80px; left: 50%; transform: translate(-50%, -20px); background: var(--bg-panel); border: 1px solid var(--accent-green); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 700; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   .toast.on { opacity: 1; transform: translate(-50%, 0); }
   .toast.error { border-color: var(--red); }
-
-  @media(max-width: 800px) {
-    .layout { grid-template-columns: 1fr; margin: 10px auto; }
-    .cell { width: 26px; height: 26px; font-size: 12px; }
-    .m-val { width: 50px; font-size: 10px; }
-    .row { grid-template-columns: 50px 1fr; gap: 10px; }
-  }
+  @media(max-width: 800px) { .layout { grid-template-columns: 1fr; margin: 10px auto; } .cell { width: 26px; height: 26px; font-size: 12px; } .m-val { width: 50px; font-size: 10px; } .row { grid-template-columns: 50px 1fr; gap: 10px; } }
 </style>
 </head>
 <body>
 
+<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
+<div class="float-menu" id="floatMenu">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
+  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
+  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg> Miner</a>
+  <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 21h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4V7H4v2zm0-4h4V3H4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2z"/></svg> Ladder</a>
+  <a href="/plinko.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Plinko</a>
+</div>
+
 <div class="topbar">
-  <a href="/" class="logo">KINGWIN</a>
-  <a href="/" class="back-btn">← На главную</a>
   <div class="balance-badge">
     <span class="lbl">Баланс</span>
     <span class="num"><span id="bal">0</span> ₽</span>
@@ -144,18 +103,13 @@
 <div class="layout">
   <div class="sidebar">
     <h2>Сумма ставки</h2>
-    <div class="bet-input">
-      <span>₽</span>
-      <input type="text" id="betInput" value="100">
-    </div>
-    
+    <div class="bet-input"><span>₽</span><input type="text" id="betInput" value="100"></div>
     <div class="quick-bets">
       <button class="qbet" onclick="setBet(10)">10</button>
       <button class="qbet" onclick="setBet(100)">100</button>
       <button class="qbet" onclick="setBet(500)">500</button>
       <button class="qbet" onclick="setBet(1000)">1000</button>
     </div>
-
     <h2>Количество камней</h2>
     <div class="stones-select" id="stonesSelect">
       <button class="stone-btn" data-stones="3">3</button>
@@ -164,14 +118,11 @@
       <button class="stone-btn active" data-stones="6">6</button>
       <button class="stone-btn" data-stones="7">7</button>
     </div>
-
     <button class="btn-main" id="mainBtn" onclick="handleMainBtn()">СДЕЛАТЬ СТАВКУ</button>
   </div>
 
   <div class="game-area">
-    <div class="grid-scroll" id="gridScroll">
-        <div class="grid-wrap" id="gridWrap"></div>
-    </div>
+    <div class="grid-scroll" id="gridScroll"><div class="grid-wrap" id="gridWrap"></div></div>
   </div>
 </div>
 
@@ -180,40 +131,21 @@
 <script>
 let playerId = localStorage.getItem('kingwin_player_id');
 let B = 0;
-
 const STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
 const TOTAL_STEPS = STEP_WIDTHS.length;
 let TOTAL_STONES = 6;
-let playing = false;
-let currentBet = 0;
-let currentStep = 0;
-let stonePositions = []; 
-let isWaiting = false;
+let playing = false, currentBet = 0, currentStep = 0, stonePositions = [], isWaiting = false;
 
 function $(id){ return document.getElementById(id); }
-function fmt(n){ 
-  var r = Math.round(n*100)/100;
-  if(r%1===0) return Math.floor(r).toLocaleString('ru-RU');
-  return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
-}
+function fmt(n){ var r = Math.round(n*100)/100; if(r%1===0) return Math.floor(r).toLocaleString('ru-RU'); return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+function showToast(text, isError) { var t = $('toast'); t.textContent = text; t.className = 'toast on' + (isError ? ' error' : ''); setTimeout(function() { t.classList.remove('on'); }, 2000); }
 
-function showToast(text, isError) {
-  var t = $('toast');
-  t.textContent = text;
-  t.className = 'toast on' + (isError ? ' error' : '');
-  setTimeout(function() { t.classList.remove('on'); }, 2000);
-}
-
-// ==================== БАЛАНС ====================
 async function loadBalance(){
   if(!playerId) { window.location.replace('/'); return; }
   try {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
     const d = await r.json();
-    if(r.ok && d.guest) {
-      B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      $('bal').textContent = fmt(B);
-    }
+    if(r.ok && d.guest) { B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0); $('bal').textContent = fmt(B); }
   } catch(e) {}
 }
 
@@ -222,34 +154,13 @@ async function loadHistory() {
     const r = await fetch('/api/ladder/history');
     const data = await r.json();
     const list = document.getElementById('historyList');
-    if(!data || data.length === 0) {
-      list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет игр</div>';
-      return;
-    }
-    list.innerHTML = data.map(h => `
-      <div class="history-item">
-        <span class="h-name">${h.name}</span>
-        <span class="h-res">x${parseFloat(h.result).toFixed(2)}</span>
-      </div>
-    `).join('');
+    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет игр</div>'; return; }
+    list.innerHTML = data.map(h => `<div class="history-item"><span class="h-name">${h.name}</span><span class="h-res">x${parseFloat(h.result).toFixed(2)}</span></div>`).join('');
   } catch(e) {}
 }
 
-// ==================== ЛОГИКА ====================
-function getStepChance(stepIndex){
-    var cellsCount = STEP_WIDTHS[stepIndex];
-    return (cellsCount - TOTAL_STONES) / cellsCount;
-}
-
-function calcMult(step){
-  if(step === 0) return 1;
-  var m = 1;
-  for(var i=0; i<step; i++){
-      m = m / getStepChance(i);
-  }
-  return Math.min(m * 0.97, 10000); 
-}
-
+function getStepChance(stepIndex){ var cellsCount = STEP_WIDTHS[stepIndex]; return (cellsCount - TOTAL_STONES) / cellsCount; }
+function calcMult(step){ if(step === 0) return 1; var m = 1; for(var i=0; i<step; i++){ m = m / getStepChance(i); } return Math.min(m * 0.97, 10000); }
 function setBet(v){ if(playing || isWaiting) return; $('betInput').value = v; }
 
 $('stonesSelect').addEventListener('click', function(e){
@@ -263,252 +174,109 @@ $('stonesSelect').addEventListener('click', function(e){
 });
 
 function renderGrid(){
-  var grid = $('gridWrap');
-  grid.innerHTML = '';
-  
-  // Рисуем сетку снизу вверх, каждый этаж — это отдельная строка
+  var grid = $('gridWrap'); grid.innerHTML = '';
   for(var step = TOTAL_STEPS - 1; step >= 0; step--){
-    var row = document.createElement('div');
-    row.className = 'row';
-    
-    // Множитель (слева)
+    var row = document.createElement('div'); row.className = 'row';
     var isPassed = (step < currentStep && playing);
     var isCurrent = (step === currentStep && playing);
-    
     var mEl = document.createElement('div');
     mEl.className = 'm-val ' + (isPassed ? 'passed' : '') + ' ' + (isCurrent ? 'active' : '');
     mEl.textContent = 'x' + calcMult(step + 1).toFixed(2);
     row.appendChild(mEl);
-
-    // Клетки (справа)
-    var cellsContainer = document.createElement('div');
-    cellsContainer.className = 'cells-container';
-    
+    var cellsContainer = document.createElement('div'); cellsContainer.className = 'cells-container';
     var cellsInRow = STEP_WIDTHS[step];
     for(var c = 0; c < cellsInRow; c++){
-        var cell = document.createElement('div');
-        cell.className = 'cell';
-        
-        if (step < currentStep) {
-            cell.classList.add('opened', 'revealed-diamond', 'diamond-icon');
-        } else if (step === currentStep && playing) {
-            cell.classList.add('current');
-            (function(s, idx){
-                cell.onclick = function() { clickCell(s, idx, cell); };
-            })(step, c);
-        }
-        
+        var cell = document.createElement('div'); cell.className = 'cell';
+        if (step < currentStep) { cell.classList.add('opened', 'revealed-diamond', 'diamond-icon'); }
+        else if (step === currentStep && playing) { cell.classList.add('current'); (function(s, idx){ cell.onclick = function() { clickCell(s, idx, cell); }; })(step, c); }
         cellsContainer.appendChild(cell);
     }
-    
-    row.appendChild(cellsContainer);
-    grid.appendChild(row);
+    row.appendChild(cellsContainer); grid.appendChild(row);
   }
-  
-  if(playing && currentStep > 0){
-      var visualIndex = TOTAL_STEPS - 1 - currentStep;
-      var currentRow = grid.children[visualIndex];
-      if(currentRow){
-          currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-  }
+  if(playing && currentStep > 0){ var visualIndex = TOTAL_STEPS - 1 - currentStep; var currentRow = grid.children[visualIndex]; if(currentRow){ currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
 }
 
 async function clickCell(step, cellIdx, cellEl){
   if(!playing || step !== currentStep || isWaiting) return;
   isWaiting = true;
-  
-  var row = cellEl.parentElement.parentElement; // Достаем саму строку (.row)
-  var cellsContainer = cellEl.parentElement; // Контейнер с клетками
-  var rowCells = cellsContainer.children;
-  
-  for(var i=0; i<rowCells.length; i++){
-      rowCells[i].classList.remove('current');
-  }
-  
+  var cellsContainer = cellEl.parentElement; var rowCells = cellsContainer.children;
+  for(var i=0; i<rowCells.length; i++){ rowCells[i].classList.remove('current'); }
   var isStone = stonePositions[step] && stonePositions[step].indexOf(cellIdx) !== -1;
-  
   if(isStone){
-    cellEl.classList.add('opened', 'selected', 'boom');
-    cellEl.classList.add('stone-icon');
-    showToast('💥 Камень! Вы проиграли', true);
-    playing = false;
-
-    // Отправляем проигрыш в историю
-    fetch('/api/ladder/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 })
-    });
-
+    cellEl.classList.add('opened', 'selected', 'boom'); cellEl.classList.add('stone-icon'); showToast('💥 Камень! Вы проиграли', true); playing = false;
+    fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 }) });
   } else {
-    cellEl.classList.add('opened', 'selected', 'safe');
-    cellEl.classList.add('diamond-icon');
+    cellEl.classList.add('opened', 'selected', 'safe'); cellEl.classList.add('diamond-icon');
   }
-  
   setTimeout(function(){
     if(isStone){
         var grid = $('gridWrap');
         for(var r=0; r<TOTAL_STEPS; r++){
-            var visualIndex = TOTAL_STEPS - 1 - r;
-            var currentRow = grid.children[visualIndex];
-            if(!currentRow) continue;
-            var cellsCont = currentRow.querySelector('.cells-container');
-            if(!cellsCont) continue;
-            var cells = cellsCont.children;
-            
+            var visualIndex = TOTAL_STEPS - 1 - r; var currentRow = grid.children[visualIndex]; if(!currentRow) continue;
+            var cellsCont = currentRow.querySelector('.cells-container'); if(!cellsCont) continue; var cells = cellsCont.children;
             for(var c=0; c<cells.length; c++){
-                cells[c].classList.remove('current');
-                cells[c].classList.add('opened');
-                if(stonePositions[r] && stonePositions[r].indexOf(c) !== -1){
-                    cells[c].classList.add('revealed-stone', 'stone-icon');
-                } else {
-                    cells[c].classList.add('revealed-diamond', 'diamond-icon');
-                }
+                cells[c].classList.remove('current'); cells[c].classList.add('opened');
+                if(stonePositions[r] && stonePositions[r].indexOf(c) !== -1){ cells[c].classList.add('revealed-stone', 'stone-icon'); }
+                else { cells[c].classList.add('revealed-diamond', 'diamond-icon'); }
             }
         }
-        
-        $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-        $('mainBtn').className = 'btn-main';
-        
-        setTimeout(function(){
-            playing = false;
-            isWaiting = false;
-            currentStep = 0;
-            currentBet = 0;
-            renderGrid();
-            $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-            $('mainBtn').className = 'btn-main';
-        }, 2500);
+        $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; $('mainBtn').className = 'btn-main';
+        setTimeout(function(){ playing = false; isWaiting = false; currentStep = 0; currentBet = 0; renderGrid(); $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; $('mainBtn').className = 'btn-main'; }, 2500);
     } else {
-        currentStep++;
-        isWaiting = false;
-        
-        if(currentStep >= TOTAL_STEPS){
-            cashOut();
-            return;
-        }
-        
-        var newMult = calcMult(currentStep);
-        var winAmt = Math.floor(currentBet * newMult);
-        $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(winAmt) + ' ₽';
-        $('mainBtn').className = 'btn-main cashout';
-        
+        currentStep++; isWaiting = false;
+        if(currentStep >= TOTAL_STEPS){ cashOut(); return; }
+        var newMult = calcMult(currentStep); var winAmt = Math.floor(currentBet * newMult);
+        $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(winAmt) + ' ₽'; $('mainBtn').className = 'btn-main cashout';
         renderGrid();
     }
   }, 400);
 }
 
 async function handleMainBtn(){
-  if(playing){
-    cashOut();
-    return;
-  }
-  
+  if(playing){ cashOut(); return; }
   if(isWaiting) return;
-
   var bet = parseInt($('betInput').value) || 0;
   if(bet < 1){ showToast('Мин. ставка 1₽', true); return; }
   if(bet > 10000){ showToast('Макс. ставка 10 000₽', true); return; }
   if(bet > B){ showToast('Недостаточно средств', true); return; }
-
   try {
-    const r = await fetch('/api/ladder/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 })
-    });
+    const r = await fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 }) });
     const d = await r.json();
     if(!r.ok){ showToast(d.error || 'Ошибка списания', true); return; }
-
-    B = d.new_balance;
-    $('bal').textContent = fmt(B);
-    
-    currentBet = bet;
-    currentStep = 0;
-    playing = true;
-
+    B = d.new_balance; $('bal').textContent = fmt(B); currentBet = bet; currentStep = 0; playing = true;
     stonePositions = [];
     for(var s=0; s<TOTAL_STEPS; s++){
-        var cellsCount = STEP_WIDTHS[s];
-        var positions = [];
-        var stonesToPlace = Math.min(TOTAL_STONES, cellsCount - 1);
-        
-        while(positions.length < stonesToPlace){
-            var p = Math.floor(Math.random() * cellsCount);
-            if(positions.indexOf(p) === -1) positions.push(p);
-        }
+        var cellsCount = STEP_WIDTHS[s]; var positions = []; var stonesToPlace = Math.min(TOTAL_STONES, cellsCount - 1);
+        while(positions.length < stonesToPlace){ var p = Math.floor(Math.random() * cellsCount); if(positions.indexOf(p) === -1) positions.push(p); }
         stonePositions.push(positions);
     }
-
-    $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(currentBet * calcMult(currentStep)) + ' ₽';
-    $('mainBtn').className = 'btn-main cashout';
-    
+    $('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(currentBet * calcMult(currentStep)) + ' ₽'; $('mainBtn').className = 'btn-main cashout';
     renderGrid();
-  } catch(e) {
-    showToast('Ошибка соединения', true);
-  }
+  } catch(e) { showToast('Ошибка соединения', true); }
 }
 
 async function cashOut(){
   if(!playing || currentStep === 0 || isWaiting) return;
-  
-  var win = Math.floor(currentBet * calcMult(currentStep));
-  var mult = calcMult(currentStep);
-  
+  var win = Math.floor(currentBet * calcMult(currentStep)); var mult = calcMult(currentStep);
   try {
-    const r = await fetch('/api/ladder/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: mult })
-    });
+    const r = await fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: mult }) });
     const d = await r.json();
-    if(r.ok) {
-      B = d.new_balance;
-      $('bal').textContent = fmt(B);
-      loadHistory();
-    }
+    if(r.ok) { B = d.new_balance; $('bal').textContent = fmt(B); loadHistory(); }
   } catch(e) {}
-  
   showToast('✅ Вы забрали ' + fmt(win) + ' ₽', false);
-  
   var grid = $('gridWrap');
   for(var r=0; r<TOTAL_STEPS; r++){
-        var visualIndex = TOTAL_STEPS - 1 - r;
-        var currentRow = grid.children[visualIndex];
-        if(!currentRow) continue;
-        var cellsCont = currentRow.querySelector('.cells-container');
-        if(!cellsCont) continue;
-        var cells = cellsCont.children;
-        
-        for(var c=0; c<cells.length; c++){
-            cells[c].classList.remove('current');
-            if(r < currentStep){
-                cells[c].classList.add('opened', 'revealed-diamond', 'diamond-icon');
-            }
-        }
+        var visualIndex = TOTAL_STEPS - 1 - r; var currentRow = grid.children[visualIndex]; if(!currentRow) continue;
+        var cellsCont = currentRow.querySelector('.cells-container'); if(!cellsCont) continue; var cells = cellsCont.children;
+        for(var c=0; c<cells.length; c++){ cells[c].classList.remove('current'); if(r < currentStep){ cells[c].classList.add('opened', 'revealed-diamond', 'diamond-icon'); } }
     }
-  
-  $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-  $('mainBtn').className = 'btn-main';
-  
-  setTimeout(function(){
-      playing = false;
-      currentStep = 0;
-      currentBet = 0;
-      renderGrid();
-      $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ';
-      $('mainBtn').className = 'btn-main';
-  }, 2000);
+  $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; $('mainBtn').className = 'btn-main';
+  setTimeout(function(){ playing = false; currentStep = 0; currentBet = 0; renderGrid(); $('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; $('mainBtn').className = 'btn-main'; }, 2000);
 }
 
-// ==================== СТАРТ ====================
-renderGrid();
-loadBalance();
-loadHistory();
-setInterval(loadBalance, 5000);
-setInterval(loadHistory, 5000);
-
-$('betInput').addEventListener('input', function() {
-  this.value = this.value.replace(/[^0-9]/g, '');
-});
+renderGrid(); loadBalance(); loadHistory();
+setInterval(loadBalance, 5000); setInterval(loadHistory, 5000);
+$('betInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
 </script>
 </body>
 </html>
