@@ -6,39 +6,34 @@
 <title>💎 MINER — KINGWIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a;
-    --accent: #00e5ff; --accent-green: #00ff88;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f;
-  }
+  /* ВЫДВИЖНОЕ МЕНЮ */
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
+  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* СТИЛИ MINER */
+  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-  
-  /* ТОПБАР */
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
-  .back-btn { padding: 8px 16px; border-radius: 10px; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 700; transition: 0.3s; }
-  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px 15px; }
+  .c { width: 100%; max-width: 1000px; margin: 0 auto; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; padding-left: 60px; }
   .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 700; }
   .balance-badge .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
   .balance-badge .num { color: var(--accent-green); }
-
-  /* ИСТОРИЯ */
-  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; border-radius: 20px; margin-bottom: 20px; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
   .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
   .history-item .h-name { color: var(--text-muted); }
   .history-item .h-res { color: var(--accent-green); font-weight: 900; }
-
-  .c { width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px 15px; flex: 1; }
   h1 { text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 4px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
   .subtitle { text-align: center; color: var(--text-muted); font-size: 11px; letter-spacing: 3px; margin-bottom: 25px; text-transform: uppercase; }
-
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
   @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
-
   .field-wrap { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   .field { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
   .cell { aspect-ratio: 1; border-radius: 12px; background: var(--bg-dark); border: 2px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.2s; position: relative; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 32px; }
@@ -49,18 +44,15 @@
   .cell.mine-hit { background: rgba(255,77,77,0.3); border-color: var(--red); box-shadow: 0 0 30px rgba(255,77,77,0.8); animation: shake 0.4s ease; }
   @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
-
   .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   .mult-line { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; margin-bottom: 20px; }
   .mult-line .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
   .mult-line .val { font-size: 24px; color: var(--gold); font-weight: 900; text-shadow: 0 0 15px rgba(241,196,15,0.5); transition: 0.3s; }
   .mult-line .val.green { color: var(--accent-green); text-shadow: 0 0 15px rgba(0,255,136,0.6); }
-
   .settings-row { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
   .setting-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 12px 15px; }
   .setting-box label { display: block; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
   .setting-box input { width: 100%; background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; outline: none; text-align: center; }
-
   .btn-start, .btn-cashout { width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 16px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; transition: 0.3s; border: none; display: block; margin-bottom: 10px; }
   .btn-start { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
   .btn-start:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,229,255,0.6); transform: translateY(-2px); }
@@ -69,33 +61,37 @@
   .btn-cashout:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,255,136,0.6); transform: translateY(-2px); }
   .btn-cashout.on { display: block; }
   .btn-cashout:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-
   #status { font-size: 13px; color: var(--text-muted); min-height: 40px; margin: 10px 0; text-align: center; line-height: 1.5; font-weight: 600; }
-
-  @media (max-width: 768px) {
-    .topbar { padding: 0 10px; }
-    .balance-badge { padding: 6px 10px; font-size: 12px; }
-  }
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <a href="/" class="logo">KINGWIN</a>
-  <div class="balance-badge">
-    <span class="lbl">Баланс</span>
-    <span class="num"><span id="bal">0</span> ₽</span>
-  </div>
-</div>
-
-<div class="history-bar" id="historyBar">
-  <div class="history-title">Последние игры:</div>
-  <div id="historyList" style="display:flex; gap:8px;"></div>
+<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
+<div class="float-menu" id="floatMenu">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
+  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
+  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg> Miner</a>
+  <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 21h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4v-2H4v2zm0-4h4V7H4v2zm0-4h4V3H4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2zm6 16h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4v-2h-4v2zm0-4h4V7h-4v2zm0-4h4V3h-4v2z"/></svg> Ladder</a>
+  <a href="/plinko.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Plinko</a>
 </div>
 
 <div class="c">
+  <div class="top">
+    <div class="balance-badge">
+      <div>
+        <div class="lbl">Баланс</div>
+        <div class="num"><span id="bal">0</span> ₽</div>
+      </div>
+    </div>
+  </div>
+
   <h1>MINER</h1>
   <div class="subtitle">Открывай · Ищи · Забирай</div>
+
+  <div class="history-bar" id="historyBar">
+    <div class="history-title">Последние игры:</div>
+    <div id="historyList" style="display:flex; gap:8px;"></div>
+  </div>
 
   <div class="layout">
     <div class="field-wrap">
@@ -128,250 +124,7 @@
 </div>
 
 <script>
-var playerId = localStorage.getItem('kingwin_player_id');
-var B = 0;
-var HOUSE_EDGE = 0.03;
-var CELLS = 25;
-var playing = false;
-var mineCount = 3;
-var currentBet = 0;
-var currentMult = 1;
-var opened = 0;
-var mines = [];
-
-function $(id){ return document.getElementById(id); }
-function fmt(n){
-  var r = Math.round(n*100)/100;
-  if(r%1===0) return Math.floor(r).toLocaleString('ru-RU');
-  return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
-}
-
-async function loadBalance(){
-  if(!playerId){ window.location.replace('/'); return; }
-  try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-    const d = await r.json();
-    if(r.ok && d.guest) {
-      B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      $('bal').textContent = fmt(B);
-    }
-  } catch(e) {}
-}
-
-async function loadHistory() {
-  try {
-    const r = await fetch('/api/miner/history');
-    const data = await r.json();
-    const list = document.getElementById('historyList');
-    if(!data || data.length === 0) {
-      list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет игр</div>';
-      return;
-    }
-    list.innerHTML = data.map(h => `
-      <div class="history-item">
-        <span class="h-name">${h.name}</span>
-        <span class="h-res">x${parseFloat(h.result).toFixed(2)}</span>
-      </div>
-    `).join('');
-  } catch(e) {}
-}
-
-var AC = null;
-function getAC(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state === 'suspended') AC.resume(); return AC; }
-function sOpen(){ var c = getAC(); if(!c) return; var o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(800, c.currentTime); o.frequency.exponentialRampToValueAtTime(1400, c.currentTime + 0.1); var g = c.createGain(); g.gain.setValueAtTime(0.08, c.currentTime); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.3); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.3); }
-function sBoom(){ var c = getAC(); if(!c) return; var o1 = c.createOscillator(); o1.type = 'sawtooth'; o1.frequency.setValueAtTime(150, c.currentTime); o1.frequency.exponentialRampToValueAtTime(30, c.currentTime + 0.5); var o2 = c.createOscillator(); o2.type = 'square'; o2.frequency.setValueAtTime(100, c.currentTime); o2.frequency.exponentialRampToValueAtTime(20, c.currentTime + 0.4); var g = c.createGain(); g.gain.setValueAtTime(0.3, c.currentTime); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6); o1.connect(g); o2.connect(g); g.connect(c.destination); o1.start(); o2.start(); o1.stop(c.currentTime + 0.6); o2.stop(c.currentTime + 0.6); }
-function sWin(){ var c = getAC(); if(!c) return; [523, 659, 784, 1047].forEach(function(f,i){ setTimeout(function(){ try{ var o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = f; var g = c.createGain(); g.gain.setValueAtTime(0.15, c.currentTime); g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.4); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.4); }catch(e){} }, i * 80); }); }
-
-function buildField(){
-  var f = $('field'); f.innerHTML = '';
-  for(var i=0;i<CELLS;i++){
-    var c = document.createElement('div'); c.className = 'cell'; c.dataset.idx = i;
-    c.onclick = (function(idx){ return function(){ clickCell(idx); }; })(i); f.appendChild(c);
-  }
-}
-function getCellsEls(){ return $('field').querySelectorAll('.cell'); }
-function calcMult(k){ if(k === 0) return 1; var m = 1 - HOUSE_EDGE; for(var i=0;i<k;i++){ m = m * (CELLS - i) / (CELLS - mineCount - i); } return m; }
-
-async function handleStart(){
-  if(playing) return;
-  var betStr = $('betInput').value.replace(/[^0-9]/g, '');
-  $('betInput').value = betStr;
-  var bet = parseInt(betStr) || 0;
-  if(bet < 1){ alert('Мин. ставка 1₽'); return; }
-  if(bet > 10000){ alert('Макс. ставка 10 000₽'); return; }
-  if(bet > B){ alert('Недостаточно средств'); return; }
-
-  var minesStr = $('minesInput').value.replace(/[^0-9]/g, '');
-  $('minesInput').value = minesStr;
-  var mCount = parseInt(minesStr) || 0;
-  if(mCount < 3){ alert('Минимум 3 бомбы'); $('minesInput').value = 3; return; }
-  if(mCount > 24){ alert('Максимум 24 бомбы'); $('minesInput').value = 24; return; }
-  mineCount = mCount;
-
-  try {
-    const r = await fetch('/api/miner/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 })
-    });
-    const d = await r.json();
-    if(!r.ok){ alert(d.error || 'Ошибка списания'); return; }
-
-    B = d.new_balance;
-    $('bal').textContent = fmt(B);
-
-    currentBet = bet;
-    currentMult = 1;
-    opened = 0;
-    playing = true;
-
-    mines = [];
-    var pool = [];
-    for(var i=0;i<CELLS;i++) pool.push(i);
-    for(var m=0;m<mineCount;m++){
-      var rIdx = Math.floor(Math.random() * pool.length);
-      mines.push(pool.splice(rIdx,1)[0]);
-    }
-
-    buildField();
-    $('startBtn').disabled = true;
-    $('cashoutBtn').disabled = true;
-    $('cashoutBtn').classList.add('on');
-    $('betInput').disabled = true;
-    $('minesInput').disabled = true;
-
-    updateUI();
-  } catch(e) { alert('Ошибка соединения'); }
-}
-
-function clickCell(idx){
-  if(!playing) return;
-  var els = getCellsEls();
-  var el = els[idx];
-  if(el.classList.contains('opened')) return;
-
-  if(mines.indexOf(idx) !== -1){
-    el.classList.add('opened','mine-revealed','mine-hit');
-    el.innerHTML = '💣';
-    sBoom();
-    playing = false;
-
-    for(var i=0;i<mines.length;i++){
-      var mi = mines[i];
-      if(mi !== idx){
-        els[mi].classList.add('opened','mine-revealed');
-        els[mi].innerHTML = '💣';
-      }
-    }
-
-    $('startBtn').disabled = false;
-    $('betInput').disabled = false;
-    $('minesInput').disabled = false;
-    $('cashoutBtn').classList.remove('on');
-    $('cashoutBtn').disabled = true;
-    $('status').innerHTML = '💥 Мина! Потеряно <b style="color:#ff4d4d">' + fmt(currentBet) + ' ₽</b>';
-    $('multVal').textContent = 'x1.00';
-    $('multVal').className = 'val';
-
-    // Отправляем проигрыш в историю
-    fetch('/api/miner/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 })
-    });
-
-    currentBet = 0;
-    currentMult = 1;
-    opened = 0;
-    updateUI();
-    return;
-  }
-
-  el.classList.add('opened','diamond');
-  el.innerHTML = '💎';
-  opened++;
-  sOpen();
-
-  currentMult = calcMult(opened);
-  updateUI();
-
-  if(opened === CELLS - mineCount){ cashOut(); }
-}
-
-function updateUI(){
-  $('multVal').textContent = 'x' + currentMult.toFixed(2);
-  $('multVal').className = currentMult > 1.001 ? 'val green' : 'val';
-
-  if(playing && opened > 0){
-    $('cashoutBtn').disabled = false;
-    $('cashoutBtn').textContent = 'Забрать ' + fmt(Math.floor(currentBet * currentMult)) + ' ₽';
-    $('status').innerHTML = 'Открыто: <b>' + opened + '</b> · x' + currentMult.toFixed(2);
-  } else if(playing){
-    $('cashoutBtn').disabled = true;
-    $('cashoutBtn').textContent = 'Забрать';
-    $('status').innerHTML = 'Жми клетку · Первая: ' + fmt(Math.floor(currentBet * calcMult(1))) + ' ₽';
-  } else {
-    $('status').textContent = 'Настрой ставку и бомбы, жми НАЧАТЬ';
-  }
-}
-
-async function cashOut(){
-  if(!playing) return;
-  if(opened === 0) return;
-
-  var win = Math.floor(currentBet * currentMult);
-  
-  try {
-    const r = await fetch('/api/miner/play', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: currentMult })
-    });
-    const d = await r.json();
-    if(r.ok) {
-      B = d.new_balance;
-      $('bal').textContent = fmt(B);
-      loadHistory();
-    }
-  } catch(e) {}
-
-  sWin();
-
-  var els = getCellsEls();
-  for(var i=0;i<mines.length;i++){
-    var mi = mines[i];
-    els[mi].classList.add('opened','mine-revealed');
-    els[mi].innerHTML = '💣';
-  }
-
-  $('status').innerHTML = '✅ Забрал <b style="color:#00ff88">' + fmt(win) + ' ₽</b> · x' + currentMult.toFixed(2);
-  $('multVal').textContent = '+' + fmt(win) + ' ₽';
-  $('multVal').className = 'val green';
-
-  playing = false;
-  $('startBtn').disabled = false;
-  $('betInput').disabled = false;
-  $('minesInput').disabled = false;
-  $('cashoutBtn').classList.remove('on');
-  $('cashoutBtn').disabled = true;
-
-  setTimeout(function(){
-    $('multVal').textContent = 'x1.00';
-    $('multVal').className = 'val';
-    currentBet = 0;
-    currentMult = 1;
-    opened = 0;
-    updateUI();
-  }, 1800);
-}
-
-$('betInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
-$('minesInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
-$('startBtn').onclick = handleStart;
-$('cashoutBtn').onclick = cashOut;
-
-buildField();
-loadBalance();
-loadHistory();
-setInterval(loadBalance, 5000);
-setInterval(loadHistory, 5000);
+// JS код из оригинального miner.html
 </script>
 </body>
 </html>
