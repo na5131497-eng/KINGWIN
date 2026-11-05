@@ -240,7 +240,7 @@ async function crashEndRound() {
       [endTime, crashState.roundId]
     );
 
-    // УЧЁТ РЕАЛЬНЫХ ДЕНЕГ
+    // УЧЁТ РЕАЛЬНЫХ ДЕНЕГ (боты исключены)
     try {
       const betsRes = await pool.query(
         `SELECT amount, cashout_mult, cashed_out FROM crash_bets 
@@ -269,7 +269,7 @@ async function crashEndRound() {
             new Date().toISOString().slice(0, 10),
             type,
             sum,
-            `Crash Round #${crashState.roundId} (ставки: ${totalBet.toFixed(2)}₽, выигрыши: ${totalWin.toFixed(2)}₽)`
+            `Crash Round #${crashState.roundId}`
           ]
         );
       }
@@ -344,7 +344,7 @@ async function initDB() {
         bonus_text TEXT, bonus_code TEXT,
         pass TEXT DEFAULT '1234',
         bonus_balance NUMERIC DEFAULT 0,
-        deposit_balance NUMERIC DEFAULT 0, /* НОВАЯ КОЛОНКА */
+        deposit_balance NUMERIC DEFAULT 0,
         wagering_required NUMERIC DEFAULT 0,
         wagering_done NUMERIC DEFAULT 0,
         last_rank TEXT DEFAULT 'Bronze',
@@ -468,7 +468,7 @@ async function accruePointsByNick(nick, rubAmount, source){
   await pool.query(`
     UPDATE guests SET
       points = $1, rank = $2, last_rank = $3, bonus_text = $4, bonus_code = $5,
-      bonus_balance = bonus_balance + $6, /* Бонусы только сюда */
+      bonus_balance = bonus_balance + $6,
       wagering_required = wagering_required + $7,
       wagering_done = wagering_done + $8
     WHERE id = $9
@@ -570,7 +570,7 @@ const server = http.createServer(async (req, res) => {
       try {
         await pool.query('DELETE FROM crash_bets');
         await pool.query('DELETE FROM crash_rounds');
-        await pool.query('DELETE FROM online');
+        await pool.query("DELETE FROM online WHERE note LIKE 'Crash Round%'");
         return sendJSON(res, 200, { ok: true });
       } catch (e) {
         return sendJSON(res, 500, { error: e.message });
@@ -598,7 +598,6 @@ const server = http.createServer(async (req, res) => {
             return sendJSON(res, 400, { error: 'Недостаточно средств' });
           }
           
-          // Списываем сначала бонусы, потом депозит
           let bonus = parseFloat(guest.bonus_balance) || 0;
           let dep = parseFloat(guest.deposit_balance) || 0;
           let remaining = amt;
@@ -765,7 +764,6 @@ const server = http.createServer(async (req, res) => {
       if (done < required) return sendJSON(res, 400, { error: 'Сначала выполните условие (отыгрыш)' });
       if (amt > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
       
-      // Списываем сначала бонусы
       let bonus = parseFloat(g.bonus_balance) || 0;
       let dep = parseFloat(g.deposit_balance) || 0;
       let remaining = amt;
