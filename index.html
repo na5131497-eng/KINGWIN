@@ -46,97 +46,128 @@
 
   .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
   
-  /* HERO BANNER (С КАРТИНКОЙ) */
-  .hero { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: transparent; }
-  .hero img { width: 100%; height: auto; display: block; object-fit: cover; }
-  .hero-btn { position: absolute; bottom: 30px; left: 30px; z-index: 2; background: var(--accent-green); color: #000; padding: 14px 30px; border-radius: 10px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,136,0.4); transition: 0.3s; }
+  /* HERO BANNER (УМЕНЬШЕН) */
+  .hero { 
+    position: relative; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    border: 1px solid var(--border); 
+    background: transparent; 
+    max-height: 300px; /* Ограничиваем высоту баннера */
+    display: flex;
+  }
+  .hero img { 
+    width: 100%; 
+    height: 100%; 
+    max-height: 300px; 
+    object-fit: cover; /* Обрезает, чтобы влезло красиво */
+    display: block; 
+  }
+  .hero-btn { position: absolute; bottom: 20px; left: 20px; z-index: 2; background: var(--accent-green); color: #000; padding: 12px 24px; border-radius: 10px; font-weight: 900; font-size: 15px; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,136,0.4); transition: 0.3s; }
   .hero-btn:hover { transform: scale(1.05); }
 
   .section-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 40px; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
 
-  /* ---------- CRASH CARD 1:1 С КАРТИНКОЙ ---------- */
-  .crash-card {
+  /* ОБЩАЯ СЕТКА ДЛЯ ВСЕХ ИГР */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  /* СТИЛИ ДЛЯ ВСЕХ КАРТОЧЕК (включая Crash) */
+  .game-card {
     position: relative;
     width: 100%;
-    max-width: 460px;
-    aspect-ratio: 1 / 1;
-    border-radius: 20px;
+    aspect-ratio: 1 / 1; /* Квадрат */
+    border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
-    border: 1px solid rgba(0,229,255,0.25);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,229,255,0.1);
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
     transition: 0.3s;
-    background: linear-gradient(135deg, #131624, #090a10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
-  .crash-card:hover {
-    transform: translateY(-6px);
+  .game-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 25px rgba(0, 229, 255, 0.15);
+  }
+
+  /* Карточка Crash с картинкой */
+  .game-card.crash {
+    border-color: rgba(0,229,255,0.25);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0,229,255,0.1);
+    padding: 0; /* Убираем отступы, картинка на всю карточку */
+  }
+  .game-card.crash:hover {
     border-color: rgba(0,229,255,0.6);
-    box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(0,229,255,0.25);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,229,255,0.25);
   }
-  .crash-card img {
+  .game-card.crash img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
-  .crash-card .crash-overlay {
+  .game-card.crash .crash-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 40%, transparent 70%);
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
     pointer-events: none;
   }
-  .crash-card .crash-info {
+  .game-card.crash .crash-info {
     position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 10px;
     z-index: 2;
   }
-  .crash-card .crash-title {
-    font-size: 28px;
+  .game-card.crash .crash-title {
+    font-size: 22px;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     color: #fff;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,229,255,0.4);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
     text-transform: uppercase;
   }
-  .crash-card .crash-sub {
-    font-size: 11px;
+  .game-card.crash .crash-sub {
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: var(--accent);
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 2px;
   }
-  .crash-card .crash-play {
-    width: 48px;
-    height: 48px;
+  .game-card.crash .crash-play {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #00ff88, #00b366);
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 0 20px rgba(0,255,136,0.5);
+    box-shadow: 0 0 15px rgba(0,255,136,0.5);
     flex-shrink: 0;
   }
-  .crash-card .crash-play svg {
-    width: 22px;
-    height: 22px;
+  .game-card.crash .crash-play svg {
+    width: 18px;
+    height: 18px;
     fill: #000;
-    margin-left: 3px;
+    margin-left: 2px;
   }
 
-  /* остальные карточки — как были */
-  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
-  .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+  /* Обычные карточки (Блэкджек, Джекпот) */
   .our-game-icon { width: 60px; height: 60px; border-radius: 15px; background: rgba(0,229,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
   .our-game-icon svg { width: 32px; height: 32px; fill: currentColor; }
   .our-game-title { font-size: 16px; font-weight: 800; }
@@ -199,12 +230,25 @@
     .sidebar { display: none; }
     .topbar { padding: 0 15px; height: 60px; }
     .content { padding: 15px; padding-bottom: 80px; }
-    .crash-card { max-width: 100%; }
-    .crash-card .crash-title { font-size: 22px; }
-    .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    
+    .hero { max-height: 200px; }
+    .hero img { max-height: 200px; }
+    .hero-btn { bottom: 10px; left: 10px; padding: 8px 16px; font-size: 13px; }
+    
+    .games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .game-card { padding: 15px; }
+    .game-card.crash { padding: 0; }
+    
+    .game-card.crash .crash-title { font-size: 18px; }
+    .game-card.crash .crash-sub { font-size: 9px; }
+    .game-card.crash .crash-play { width: 30px; height: 30px; }
+    .game-card.crash .crash-play svg { width: 14px; height: 14px; }
+    
+    .our-game-icon { width: 45px; height: 45px; margin-bottom: 10px; }
+    .our-game-icon svg { width: 24px; height: 24px; }
+    .our-game-title { font-size: 14px; }
+    
     .mobile-bottom-nav { display: flex; }
-    .hero { border-radius: 12px !important; }
-    .hero-btn { bottom: 15px !important; left: 15px !important; padding: 10px 20px !important; font-size: 14px !important; }
     .dep-methods { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .dep-method { padding: 12px 15px; }
     .dep-content { padding: 15px; }
@@ -250,7 +294,7 @@
 
   <div class="content">
     
-    <!-- БАННЕР -->
+    <!-- БАННЕР (УМЕНЬШЕН) -->
     <div class="hero">
       <img src="/main_banner.jpg" alt="KINGWIN Casino">
       <button class="hero-btn" onclick="showToast('Бонусы в разработке')">Забрать сейчас</button>
@@ -258,31 +302,36 @@
 
     <div class="section-title">Наши игры</div>
 
-    <!-- CRASH КАРТОЧКА 1:1 С КАРТИНКОЙ -->
-    <div class="crash-card" onclick="window.location.href='/crash.html'">
-      <img src="/crash_card.jpg" alt="Crash" onerror="this.style.display='none'">
-      <div class="crash-overlay"></div>
-      <div class="crash-info">
-        <div>
-          <div class="crash-title">Crash</div>
-          <div class="crash-sub">Успей забрать</div>
-        </div>
-        <div class="crash-play">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <!-- ЕДИНАЯ СЕТКА ИГР -->
+    <div class="games-grid">
+      
+      <!-- CRASH КАРТОЧКА (В СЕТКЕ) -->
+      <div class="game-card crash" onclick="window.location.href='/crash.html'">
+        <img src="/crash_card.webp" alt="Crash" onerror="this.src='/crash_card.jpg'">
+        <div class="crash-overlay"></div>
+        <div class="crash-info">
+          <div>
+            <div class="crash-title">Crash</div>
+            <div class="crash-sub">Успей забрать</div>
+          </div>
+          <div class="crash-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="section-title">Другие игры</div>
-    <div class="our-games-grid">
-      <div class="our-game-card" onclick="window.location.href='/dealer.html'">
+      <!-- БЛЭКДЖЕК -->
+      <div class="game-card" onclick="window.location.href='/dealer.html'">
         <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div>
         <div class="our-game-title">Блэкджек</div>
       </div>
-      <div class="our-game-card" onclick="window.location.href='/jackpot.html'">
+
+      <!-- ДЖЕКПОТ -->
+      <div class="game-card" onclick="window.location.href='/jackpot.html'">
         <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.17v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.79c.1 1.7 1.36 2.66 2.86 2.97V19h2.17v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.68-3.42z"/></svg></div>
         <div class="our-game-title">Джекпот</div>
       </div>
+
     </div>
   </div>
 </main>
