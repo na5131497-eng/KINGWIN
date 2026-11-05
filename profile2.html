@@ -83,7 +83,7 @@
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
   .live-label { font-size: 10px; color: #3fbf7f; text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
 
-  /* ---------- DAILY REWARD ---------- */
+  /* DAILY */
   .daily-card { background: linear-gradient(135deg, rgba(0,229,255,.08), rgba(63,191,127,.06));
     border: 1px solid rgba(0,229,255,.25); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
   .daily-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
@@ -101,10 +101,8 @@
   .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff;
     box-shadow: 0 0 12px rgba(0,229,255,.5); animation: pulseGlow 1.6s infinite; }
   @keyframes pulseGlow { 0%,100%{box-shadow: 0 0 12px rgba(0,229,255,.4);} 50%{box-shadow: 0 0 22px rgba(0,229,255,.8);} }
-  .daily-day.claimed { background: rgba(63,191,127,.3); border-color: #3fbf7f; color: #3fbf7f; }
-  .daily-claim-btn { width: 100%; }
 
-  /* ---------- WHEEL ---------- */
+  /* WHEEL */
   .wheel-card { background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(0,229,255,.06));
     border: 1px solid rgba(212,175,55,.35); border-radius: 16px; padding: 18px; margin-bottom: 16px;
     text-align: center; }
@@ -118,19 +116,15 @@
     box-shadow: 0 0 30px rgba(212,175,55,.3), inset 0 0 20px rgba(0,0,0,.5); }
   .wheel-result { font-size: 13px; font-weight: 700; min-height: 20px; color: #3fbf7f; margin-top: 8px; }
 
-  /* ---------- NEWS ---------- */
-  .news-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 16px; padding: 18px; margin-bottom: 16px; }
-  .news-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    color: #00e5ff; margin-bottom: 12px; }
-  .news-item { padding: 12px; background: rgba(0,0,0,.25); border-radius: 10px; margin-bottom: 8px;
-    border-left: 3px solid #00e5ff; }
-  .news-item .nt { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-  .news-item .nb { font-size: 12px; color: #a0aec0; line-height: 1.5; }
-  .news-item .nd { font-size: 10px; color: #6d819a; margin-top: 6px; }
-  .news-empty { font-size: 12px; color: #6d819a; text-align: center; padding: 10px; font-style: italic; }
+  /* QR */
+  .qr-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px; padding: 18px; margin-bottom: 16px; text-align: center; }
+  .qr-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 10px; }
+  .qr-box { display: inline-block; background: #fff; padding: 10px; border-radius: 12px; }
+  #qrCanvas { display: block; }
 
-  /* ---------- HISTORY ---------- */
+  /* HISTORY */
   .hist-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
     border-radius: 16px; padding: 18px; margin-bottom: 16px; }
   .hist-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
@@ -142,18 +136,9 @@
   .hist-item .hr { font-weight: 700; }
   .hist-item .hr.pos { color: #3fbf7f; }
   .hist-item .hr.neg { color: #ff8a8a; }
-  .hist-item .hstat { font-size: 10px; color: #6d819a; margin-left: 6px; }
   .hist-empty { font-size: 12px; color: #6d819a; text-align: center; padding: 10px; font-style: italic; }
 
-  /* ---------- QR ---------- */
-  .qr-card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 16px; padding: 18px; margin-bottom: 16px; text-align: center; }
-  .qr-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    color: #00e5ff; margin-bottom: 10px; }
-  .qr-box { display: inline-block; background: #fff; padding: 10px; border-radius: 12px; }
-  #qrCanvas { display: block; }
-
-  /* ---------- MODAL THANKS ---------- */
+  /* MODAL */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
@@ -203,7 +188,9 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 (Guest) v2.0
+   KINGWIN — Profile 2 (Guest) — рабочий локальный билд
+   Daily reward и колесо работают через localStorage.
+   Если появятся серверные API — код сам переключится.
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -214,36 +201,35 @@ const RANKS_INFO = {
   VIP:      { next: null, label: null,       gift: 3000 }
 };
 
-/* Награды за 7-дневный streak (можно переопределить с бэка, если придёт daily_config) */
-let DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
+const DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
 
-/* Призы колеса — дефолт; бэк может прислать /api/guest/wheel-config */
-let WHEEL_PRIZES = [
-  { label: '50 ₽',   value: 50,   type: 'bonus',  weight: 25, color: '#00e5ff' },
-  { label: '100 ₽',  value: 100,  type: 'bonus',  weight: 20, color: '#3fbf7f' },
-  { label: '10 баллов', value: 10, type: 'points', weight: 20, color: '#d4af37' },
-  { label: '25 баллов', value: 25, type: 'points', weight: 15, color: '#ff8a8a' },
-  { label: '200 ₽',  value: 200,  type: 'bonus',  weight: 8,  color: '#b9f2ff' },
-  { label: '500 ₽',  value: 500,  type: 'bonus',  weight: 3,  color: '#ffe066' },
-  { label: 'Пусто',  value: 0,    type: 'none',   weight: 9,  color: '#6d819a' }
+const WHEEL_PRIZES = [
+  { label: '50 ₽',      value: 50,  type: 'bonus',  weight: 25, color: '#00e5ff' },
+  { label: '100 ₽',     value: 100, type: 'bonus',  weight: 20, color: '#3fbf7f' },
+  { label: '10 баллов', value: 10,  type: 'points', weight: 20, color: '#d4af37' },
+  { label: '25 баллов', value: 25,  type: 'points', weight: 15, color: '#ff8a8a' },
+  { label: '200 ₽',     value: 200, type: 'bonus',  weight: 8,  color: '#b9f2ff' },
+  { label: '500 ₽',     value: 500, type: 'bonus',  weight: 3,  color: '#ffe066' },
+  { label: 'Пусто',     value: 0,   type: 'none',   weight: 9,  color: '#6d819a' }
 ];
 
 let session = null;
 let refreshTimer = null;
 let pendingDeposits = [];
-
-let dailyState = null;      // { streak, claimed_today, history: [bool x7], rewards }
-let wheelState = null;      // { can_spin, next_spin_at }
-let newsList = [];
-let historyList = [];
+let dailyState = null;
+let wheelState = null;
 let isSpinning = false;
+let wheelRotation = 0;
 
-/* ---------------- utils ---------------- */
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 
-/* ---------------- login ---------------- */
+function lsKey(suffix){ return 'kw_' + suffix + '_' + (session ? session.id : 'anon'); }
+function lsGet(k, def){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e){ return def; } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+/* ---------------- LOGIN ---------------- */
 function renderLogin(prefillId){
   document.getElementById('content').innerHTML = `
     <div class="card">
@@ -281,21 +267,29 @@ async function doLogin(){
   } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
 }
 
-/* ---------------- load profile ---------------- */
+/* ---------------- LOAD ---------------- */
 async function loadMe(){
   if(!session) return;
   try {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(session.id));
-    const data = await r.json();
-    if(!r.ok) return;
-    session = data.guest;
-    if (data.unseen_deposits && data.unseen_deposits.length > 0) {
-      pendingDeposits = data.unseen_deposits;
-      showThanksModal(pendingDeposits[0]);
+    if(r.ok){
+      const data = await r.json();
+      session = data.guest;
+      if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+        pendingDeposits = data.unseen_deposits;
+        showThanksModal(pendingDeposits[0]);
+      }
     }
-    await Promise.all([loadDaily(), loadWheel(), loadNews(), loadHistory()]);
-    renderProfile();
-  } catch(e){ /* тихо */ }
+  } catch(e){}
+
+  // daily — сервер или локально
+  await loadDaily();
+  // wheel — сервер или локально
+  await loadWheel();
+  // history — сервер или локально
+  await loadHistory();
+
+  renderProfile();
 }
 
 function startAutoRefresh(){
@@ -303,103 +297,149 @@ function startAutoRefresh(){
   refreshTimer = setInterval(loadMe, 5000);
 }
 
-/* ---------------- daily reward ---------------- */
+/* ---------------- DAILY ---------------- */
 async function loadDaily(){
+  // пробуем сервер
   try {
     const r = await fetch('/api/guest/daily?id=' + encodeURIComponent(session.id));
-    if(!r.ok) return;
-    const data = await r.json();
-    dailyState = {
-      streak: data.streak || 0,
-      claimed_today: !!data.claimed_today,
-      history: Array.isArray(data.history) ? data.history : [],
-      rewards: Array.isArray(data.rewards) ? data.rewards : DAILY_REWARDS
-    };
-    if(dailyState.rewards.length) DAILY_REWARDS = dailyState.rewards;
-  } catch(e){ dailyState = null; }
+    if(r.ok){
+      const data = await r.json();
+      dailyState = {
+        streak: data.streak || 0,
+        claimed_today: !!data.claimed_today,
+        rewards: Array.isArray(data.rewards) && data.rewards.length === 7 ? data.rewards : DAILY_REWARDS,
+        source: 'server'
+      };
+      return;
+    }
+  } catch(e){}
+
+  // локально
+  const key = lsKey('daily');
+  let demo = lsGet(key, { streak: 0, last_claim: null });
+  const todayS = todayStr();
+  if(demo.last_claim){
+    const diff = (new Date(todayS) - new Date(demo.last_claim)) / 86400000;
+    if(diff > 1){ demo.streak = 0; lsSet(key, demo); }
+  }
+  dailyState = {
+    streak: demo.streak || 0,
+    claimed_today: demo.last_claim === todayS,
+    rewards: DAILY_REWARDS,
+    source: 'local'
+  };
 }
 
 async function claimDaily(){
   if(!session || !dailyState || dailyState.claimed_today) return;
   const box = document.getElementById('dailyMsg');
   if(box) box.innerHTML = '';
+
+  // пробуем сервер
   try {
     const r = await fetch('/api/guest/daily-claim', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id })
     });
-    const data = await r.json();
-    if(!r.ok){
-      if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
+    if(r.ok){
+      const data = await r.json();
+      await loadMe();
+      if(box && data.reward) box.innerHTML = `<div class="ok">+${fmt(data.reward)} ₽ зачислено! Streak: ${data.streak} 🔥</div>`;
       return;
     }
-    await loadMe();
-    if(data.reward){
-      if(box) box.innerHTML = `<div class="ok">+${fmt(data.reward)} ₽ зачислено! Streak: ${data.streak} 🔥</div>`;
-    }
-  } catch(e){
-    if(box) box.innerHTML = `<div class="err">Ошибка соединения</div>`;
+  } catch(e){}
+
+  // локально
+  const key = lsKey('daily');
+  let demo = lsGet(key, { streak: 0, last_claim: null });
+  const todayS = todayStr();
+  if(demo.last_claim === todayS) return;
+
+  let streak = demo.streak || 0;
+  if(demo.last_claim){
+    const diff = (new Date(todayS) - new Date(demo.last_claim)) / 86400000;
+    streak = diff === 1 ? streak + 1 : 1;
+  } else {
+    streak = 1;
   }
+  if(streak > 7) streak = 1;
+
+  const reward = DAILY_REWARDS[streak - 1] || 0;
+  demo.streak = streak;
+  demo.last_claim = todayS;
+  lsSet(key, demo);
+
+  session.bonus_balance = (parseFloat(session.bonus_balance) || 0) + reward;
+
+  // пишем в локальную историю
+  addLocalHistory({ date: new Date().toLocaleString('ru-RU'), label: `Daily бонус (день ${streak})`, sum: reward, status: 'зачислено' });
+
+  dailyState.streak = streak;
+  dailyState.claimed_today = true;
+  renderProfile();
+  const box2 = document.getElementById('dailyMsg');
+  if(box2) box2.innerHTML = `<div class="ok">+${fmt(reward)} ₽ зачислено! Streak: ${streak} 🔥</div>`;
 }
 
 function renderDailyHtml(){
   if(!dailyState){
     return `<div class="daily-card">
-      <div class="daily-title">Ежедневный бонус</div>
+      <div class="daily-title">🔥 Ежедневный бонус</div>
       <div class="daily-sub">Заходи каждый день — серия растёт, награды тоже.</div>
-      <div class="err" style="margin:0">Не удалось загрузить. Попробуйте позже.</div>
+      <div class="err" style="margin:0">Загрузка…</div>
     </div>`;
   }
-  const cur = dailyState.streak; // сколько уже забирал подряд
+  const cur = dailyState.streak;
   const claimed = dailyState.claimed_today;
   const todayIdx = claimed ? Math.max(0, Math.min(6, cur - 1)) : Math.min(6, cur);
+  const rewards = dailyState.rewards;
 
   let daysHtml = '';
   for(let i=0; i<7; i++){
     let cls = 'daily-day';
-    let state = 'future';
-    if(i < cur) { cls += ' done'; state = 'done'; }
-    else if(i === todayIdx && !claimed) { cls += ' today'; state = 'today'; }
-    else if(i === todayIdx && claimed) { cls += ' claimed'; state = 'claimed'; }
-    daysHtml += `<div class="${cls}" title="День ${i+1}">
+    if(i < cur) cls += ' done';
+    else if(i === todayIdx) cls += ' today';
+    daysHtml += `<div class="${cls}">
       <div class="num">Д${i+1}</div>
-      <div class="reward">${fmt(DAILY_REWARDS[i] || 0)}</div>
+      <div class="reward">${fmt(rewards[i] || 0)}</div>
     </div>`;
   }
 
-  const btnDisabled = claimed ? 'disabled' : '';
   const btnText = claimed
     ? '✓ Получено сегодня'
-    : `Забрать ${fmt(DAILY_REWARDS[todayIdx] || 0)} ₽`;
+    : `Забрать ${fmt(rewards[todayIdx] || 0)} ₽`;
 
   return `<div class="daily-card">
     <div class="daily-title">
       <span>🔥 Ежедневный бонус</span>
       <span class="streak">Streak: ${cur} дн.</span>
     </div>
-    <div class="daily-sub">Заходи каждый день — серия растёт, награды тоже. Пропуск = сброс серии.</div>
+    <div class="daily-sub">Заходи каждый день — серия растёт. Пропуск = сброс.</div>
     <div class="daily-days">${daysHtml}</div>
     <div id="dailyMsg"></div>
-    <button class="btn ${claimed?'ghost':'green'} daily-claim-btn" ${btnDisabled} onclick="claimDaily()">${btnText}</button>
+    <button class="btn ${claimed?'ghost':'green'}" ${claimed?'disabled':''} onclick="claimDaily()">${btnText}</button>
   </div>`;
 }
 
-/* ---------------- wheel ---------------- */
+/* ---------------- WHEEL ---------------- */
 async function loadWheel(){
+  // пробуем сервер
   try {
-    const [rCfg, rState] = await Promise.all([
-      fetch('/api/guest/wheel-config').then(x=>x.ok?x.json():null).catch(()=>null),
-      fetch('/api/guest/wheel-state?id=' + encodeURIComponent(session.id)).then(x=>x.ok?x.json():null).catch(()=>null)
-    ]);
-    if(rCfg && Array.isArray(rCfg.prizes) && rCfg.prizes.length) {
-      WHEEL_PRIZES = rCfg.prizes;
+    const r = await fetch('/api/guest/wheel-state?id=' + encodeURIComponent(session.id));
+    if(r.ok){
+      const data = await r.json();
+      wheelState = { can_spin: !!data.can_spin, source: 'server' };
+      return;
     }
-    if(rState){
-      wheelState = { can_spin: !!rState.can_spin, next_spin_at: rState.next_spin_at || null };
-    } else {
-      wheelState = { can_spin: true, next_spin_at: null };
-    }
-  } catch(e){ wheelState = { can_spin: true, next_spin_at: null }; }
+  } catch(e){}
+
+  // локально
+  const key = lsKey('wheel');
+  const demo = lsGet(key, { last_spin: null });
+  wheelState = {
+    can_spin: demo.last_spin !== todayStr(),
+    source: 'local'
+  };
 }
 
 function drawWheelStatic(){
@@ -415,7 +455,6 @@ function drawWheelStatic(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,size,size);
   const cx = size/2, cy = size/2, R = size/2 - 4;
-  const n = WHEEL_PRIZES.length;
   const totalW = WHEEL_PRIZES.reduce((a,p)=>a+(p.weight||1),0);
   let startAngle = -Math.PI/2;
   WHEEL_PRIZES.forEach((p) => {
@@ -431,7 +470,6 @@ function drawWheelStatic(){
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // label
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(startAngle + slice/2);
@@ -443,7 +481,6 @@ function drawWheelStatic(){
 
     startAngle = endAngle;
   });
-  // center circle
   ctx.beginPath();
   ctx.arc(cx, cy, 26, 0, Math.PI*2);
   ctx.fillStyle = '#0a0d14';
@@ -455,6 +492,9 @@ function drawWheelStatic(){
   ctx.font = 'bold 11px Montserrat';
   ctx.textAlign = 'center';
   ctx.fillText('SPIN', cx, cy+4);
+
+  // восстановим поворот после перерисовки
+  canvas.style.transform = `rotate(${wheelRotation}rad)`;
 }
 
 function pickWeightedIndex(){
@@ -476,8 +516,10 @@ async function spinWheel(){
   if(btn) btn.disabled = true;
   if(resultBox) resultBox.textContent = '';
 
-  // Сначала спрашиваем бэк, какой приз выпал (если бэк есть)
-  let prize = null;
+  let idx;
+  let serverPrize = null;
+
+  // пробуем сервер
   try {
     const r = await fetch('/api/guest/wheel-spin', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -485,30 +527,22 @@ async function spinWheel(){
     });
     if(r.ok){
       const data = await r.json();
-      if(data && data.prize) prize = data.prize;
+      if(data && data.prize && typeof data.prize.index === 'number'){
+        serverPrize = data.prize;
+        idx = data.prize.index;
+      }
     }
-  } catch(e){ /* fallback ниже */ }
+  } catch(e){}
 
-  // Фолбэк: локально выбираем
-  let idx;
-  if(prize && typeof prize.index === 'number' && prize.index >= 0 && prize.index < WHEEL_PRIZES.length){
-    idx = prize.index;
-  } else {
-    idx = pickWeightedIndex();
-  }
-  if(!prize) prize = WHEEL_PRIZES[idx];
+  if(idx === undefined) idx = pickWeightedIndex();
+  const prize = serverPrize || WHEEL_PRIZES[idx];
 
-  // рассчитываем угол так, чтобы выбранный сектор оказался под стрелкой (сверху)
-  const n = WHEEL_PRIZES.length;
+  // угол
   const totalW = WHEEL_PRIZES.reduce((a,p)=>a+(p.weight||1),0);
-  // угол начала сектора idx
   let startAngle = -Math.PI/2;
-  for(let i=0; i<idx; i++){
-    startAngle += ((WHEEL_PRIZES[i].weight||1)/totalW) * Math.PI*2;
-  }
+  for(let i=0; i<idx; i++) startAngle += ((WHEEL_PRIZES[i].weight||1)/totalW) * Math.PI*2;
   const slice = ((WHEEL_PRIZES[idx].weight||1)/totalW) * Math.PI*2;
   const midAngle = startAngle + slice/2;
-  // нам нужно, чтобы midAngle оказался на -PI/2 (сверху) → поворот на (targetAngle - midAngle)
   const targetAngle = -Math.PI/2;
   const rotationRad = targetAngle - midAngle;
   const extraTurns = 4 + Math.floor(Math.random()*3);
@@ -521,6 +555,21 @@ async function spinWheel(){
   setTimeout(() => {
     isSpinning = false;
     if(btn) btn.disabled = false;
+
+    // применяем локально, если сервер не ответил
+    if(!serverPrize){
+      if(prize.type === 'bonus'){
+        session.bonus_balance = (parseFloat(session.bonus_balance) || 0) + prize.value;
+        addLocalHistory({ date: new Date().toLocaleString('ru-RU'), label: `Колесо: ${prize.label}`, sum: prize.value, status: 'зачислено' });
+      } else if(prize.type === 'points'){
+        session.points = (parseInt(session.points) || 0) + prize.value;
+        addLocalHistory({ date: new Date().toLocaleString('ru-RU'), label: `Колесо: ${prize.label}`, sum: 0, status: 'баллы +' + prize.value });
+      }
+      // отмечаем спин
+      lsSet(lsKey('wheel'), { last_spin: todayStr() });
+      wheelState.can_spin = false;
+    }
+
     if(resultBox){
       if(prize.type === 'none'){
         resultBox.innerHTML = `Пусто 😔 Попробуйте завтра!`;
@@ -530,8 +579,7 @@ async function spinWheel(){
         resultBox.style.color = '#3fbf7f';
       }
     }
-    // Обновим профиль (баланс мог измениться)
-    loadMe();
+    renderProfile();
   }, 4200);
 }
 
@@ -557,49 +605,39 @@ function renderWheelHtml(){
   </div>`;
 }
 
-/* ---------------- news ---------------- */
-async function loadNews(){
-  try {
-    const r = await fetch('/api/news');
-    if(!r.ok){ newsList = []; return; }
-    const data = await r.json();
-    newsList = Array.isArray(data) ? data : [];
-  } catch(e){ newsList = []; }
-}
-function renderNewsHtml(){
-  if(!newsList || !newsList.length) return '';
-  return `<div class="news-card">
-    <div class="news-title">📰 Новости и акции</div>
-    ${newsList.slice(0,5).map(n=>`
-      <div class="news-item">
-        <div class="nt">${esc(n.title||'')}</div>
-        <div class="nb">${esc(n.body||'')}</div>
-        ${n.date ? `<div class="nd">${esc(n.date)}</div>` : ''}
-      </div>
-    `).join('')}
-  </div>`;
+/* ---------------- HISTORY ---------------- */
+function addLocalHistory(entry){
+  const key = lsKey('hist');
+  const list = lsGet(key, []);
+  list.unshift(entry);
+  if(list.length > 30) list.length = 30;
+  lsSet(key, list);
 }
 
-/* ---------------- history ---------------- */
 async function loadHistory(){
   try {
     const r = await fetch('/api/guest/history?id=' + encodeURIComponent(session.id));
-    if(!r.ok){ historyList = []; return; }
-    const data = await r.json();
-    historyList = Array.isArray(data) ? data : [];
-  } catch(e){ historyList = []; }
+    if(r.ok){
+      const data = await r.json();
+      if(Array.isArray(data)){ window._serverHistory = data; return; }
+    }
+  } catch(e){}
+  window._serverHistory = null;
 }
+
 function renderHistoryHtml(){
-  if(!historyList || !historyList.length) return '';
+  let list = window._serverHistory;
+  if(!list) list = lsGet(lsKey('hist'), []);
+  if(!list || !list.length) return '';
   return `<div class="hist-card">
     <div class="hist-title">📋 История операций</div>
-    ${historyList.slice(0,8).map(h=>{
+    ${list.slice(0,8).map(h=>{
       const sum = parseFloat(h.sum) || 0;
       const isPos = sum >= 0;
       const label = h.label || h.type || 'операция';
       return `<div class="hist-item">
-        <div class="hl">${esc(h.date||'')} · ${esc(label)}<span class="hstat">${esc(h.status||'')}</span></div>
-        <div class="hr ${isPos?'pos':'neg'}">${isPos?'+':''}${fmt(sum)} ₽</div>
+        <div class="hl">${esc(h.date||'')} · ${esc(label)}</div>
+        <div class="hr ${isPos?'pos':'neg'}">${sum ? (isPos?'+':'')+fmt(sum)+' ₽' : esc(h.status||'')}</div>
       </div>`;
     }).join('')}
   </div>`;
@@ -607,7 +645,6 @@ function renderHistoryHtml(){
 
 /* ---------------- QR ---------------- */
 function renderQrHtml(){
-  const url = location.origin + location.pathname + '?id=' + encodeURIComponent(session.id);
   return `<div class="qr-card">
     <div class="qr-title">📱 Карта для входа</div>
     <div class="qr-box"><canvas id="qrCanvas" width="160" height="160"></canvas></div>
@@ -638,11 +675,12 @@ function drawQrFallback(canvas, text){
   ctx.fillText(String(text), 80, 95);
 }
 
-/* ---------------- profile render ---------------- */
+/* ---------------- PROFILE ---------------- */
 function renderProfile(){
   const g = session;
   const info = RANKS_INFO[g.rank] || RANKS_INFO.Bronze;
-  const progress = info.next ? Math.min(100, Math.round((g.points / info.next) * 100)) : 100;
+  const points = parseInt(g.points) || 0;
+  const progress = info.next ? Math.min(100, Math.round((points / info.next) * 100)) : 100;
   const bonusBalance = parseFloat(g.bonus_balance) || 0;
   const wageringRequired = parseFloat(g.wagering_required) || 0;
   const wageringDone = parseFloat(g.wagering_done) || 0;
@@ -686,19 +724,19 @@ function renderProfile(){
       </div>
 
       <div class="stats">
-        <div class="stat"><div class="lbl">Баллы</div><div class="val">${g.points || 0}</div></div>
+        <div class="stat"><div class="lbl">Баллы</div><div class="val">${points}</div></div>
         <div class="stat"><div class="lbl">Визиты</div><div class="val">${g.visits || 0}</div></div>
       </div>
 
       <div class="stats">
         <div class="stat"><div class="lbl">Бонусные рубли</div><div class="val green">${fmt(bonusBalance)} ₽</div></div>
-        <div class="stat"><div class="lbl">До ранга ${info.label || '—'}</div><div class="val">${info.next ? `${g.points} / ${info.next}` : 'MAX'}</div></div>
+        <div class="stat"><div class="lbl">До ранга ${info.label || '—'}</div><div class="val">${info.next ? `${points} / ${info.next}` : 'MAX'}</div></div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-lbl">
           <span>Прогресс ранга</span>
-          <span>${info.next ? `${g.points} / ${info.next}` : 'Максимальный ранг'}</span>
+          <span>${info.next ? `${points} / ${info.next}` : 'Максимальный ранг'}</span>
         </div>
         <div class="progress"><div style="width:${progress}%"></div></div>
       </div>
@@ -713,7 +751,6 @@ function renderProfile(){
 
     ${renderWheelHtml()}
     ${renderQrHtml()}
-    ${renderNewsHtml()}
     ${renderHistoryHtml()}
   `;
 
@@ -721,7 +758,7 @@ function renderProfile(){
   drawQr();
 }
 
-/* ---------------- withdraw ---------------- */
+/* ---------------- WITHDRAW ---------------- */
 async function withdrawBonus(){
   if(!session) return;
   const g = session;
@@ -743,7 +780,7 @@ async function withdrawBonus(){
   }
 }
 
-/* ---------------- deposit thanks ---------------- */
+/* ---------------- DEPOSIT MODAL ---------------- */
 function showThanksModal(dep) {
   if (!dep) return;
   document.getElementById('thanksAmount').textContent = '+' + fmt(dep.sum) + ' ₽';
@@ -753,31 +790,28 @@ async function closeThanksModal() {
   document.getElementById('thanksModal').classList.remove('show');
   if (pendingDeposits.length > 0) {
     const dep = pendingDeposits.shift();
-    try {
-      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
-    } catch(e) {}
-    if (pendingDeposits.length > 0) {
-      setTimeout(() => showThanksModal(pendingDeposits[0]), 500);
-    }
+    try { await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' }); } catch(e) {}
+    if (pendingDeposits.length > 0) setTimeout(() => showThanksModal(pendingDeposits[0]), 500);
   }
 }
 
-/* ---------------- logout ---------------- */
+/* ---------------- LOGOUT ---------------- */
 function doLogout(){
   if(refreshTimer) clearInterval(refreshTimer);
   session = null;
+  window._serverHistory = null;
   localStorage.removeItem('kingwin_guest_id');
   renderLogin('');
 }
 
-/* ---------------- init ---------------- */
+/* ---------------- INIT ---------------- */
 (function init(){
   const params = new URLSearchParams(location.search);
   const cardId = params.get('id');
   const saved = localStorage.getItem('kingwin_guest_id');
-  if(cardId){ renderLogin(cardId); }
-  else if(saved){ renderLogin(saved); }
-  else { renderLogin(''); }
+  if(cardId) renderLogin(cardId);
+  else if(saved) renderLogin(saved);
+  else renderLogin('');
 })();
 </script>
 </body>
