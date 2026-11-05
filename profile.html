@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KINGWIN — Профиль</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-body: #0b0e14;
+    --bg-panel: #131620;
+    --bg-dark: #0f111a;
+    --bg-item: #1a1e2b;
+    --border: rgba(255,255,255,0.05);
+    --accent: #00e5ff;
+    --accent-green: #00ff88;
+    --text-main: #ffffff;
+    --text-muted: #8b92a5;
+    --red: #ff4d4d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+  
+  /* ШАПКА */
+  .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
+  .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; }
+  
+  /* СЕТКА */
+  .layout { display: flex; max-width: 1400px; margin: 20px auto; width: 100%; padding: 0 20px; gap: 20px; align-items: flex-start; }
+  
+  /* ЛЕВАЯ ПАНЕЛЬ */
+  .sidebar { width: 320px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+  .panel { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
+  
+  /* ПРОФИЛЬ */
+  .user-head { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+  .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #2a2d3e, #1a1e2b); display: flex; justify-content: center; align-items: center; font-size: 30px; border: 2px solid var(--border); }
+  .user-info .name { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+  .user-info .id { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  
+  /* БАЛАНСЫ */
+  .bal-block { margin-bottom: 15px; }
+  .bal-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+  .bal-row { display: flex; justify-content: space-between; align-items: center; }
+  .bal-amount { font-size: 20px; font-weight: 900; }
+  .bal-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-dep { flex: 1; background: var(--accent); color: #000; font-weight: 900; border: none; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-wd { flex: 1; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-weight: 800; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-dep:hover { box-shadow: 0 0 15px rgba(0,229,255,0.4); }
+  .btn-wd:hover { border-color: var(--accent); }
+  
+  /* ДОСТИЖЕНИЕ */
+  .achievement { background: var(--bg-dark); border-radius: 10px; padding: 15px; display: flex; gap: 12px; align-items: center; border: 1px solid var(--border); }
+  .ach-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2a2d3e, #1a1e2b); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+  .ach-info { flex: 1; }
+  .ach-title { font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+  .ach-sub { font-size: 10px; color: var(--text-muted); }
+  
+  /* СТАТИСТИКА */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-top: 15px; }
+  .stat-item .val { font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+  .stat-item .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+  
+  /* ПРОГРЕСС РАНГА */
+  .rank-progress { background: var(--bg-dark); border-radius: 10px; padding: 15px; border: 1px solid var(--border); margin-top: 15px; }
+  .rank-head { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+  .rank-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+  .rank-bar > div { height: 100%; background: var(--accent-green); width: 20%; border-radius: 3px; }
+
+  /* ПРАВАЯ ПАНЕЛЬ (ИСТОРИЯ) */
+  .main-content { flex: 1; background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  
+  .tabs-header { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-header::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 18px 20px; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+  .tab-btn.active { color: #fff; border-bottom: 2px solid var(--accent); }
+  .tab-btn:hover:not(.active) { color: #fff; }
+  
+  .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .history-table th { text-align: left; padding: 15px 20px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .history-table td { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .history-table tr:hover td { background: rgba(255,255,255,0.02); }
+  
+  .type-cell { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #fff; }
+  .type-icon { color: var(--accent); font-size: 16px; }
+  
+  .sum-cell { font-weight: 900; }
+  .sum-plus { color: var(--accent-green); }
+  .sum-minus { color: var(--red); }
+  .date-cell { color: var(--text-muted); }
+
+  .show-more { text-align: center; padding: 20px; border-top: 1px solid var(--border); }
+  .show-more button { background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 10px 30px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+  .show-more button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* МОДАЛКИ */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; }
+  .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+  .modal-box h2 { font-size: 20px; margin-bottom: 15px; }
+  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 20px; text-align: center; margin-bottom: 15px; outline: none; }
+  .modal-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+  .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .modal-btn.green { background: var(--accent-green); color: #000; }
+  
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateX(120%); transition: 0.3s; font-size: 14px; font-weight: 600; color:#fff; }
+  .toast.show { transform: translateX(0); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.success { border-left-color: var(--accent-green); }
+
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; padding: 10px; gap: 10px; }
+    .sidebar { width: 100%; }
+    .history-table th, .history-table td { padding: 12px 10px; font-size: 12px; }
+    .type-cell { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="topbar">
+  <a href="/" class="logo">KINGWIN</a>
+  <a href="/" class="back-btn">← На главную</a>
+</div>
+
+<div class="layout">
+  <!-- ЛЕВАЯ ПАНЕЛЬ -->
+  <div class="sidebar">
+    
+    <!-- ПРОФИЛЬ -->
+    <div class="panel">
+      <div class="user-head">
+        <div class="avatar">👤</div>
+        <div class="user-info">
+          <div class="name" id="uiName">Игрок</div>
+          <div class="id">ID: <span id="uiId">—</span></div>
+        </div>
+      </div>
+      
+      <div class="bal-block">
+        <div class="bal-title">Реальный баланс</div>
+        <div class="bal-row">
+          <div class="bal-amount"><span id="uiRealBalance">0.00</span> ₽</div>
+        </div>
+      </div>
+      <div class="bal-actions">
+        <button class="btn-dep" onclick="window.location.href='/'">Пополнить</button>
+        <button class="btn-wd" onclick="openModal('withdrawModal')">Вывести</button>
+      </div>
+
+      <div class="bal-block" style="margin-top: 20px;">
+        <div class="bal-title">Бонусный баланс</div>
+        <div class="bal-row">
+          <div class="bal-amount" style="color: var(--accent);"><span id="uiBonusBalance">0.00</span> ₽</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ДОСТИЖЕНИЕ -->
+    <div class="panel">
+      <div class="achievement">
+        <div class="ach-icon">🛡️</div>
+        <div class="ach-info">
+          <div class="ach-title">Настоящий ОПД</div>
+          <div class="ach-sub">Есть у 5% пользователей</div>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="val">73</div>
+          <div class="lbl">Игр</div>
+        </div>
+        <div class="stat-item">
+          <div class="val">147</div>
+          <div class="lbl">Выиграно</div>
+        </div>
+        <div class="stat-item">
+          <div class="val">0</div>
+          <div class="lbl">Рефералы</div>
+        </div>
+      </div>
+
+      <div class="rank-progress">
+        <div class="rank-head">
+          <span>👑 ЛЮБИТЕЛЬ</span>
+          <span id="uiRankPoints">0 / 1500</span>
+        </div>
+        <div class="rank-bar">
+          <div id="uiRankBar" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
+  <div class="main-content">
+    <div class="tabs-header">
+      <button class="tab-btn">Настройки</button>
+      <button class="tab-btn">Игры</button>
+      <button class="tab-btn active">Операции</button>
+      <button class="tab-btn">Бонусы</button>
+      <button class="tab-btn">Платежи</button>
+      <button class="tab-btn">Выводы</button>
+    </div>
+    
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Тип</th>
+          <th>Описание</th>
+          <th>Сумма</th>
+          <th>Дата</th>
+        </tr>
+      </thead>
+      <tbody id="uiHistoryTable">
+        <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">Загрузка...</td></tr>
+      </tbody>
+    </table>
+    <div class="show-more">
+      <button>Показать еще</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА ВЫВОДА (ПЕРЕВОД НА КАЗИНО) -->
+<div class="modal-overlay" id="withdrawModal">
+  <div class="modal-box" style="border-color: var(--accent);">
+    <button class="modal-close" onclick="closeModal('withdrawModal')">✕</button>
+    <h2>Перевод на баланс казино</h2>
+    <input type="number" id="withdrawAmount" placeholder="0" value="">
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Доступно: <span id="uiMaxWithdraw">0.00</span> ₽</div>
+    <button class="modal-btn confirm" onclick="doWithdraw()">Подтвердить</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ПЕРЕВОДА -->
+<div class="modal-overlay" id="confirmTransferModal">
+  <div class="modal-box" style="border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14);">
+    <h2 style="color: var(--accent-green);">Перевод на казино</h2>
+    <p style="font-size: 15px; margin-bottom: 20px;">Вы уверены, что хотите перевести <b id="transferConfirmAmount" style="color: #fff;">0.00</b> ₽ на баланс онлайн-казино?</p>
+    <div style="display: flex; gap: 10px;">
+      <button class="modal-btn cancel" onclick="closeModal('confirmTransferModal')">Отмена</button>
+      <button class="modal-btn green" onclick="executeWithdraw()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА УСПЕХА -->
+<div class="modal-overlay" id="transferSuccessModal">
+  <div class="modal-box" style="border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14);">
+    <h2 style="color: var(--accent-green);">Успешно!</h2>
+    <p style="font-size: 15px; margin-bottom: 20px;">Вы перевели <b id="transferSuccessAmount" style="color: #fff;">0.00</b> ₽ на баланс онлайн-казино.</p>
+    <button class="modal-btn green" onclick="closeModal('transferSuccessModal')">Отлично</button>
+  </div>
+</div>
+
+<script>
+let currentPlayer = null;
+let pendingWithdrawAmount = 0;
+
+function showToast(text, type='success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = text;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+async function loadProfile() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id') || localStorage.getItem('kingwin_player_id');
+  
+  if(!id) { window.location.href = '/'; return; }
+
+  try {
+    const res = await fetch(`/api/guest/me?id=${id}`);
+    const data = await res.json();
+    if(data.guest) {
+      currentPlayer = data.guest;
+      document.getElementById('uiName').textContent = currentPlayer.name;
+      document.getElementById('uiId').textContent = currentPlayer.id;
+      
+      const bonus = parseFloat(currentPlayer.bonus_balance || 0);
+      const dep = parseFloat(currentPlayer.deposit_balance || 0);
+      const total = bonus + dep;
+      
+      document.getElementById('uiRealBalance').textContent = dep.toFixed(2);
+      document.getElementById('uiBonusBalance').textContent = bonus.toFixed(2);
+      document.getElementById('uiMaxWithdraw').textContent = total.toFixed(2);
+      
+      // Прогресс ранга
+      const points = parseInt(currentPlayer.points) || 0;
+      document.getElementById('uiRankPoints').textContent = `${points} / 1500`;
+      document.getElementById('uiRankBar').style.width = `${Math.min(100, (points/1500)*100)}%`;
+      
+      loadHistory(id);
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function loadHistory(id) {
+  try {
+    const [wRes, dRes] = await Promise.all([ fetch('/api/withdrawals'), fetch('/api/deposits') ]);
+    const withdrawals = await wRes.json();
+    const deposits = await dRes.json();
+    
+    const myW = withdrawals.filter(w => w.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    const myD = deposits.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    
+    const all = [
+      ...myW.map(w => ({ type: 'Вывод', desc: 'Заявка на вывод средств', sum: w.sum, date: w.date, status: w.status })),
+      ...myD.map(d => ({ type: 'Депозит', desc: 'Пополнение баланса', sum: d.sum, date: d.date, status: d.status }))
+    ].sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    const tbody = document.getElementById('uiHistoryTable');
+    if(all.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:30px;">История пуста</td></tr>`;
+      return;
+    }
+    
+    tbody.innerHTML = all.map(item => {
+      const isDep = item.type === 'Депозит';
+      const icon = isDep ? '%' : '💳';
+      const sumClass = isDep ? 'sum-plus' : 'sum-minus';
+      const sumPrefix = isDep ? '+' : '-';
+      let statusText = 'В обработке';
+      if(item.status === 'approved') statusText = 'Одобрено';
+      if(item.status === 'rejected') statusText = 'Отклонено';
+      
+      return `
+        <tr>
+          <td>
+            <div class="type-cell">
+              <span class="type-icon">${icon}</span> ${item.type}
+            </div>
+          </td>
+          <td>${item.desc} <br><span style="font-size:10px; color:var(--text-muted);">${statusText}</span></td>
+          <td class="sum-cell ${sumClass}">${sumPrefix}${item.sum} ₽</td>
+          <td class="date-cell">${item.date}</td>
+        </tr>
+      `;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+function doWithdraw() {
+  if(!currentPlayer) return;
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const totalBal = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
+  
+  if(!amount || amount <= 0) { showToast('Введите сумму больше 0', 'error'); return; }
+  if(amount > totalBal) { showToast(`Недостаточно средств. Доступно: ${totalBal.toFixed(2)} ₽`, 'error'); return; }
+
+  pendingWithdrawAmount = amount;
+  closeModal('withdrawModal');
+  document.getElementById('transferConfirmAmount').textContent = amount.toFixed(2);
+  openModal('confirmTransferModal');
+}
+
+async function executeWithdraw() {
+  if(!currentPlayer) return;
+  closeModal('confirmTransferModal');
+
+  try {
+    const res = await fetch('/api/guest/withdraw-to-casino', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id: currentPlayer.id })
+    });
+    const data = await res.json();
+    
+    if(res.ok) {
+      document.getElementById('transferSuccessAmount').textContent = pendingWithdrawAmount.toFixed(2);
+      openModal('transferSuccessModal');
+      loadProfile(); 
+    } else {
+      showToast(data.error || 'Ошибка вывода', 'error');
+    }
+  } catch(e) { showToast('Ошибка соединения', 'error'); }
+}
+
+window.onload = loadProfile;
+</script>
+</body>
+</html>
