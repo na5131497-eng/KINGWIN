@@ -80,7 +80,6 @@ async function getActualJackpot() {
 }
 
 /* ---------- КЕЙСЫ (БЕЗ ПРОИГРЫШЕЙ) ---------- */
-// RTP ~95%. Призы всегда > 0.
 const CASES = {
   'Новичок':  { price: 39.99,  minRank: 0, prizes: [
     { v: 5,    w: 2500 }, { v: 10,   w: 3000 }, { v: 15,   w: 2000 },
@@ -149,7 +148,6 @@ const DEALER_TASKS = [
 function todayStr(){ return new Date().toISOString().slice(0, 10); }
 
 async function getDealerHandsToday(dealerName){
-  // Считаем "раздачи" как записи в sessions (blackjack) + baccarat за сегодня по имени дилера.
   try {
     const sRes = await pool.query(
       `SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer) = LOWER($1) AND date = $2`,
@@ -474,6 +472,14 @@ async function initDB() {
         claimed_at TIMESTAMP DEFAULT NOW(),
         UNIQUE(dealer_id, date, task_id)
       );
+      CREATE TABLE IF NOT EXISTS dealer_silence (
+        id SERIAL PRIMARY KEY, dealer_id INTEGER UNIQUE, week_start BIGINT,
+        incident BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS dealer_withdrawals (
+        id SERIAL PRIMARY KEY, dealer_id INTEGER, sum NUMERIC DEFAULT 0,
+        status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
 
     const cols = [
@@ -611,6 +617,69 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
+    /* ================= БОНУС ЗА ТИШИНУ ================= */
+    if (url === '/api/dealer/silence' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const dealerId = parseInt(u.searchParams.get('id'), 10);
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer id' });
+      const dRes = await pool.query('SELECT id, name FROM dealers WHERE id=$1', [dealerId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'dealer not found' });
+      const weekMs = 7 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      const sRes = await pool.query('SELECT * FROM dealer_silence WHERE dealer_id=$1', [dealerId]);
+      let row = sRes.rows[0];
+      if (!row) {
+        const r = await pool.query(
+          `INSERT INTO dealer_silence (dealer_id, week_start, incident) VALUES ($1,$2,FALSE) RETURNING *`,
+          [dealerId, now]
+        );
+        row = r.rows[0];
+      }
+      let weekStart = parseInt(row.week_start) || now;
+      let incident = !!row.incident;
+      if (now - weekStart >= weekMs) {
+        // неделя закончилась — сбрасываем окно
+        const r = await pool.query(
+          `UPDATE dealer_silence SET week_start=$1, incident=FALSE, updated_at=NOW() WHERE dealer_id=$2 RETURNING *`,
+          [now, dealerId]
+        );
+        row = r.rows[0];
+        weekStart = now;
+        incident = false;
+      }
+      const daysPassed = Math.min(7, Math.floor((now - weekStart) / (24 * 60 * 60 * 1000)));
+      const daysLeft = Math.max(0, 7 - daysPassed);
+      const percent = incident ? 7 : 15;
+      return sendJSON(res, 200, {
+        dealer_id: dealerId,
+        week_start: weekStart,
+        days_passed: daysPassed,
+        days_left: daysLeft,
+        incident,
+        percent
+      });
+    }
+
+    if (url === '/api/dealer/silence/incident' && method === 'POST') {
+      const b = await parseBody(req);
+      const dealerId = parseInt(b.dealer_id, 10);
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer id' });
+      const now = Date.now();
+      const sRes = await pool.query('SELECT * FROM dealer_silence WHERE dealer_id=$1', [dealerId]);
+      if (sRes.rows.length === 0) {
+        await pool.query(
+          `INSERT INTO dealer_silence (dealer_id, week_start, incident) VALUES ($1,$2,TRUE)`,
+          [dealerId, now]
+        );
+      } else {
+        await pool.query(
+          `UPDATE dealer_silence SET incident=TRUE, updated_at=NOW() WHERE dealer_id=$1`,
+          [dealerId]
+        );
+      }
+      return sendJSON(res, 200, { ok: true });
+    }
+
     /* ================= ЗАДАНИЯ ДИЛЕРА ================= */
     if (url === '/api/dealer/tasks' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
@@ -623,7 +692,6 @@ const server = http.createServer(async (req, res) => {
 
       const hands = await getDealerHandsToday(dealer.name);
 
-      // обновляем/создаём запись daily
       await pool.query(`
         INSERT INTO dealer_daily (dealer_id, date, hands) VALUES ($1,$2,$3)
         ON CONFLICT (dealer_id, date) DO UPDATE SET hands = $3
@@ -669,7 +737,6 @@ const server = http.createServer(async (req, res) => {
       const hands = await getDealerHandsToday(dealer.name);
       if (hands < task.goal) return sendJSON(res, 400, { error: 'Условие ещё не выполнено' });
 
-      // проверяем, не забрано ли
       const already = await pool.query(
         `SELECT id FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND task_id=$3 AND claimed=TRUE`,
         [dealerId, day, taskId]
@@ -721,7 +788,6 @@ const server = http.createServer(async (req, res) => {
           [dealerId, sum]
         );
       } catch(e) {
-        // если таблицы нет — создаём на лету
         await pool.query(`
           CREATE TABLE IF NOT EXISTS dealer_withdrawals (
             id SERIAL PRIMARY KEY, dealer_id INTEGER, sum NUMERIC DEFAULT 0,
@@ -1060,7 +1126,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
 
-    /* РАУНД С ПАНЕЛИ ДИЛЕРА (Блэкджек/Баккара + джекпот) */
+    /* РАУНД С ПАНЕЛИ ДИЛЕРА */
     if (url === '/api/sessions/round' && method === 'POST') {
       const b = await parseBody(req);
       const dealer = b.dealer || '';
@@ -1098,7 +1164,6 @@ const server = http.createServer(async (req, res) => {
         await accruePointsByNick(nick, bet, 'baccarat');
       }
 
-      // Обновляем счётчик раздач дилера за день
       try {
         const hands = await getDealerHandsToday(dealer);
         const dId = await pool.query(`SELECT id FROM dealers WHERE name=$1 LIMIT 1`, [dealer]);
@@ -1110,7 +1175,6 @@ const server = http.createServer(async (req, res) => {
         }
       } catch(e) {}
 
-      // Логика джекпота
       let currentJP = await getActualJackpot();
       if (jackpotHit) {
         currentJP = 0;
@@ -1121,7 +1185,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
 
-      // Учёт в online
       try {
         const net = bet - win;
         const type = net >= 0 ? 'доход' : 'расход';
