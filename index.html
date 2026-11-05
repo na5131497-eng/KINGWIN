@@ -7,13 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #090a10;
-    --bg-sidebar: #11121a;
-    --bg-panel: #181a24;
-    --accent: #00e5ff;
-    --accent-green: #00ff88;
-    --text-main: #ffffff;
-    --text-muted: #8b92a5;
+    --bg-main: #090a10; --bg-sidebar: #11121a; --bg-panel: #181a24;
+    --accent: #00e5ff; --accent-green: #00ff88;
+    --text-main: #ffffff; --text-muted: #8b92a5;
     --border: rgba(255,255,255,0.06);
   }
 
@@ -28,7 +24,6 @@
   .logo-mark::after { content: 'K'; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
   .logo span { background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  /* ИГРЫ В САЙДБАРЕ */
   .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-bottom: 25px; }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; text-decoration: none; }
   .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
@@ -61,7 +56,6 @@
   .bonus-tag .tag-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
   .bonus-tag .tag-amount { font-size: 22px; font-weight: 900; color: var(--accent-green); margin-top: 6px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
   
-  /* КНОПКА "ЗАБРАТЬ" НА БАННЕРЕ */
   .btn-claim-bonus { display: block; width: 100%; margin-top: 12px; background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
   .btn-claim-bonus:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,255,136,0.7); }
 
@@ -96,7 +90,7 @@
   .dep-method.active { background: #222635; color: #f1c40f; border-left: 4px solid #f1c40f; }
   .dep-content { flex: 1; padding: 25px; min-width: 300px; }
   
-  .dep-banner { background: linear-gradient(90deg, #2b0f3b, #1a0b24); border-radius: 8px; padding: 15px; margin-bottom: 25px; font-weight: 800; font-size: 14px; text-align: center; }
+  .dep-banner { background: linear-gradient(90deg, #2b0f3b, #1a0b24); border-radius: 8px; padding: 15px; margin-bottom: 25px; font-weight: 800; font-size: 14px; text-align: center; transition: 0.3s; }
   .dep-banner span { color: #a855f7; }
   
   .dep-amount-title { font-weight: 800; font-size: 16px; margin-bottom: 15px; text-align: center; }
@@ -207,12 +201,11 @@
     <div class="hero">
       <img src="/main_banner.jpg" alt="KINGWIN Bonus">
       
-      <div class="bonus-tag">
+      <div class="bonus-tag" id="bonusTag">
         <div class="tag-lbl">🎁 Bonus</div>
         <div class="tag-title">На первый депозит от 200 ₽</div>
         <div class="tag-amount">+100 ₽ ПОДАРОК</div>
-        <!-- КНОПКА ЗАБРАТЬ -->
-        <button class="btn-claim-bonus" onclick="claimBonus()">Забрать</button>
+        <button class="btn-claim-bonus" id="claimBonusBtn" onclick="claimBonus()">Забрать</button>
       </div>
     </div>
 
@@ -371,25 +364,57 @@ function closeModal(id) { document.getElementById(id).classList.remove('show'); 
 
 function openDeposit() { 
   openModal('depositModal'); 
-  if(currentPlayer && currentPlayer.deposit_balance == 0) {
-    isFirstDeposit = true;
-    document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽';
-  } else {
-    isFirstDeposit = false;
-    document.getElementById('depBanner').innerHTML = 'ПОПОЛНЕНИЕ БАЛАНСА';
-  }
+  checkFirstDeposit();
+}
+
+// ПРОВЕРКА: БЫЛ ЛИ У ИГРОКА ДЕПОЗИТ РАНЬШЕ
+async function checkFirstDeposit() {
+  if(!currentPlayer) return;
+  try {
+    const res = await fetch('/api/deposits');
+    const deps = await res.json();
+    // Ищем любые депозиты этого игрока (и pending, и approved)
+    const myDeps = deps.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    
+    if(myDeps.length === 0) {
+      isFirstDeposit = true;
+      document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> БЕСПЛАТНО НА ПЕРВЫЙ ДЕПОЗИТ ОТ 200 ₽';
+      document.getElementById('depBanner').style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.5)';
+    } else {
+      isFirstDeposit = false;
+      document.getElementById('depBanner').innerHTML = 'ПОПОЛНЕНИЕ БАЛАНСА';
+      document.getElementById('depBanner').style.boxShadow = 'none';
+    }
+  } catch(e) { console.error(e); }
   updateDepDisplay();
 }
 
-// НОВАЯ ФУНКЦИЯ ДЛЯ КНОПКИ "ЗАБРАТЬ" НА БАННЕРЕ
 function claimBonus() {
-  openDeposit(); // Открываем модалку оплаты
-  // Подсвечиваем, что бонус активирован
-  document.getElementById('depBanner').innerHTML = '<span>+100 ₽</span> ВАШ ПОДАРОК АКТИВИРОВАН';
-  setTimeout(() => {
-    const banner = document.getElementById('depBanner');
-    if(banner) banner.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.5)';
-  }, 100);
+  if(!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  openDeposit();
+}
+
+// Проверяем бонус при загрузке страницы, чтобы спрятать кнопку, если он уже использован
+async function checkBonusAvailability() {
+  if(!currentPlayer) return;
+  try {
+    const res = await fetch('/api/deposits');
+    const deps = await res.json();
+    const myDeps = deps.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    
+    if(myDeps.length > 0) {
+      // Если депозит уже был, прячем кнопку "Забрать"
+      const btn = document.getElementById('claimBonusBtn');
+      if(btn) {
+        btn.textContent = 'Бонус использован';
+        btn.disabled = true;
+        btn.style.background = '#333';
+        btn.style.color = '#888';
+        btn.style.boxShadow = 'none';
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+  } catch(e) { console.error(e); }
 }
 
 function goToProfile() { if(currentPlayer) window.location.href = `/profile2.html?id=${currentPlayer.id}`; else openModal('loginModal'); }
@@ -409,6 +434,7 @@ async function doLogin() {
     localStorage.setItem('kingwin_player_id', id);
     closeModal('loginModal');
     updateUI();
+    checkBonusAvailability();
     showToast(`С возвращением, ${currentPlayer.name}!`, 'success');
   } catch(e) { showToast('Ошибка соединения', 'error'); }
 }
@@ -442,6 +468,7 @@ function updateDepDisplay() {
   const val = parseInt(document.getElementById('depAmount').value) || 200;
   document.getElementById('depSumDisplay').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
   
+  // Если это первый депозит и сумма >= 200, показываем бонус
   if (isFirstDeposit && val >= 200) {
     document.getElementById('depSumDisplay2').innerHTML = `${val.toLocaleString('ru-RU')}.00 ₽ <span style="color:#00ff88; font-size:11px; margin-left:5px;">(+100 ₽ БОНУС)</span>`;
   } else {
@@ -473,6 +500,9 @@ async function sendDeposit() {
       document.getElementById('depStep1').style.display = 'block';
       document.getElementById('depStep2').classList.remove('active');
       document.getElementById('waitingModal').classList.add('show');
+      
+      // После отправки заявки бонус больше не доступен
+      checkBonusAvailability();
     } else {
       showToast('Ошибка при создании заявки', 'error');
     }
@@ -488,6 +518,7 @@ window.onload = () => {
         if(data.guest) { 
           currentPlayer = data.guest; 
           updateUI(); 
+          checkBonusAvailability();
         } 
       })
       .catch(() => {});
