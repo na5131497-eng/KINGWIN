@@ -18,9 +18,9 @@
   .avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
   .avatar { width: 50px; height: 50px; border-radius: 50%; background: #1c2b45; display: flex; justify-content: center; align-items: center; font-size: 24px; }
   .player-name { font-size: 16px; font-weight: 800; text-transform: uppercase; }
-  .balances { display: flex; gap: 10px; margin-bottom: 15px; }
-  .bal-box { flex: 1; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; }
-  .bal-label { font-size: 10px; color: #8fa2b8; text-transform: uppercase; margin-bottom: 4px; }
+  .balances { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+  .bal-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .bal-label { font-size: 12px; color: #8fa2b8; text-transform: uppercase; }
   .bal-val { font-size: 16px; font-weight: 800; color: #3fbf7f; }
   
   .action-btns { display: flex; flex-direction: column; gap: 10px; }
@@ -79,8 +79,12 @@
       
       <div class="balances">
         <div class="bal-box">
+          <div class="bal-label">Общий баланс</div>
+          <div class="bal-val"><span id="uiTotalBalance">0.00</span> ₽</div>
+        </div>
+        <div class="bal-box">
           <div class="bal-label">Бонусный баланс</div>
-          <div class="bal-val"><span id="uiBalance">0.00</span> ₽</div>
+          <div class="bal-val" style="color: #00e5ff;"><span id="uiBonusBalance">0.00</span> ₽</div>
         </div>
       </div>
       
@@ -160,8 +164,15 @@ async function loadProfile() {
       currentPlayer = data.guest;
       document.getElementById('uiName').textContent = currentPlayer.name;
       document.getElementById('uiId').textContent = currentPlayer.id;
-      document.getElementById('uiBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
-      document.getElementById('uiMaxWithdraw').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
+      
+      const bonus = parseFloat(currentPlayer.bonus_balance || 0);
+      const dep = parseFloat(currentPlayer.deposit_balance || 0);
+      const total = bonus + dep;
+      
+      document.getElementById('uiTotalBalance').textContent = total.toFixed(2);
+      document.getElementById('uiBonusBalance').textContent = bonus.toFixed(2);
+      document.getElementById('uiMaxWithdraw').textContent = total.toFixed(2);
+      
       loadHistory(id);
     }
   } catch(e) { console.error(e); }
@@ -206,10 +217,10 @@ async function loadHistory(id) {
 async function doWithdraw() {
   if(!currentPlayer) return;
   const amount = parseFloat(document.getElementById('withdrawAmount').value);
-  const maxBal = parseFloat(currentPlayer.bonus_balance || 0);
+  const totalBal = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
   
   if(!amount || amount <= 0) { showToast('Введите сумму больше 0', 'error'); return; }
-  if(amount > maxBal) { showToast(`Недостаточно средств. Доступно: ${maxBal.toFixed(2)} ₽`, 'error'); return; }
+  if(amount > totalBal) { showToast(`Недостаточно средств. Доступно: ${totalBal.toFixed(2)} ₽`, 'error'); return; }
 
   closeModal('withdrawModal');
 
@@ -222,9 +233,7 @@ async function doWithdraw() {
     
     if(res.ok) {
       showToast('Успешный вывод! Ожидайте зачисления.', 'success');
-      currentPlayer.bonus_balance = maxBal - amount;
-      document.getElementById('uiBalance').textContent = currentPlayer.bonus_balance.toFixed(2);
-      loadHistory(currentPlayer.id);
+      loadProfile(); // перезагружаем баланс и историю
     } else {
       showToast(data.error || 'Ошибка вывода', 'error');
     }
