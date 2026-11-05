@@ -17,7 +17,6 @@
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
-  /* ---------- TOPBAR ---------- */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
@@ -28,10 +27,8 @@
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
   .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
 
-  /* ---------- LAYOUT ---------- */
   .crash-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
 
-  /* ---------- SIDEBAR ---------- */
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
   .tabs { display: flex; padding: 12px; gap: 8px; border-bottom: 1px solid var(--border); background: var(--bg-dark); }
   .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 11px; font-weight: 700; padding: 7px 0; cursor: pointer; border-radius: 8px; transition: 0.2s; text-transform: uppercase; }
@@ -57,7 +54,6 @@
   .bet-mult.lose { background: transparent; color: var(--text-muted); }
   .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); font-size: 11px; }
 
-  /* ---------- GAME AREA ---------- */
   .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
 
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; flex-shrink: 0; }
@@ -77,7 +73,6 @@
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.4); }
   .mult-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; font-weight: 700; }
 
-  /* ---------- CONTROLS ---------- */
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; }
   .bet-box { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .bet-options { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -102,133 +97,61 @@
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-  /* ---------- TOASTS ---------- */
   .toast-container { position: fixed; top: 60px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
-  /* ============ TABLET ============ */
   @media (max-width: 1200px) {
     .sidebar-bets { width: 280px; }
     .mult-value { font-size: 64px; }
   }
 
-  /* ============ MOBILE ============ */
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
-
     .topbar { padding: 10px 14px; }
     .topbar-logo { font-size: 16px; letter-spacing: 1px; }
     .home-btn { padding: 6px 10px; font-size: 11px; }
     .balance-badge { padding: 6px 10px; font-size: 12px; }
     .balance-badge .lbl { display: none; }
     .balance-badge .val { font-size: 12px; }
-
-    .crash-layout {
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      gap: 10px;
-      max-width: none;
-      min-height: auto;
-      height: auto;
-      overflow: visible;
-    }
-
-    .game-area {
-      flex: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: auto;
-      order: 1;
-    }
-
-    .history-bar {
-      padding: 8px 12px;
-      border-radius: 14px;
-    }
+    .crash-layout { display: flex; flex-direction: column; padding: 10px; gap: 10px; max-width: none; min-height: auto; height: auto; overflow: visible; }
+    .game-area { flex: none; display: flex; flex-direction: column; gap: 10px; min-height: auto; order: 1; }
+    .history-bar { padding: 8px 12px; border-radius: 14px; }
     .history-title { font-size: 11px; }
     .history-item { padding: 4px 10px; font-size: 11px; }
-
-    .canvas-container {
-      flex: none;
-      width: 100%;
-      height: 42vh;
-      min-height: 220px;
-      max-height: 340px;
-      border-radius: 16px;
-    }
+    .canvas-container { flex: none; width: 100%; height: 42vh; min-height: 220px; max-height: 340px; border-radius: 16px; }
     .mult-value { font-size: 52px; }
     .mult-label { font-size: 11px; letter-spacing: 1px; margin-top: 6px; }
-
-    .control-panel {
-      flex-direction: column;
-      padding: 10px;
-      gap: 10px;
-      border-radius: 16px;
-    }
-    .bet-box {
-      padding: 12px;
-      gap: 10px;
-      border-radius: 14px;
-    }
-
-    .sidebar-bets {
-      width: 100%;
-      height: 260px;
-      min-height: 200px;
-      order: 2;
-      flex-shrink: 0;
-      border-radius: 16px;
-    }
-
-    .toast-container {
-      top: 60px;
-      right: 8px;
-      left: 8px;
-    }
-    .toast {
-      min-width: 0;
-      width: 100%;
-      transform: translateY(-120%);
-    }
+    .control-panel { flex-direction: column; padding: 10px; gap: 10px; border-radius: 16px; }
+    .bet-box { padding: 12px; gap: 10px; border-radius: 14px; }
+    .sidebar-bets { width: 100%; height: 260px; min-height: 200px; order: 2; flex-shrink: 0; border-radius: 16px; }
+    .toast-container { top: 60px; right: 8px; left: 8px; }
+    .toast { min-width: 0; width: 100%; transform: translateY(-120%); }
     .toast.show { transform: translateY(0); }
   }
 
-  /* ============ SMALL MOBILE ============ */
   @media (max-width: 480px) {
     .crash-layout { padding: 8px; gap: 8px; }
-    .canvas-container {
-      height: 38vh;
-      min-height: 200px;
-      max-height: 300px;
-    }
+    .canvas-container { height: 38vh; min-height: 200px; max-height: 300px; }
     .mult-value { font-size: 42px; }
     .mult-label { font-size: 10px; letter-spacing: 0.5px; }
-
     .history-bar { padding: 6px 10px; }
     .history-title { font-size: 10px; }
     .history-item { padding: 3px 8px; font-size: 10px; }
-
     .amount-input-wrap { padding: 3px; }
     .amount-input-wrap button { width: 32px; height: 32px; font-size: 16px; }
     .amount-input-wrap input { font-size: 16px; }
-
     .btn-action { font-size: 13px; padding: 6px 6px; }
     .btn-action .subtext { font-size: 10px; }
-
     .quick-bets { gap: 4px; }
     .quick-bets button { font-size: 10px; padding: 5px 4px; }
-
     .bet-options { flex-wrap: wrap; gap: 6px; }
     .check-label { font-size: 10px; }
     .mult-input { font-size: 10px; }
     .mult-input input { width: 40px; font-size: 11px; }
-
     .sidebar-bets { height: 220px; min-height: 180px; }
     .bets-header { padding: 8px 10px; font-size: 9px; }
     .bet-row { padding: 8px 10px; font-size: 11px; }
@@ -372,6 +295,7 @@ let lastHistorySig = '';
 
 let localCrashed = false;
 let localCrashMult = 1;
+let crashedRoundId = null; // ВАЖНО: в каком раунде был локальный краш
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -398,6 +322,15 @@ function historyColorClass(mult) {
   return 'red';
 }
 
+/* ---------- СБРОС ЛОКАЛЬНОГО КРАША ---------- */
+function resetLocalCrash() {
+  localCrashed = false;
+  localCrashMult = 1;
+  crashedRoundId = null;
+  graphPoints = [];
+  prevMult = 1;
+}
+
 /* ---------- БАЛАНС ---------- */
 async function loadBalance() {
   if (!playerId) {
@@ -422,6 +355,11 @@ document.getElementById('balanceBadge').addEventListener('click', () => {
 
 /* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ---------- */
 function currentLocalMultiplier() {
+  // Если локальный краш от другого раунда — сбрасываем
+  if (localCrashed && crashedRoundId !== round.id) {
+    resetLocalCrash();
+  }
+
   if (round.status === 'waiting') return 1;
   if (round.status === 'crashed' || localCrashed) return localCrashMult;
   if (round.status === 'flying' && round.startTime) {
@@ -431,6 +369,7 @@ function currentLocalMultiplier() {
       if (!localCrashed) {
         localCrashed = true;
         localCrashMult = round.crashPoint;
+        crashedRoundId = round.id;
       }
       return localCrashMult;
     }
@@ -451,11 +390,12 @@ function rebuildGraphFromStart() {
   }
 
   const stepMs = 80;
-  const capMult = localCrashed ? round.crashPoint : Infinity;
+  const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id);
+  const capMult = isCrashed ? round.crashPoint : Infinity;
 
   for (let t = 0; t <= elapsedMs; t += stepMs) {
     let m = Math.pow(1.00006, t);
-    if (m >= round.crashPoint) {
+    if (isCrashed && m >= round.crashPoint) {
       const crashMs = Math.log(round.crashPoint) / Math.log(1.00006);
       graphPoints.push({ x: crashMs / 1000, y: round.crashPoint });
       return;
@@ -484,24 +424,20 @@ async function pollRound() {
 
 function applyServerState(d) {
   const isNewRound = round.id !== null && d.roundId !== round.id;
+  const roundChanged = round.id !== d.roundId;
 
-  if (isNewRound) {
+  // НОВЫЙ РАУНД — жёсткий сброс ВСЕГО
+  if (isNewRound || roundChanged) {
     myBetIds = { 1: null, 2: null };
     myCashed = { 1: false, 2: false };
-    graphPoints = [];
-    localCrashed = false;
-    localCrashMult = 1;
+    resetLocalCrash();
     loadBalance();
   }
 
-  const isFirstLoad = round.id === null;
-  const roundChanged = round.id !== d.roundId;
-
   const prevStatus = round.status;
+  // Смена статуса с crashed на не-crashed — тоже сброс локального краша
   if (prevStatus === 'crashed' && d.status !== 'crashed') {
-    localCrashed = false;
-    localCrashMult = 1;
-    graphPoints = [];
+    resetLocalCrash();
   }
 
   round.id = d.roundId;
@@ -514,11 +450,14 @@ function applyServerState(d) {
   round.hasRealBet = d.hasRealBet || false;
 
   if (d.status === 'crashed') {
-    localCrashed = true;
-    localCrashMult = round.crashPoint;
+    if (!localCrashed) {
+      localCrashed = true;
+      localCrashMult = round.crashPoint;
+      crashedRoundId = round.id;
+    }
   }
 
-  if (roundChanged || isFirstLoad) {
+  if (roundChanged) {
     lastGraphRoundId = d.roundId;
     graphPoints = [];
     if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) {
@@ -535,6 +474,11 @@ function applyServerState(d) {
 let prevMult = 1;
 
 function frame() {
+  // Защита: если локальный краш от другого раунда — сброс
+  if (localCrashed && crashedRoundId !== round.id) {
+    resetLocalCrash();
+  }
+
   const mult = currentLocalMultiplier();
 
   if (Math.abs(mult - prevMult) > 0.001) {
@@ -817,10 +761,9 @@ async function placeBet(id) {
     }
     myBetIds[id] = d.bet.id;
     myCashed[id] = false;
-    if (localCrashed && d.bet.round_id === round.id) {
-      localCrashed = false;
-      localCrashMult = 1;
-      graphPoints = [];
+    // НОВАЯ СТАВКА — всегда сбрасываем локальный краш прошлого раунда
+    if (d.bet.round_id !== crashedRoundId) {
+      resetLocalCrash();
     }
     showToast(`Ставка ${amt} ₽ принята`, 'success');
     loadBalance();
