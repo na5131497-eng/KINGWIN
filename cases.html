@@ -43,12 +43,26 @@
   .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
   
-  .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; cursor: pointer; }
-  .case-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,229,255,0.1); }
-  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); }
-  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
-  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; }
+  /* БЕЛЫЕ КАРТОЧКИ КЕЙСОВ */
+  .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+  .case-card { 
+    background: #ffffff; 
+    border: 2px solid rgba(0,229,255,0.4); 
+    border-radius: 16px; 
+    padding: 20px; 
+    text-align: center; 
+    transition: 0.3s; 
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .case-card:hover { 
+    transform: translateY(-5px); 
+    border-color: var(--accent); 
+    box-shadow: 0 12px 35px rgba(0,229,255,0.2);
+  }
+  .case-image { width: 130px; height: 130px; margin: 0 auto 15px; object-fit: contain; }
+  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; color: #0a0d14; }
+  .case-price { font-size: 14px; color: #b8860b; font-weight: 800; }
 
   /* КОМНАТА КЕЙСА */
   .view-room { display: none; flex-direction: column; align-items: center; }
@@ -104,6 +118,7 @@
     .topbar { padding-left: 65px; height: 60px; }
     .container { padding: 15px; }
     .cases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .case-card { padding: 15px; }
     .case-image { width: 80px; height: 80px; }
     .case-name { font-size: 14px; }
     .case-price { font-size: 12px; }
@@ -185,7 +200,6 @@ let playerId = localStorage.getItem('kingwin_player_id');
 let currentCase = null;
 let allCasesList = [];
 
-// Вспомогательные функции для красивого окна вместо alert
 function showAlert(title, text) {
   document.getElementById('alertTitle').textContent = title;
   document.getElementById('alertText').textContent = text;
@@ -216,13 +230,27 @@ async function loadCases() {
     allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
     if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
-    grid.innerHTML = allCasesList.map((c, i) => `
+    
+    // Сопоставление русских названий с именами файлов
+    const imageMap = {
+      'Новичок': 'case_novice.png',
+      'Бронза': 'case_silver.png', // если у тебя нет бронзы, используем сильвер (поменяй при необходимости)
+      'Сильвер': 'case_silver.png',
+      'Голд': 'case_gold.png',
+      'Платина': 'case_platinum.png',
+      'Алмаз': 'case_platinum.png', // если нет алмаза, используем платину
+      'Королевский': 'case_royal.png'
+    };
+
+    grid.innerHTML = allCasesList.map((c, i) => {
+      const imgName = imageMap[c.name] || 'case_novice.png';
+      return `
       <div class="case-card" onclick="enterRoom(${i})">
-        <img src="/case_${c.name.toLowerCase()}.png" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
+        <img src="/${imgName}" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
         <div class="case-name">${c.name}</div>
         <div class="case-price">${c.price} ₽</div>
       </div>
-    `).join('');
+    `}).join('');
   } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка загрузки кейсов</div>'; }
 }
 
@@ -232,7 +260,11 @@ function enterRoom(index) {
   currentCase = allCasesList[index];
   document.getElementById('viewCatalog').classList.remove('active');
   document.getElementById('viewRoom').classList.add('active');
-  document.getElementById('roomCaseImg').src = `/case_${currentCase.name.toLowerCase()}.png`;
+  
+  const imageMap = { 'Новичок': 'case_novice.png', 'Бронза': 'case_silver.png', 'Сильвер': 'case_silver.png', 'Голд': 'case_gold.png', 'Платина': 'case_platinum.png', 'Алмаз': 'case_platinum.png', 'Королевский': 'case_royal.png' };
+  const imgName = imageMap[currentCase.name] || 'case_novice.png';
+  
+  document.getElementById('roomCaseImg').src = `/${imgName}`;
   document.getElementById('roomCaseImg').onerror = function() { this.src='/cases_card.jpg'; };
   document.getElementById('roomCaseName').textContent = currentCase.name;
   document.getElementById('roomCasePrice').textContent = currentCase.price + ' ₽';
