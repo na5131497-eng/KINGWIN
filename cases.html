@@ -43,8 +43,10 @@
   .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
   .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
   
-  /* БЕЛЫЕ КАРТОЧКИ КЕЙСОВ */
+  /* СЕТКА КЕЙСОВ */
   .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+  
+  /* БЕЛЫЕ КАРТОЧКИ */
   .case-card { 
     background: #ffffff; 
     border: 2px solid rgba(0,229,255,0.4); 
@@ -54,6 +56,8 @@
     transition: 0.3s; 
     cursor: pointer;
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    text-decoration: none;
+    display: block;
   }
   .case-card:hover { 
     transform: translateY(-5px); 
@@ -67,12 +71,13 @@
   /* КОМНАТА КЕЙСА */
   .view-room { display: none; flex-direction: column; align-items: center; }
   .view-room.active { display: flex; }
-  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; text-decoration: none; }
   .room-back:hover { color: #fff; }
-  .room-case-preview { text-align: center; margin-bottom: 30px; }
-  .room-case-preview img { width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); margin-bottom: 10px; }
-  .room-case-preview h2 { font-size: 28px; font-weight: 900; }
-  .room-case-preview p { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 5px; }
+  
+  .room-case-preview { text-align: center; margin-bottom: 30px; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 2px solid var(--accent); }
+  .room-case-preview img { width: 180px; height: 180px; object-fit: contain; margin-bottom: 15px; }
+  .room-case-preview h2 { font-size: 28px; font-weight: 900; color: #000; }
+  .room-case-preview p { color: #00a86b; font-weight: 900; font-size: 18px; margin-top: 5px; }
   
   .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
   .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
@@ -81,9 +86,14 @@
   .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
   .prize-chip.silver { color: #ccc; }
   
-  .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); }
+  .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); width: 100%; max-width: 400px; margin-bottom: 30px; }
   .open-big-btn:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
   .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+  /* ДРУГИЕ КЕЙСЫ */
+  .other-cases { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .other-case-link { background: var(--bg-panel); border: 1px solid var(--border); padding: 10px 15px; border-radius: 10px; color: var(--text-muted); font-size: 13px; font-weight: 700; text-decoration: none; transition: 0.2s; }
+  .other-case-link:hover { border-color: var(--accent); color: var(--accent); }
 
   /* РУЛЕТКА */
   .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
@@ -154,6 +164,7 @@
 </div>
 
 <div class="container">
+  <!-- КАТАЛОГ -->
   <div class="view-catalog active" id="viewCatalog">
     <div class="header-title">Выберите кейс</div>
     <div class="cases-grid" id="casesGrid">
@@ -161,16 +172,24 @@
     </div>
   </div>
 
+  <!-- КОМНАТА -->
   <div class="view-room" id="viewRoom">
-    <button class="room-back" onclick="backToCatalog()">← Назад к кейсам</button>
+    <a href="/cases.html" class="room-back">← Назад ко всем кейсам</a>
+    
     <div class="room-case-preview">
       <img id="roomCaseImg" src="" alt="Case">
       <h2 id="roomCaseName">Название</h2>
       <p id="roomCasePrice">0 ₽</p>
     </div>
+    
+    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+
     <div class="case-items-title">Возможные выигрыши:</div>
     <div class="case-items-grid" id="roomCaseItems"></div>
-    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+
+    <!-- ССЫЛКИ НА ДРУГИЕ КЕЙСЫ -->
+    <div class="case-items-title" style="margin-top:20px;">Перейти к другим кейсам:</div>
+    <div class="other-cases" id="otherCasesLinks"></div>
   </div>
 </div>
 
@@ -199,6 +218,14 @@
 let playerId = localStorage.getItem('kingwin_player_id');
 let currentCase = null;
 let allCasesList = [];
+
+const imageMap = { 
+  'Новичок': 'case_novice.png', 
+  'Сильвер': 'case_silver.png', 
+  'Голд': 'case_gold.png', 
+  'Платина': 'case_platinum.png', 
+  'Королевский': 'case_royal.png' 
+};
 
 function showAlert(title, text) {
   document.getElementById('alertTitle').textContent = title;
@@ -229,41 +256,44 @@ async function loadCases() {
     const r = await fetch(url);
     allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
-    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
     
-    // Сопоставление русских названий с именами файлов
-    const imageMap = {
-      'Новичок': 'case_novice.png',
-      'Бронза': 'case_silver.png', // если у тебя нет бронзы, используем сильвер (поменяй при необходимости)
-      'Сильвер': 'case_silver.png',
-      'Голд': 'case_gold.png',
-      'Платина': 'case_platinum.png',
-      'Алмаз': 'case_platinum.png', // если нет алмаза, используем платину
-      'Королевский': 'case_royal.png'
-    };
+    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
 
-    grid.innerHTML = allCasesList.map((c, i) => {
+    grid.innerHTML = allCasesList.map((c) => {
       const imgName = imageMap[c.name] || 'case_novice.png';
+      const idParam = c.name.toLowerCase(); // Используем название как ID в ссылке
       return `
-      <div class="case-card" onclick="enterRoom(${i})">
+      <a href="/cases.html?id=${idParam}" class="case-card">
         <img src="/${imgName}" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
         <div class="case-name">${c.name}</div>
         <div class="case-price">${c.price} ₽</div>
-      </div>
+      </a>
     `}).join('');
+
+    // Проверяем, есть ли параметр id в URL
+    const params = new URLSearchParams(window.location.search);
+    const caseId = params.get('id');
+    if(caseId) {
+      const found = allCasesList.find(c => c.name.toLowerCase() === caseId.toLowerCase());
+      if(found) enterRoom(found, false); // false - не пушим историю, мы уже на этой странице
+    }
+
   } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка загрузки кейсов</div>'; }
 }
 
 function getPrizeClass(prize) { if (prize >= 500) return 'gold'; if (prize >= 50) return 'blue'; return 'silver'; }
 
-function enterRoom(index) {
-  currentCase = allCasesList[index];
+function enterRoom(caseObj, updateHistory = true) {
+  currentCase = caseObj;
+  
+  if(updateHistory) {
+    history.pushState({ caseId: caseObj.name }, '', `/cases.html?id=${caseObj.name.toLowerCase()}`);
+  }
+
   document.getElementById('viewCatalog').classList.remove('active');
   document.getElementById('viewRoom').classList.add('active');
   
-  const imageMap = { 'Новичок': 'case_novice.png', 'Бронза': 'case_silver.png', 'Сильвер': 'case_silver.png', 'Голд': 'case_gold.png', 'Платина': 'case_platinum.png', 'Алмаз': 'case_platinum.png', 'Королевский': 'case_royal.png' };
   const imgName = imageMap[currentCase.name] || 'case_novice.png';
-  
   document.getElementById('roomCaseImg').src = `/${imgName}`;
   document.getElementById('roomCaseImg').onerror = function() { this.src='/cases_card.jpg'; };
   document.getElementById('roomCaseName').textContent = currentCase.name;
@@ -273,16 +303,32 @@ function enterRoom(index) {
   const sortedPrizes = [...currentCase.prizes].sort((a, b) => a - b);
   itemsWrap.innerHTML = sortedPrizes.map(p => `<div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>`).join('');
   
+  // Ссылки на другие кейсы
+  const otherWrap = document.getElementById('otherCasesLinks');
+  otherWrap.innerHTML = allCasesList
+    .filter(c => c.name !== currentCase.name)
+    .map(c => `<a href="/cases.html?id=${c.name.toLowerCase()}" class="other-case-link">${c.name}</a>`)
+    .join('');
+  
   const btn = document.getElementById('roomOpenBtn');
   if(currentCase.available) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
   else { btn.disabled = true; btn.textContent = 'Недоступно для вашего ранга'; }
+
+  window.scrollTo(0, 0);
 }
 
-function backToCatalog() {
-  document.getElementById('viewRoom').classList.remove('active');
-  document.getElementById('viewCatalog').classList.add('active');
-  currentCase = null;
-}
+// Обработка кнопки "Назад" в браузере
+window.onpopstate = function(event) {
+  if(event.state && event.state.caseId) {
+    const found = allCasesList.find(c => c.name.toLowerCase() === event.state.caseId.toLowerCase());
+    if(found) enterRoom(found, false);
+  } else {
+    // Возврат в каталог
+    document.getElementById('viewRoom').classList.remove('active');
+    document.getElementById('viewCatalog').classList.add('active');
+    currentCase = null;
+  }
+};
 
 async function openCaseAction() {
   if(!playerId) { showAlert('Ошибка', 'Войдите в аккаунт!'); return; }
