@@ -53,70 +53,55 @@
   .case-img svg { width: 100%; height: 100%; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
   
   .case-price { font-size: 14px; font-weight: 900; color: var(--accent-green); margin-bottom: 15px; }
-  .case-price span { font-size: 10px; color: var(--text-muted); text-decoration: line-through; margin-left: 4px; }
   
   .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
   .case-card:hover .btn-select { background: rgba(255,255,255,0.1); }
   .case-card.active .btn-select { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  /* ROULETTE AREA */
-  .roulette-container { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 30px; display: none; position: relative; }
-  .roulette-container.show { display: block; animation: fadeIn 0.4s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  /* --- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ ДЛЯ ОТКРЫТИЯ --- */
+  .fullscreen-spin { position: fixed; inset: 0; background: #090a10; z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
+  .fullscreen-spin.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .roulette-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .roulette-title { font-size: 20px; font-weight: 900; text-transform: uppercase; }
+  /* Кнопка закрытия */
+  .close-fs { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 100; transition: 0.2s; }
+  .close-fs:hover { background: rgba(255,77,77,0.2); border-color: var(--red); color: var(--red); }
 
-  .spin-window { position: relative; height: 140px; background: var(--bg-dark); border-radius: 16px; overflow: hidden; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
-  .spin-track { display: flex; align-items: center; gap: 10px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
+  .fs-title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
   
-  .spin-item { flex-shrink: 0; width: 110px; height: 110px; border-radius: 12px; background: #1e2230; border: 2px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 18px; gap: 4px; position: relative; }
-  .spin-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+  .fs-spin-window { width: 100%; max-width: 1200px; height: 200px; background: var(--bg-panel); border-top: 4px solid var(--accent); border-bottom: 4px solid var(--accent); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,229,255,0.2); }
+  .fs-spin-track { display: flex; align-items: center; gap: 15px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
   
-  /* Курсор */
-  .spin-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--accent); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px var(--accent); }
-  .spin-pointer::before, .spin-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; }
-  .spin-pointer::before { top: 0; border-top: 10px solid var(--accent); }
-  .spin-pointer::after { bottom: 0; border-bottom: 10px solid var(--accent); }
+  .fs-spin-item { flex-shrink: 0; width: 140px; height: 140px; border-radius: 16px; background: #1e2230; border: 2px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; gap: 6px; position: relative; }
+  .fs-spin-item span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  
+  /* Курсор по центру */
+  .fs-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 6px; background: var(--accent-green); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent-green); }
+  .fs-pointer::before, .fs-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; }
+  .fs-pointer::before { top: 0; border-top: 15px solid var(--accent-green); }
+  .fs-pointer::after { bottom: 0; border-bottom: 15px solid var(--accent-green); }
 
   /* Цвета призов */
-  .spin-item.r0 { color: #fff; }
-  .spin-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
-  .spin-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
-  .spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
-  .spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+  .fs-spin-item.r0 { color: #fff; }
+  .fs-spin-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
+  .fs-spin-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
+  .fs-spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
+  .fs-spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
 
-  .btn-spin { width: 100%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,229,255,0.3); display: flex; justify-content: center; align-items: center; gap: 10px; }
-  .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.5); }
-  .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  /* --- МАЛЕНЬКОЕ ОКНО ВЫИГРЫША --- */
+  .win-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 3000; }
+  .win-modal-overlay.show { display: flex; }
+  .win-modal-box { background: var(--bg-panel); border: 2px solid var(--accent); border-radius: 20px; padding: 30px; text-align: center; max-width: 350px; width: 90%; box-shadow: 0 0 40px rgba(0,229,255,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .win-modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 10px; color: var(--text-muted); }
+  .win-modal-box .amount { font-size: 40px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 10px 0 20px; }
+  .win-modal-box .btn-ok { background: var(--accent-green); color: #000; border: none; border-radius: 10px; padding: 12px 30px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
+  .win-modal-box .btn-ok:hover { filter: brightness(1.1); }
 
-  /* WIN MODAL */
-  .win-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; }
-  .win-overlay.show { display: flex; }
-  .win-modal { background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 24px; padding: 40px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 0 50px rgba(0,229,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
-  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 20px 0; }
-  .btn-close-win { background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 15px 40px; font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; }
-
-  /* МОДАЛКА СОДЕРЖИМОГО КЕЙСА */
-  .content-modal { background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 24px; padding: 30px; text-align: center; max-width: 600px; width: 100%; box-shadow: 0 0 50px rgba(0,229,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .content-modal h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
-  .prizes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 25px; }
-  .prize-item { background: #1e2230; border: 1px solid var(--border); border-radius: 12px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; }
-  .prize-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 5px; }
-  .prize-item.r0 { border-color: rgba(255,255,255,0.1); color: #fff; }
-  .prize-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
-  .prize-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
-  .prize-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
-  .prize-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-
-  .modal-actions { display: flex; gap: 10px; }
-  .modal-actions button { flex: 1; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
-  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
-  .btn-cancel:hover { background: rgba(255,255,255,0.2); }
-  .btn-confirm { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
-  .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
+  /* --- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (ТОСТ) --- */
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--bg-panel); border-left: 4px solid var(--red); padding: 15px 25px; border-radius: 10px; color: #fff; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; transition: transform 0.3s ease; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-left-color: var(--accent-green); }
 
   @media (max-width: 900px) {
     .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -125,11 +110,13 @@
     .case-price { font-size: 12px; }
     .btn-select { font-size: 10px; padding: 6px; }
     .topbar { padding: 15px; }
-    .roulette-container { padding: 15px; }
+    
+    .fs-title { font-size: 24px; margin-bottom: 20px; }
+    .fs-spin-window { height: 120px; }
+    .fs-spin-item { width: 90px; height: 90px; font-size: 18px; }
   }
   @media (max-width: 500px) {
     .cases-grid { grid-template-columns: repeat(2, 1fr); }
-    .content-modal { padding: 20px; }
   }
 </style>
 </head>
@@ -147,45 +134,31 @@
 
 <div class="container">
   <div class="section-title">Кейсы</div>
-
-  <!-- Сетка кейсов -->
   <div class="cases-grid" id="casesGrid"></div>
+</div>
 
-  <!-- Зона прокрутки (появляется после клика на кейс) -->
-  <div class="roulette-container" id="rouletteContainer">
-    <div class="roulette-header">
-      <div class="roulette-title" id="rouletteCaseName">Новичок</div>
-    </div>
-
-    <div class="spin-window">
-      <div class="spin-pointer"></div>
-      <div class="spin-track" id="spinTrack"></div>
-    </div>
-
-    <button class="btn-spin" id="btnSpin" disabled>Крутить</button>
+<!-- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ -->
+<div class="fullscreen-spin" id="fsSpinOverlay">
+  <button class="close-fs" onclick="closeFullscreenSpin()">✕</button>
+  <div class="fs-title" id="fsTitle">Открытие кейса...</div>
+  
+  <div class="fs-spin-window">
+    <div class="fs-pointer"></div>
+    <div class="fs-spin-track" id="fsSpinTrack"></div>
   </div>
 </div>
 
-<!-- Модалка содержимого кейса (Стартовая) -->
-<div class="win-overlay" id="caseContentOverlay">
-  <div class="content-modal">
-    <h2 id="contentTitle">Содержимое кейса</h2>
-    <div class="prizes-grid" id="prizesGrid"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeContentModal()">Отмена</button>
-      <button class="btn-confirm" id="btnStartSpin" onclick="startSpinFromModal()">Крутить</button>
-    </div>
+<!-- МОДАЛКА ВЫИГРЫША (маленькая) -->
+<div class="win-modal-overlay" id="winModalOverlay">
+  <div class="win-modal-box">
+    <h2>Ваш выигрыш:</h2>
+    <div class="amount" id="winAmount">0 ₽</div>
+    <button class="btn-ok" onclick="closeWinModal()">Забрать</button>
   </div>
 </div>
 
-<!-- Модалка выигрыша -->
-<div class="win-overlay" id="winOverlay">
-  <div class="win-modal">
-    <div class="win-title">Вы выиграли!</div>
-    <div class="win-amount" id="winAmount">0 ₽</div>
-    <button class="btn-close-win" onclick="closeWin()">Забрать</button>
-  </div>
-</div>
+<!-- ТОСТ -->
+<div class="toast" id="toastMsg">Уведомление</div>
 
 <script>
 const PLAYER_KEY = 'kingwin_player_id';
@@ -195,6 +168,13 @@ let selectedCase = null;
 let isSpinning = false;
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+function showToast(text, isSuccess = false) {
+  const toast = document.getElementById('toastMsg');
+  toast.textContent = text;
+  toast.className = `toast ${isSuccess ? 'success' : ''} show`;
+  setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
 
 async function loadBalance() {
   if (!playerId) return;
@@ -208,7 +188,6 @@ async function loadBalance() {
   } catch(e) {}
 }
 
-// Цвета для редкости призов
 function getRarityClass(val) {
   if (val >= 1000) return 'r4';
   if (val >= 200) return 'r3';
@@ -217,7 +196,6 @@ function getRarityClass(val) {
   return 'r0';
 }
 
-// Иконки для кейсов
 const caseIcons = {
   'Новичок': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(205,127,50,0.2)" stroke="#cd7f32" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#cd7f32"/></svg>',
   'Бронза': '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="40" fill="rgba(192,192,192,0.2)" stroke="#c0c0c0" stroke-width="2"/><path d="M50 20 L55 45 L80 50 L55 55 L50 80 L45 55 L20 50 L45 45 Z" fill="#c0c0c0"/></svg>',
@@ -239,8 +217,6 @@ async function initCases() {
   try {
     const r = await fetch('/api/cases/list?guest_id=' + encodeURIComponent(playerId));
     casesData = await r.json();
-    
-    // Сортируем по цене
     casesData.sort((a,b) => a.price - b.price);
 
     const grid = document.getElementById('casesGrid');
@@ -250,12 +226,13 @@ async function initCases() {
       const div = document.createElement('div');
       div.className = `case-card ${c.available ? '' : 'locked'}`;
       div.dataset.rank = c.minRank;
-      // Клик по карточке открывает модалку с содержимым
+      
       div.onclick = () => { 
         if(c.available) {
-          openContentModal(c);
+          startCase(c);
         } else {
-          alert('Этот кейс недоступен для вашего ранга');
+          // Вместо alert показываем красивый тост
+          showToast('Этот кейс недоступен для вашего ранга');
         }
       };
 
@@ -273,85 +250,39 @@ async function initCases() {
   }
 }
 
-// Открытие модалки содержимого
-function openContentModal(c) {
+function startCase(c) {
+  if (isSpinning) return;
   selectedCase = c;
   
-  // Подсветка карточки
-  document.querySelectorAll('.case-card').forEach(el => el.classList.remove('active'));
-  const cards = Array.from(document.querySelectorAll('.case-card'));
-  const idx = casesData.indexOf(c);
-  if(cards[idx]) cards[idx].classList.add('active');
-
-  document.getElementById('contentTitle').textContent = `Содержимое кейса "${c.name}"`;
+  // Открываем полноэкранный оверлей
+  document.getElementById('fsSpinOverlay').classList.add('show');
+  document.getElementById('fsTitle').textContent = c.name;
   
-  // Заполняем сетку призов
-  const grid = document.getElementById('prizesGrid');
-  grid.innerHTML = c.prizes.map(p => {
-    const rar = getRarityClass(p.v);
-    return `
-      <div class="prize-item ${rar}">
-        ${p.v} ₽
-        <span>${p.v > 0 ? 'Приз' : 'Пусто'}</span>
-      </div>
-    `;
-  }).join('');
-
-  // Настраиваем кнопку
-  const btn = document.getElementById('btnStartSpin');
-  btn.textContent = `Крутить за ${fmt(c.price)} ₽`;
-  
-  document.getElementById('caseContentOverlay').classList.add('show');
-}
-
-function closeContentModal() {
-  document.getElementById('caseContentOverlay').classList.remove('show');
-}
-
-// Запуск прокрутки из модалки
-function startSpinFromModal() {
-  closeContentModal();
-  
-  // Показываем зону крутки
-  document.getElementById('rouletteContainer').classList.add('show');
-  document.getElementById('rouletteCaseName').textContent = selectedCase.name;
-  document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
-  document.getElementById('btnSpin').disabled = true;
-  
-  // Инициализация визуальной ленты
-  renderTrack(selectedCase);
-  
-  // Автоматический запуск прокрутки
-  spin();
-}
-
-function renderTrack(c) {
-  const track = document.getElementById('spinTrack');
+  // Инициализация визуальной ленты (заглушки)
+  const track = document.getElementById('fsSpinTrack');
   track.innerHTML = '';
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
-  // Заглушки для визуала (сервер вернет реальный приз)
   for(let i=0; i<40; i++){
     const fakeVal = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
     const rar = getRarityClass(fakeVal);
     track.innerHTML += `
-      <div class="spin-item ${rar}">
+      <div class="fs-spin-item ${rar}">
         ${fakeVal} ₽
         <span>${fakeVal > 0 ? 'Приз' : 'Пусто'}</span>
       </div>
     `;
   }
+
+  // Запускаем запрос на сервер
+  executeSpin();
 }
 
-async function spin() {
+async function executeSpin() {
   if (isSpinning || !selectedCase) return;
   
-  if (!playerId) { alert('Войдите в аккаунт'); return; }
-  
   isSpinning = true;
-  document.getElementById('btnSpin').disabled = true;
-  document.getElementById('btnSpin').textContent = 'Крутим...';
 
   try {
     const res = await fetch('/api/cases/open', {
@@ -362,58 +293,66 @@ async function spin() {
     const data = await res.json();
     
     if (!res.ok) {
-      alert(data.error || 'Ошибка');
+      showToast(data.error || 'Ошибка');
+      closeFullscreenSpin();
       isSpinning = false;
-      document.getElementById('btnSpin').disabled = false;
-      document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
       return;
     }
 
     const prize = data.prize;
+    const track = document.getElementById('fsSpinTrack');
     
-    // Обновляем ленту, подставляя реальный приз на 35-й элемент
-    const track = document.getElementById('spinTrack');
+    // Перестраиваем ленту с реальным призом на 35-м месте
     track.innerHTML = '';
-    
     for(let i=0; i<40; i++){
       let val = [0, 5, 10, 20, 50, 100, 500][Math.floor(Math.random()*7)];
       if (i === 35) val = prize; // Реальный приз
       
       const rar = getRarityClass(val);
       track.innerHTML += `
-        <div class="spin-item ${rar}">
+        <div class="fs-spin-item ${rar}">
           ${val} ₽
           <span>${val > 0 ? 'Приз' : 'Пусто'}</span>
         </div>
       `;
     }
 
-    // Анимация (5 секунд)
-    const containerWidth = document.querySelector('.spin-window').clientWidth;
-    const itemWidth = 120; // 110 + 10 gap
+    // Анимация
+    const containerWidth = document.querySelector('.fs-spin-window').clientWidth;
+    const itemWidth = 155; // 140px + 15px gap
     const centerOffset = containerWidth / 2;
-    const randomOffset = (Math.random() * 40) - 20; // Сдвиг
+    const randomOffset = (Math.random() * 40) - 20;
     const targetScroll = (35 * itemWidth) - centerOffset + (itemWidth / 2) + randomOffset;
 
     setTimeout(() => {
-      track.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.1, 1)';
+      track.style.transition = 'transform 5.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
       track.style.transform = `translateX(-${targetScroll}px)`;
     }, 50);
 
+    // Ждем окончания анимации
     setTimeout(() => {
+      // Скрываем полноэкранный оверлей
+      document.getElementById('fsSpinOverlay').classList.remove('show');
+      // Показываем маленькую модалку
       showWinModal(prize);
+      
       loadBalance();
       isSpinning = false;
-      document.getElementById('btnSpin').disabled = false;
-      document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
-    }, 5100);
+    }, 5600);
 
   } catch(e) {
-    alert('Ошибка соединения');
+    showToast('Ошибка соединения');
+    closeFullscreenSpin();
     isSpinning = false;
-    document.getElementById('btnSpin').disabled = false;
-    document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
   }
+}
+
+function closeFullscreenSpin() {
+  if (isSpinning) {
+    // Если крутится, нельзя просто так закрыть, чтобы не сломать логику
+    return; 
+  }
+  document.getElementById('fsSpinOverlay').classList.remove('show');
 }
 
 function showWinModal(prize) {
@@ -424,11 +363,11 @@ function showWinModal(prize) {
     document.getElementById('winAmount').textContent = 'Пусто';
     document.getElementById('winAmount').style.color = 'var(--text-muted)';
   }
-  document.getElementById('winOverlay').classList.add('show');
+  document.getElementById('winModalOverlay').classList.add('show');
 }
 
-function closeWin() {
-  document.getElementById('winOverlay').classList.remove('show');
+function closeWinModal() {
+  document.getElementById('winModalOverlay').classList.remove('show');
 }
 
 initCases();
