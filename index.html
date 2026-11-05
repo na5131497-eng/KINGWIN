@@ -3,122 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>KINGWIN — Казино</title>
+<title>KINGWIN — Онлайн Казино</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #090a10;
-    --bg-sidebar: #11121a;
-    --bg-panel: #181a24;
-    --accent: #00e5ff;
-    --accent-green: #00ff88;
-    --text-main: #ffffff;
-    --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.06);
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: #0a0d14; color: #fff; padding-bottom: 70px; }
+  a { text-decoration: none; color: inherit; }
+
+  /* TOP BAR */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #111625; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .user-area { display: flex; align-items: center; gap: 15px; }
+  .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.3s; }
+  .balance-badge:hover { border-color: #00e5ff; }
+  .balance-badge span { color: #00e5ff; }
+  .btn-deposit { background: #3fbf7f; color: #000; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; transition: 0.3s; }
+  .btn-deposit:hover { background: #4edb92; box-shadow: 0 0 15px rgba(63,191,127,0.4); }
+  .profile-icon { width: 36px; height: 36px; border-radius: 50%; background: #1c2b45; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+  .profile-icon:hover { border-color: #00e5ff; }
+
+  /* MAIN CONTAINER */
+  .main-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  /* BANNER */
+  .banner { position: relative; border-radius: 20px; overflow: hidden; background: linear-gradient(135deg, #1a0b2e, #2d1b4e); padding: 40px; margin-bottom: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+  .banner::before { content: ''; position: absolute; right: -20px; top: -20px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,229,255,0.2), transparent 70%); pointer-events: none; }
+  .banner h1 { font-size: 42px; font-weight: 900; margin-bottom: 10px; z-index: 1; position: relative; }
+  .banner h1 span { color: #f1c40f; }
+  .banner p { font-size: 16px; color: #a0aec0; margin-bottom: 20px; z-index: 1; position: relative; }
+  .btn-claim { background: #00e5ff; color: #000; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 15px; border: none; cursor: pointer; z-index: 1; position: relative; }
+
+  /* SECTIONS */
+  .section-title { font-size: 20px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 20px; background: #00e5ff; border-radius: 2px; }
+
+  /* GRID CARDS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .game-card { background: linear-gradient(135deg, #1c2b45, #111625); border-radius: 16px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; cursor: pointer; }
+  .game-card:hover { transform: translateY(-5px); border-color: rgba(0,229,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  .game-img { width: 100%; height: 100px; background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+  .game-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .game-sub { font-size: 11px; color: #a0aec0; }
+
+  /* MODALS */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .modal-box { background: #111625; border: 1px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+  .modal-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-align: center; }
+  .modal-box p { color: #a0aec0; font-size: 14px; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+
+  /* DEPOSIT FORM */
+  .payment-methods { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+  .pm-btn { flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+  .pm-btn.active { background: rgba(0,229,255,0.1); border-color: #00e5ff; color: #00e5ff; }
+  .input-group { margin-bottom: 20px; }
+  .input-group label { display: block; font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+  .amount-input-wrap { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; }
+  .amount-input-wrap button { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 20px; cursor: pointer; font-weight: 700; }
+  .amount-input-wrap input { flex: 1; background: transparent; border: none; color: #fff; text-align: center; font-size: 24px; font-weight: 800; outline: none; font-family: inherit; }
+  .quick-amounts { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+  .quick-amounts button { background: rgba(255,255,255,0.05); border: none; color: #a0aec0; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .quick-amounts button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; font-family: inherit; }
+  .btn-submit:hover { background: #33ebff; box-shadow: 0 0 20px rgba(0,229,255,0.4); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* TOASTS */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: rgba(18,24,38,0.95); border-left: 4px solid #00e5ff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s ease; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: #3fbf7f; }
+  .toast.error { border-left-color: #ff4d4d; }
+  .toast-icon { font-size: 20px; }
+  .toast.success .toast-icon { color: #3fbf7f; }
+  .toast.error .toast-icon { color: #ff4d4d; }
+  .toast-msg { font-size: 14px; font-weight: 600; color: #fff; }
+
+  /* MOBILE BOTTOM NAV */
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #111625; border-top: 1px solid rgba(255,255,255,0.05); padding: 10px; z-index: 100; justify-content: space-around; }
+  .bottom-nav div { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #a0aec0; cursor: pointer; gap: 4px; }
+  .bottom-nav div.active { color: #00e5ff; }
+  .bottom-nav div svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* ---------- МОДАЛКА ДЕПОЗИТА ---------- */
+  .thanks-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
+  }
+  .thanks-backdrop.show { display: flex; }
+
+  .thanks-modal {
+    background: linear-gradient(135deg, #111625, #0a0d14);
+    border: 2px solid #00e5ff;
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(0,229,255,0.35), inset 0 0 40px rgba(0,229,255,0.05);
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-  button { font-family: inherit; }
-  
-  /* LEFT SIDEBAR */
-  .sidebar { width: 250px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto; flex-shrink: 0; z-index: 10; }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; padding-left: 10px; display: flex; align-items: center; gap: 10px; }
-  .logo-mark { width: 24px; height: 24px; background: linear-gradient(135deg, #00e5ff, #0077ff); border-radius: 6px; position: relative; }
-  .logo-mark::after { content: 'K'; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #000; }
-  .logo span { background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-bottom: 25px; }
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-  .nav-item:hover, .nav-item.active { background: rgba(0, 229, 255, 0.08); color: #fff; border-color: rgba(0, 229, 255, 0.2); }
-  .nav-item.active { color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
-  .side-section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin: 15px 0 10px 15px; letter-spacing: 1px; }
-  .nav-item svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+  .thanks-modal::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 60%);
+    animation: rotate 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-  /* MAIN AREA */
-  .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); }
-  .topbar { height: 70px; display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; }
-  .header-actions { display: flex; align-items: center; gap: 15px; }
-  .balance-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .btn-wallet { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; }
-  .btn-login { background: var(--accent-green); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; }
-  .profile-avatar { width: 36px; height: 36px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); }
-  .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
+  .thanks-logo {
+    font-size: 42px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .thanks-sub {
+    font-size: 11px; color: #8fa2b8; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 28px;
+    position: relative; z-index: 1;
+  }
+  .thanks-title {
+    font-size: 24px; font-weight: 900; color: #fff;
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+  }
+  .thanks-title span { color: #3fbf7f; }
+  .thanks-text {
+    font-size: 15px; color: #a0aec0; line-height: 1.6;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .thanks-amount {
+    display: inline-block;
+    font-size: 34px; font-weight: 900;
+    color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    margin: 12px 0 20px;
+    position: relative; z-index: 1;
+  }
+  .thanks-luck {
+    font-size: 16px;
+    color: #3fbf7f;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 26px;
+    position: relative; z-index: 1;
+  }
+  .thanks-btn {
+    background: #00e5ff; color: #000;
+    border: none; border-radius: 12px;
+    padding: 14px 44px;
+    font-size: 16px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+    transition: 0.3s;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 20px rgba(0,229,255,0.4);
+  }
+  .thanks-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.7); transform: translateY(-2px); }
 
-  .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
-  
-  .hero { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: transparent; height: 280px; width: 100%; }
-  .hero img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
-  .hero-btn { position: absolute; bottom: 30px; left: 30px; z-index: 2; background: var(--accent-green); color: #000; padding: 14px 30px; border-radius: 10px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,136,0.4); transition: 0.3s; }
-  .hero-btn:hover { transform: scale(1.05); }
-
-  .section-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 40px; }
-  .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
-  .our-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-  .our-game-card { background: var(--bg-panel); border-radius: 16px; padding: 25px 20px; border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
-  .our-game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-  .our-game-icon { width: 60px; height: 60px; border-radius: 15px; background: rgba(0,229,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
-  .our-game-icon svg { width: 32px; height: 32px; fill: currentColor; }
-  .our-game-title { font-size: 16px; font-weight: 800; }
-
-  /* MOBILE NAV */
-  .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-sidebar); border-top: 1px solid var(--border); z-index: 100; justify-content: space-around; align-items: center; }
-  .mob-nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); gap: 4px; font-weight: 600; }
-  .mob-nav-item.active { color: var(--accent); }
-  .mob-nav-item svg { width: 22px; height: 22px; fill: currentColor; }
-
-  /* --- СТИЛИ ОКНА ПОПОЛНЕНИЯ --- */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-  .modal-overlay.show { display: flex; }
-  .deposit-modal { background: #131620; border-radius: 16px; width: 100%; max-width: 800px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-  .dep-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
-  .dep-header h2 { font-size: 18px; font-weight: 800; text-transform: uppercase; }
-  .dep-close { font-size: 24px; color: var(--text-muted); cursor: pointer; background: none; border: none; }
-  .dep-body { display: flex; flex-wrap: wrap; }
-  .dep-methods { width: 280px; background: #0d1017; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
-  .dep-method { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-weight: 700; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: 0.2s; }
-  .dep-method.active { background: #222635; color: #f1c40f; border-left: 4px solid #f1c40f; }
-  .dep-content { flex: 1; padding: 25px; min-width: 300px; }
-  .dep-banner { background: linear-gradient(90deg, #2b0f3b, #1a0b24); border-radius: 8px; padding: 15px; margin-bottom: 25px; font-weight: 800; font-size: 14px; text-align: center; }
-  .dep-banner span { color: #a855f7; }
-  .dep-amount-title { font-weight: 800; font-size: 16px; margin-bottom: 15px; text-align: center; }
-  .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
-  .dep-amount-btn { background: #222635; border: none; color: #fff; width: 50px; height: 50px; border-radius: 8px; font-size: 24px; cursor: pointer; font-weight: 700; }
-  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 800; text-align: center; outline: none; font-family: inherit; }
-  .dep-quick { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); font-weight: 600; }
-  .dep-quick span { cursor: pointer; }
-  .dep-quick span:hover { color: #fff; }
-  .dep-info-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
-  .dep-info-row b { color: #fff; }
-  .dep-pay-btn { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-  .dep-pay-btn:hover { background: #33ebff; }
-  .dep-details { display: none; text-align: center; }
-  .dep-details.active { display: block; }
-  .dep-details h3 { font-size: 16px; margin-bottom: 10px; color: var(--accent-green); }
-  .dep-details p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
-  .card-box { background: #fff; color: #000; font-size: 22px; font-weight: 800; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; letter-spacing: 1px; margin-bottom: 15px; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 350px; text-align: center; }
-  .modal-box h2 { font-size: 20px; margin-bottom: 15px; }
-  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; }
-  
-  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 12px; }
-  .toast.show { transform: translateX(0); }
-  .toast.success { border-left-color: var(--accent-green); }
-  .toast.error { border-left-color: #ff4d4d; }
-  
+  /* RESPONSIVE */
   @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .topbar { padding: 0 15px; height: 60px; }
-    .content { padding: 15px; padding-bottom: 80px; }
-    .our-games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .mobile-bottom-nav { display: flex; }
-    .hero { height: 180px; border-radius: 12px !important; }
-    .hero img { object-position: center 15%; }
-    .hero-btn { bottom: 15px !important; left: 15px !important; padding: 10px 20px !important; font-size: 14px !important; }
-    .dep-methods { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .dep-method { padding: 12px 15px; }
-    .dep-content { padding: 15px; }
+    .topbar { padding: 10px 15px; }
+    .logo { font-size: 18px; }
+    .balance-badge { padding: 4px 8px; font-size: 12px; }
+    .btn-deposit { display: none; }
+    .banner { padding: 25px 20px; }
+    .banner h1 { font-size: 28px; }
+    .banner p { font-size: 14px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .bottom-nav { display: flex; }
+    .modal-box { padding: 20px; border-radius: 16px; }
+    .toast-container { top: 10px; right: 10px; left: 10px; }
+    .toast { min-width: auto; width: 100%; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+
+    .thanks-modal { padding: 30px 24px; }
+    .thanks-logo { font-size: 34px; }
+    .thanks-title { font-size: 20px; }
+    .thanks-amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -126,155 +199,181 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<aside class="sidebar">
-  <div class="logo"><div class="logo-mark"></div><span>KINGWIN</span></div>
-  <div class="nav-menu">
-    <div class="nav-item active">Главная</div>
-    <div class="nav-item" onclick="window.location.href='/jackpot.html'">Джекпот</div>
-  </div>
-  <div class="side-section-title">Наши игры</div>
-  <div class="nav-menu">
-    <div class="nav-item" onclick="window.location.href='/crash.html'">
-      <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash
+<!-- Шапка -->
+<div class="topbar">
+  <div class="logo">KINGWIN</div>
+  <div class="user-area" id="userArea" style="display:none">
+    <div class="balance-badge" onclick="openModal('depositModal')">
+      💰 <span id="topBalance">0.00</span> ₽
     </div>
-    <div class="nav-item" onclick="window.location.href='/dealer.html'">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg> Блэкджек
+    <button class="btn-deposit" onclick="openModal('depositModal')">Пополнить</button>
+    <div class="profile-icon" onclick="goToProfile()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
     </div>
   </div>
-</aside>
-
-<main class="main-area">
-  <header class="topbar">
-    <div class="header-actions" id="userArea" style="display:none">
-      <div class="balance-btn">Баланс: <span id="topBalance">0.00</span> ₽</div>
-      <button class="btn-wallet" onclick="openDeposit()">Кошелек</button>
-      <div class="profile-avatar" onclick="goToProfile()">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </div>
-    </div>
-    <div class="header-actions" id="loginArea">
-      <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
-    </div>
-  </header>
-
-  <div class="content">
-    <div class="hero">
-      <img src="/main_banner.jpg" alt="KINGWIN Casino">
-      <button class="hero-btn" onclick="showToast('Бонусы в разработке')">Забрать сейчас</button>
-    </div>
-
-    <div class="section-title">Наши игры</div>
-    <div class="our-games-grid">
-      <div class="our-game-card" onclick="window.location.href='/crash.html'">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
-        <div class="our-game-title">Crash</div>
-      </div>
-      <div class="our-game-card" onclick="window.location.href='/dealer.html'">
-        <div class="our-game-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div>
-        <div class="our-game-title">Блэкджек</div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<div class="mobile-bottom-nav">
-  <div class="mob-nav-item active">
-    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
-  </div>
-  <div class="mob-nav-item" onclick="openDeposit()">
-    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Пополнить
-  </div>
-  <div class="mob-nav-item" onclick="goToProfile()">
-    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
+  <div class="user-area" id="loginArea">
+    <button class="btn-deposit" onclick="openModal('loginModal')">Войти</button>
   </div>
 </div>
 
+<!-- Основной контент -->
+<div class="main-content">
+
+  <div class="banner" onclick="showToast('Переход в раздел бонусов...', 'success')">
+    <h1>Забери бонус <span>$1000</span> & 70 FS</h1>
+    <p>Пополни баланс и получи до 50% к депозиту + фриспины!</p>
+    <button class="btn-claim">Забрать</button>
+  </div>
+
+  <div class="section-title">Популярные игры</div>
+  <div class="grid">
+    <div class="game-card" onclick="showToast('Запуск Fortune OX...', 'success')">
+      <div class="game-img">🐂</div>
+      <div class="game-title">Fortune OX</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Fortune Gems...', 'success')">
+      <div class="game-img">💎</div>
+      <div class="game-title">Fortune Gems</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Fortune Tiger...', 'success')">
+      <div class="game-img">🐯</div>
+      <div class="game-title">Fortune Tiger</div>
+      <div class="game-sub">Slots</div>
+    </div>
+    <div class="game-card" onclick="showToast('Запуск Gates of Olympus...', 'success')">
+      <div class="game-img">⚡</div>
+      <div class="game-title">Gates of Olympus</div>
+      <div class="game-sub">Slots</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- МОБИЛЬНОЕ МЕНЮ -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="active" onclick="showToast('Вы на главной', 'success')">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Главная
+  </div>
+  <div onclick="openModal('depositModal')">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Пополнить
+  </div>
+  <div onclick="goToProfile()">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    Профиль
+  </div>
+</div>
+
+<!-- МОДАЛКА: ВХОД -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <h2>Вход в аккаунт</h2>
-    <input type="text" id="loginId" placeholder="Номер карты">
-    <input type="password" id="loginPass" placeholder="Пароль">
-    <button class="dep-pay-btn" onclick="doLogin()">Войти</button>
+    <p>Введите номер вашей клубной карты и пароль</p>
+    <div class="input-group">
+      <label>Номер карты</label>
+      <input type="text" id="loginId" placeholder="12345678" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px; color:#fff; font-size:16px; outline:none;">
+    </div>
+    <div class="input-group">
+      <label>Пароль</label>
+      <input type="password" id="loginPass" placeholder="••••" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px; color:#fff; font-size:16px; outline:none;">
+    </div>
+    <button class="btn-submit" onclick="doLogin()">Войти</button>
   </div>
 </div>
 
+<!-- МОДАЛКА: ПОПОЛНЕНИЕ -->
 <div class="modal-overlay" id="depositModal">
-  <div class="deposit-modal">
-    <div class="dep-header">
-      <h2>Пополнить баланс</h2>
-      <button class="dep-close" onclick="closeModal('depositModal')">×</button>
+  <div class="modal-box">
+    <h2>Пополнить баланс</h2>
+    <div class="payment-methods">
+      <button class="pm-btn active">СБП</button>
+      <button class="pm-btn">Карта</button>
+      <button class="pm-btn">Криптовалюта</button>
     </div>
-    <div class="dep-body">
-      <div class="dep-methods">
-        <div class="dep-method active"><span>SberPay</span> <span style="color:#00e5ff">●</span></div>
-        <div class="dep-method"><span>ВТБ</span></div>
-        <div class="dep-method"><span>T-pay</span></div>
-        <div class="dep-method"><span>СБП</span></div>
+
+    <div class="input-group">
+      <label>Введите сумму (₽)</label>
+      <div class="amount-input-wrap">
+        <button onclick="changeAmount(-100)">−</button>
+        <input type="number" id="depositAmount" value="200" min="200" max="1000">
+        <button onclick="changeAmount(100)">+</button>
       </div>
-      <div class="dep-content">
-        <div id="depStep1">
-          <div class="dep-banner"><span>+30%</span> К ДЕПОЗИТУ (ПЕРВОЕ ПОПОЛНЕНИЕ)</div>
-          <div class="dep-amount-title">Введите сумму пополнения (₽)</div>
-          <div class="dep-amount-row">
-            <button class="dep-amount-btn" onclick="changeDepAmount(-100)">−</button>
-            <input type="number" id="depAmount" class="dep-amount-input" value="1000" min="200" max="1000">
-            <button class="dep-amount-btn" onclick="changeDepAmount(100)">+</button>
-          </div>
-          <div class="dep-quick">
-            <span onclick="setDepAmount(200)">200.00</span>
-            <span onclick="setDepAmount(500)">500.00</span>
-            <span onclick="setDepAmount(1000)">1000.00</span>
-          </div>
-          <div class="dep-info-row"><span>Сумма к оплате:</span> <b id="depSumDisplay">1 000.00 ₽</b></div>
-          <div class="dep-info-row"><span>Будет зачислено:</span> <b id="depSumDisplay2">1 000.00 ₽</b></div>
-          <button class="dep-pay-btn" onclick="showDepDetails()">Пополнить</button>
-        </div>
-        <div class="dep-details" id="depStep2">
-          <h3>Перевод на карту</h3>
-          <p>Переведите <b id="depAmountCard" style="color:#fff">1000 ₽</b> по номеру карты или СБП:</p>
-          <div class="card-box">2200 7010 1234 5678</div>
-          <p style="margin-bottom: 20px;">Получатель: КИНГВИН КАЗИНО</p>
-          <button class="dep-pay-btn" onclick="sendDeposit()">Я оплатил (Отправить)</button>
-        </div>
+      <div class="quick-amounts">
+        <button onclick="setAmount(200)">200</button>
+        <button onclick="setAmount(500)">500</button>
+        <button onclick="setAmount(1000)">1000</button>
       </div>
     </div>
+
+    <div style="font-size:12px; color:#a0aec0; margin-bottom:20px; text-align:center;">
+      Мин: 200 ₽ • Макс: 1000 ₽
+    </div>
+
+    <button class="btn-submit" id="btnDoDeposit" onclick="doDeposit()">Пополнить</button>
   </div>
 </div>
 
+<!-- МОДАЛКА: ОЖИДАНИЕ -->
 <div class="modal-overlay" id="waitingModal">
-  <div class="modal-box">
+  <div class="modal-box" style="text-align:center;">
+    <div style="font-size:40px; margin-bottom:15px; animation: spin 2s linear infinite;">⏳</div>
     <h2>Ожидайте</h2>
-    <p>Ваша заявка отправлена администратору.<br>Ожидайте подтверждения.</p>
-    <button class="dep-pay-btn" onclick="closeModal('waitingModal')">ОК</button>
+    <p>Обрабатываем ваш запрос...</p>
+  </div>
+</div>
+
+<!-- МОДАЛКА: ДЕПОЗИТ ЗАЧИСЛЕН -->
+<div class="thanks-backdrop" id="thanksModal">
+  <div class="thanks-modal">
+    <div class="thanks-logo">KINGWIN</div>
+    <div class="thanks-sub">Club Card</div>
+    <div class="thanks-title">Депозит <span>зачислен</span></div>
+    <div class="thanks-text">Ваш баланс успешно пополнен на</div>
+    <div class="thanks-amount" id="thanksAmount">+0 ₽</div>
+    <div class="thanks-luck">Удачи в игре!</div>
+    <button class="thanks-btn" onclick="closeThanksModal()">Отлично</button>
   </div>
 </div>
 
 <script>
+const API = '';
 let currentPlayer = null;
+let pendingDeposits = [];
 
+/* ---------- УВЕДОМЛЕНИЯ (TOASTS) ---------- */
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<div style="font-size:14px;font-weight:600;color:#fff">${text}</div>`;
+  toast.innerHTML = `
+    <div class="toast-icon">${type === 'success' ? '✅' : '⚠️'}</div>
+    <div class="toast-msg">${text}</div>
+  `;
   container.appendChild(toast);
   setTimeout(() => toast.classList.add('show'), 10);
-  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
 }
 
-function openModal(id) { 
+/* ---------- МОДАЛКИ ---------- */
+function openModal(id) {
   if(id === 'depositModal' && !currentPlayer) {
     showToast('Сначала войдите в аккаунт', 'error');
-    document.getElementById('loginModal').classList.add('show');
+    openModal('loginModal');
     return;
   }
-  document.getElementById(id).classList.add('show'); 
+  document.getElementById(id).classList.add('show');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
 
-function openDeposit() { openModal('depositModal'); }
-function goToProfile() { if(currentPlayer) window.location.href = `/player_profile.html?id=${currentPlayer.id}`; else openModal('loginModal'); }
-
+/* ---------- АВТОРИЗАЦИЯ ---------- */
 async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pass = document.getElementById('loginPass').value;
@@ -282,93 +381,169 @@ async function doLogin() {
 
   try {
     const res = await fetch('/api/guest/login', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ id, pass })
     });
     const data = await res.json();
-    if(!res.ok) { showToast(data.error || 'Ошибка входа', 'error'); return; }
-    
+
+    if(!res.ok) {
+      showToast(data.error || 'Ошибка входа', 'error');
+      return;
+    }
+
     currentPlayer = data.guest;
     localStorage.setItem('kingwin_player_id', id);
     closeModal('loginModal');
     updateUI();
     showToast(`С возвращением, ${currentPlayer.name}!`, 'success');
-  } catch(e) { showToast('Ошибка соединения', 'error'); }
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+  }
 }
 
 function updateUI() {
   if(currentPlayer) {
     document.getElementById('userArea').style.display = 'flex';
     document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'flex';
     document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
+    document.getElementById('bottomNav').style.display = 'none';
   }
 }
 
-function changeDepAmount(diff) {
-  const input = document.getElementById('depAmount');
+function goToProfile() {
+  if(currentPlayer) {
+    window.location.href = `/player_profile.html?id=${currentPlayer.id}`;
+  } else {
+    openModal('loginModal');
+  }
+}
+
+/* ---------- ПОПОЛНЕНИЕ ---------- */
+function changeAmount(diff) {
+  const input = document.getElementById('depositAmount');
   let val = parseInt(input.value) || 200;
   val += diff;
   if(val < 200) val = 200;
   if(val > 1000) val = 1000;
   input.value = val;
-  updateDepDisplay();
 }
-function setDepAmount(val) {
-  document.getElementById('depAmount').value = val;
-  updateDepDisplay();
-}
-function updateDepDisplay() {
-  const val = parseInt(document.getElementById('depAmount').value) || 200;
-  document.getElementById('depSumDisplay').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
-  document.getElementById('depSumDisplay2').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
-}
-document.getElementById('depAmount').addEventListener('input', updateDepDisplay);
-
-function showDepDetails() {
-  const val = parseInt(document.getElementById('depAmount').value) || 200;
-  if(val < 200 || val > 1000) { showToast('Сумма от 200 до 1000 ₽', 'error'); return; }
-  document.getElementById('depAmountCard').textContent = val + ' ₽';
-  document.getElementById('depStep1').style.display = 'none';
-  document.getElementById('depStep2').classList.add('active');
+function setAmount(val) {
+  document.getElementById('depositAmount').value = val;
 }
 
-async function sendDeposit() {
-  const amount = parseInt(document.getElementById('depAmount').value) || 200;
-  
+async function doDeposit() {
+  if(!currentPlayer) return;
+  const amount = parseInt(document.getElementById('depositAmount').value);
+
+  if(amount < 200 || amount > 1000) {
+    showToast('Сумма должна быть от 200 до 1000 ₽', 'error');
+    return;
+  }
+
+  closeModal('depositModal');
+  openModal('waitingModal');
+
   try {
     const res = await fetch('/api/deposits', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         date: new Date().toISOString().slice(0,10),
-        nick: currentPlayer.name, email: '', sum: amount, status: 'pending'
+        nick: currentPlayer.name,
+        email: 'player@kingwin.com',
+        sum: amount,
+        status: 'pending'
       })
     });
-    
-    if(res.ok) {
-      closeModal('depositModal');
-      document.getElementById('depStep1').style.display = 'block';
-      document.getElementById('depStep2').classList.remove('active');
-      document.getElementById('waitingModal').classList.add('show');
-    } else {
-      showToast('Ошибка при создании заявки', 'error');
-    }
+
+    const data = await res.json();
+
+    setTimeout(() => {
+      closeModal('waitingModal');
+      if(res.ok) {
+        showToast('Заявка на пополнение отправлена. Ожидайте подтверждения.', 'success');
+      } else {
+        showToast('Ошибка при создании заявки', 'error');
+      }
+    }, 1500);
+
   } catch(e) {
+    closeModal('waitingModal');
     showToast('Ошибка соединения', 'error');
   }
 }
 
+/* ---------- МОДАЛКА ДЕПОЗИТ ЗАЧИСЛЕН ---------- */
+function showThanksModal(dep) {
+  if (!dep) return;
+  pendingDeposits = [dep];
+  document.getElementById('thanksAmount').textContent = '+' + (Math.round(dep.sum*100)/100).toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('thanksModal').classList.add('show');
+}
+
+async function closeThanksModal() {
+  document.getElementById('thanksModal').classList.remove('show');
+  if (pendingDeposits.length > 0) {
+    const dep = pendingDeposits.shift();
+    try {
+      await fetch('/api/deposits/' + dep.id + '/seen', { method: 'POST' });
+    } catch(e) {}
+  }
+}
+
+/* ---------- ИНИЦИАЛИЗАЦИЯ ---------- */
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_player_id');
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId)
       .then(r => r.json())
-      .then(data => { if(data.guest) { currentPlayer = data.guest; updateUI(); } })
+      .then(data => {
+        if(data.guest) {
+          currentPlayer = data.guest;
+          updateUI();
+        }
+        if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+          showThanksModal(data.unseen_deposits[0]);
+        }
+      })
       .catch(() => {});
   }
 };
+
+/* Периодическая проверка новых депозитов и баланса */
+setInterval(() => {
+  if (!currentPlayer) return;
+  fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id))
+    .then(r => r.json())
+    .then(data => {
+      if (data.guest) {
+        currentPlayer = data.guest;
+        document.getElementById('topBalance').textContent = parseFloat(currentPlayer.bonus_balance || 0).toFixed(2);
+      }
+      if (data.unseen_deposits && data.unseen_deposits.length > 0) {
+        // показываем только если модалка сейчас не открыта
+        const modal = document.getElementById('thanksModal');
+        if (!modal.classList.contains('show')) {
+          showThanksModal(data.unseen_deposits[0]);
+        }
+      }
+    })
+    .catch(() => {});
+}, 5000);
+
+// Закрытие модалок по клику вне окна
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay && overlay.id !== 'waitingModal') {
+      overlay.classList.remove('show');
+    }
+  });
+});
 </script>
 </body>
 </html>
