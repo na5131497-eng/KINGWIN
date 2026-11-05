@@ -31,17 +31,18 @@
   .balance-badge:hover { border-color: var(--accent); }
   .balance-badge span { color: var(--accent); }
 
-  /* MAIN CONTENT */
-  .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
-  .section-title { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; color: #fff; }
+  /* MAIN */
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; flex: 1; width: 100%; }
 
-  /* CASES GRID */
-  .cases-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 40px; }
+  /* --- ЭКРАН СПИСКА КЕЙСОВ --- */
+  .all-cases-screen { display: block; }
+  .all-cases-screen.hidden { display: none; }
+  .section-title { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; color: #fff; }
   
+  .cases-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 40px; }
   .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
   .case-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  
-  .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #333; transition: 0.3s; }
+  .case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #333; }
   .case-card[data-rank="0"]::before { background: #cd7f32; }
   .case-card[data-rank="1"]::before { background: #c0c0c0; }
   .case-card[data-rank="2"]::before { background: #f1c40f; }
@@ -50,64 +51,64 @@
   .case-card[data-rank="5"]::before { background: #d4af37; }
 
   .case-name { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; }
-  .case-img { width: 70px; height: 70px; margin-bottom: 15px; position: relative; display: flex; justify-content: center; align-items: center; }
+  .case-img { width: 70px; height: 70px; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
   .case-img svg { width: 100%; height: 100%; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
-  
   .case-price { font-size: 14px; font-weight: 900; color: var(--accent-green); margin-bottom: 15px; }
-  
-  .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+  .btn-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; }
   .case-card:hover .btn-select { background: rgba(255,255,255,0.1); }
 
-  /* --- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ ДЛЯ ОТКРЫТИЯ --- */
-  .fullscreen-spin { position: fixed; inset: 0; background: #090a10; z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
-  .fullscreen-spin.show { display: flex; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  /* --- ЭКРАН КОНКРЕТНОГО КЕЙСА --- */
+  .case-screen { display: none; }
+  .case-screen.active { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-  /* Кнопка закрытия */
-  .close-fs { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 100; transition: 0.2s; }
-  .close-fs:hover { background: rgba(255,77,77,0.2); border-color: var(--red); color: var(--red); }
+  /* История выпадений */
+  .history-bar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 12px 0; overflow: hidden; margin-bottom: 30px; position: relative; white-space: nowrap; }
+  .history-track { display: inline-flex; gap: 30px; animation: scroll 30s linear infinite; padding-left: 100%; }
+  @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+  .history-item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 600; }
+  .history-item b { color: #fff; }
+  .history-item span { color: var(--accent-green); font-weight: 800; }
 
-  .fs-title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
+  /* Центральная часть */
+  .case-center { text-align: center; margin-bottom: 40px; }
+  .case-center-img { width: 120px; height: 120px; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 0 30px rgba(0,229,255,0.3)); }
+  .case-center-img svg { width: 100%; height: 100%; }
+  .case-center h1 { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+  .case-center .price-tag { font-size: 18px; color: var(--accent-green); font-weight: 800; margin-bottom: 25px; }
   
+  .case-actions { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+  .btn-open-big { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; border: none; border-radius: 12px; padding: 16px 50px; font-size: 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0,255,136,0.4); }
+  .btn-open-big:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,255,136,0.6); }
+  .btn-back-cases { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 30px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+  .btn-back-cases:hover { background: rgba(255,255,255,0.1); }
+
+  /* Возможный дроп */
+  .drop-title { font-size: 18px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; text-align: center; letter-spacing: 1px; }
+  .drop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+  .drop-item { background: var(--bg-panel); border: 2px solid var(--border); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 18px; gap: 6px; }
+  .drop-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .drop-item.r1 { border-color: rgba(63,191,127,0.4); color: #3fbf7f; background: rgba(63,191,127,0.05); }
+  .drop-item.r2 { border-color: rgba(0,119,255,0.4); color: #00e5ff; background: rgba(0,119,255,0.05); }
+  .drop-item.r3 { border-color: rgba(168,85,247,0.4); color: #d8b4fe; background: rgba(168,85,247,0.05); }
+  .drop-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.05); box-shadow: 0 0 20px rgba(255,215,0,0.15); }
+
+  /* --- ПОЛНОЭКРАННАЯ КРУТКА --- */
+  .fullscreen-spin { position: fixed; inset: 0; background: #090a10; z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
+  .fullscreen-spin.show { display: flex; }
+  .fs-title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
   .fs-spin-window { width: 100%; max-width: 1200px; height: 200px; background: var(--bg-panel); border-top: 4px solid var(--accent); border-bottom: 4px solid var(--accent); position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,229,255,0.2); }
   .fs-spin-track { display: flex; align-items: center; gap: 15px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
-  
-  .fs-spin-item { flex-shrink: 0; width: 140px; height: 140px; border-radius: 16px; background: #1e2230; border: 2px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; gap: 6px; position: relative; }
-  
-  /* Курсор по центру */
+  .fs-spin-item { flex-shrink: 0; width: 140px; height: 140px; border-radius: 16px; background: #1e2230; border: 2px solid var(--border); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 24px; }
   .fs-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 6px; background: var(--accent-green); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent-green); }
   .fs-pointer::before, .fs-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; }
   .fs-pointer::before { top: 0; border-top: 15px solid var(--accent-green); }
   .fs-pointer::after { bottom: 0; border-bottom: 15px solid var(--accent-green); }
-
-  /* Цвета призов */
-  .fs-spin-item.r0 { color: #fff; }
   .fs-spin-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
   .fs-spin-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
   .fs-spin-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
   .fs-spin-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
-
-  /* МОДАЛКА СОДЕРЖИМОГО КЕЙСА */
-  .content-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
-  .content-modal-overlay.show { display: flex; }
-  .content-modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 24px; padding: 30px; max-width: 600px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; }
-  @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .content-modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
-  
-  .prizes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 25px; }
-  .prize-item { background: #1e2230; border: 1px solid var(--border); border-radius: 12px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; }
-  .prize-item.r0 { border-color: rgba(255,255,255,0.1); color: #fff; }
-  .prize-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
-  .prize-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
-  .prize-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
-  .prize-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-
-  .modal-actions { display: flex; gap: 10px; }
-  .modal-actions button { flex: 1; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
-  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
-  .btn-cancel:hover { background: rgba(255,255,255,0.2); }
-  .btn-spin { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
-  .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
 
   /* УВЕДОМЛЕНИЕ СВЕРХУ */
   .top-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 16px; padding: 20px 40px; text-align: center; box-shadow: 0 10px 40px rgba(0,255,136,0.3); z-index: 4000; transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 300px; }
@@ -121,12 +122,12 @@
     .case-img { width: 50px; height: 50px; }
     .case-price { font-size: 12px; }
     .btn-select { font-size: 10px; padding: 6px; }
-    .topbar { padding: 15px; }
-    
-    .fs-title { font-size: 24px; margin-bottom: 20px; }
+    .case-center h1 { font-size: 26px; }
+    .case-center-img { width: 90px; height: 90px; }
+    .btn-open-big { padding: 14px 30px; font-size: 16px; }
     .fs-spin-window { height: 120px; }
     .fs-spin-item { width: 90px; height: 90px; font-size: 18px; }
-    .content-modal-box { padding: 20px; }
+    .drop-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 500px) {
     .cases-grid { grid-template-columns: repeat(2, 1fr); }
@@ -148,34 +149,53 @@
 </div>
 
 <div class="container">
-  <div class="section-title">Кейсы</div>
-  <div class="cases-grid" id="casesGrid"></div>
-</div>
 
-<!-- МОДАЛКА СОДЕРЖИМОГО -->
-<div class="content-modal-overlay" id="contentModalOverlay">
-  <div class="content-modal-box">
-    <h2 id="contentModalTitle">Содержимое кейса</h2>
-    <div class="prizes-grid" id="contentPrizesGrid"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeContentModal()">Отмена</button>
-      <button class="btn-spin" id="contentBtnSpin">Крутить</button>
-    </div>
+  <!-- СПИСОК ВСЕХ КЕЙСОВ -->
+  <div class="all-cases-screen" id="allCasesScreen">
+    <div class="section-title">Кейсы</div>
+    <div class="cases-grid" id="casesGrid"></div>
   </div>
+
+  <!-- ЭКРАН КОНКРЕТНОГО КЕЙСА -->
+  <div class="case-screen" id="caseScreen">
+    
+    <!-- История последних выпадений -->
+    <div class="history-bar">
+      <div class="history-track" id="historyTrack">
+        <!-- Заполняется скриптом -->
+      </div>
+    </div>
+
+    <!-- Центр -->
+    <div class="case-center">
+      <div class="case-center-img" id="caseCenterImg"></div>
+      <h1 id="caseCenterName">Новичок</h1>
+      <div class="price-tag" id="caseCenterPrice">39.99 ₽</div>
+      
+      <div class="case-actions">
+        <button class="btn-open-big" id="btnOpenCase">Открыть за 39.99 ₽</button>
+        <button class="btn-back-cases" onclick="backToAllCases()">К другим кейсам</button>
+      </div>
+    </div>
+
+    <!-- Возможный дроп -->
+    <div class="drop-title">Возможный дроп</div>
+    <div class="drop-grid" id="dropGrid"></div>
+
+  </div>
+
 </div>
 
-<!-- ПОЛНОЭКРАННЫЙ ОВЕРЛЕЙ -->
+<!-- ПОЛНОЭКРАННАЯ КРУТКА -->
 <div class="fullscreen-spin" id="fsSpinOverlay">
-  <button class="close-fs" onclick="closeFullscreenSpin()">✕</button>
   <div class="fs-title" id="fsTitle">Открытие кейса...</div>
-  
   <div class="fs-spin-window">
     <div class="fs-pointer"></div>
     <div class="fs-spin-track" id="fsSpinTrack"></div>
   </div>
 </div>
 
-<!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ СВЕРХУ -->
+<!-- УВЕДОМЛЕНИЕ -->
 <div class="top-toast" id="topToast">
   <div class="t-title">Ваш выигрыш</div>
   <div class="t-amount" id="toastAmount">+0 ₽</div>
@@ -243,7 +263,7 @@ async function initCases() {
       
       div.onclick = () => { 
         if(c.available) {
-          openContentModal(c);
+          openCaseScreen(c);
         }
       };
 
@@ -261,48 +281,77 @@ async function initCases() {
   }
 }
 
-function openContentModal(c) {
+async function openCaseScreen(c) {
   selectedCase = c;
   
-  document.getElementById('contentModalTitle').textContent = `Содержимое кейса "${c.name}"`;
+  document.getElementById('allCasesScreen').classList.add('hidden');
+  document.getElementById('caseScreen').classList.add('active');
+
+  document.getElementById('caseCenterImg').innerHTML = caseIcons[c.name] || '';
+  document.getElementById('caseCenterName').textContent = c.name;
+  document.getElementById('caseCenterPrice').textContent = `${fmt(c.price)} ₽`;
   
-  const grid = document.getElementById('contentPrizesGrid');
-  grid.innerHTML = c.prizes.map(p => {
+  const btn = document.getElementById('btnOpenCase');
+  btn.textContent = `Открыть за ${fmt(c.price)} ₽`;
+  btn.onclick = startSpin;
+
+  // Возможный дроп
+  const dropGrid = document.getElementById('dropGrid');
+  dropGrid.innerHTML = c.prizes.map(p => {
     const rar = getRarityClass(p);
     return `
-      <div class="prize-item ${rar}">
+      <div class="drop-item ${rar}">
         ${p} ₽
       </div>
     `;
   }).join('');
 
-  const btn = document.getElementById('contentBtnSpin');
-  btn.textContent = `Крутить за ${fmt(c.price)} ₽`;
-  
-  document.getElementById('contentModalOverlay').classList.add('show');
+  // Загружаем историю выпадений
+  loadHistory();
 }
 
-function closeContentModal() {
-  document.getElementById('contentModalOverlay').classList.remove('show');
+function backToAllCases() {
+  document.getElementById('caseScreen').classList.remove('active');
+  document.getElementById('allCasesScreen').classList.remove('hidden');
 }
 
-document.getElementById('contentBtnSpin').onclick = () => {
-  closeContentModal();
-  startSpin(selectedCase);
-};
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/cases/last-drops');
+    const drops = await r.json();
+    const track = document.getElementById('historyTrack');
+    
+    if (!drops || drops.length === 0) {
+      track.innerHTML = `<div class="history-item">Пока нет выпадений...</div>`;
+      return;
+    }
+    
+    // Дублируем элементы, чтобы бегущая строка была бесконечной
+    const items = drops.map(d => `
+      <div class="history-item">
+        <b>${d.guest_name}</b> выбил <span>${fmt(d.prize)} ₽</span> из «${d.case_name}»
+      </div>
+    `).join('');
+    
+    track.innerHTML = items + items; // Дублируем для плавности
+  } catch(e) {
+    console.error(e);
+  }
+}
 
-function startSpin(c) {
+function startSpin() {
   if (isSpinning) return;
+  isSpinning = true;
   
   document.getElementById('fsSpinOverlay').classList.add('show');
-  document.getElementById('fsTitle').textContent = c.name;
+  document.getElementById('fsTitle').textContent = selectedCase.name;
   
   const track = document.getElementById('fsSpinTrack');
   track.innerHTML = '';
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
-  const fakePrizes = [5, 10, 15, 20, 30, 50, 75, 100, 175, 500];
+  const fakePrizes = selectedCase.prizes.length > 0 ? selectedCase.prizes : [5, 10, 20];
   for(let i=0; i<40; i++){
     const fakeVal = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
     const rar = getRarityClass(fakeVal);
@@ -317,9 +366,6 @@ function startSpin(c) {
 }
 
 async function executeSpin() {
-  if (isSpinning || !selectedCase) return;
-  isSpinning = true;
-
   try {
     const res = await fetch('/api/cases/open', {
       method: 'POST',
@@ -329,7 +375,7 @@ async function executeSpin() {
     const data = await res.json();
     
     if (!res.ok) {
-      closeFullscreenSpin();
+      document.getElementById('fsSpinOverlay').classList.remove('show');
       isSpinning = false;
       return;
     }
@@ -339,7 +385,7 @@ async function executeSpin() {
 
     const track = document.getElementById('fsSpinTrack');
     track.innerHTML = '';
-    const fakePrizes = [5, 10, 15, 20, 30, 50, 75, 100, 175, 500];
+    const fakePrizes = selectedCase.prizes.length > 0 ? selectedCase.prizes : [5, 10, 20];
     
     for(let i=0; i<40; i++){
       let val = fakePrizes[Math.floor(Math.random()*fakePrizes.length)];
@@ -368,18 +414,14 @@ async function executeSpin() {
       document.getElementById('fsSpinOverlay').classList.remove('show');
       showTopToast(prize);
       loadBalance();
+      loadHistory(); // Обновляем историю после прокрутки
       isSpinning = false;
     }, 5600);
 
   } catch(e) {
-    closeFullscreenSpin();
+    document.getElementById('fsSpinOverlay').classList.remove('show');
     isSpinning = false;
   }
-}
-
-function closeFullscreenSpin() {
-  if (isSpinning) return;
-  document.getElementById('fsSpinOverlay').classList.remove('show');
 }
 
 function showTopToast(prize) {
