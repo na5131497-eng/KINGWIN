@@ -57,31 +57,14 @@
   
   /* КРАСИВЫЙ CSS БАННЕР */
   .hero { 
-    position: relative; 
-    border-radius: 20px; 
-    overflow: hidden; 
+    position: relative; border-radius: 20px; overflow: hidden; 
     background: linear-gradient(135deg, #0f1a2e 0%, #1e1440 50%, #0a1a1a 100%);
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    box-shadow: 0 0 40px rgba(0, 229, 255, 0.15), inset 0 0 60px rgba(168, 85, 247, 0.1);
-    width: 100%; 
-    margin-bottom: 30px; 
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    border: 1px solid rgba(0, 229, 255, 0.3); box-shadow: 0 0 40px rgba(0, 229, 255, 0.15), inset 0 0 60px rgba(168, 85, 247, 0.1);
+    width: 100%; margin-bottom: 30px; padding: 40px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
   }
-  
-  .hero::before {
-    content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); filter: blur(30px);
-  }
-  .hero::after {
-    content: ''; position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%); filter: blur(30px);
-  }
-
+  .hero::before { content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); filter: blur(30px); }
+  .hero::after { content: ''; position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%); filter: blur(30px); }
   .hero-badge { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 900; margin-bottom: 16px; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,255,136,0.5); z-index: 1; }
   .hero-title { font-size: 42px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(0,0,0,0.8); z-index: 1; }
   .hero-title span { background: linear-gradient(90deg, #00ff88, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
@@ -111,19 +94,6 @@
   .crash-card .crash-sub { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-top: 4px; }
   .crash-card .crash-play { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00ff88, #00b366); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(0,255,136,0.5); flex-shrink: 0; }
   .crash-card .crash-play svg { width: 20px; height: 20px; fill: #000; margin-left: 3px; }
-
-  /* Заготовки */
-  .placeholder-card {
-    position: relative; width: 100%; aspect-ratio: 1 / 1;
-    border-radius: 18px; overflow: hidden;
-    border: 2px dashed rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.02);
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    transition: 0.3s; cursor: default;
-  }
-  .placeholder-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(0,229,255,0.3); }
-  .placeholder-card svg { width: 32px; height: 32px; fill: rgba(255,255,255,0.2); margin-bottom: 10px; }
-  .placeholder-text { font-size: 12px; color: rgba(255,255,255,0.2); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 
   /* --- МОДАЛКА ПОПОЛНЕНИЯ --- */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
@@ -293,14 +263,34 @@
         </div>
       </div>
 
-      <!-- Заготовки (осталось 2) -->
-      <div class="placeholder-card">
-        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        <div class="placeholder-text">Скоро</div>
+      <!-- Ladder -->
+      <div class="crash-card" onclick="showLadderStub()">
+        <img src="/ladder_card.jpg" alt="Ladder" onerror="this.style.display='none'">
+        <div class="crash-overlay"></div>
+        <div class="crash-info">
+          <div>
+            <div class="crash-title">Ladder</div>
+            <div class="crash-sub">Поднимайся выше</div>
+          </div>
+          <div class="crash-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
       </div>
-      <div class="placeholder-card">
-        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        <div class="placeholder-text">Скоро</div>
+
+      <!-- Plinko -->
+      <div class="crash-card" onclick="showPlinkoStub()">
+        <img src="/plinko_card.jpg" alt="Plinko" onerror="this.style.display='none'">
+        <div class="crash-overlay"></div>
+        <div class="crash-info">
+          <div>
+            <div class="crash-title">Plinko</div>
+            <div class="crash-sub">Поймай удачу</div>
+          </div>
+          <div class="crash-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
       </div>
       
     </div>
@@ -398,13 +388,10 @@ function showToast(text, type='success') {
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
 }
 
-function showCasesStub() {
-  showToast('Кейсы скоро появятся', 'success');
-}
-
-function showMinerStub() {
-  showToast('Miner скоро появится', 'success');
-}
+function showCasesStub() { showToast('Кейсы скоро появятся', 'success'); }
+function showMinerStub() { showToast('Miner скоро появится', 'success'); }
+function showLadderStub() { showToast('Ladder скоро появится', 'success'); }
+function showPlinkoStub() { showToast('Plinko скоро появится', 'success'); }
 
 function openModal(id) { 
   if(id === 'depositModal' && !currentPlayer) {
