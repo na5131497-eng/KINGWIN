@@ -6,8 +6,13 @@
 <title>🪜 ЛЕСЕНКА — KINGWIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  :root { 
+    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; 
+    --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; 
+    --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); 
+    --red: #ff4d4d; --gold: #f1c40f; 
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
   /* Меню */
@@ -31,6 +36,7 @@
 
   .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1100px; width: 100%; margin: 20px auto; padding: 0 15px; flex: 1; align-items: start; }
   
+  /* САЙДБАР (ПАНЕЛЬ УПРАВЛЕНИЯ) */
   .sidebar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   .sidebar h2 { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
   .bet-input { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
@@ -52,6 +58,7 @@
   .btn-main.cashout { background: linear-gradient(135deg, #00ff88, #00b366); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
   .btn-main.cashout:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0,255,136,0.6); }
   
+  /* ИГРОВОЕ ПОЛЕ */
   .game-area { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; display: flex; justify-content: center; }
   .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 10px 10px 10px 20px; }
   .grid-scroll::-webkit-scrollbar { display: none; }
@@ -80,16 +87,31 @@
   .toast.on { opacity: 1; transform: translate(-50%, 0); }
   .toast.error { border-color: var(--red); }
 
-  /* АДАПТИВ */
+  /* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ ========== */
   @media (max-width: 800px) {
-    .layout { grid-template-columns: 1fr; margin: 10px auto; }
-    .game-area { min-height: 400px; padding: 5px; order: -1; }
-    .cell { width: 26px; height: 26px; border-radius: 8px; font-size: 12px; }
-    .row { grid-template-columns: 50px 1fr; gap: 8px; }
-    .m-val { width: 50px; font-size: 10px; }
-    .topbar { padding-left: 65px; height: 60px; }
+    .layout { grid-template-columns: 1fr; margin: 10px auto; gap: 10px; }
+    
+    .game-area { min-height: auto; padding: 10px 5px; order: -1; /* Игровое поле наверх */ }
+    .grid-scroll { max-height: 60vh; padding: 10px 5px 10px 5px; }
+    
+    /* Уменьшаем лесенку, чтобы влезала на экран */
+    .row { grid-template-columns: 45px 1fr; gap: 8px; }
+    .m-val { width: 45px; font-size: 10px; padding: 6px 0; }
+    .cells-container { gap: 3px; }
+    .cell { width: 22px; height: 22px; border-radius: 5px; border-width: 1px; font-size: 10px; }
+    .cell.stone-icon::after { font-size: 10px; }
+    .cell.diamond-icon::after { font-size: 10px; }
+    
+    /* Кнопки и ввод на всю ширину */
     .sidebar { padding: 15px; }
+    .stone-btn { width: 42px; height: 42px; flex: 1; font-size: 14px; }
     .btn-main { padding: 15px; font-size: 14px; }
+    .bet-input input { font-size: 18px; }
+    
+    .topbar { padding-left: 65px; height: 60px; }
+    .history-bar { padding: 8px 10px; }
+    .history-title { font-size: 10px; }
+    .history-item { padding: 4px 8px; font-size: 10px; }
   }
 </style>
 </head>
