@@ -36,7 +36,15 @@
   .bet-row { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.3fr; padding: 12px 15px; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); }
   .bet-row:hover { background: rgba(255,255,255,0.03); }
   .bet-user { display: flex; align-items: center; gap: 8px; font-weight: 600; min-width: 0; }
-  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #2a2d3e; display: flex; justify-content: center; align-items: center; font-size: 11px; color: var(--accent); flex-shrink: 0; }
+  .user-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 9px; font-weight: 900; color: #fff;
+    letter-spacing: 0.3px; flex-shrink: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 0 8px rgba(0,229,255,0.3);
+  }
   .user-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
   .user-name { font-weight: 700; font-size: 12px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-rank { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
@@ -229,13 +237,17 @@ let round = {
   crashPoint: 1,
   serverMult: 1,
   bets: [],
-  history: []
+  history: [],
+  hasRealBet: false
 };
 
 let graphPoints = [];
 let lastGraphRoundId = null;
 let lastBetsSig = '';
 let lastHistorySig = '';
+
+let localCrashed = false;
+let localCrashMult = 1;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -282,43 +294,53 @@ document.getElementById('balanceBadge').addEventListener('click', () => {
 /* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ---------- */
 function currentLocalMultiplier() {
   if (round.status === 'waiting') return 1;
-  if (round.status === 'crashed') return round.crashPoint;
+  if (round.status === 'crashed' || localCrashed) return localCrashMult;
   if (round.status === 'flying' && round.startTime) {
     const elapsed = Date.now() - round.startTime;
     let m = Math.pow(1.00006, elapsed);
-    if (m >= round.crashPoint) m = round.crashPoint;
+    if (m >= round.crashPoint) {
+      if (!localCrashed) {
+        localCrashed = true;
+        localCrashMult = round.crashPoint;
+      }
+      return localCrashMult;
+    }
     return m;
   }
   return 1;
 }
 
-/* ---------- ВОССТАНОВЛЕНИЕ ГРАФИКА С НАЧАЛА РАУНДА ---------- */
-function rebuildGraphFromStart(serverMult) {
+/* ---------- ВОССТАНОВЛЕНИЕ ГРАФИКА ---------- */
+function rebuildGraphFromStart() {
   graphPoints = [];
   if (!round.startTime) return;
 
   const elapsedMs = Date.now() - round.startTime;
-  if (elapsedMs <= 0) return;
+  if (elapsedMs <= 0) {
+    graphPoints.push({ x: 0, y: 1 });
+    return;
+  }
 
-  const stepMs = 100;
-  const maxMult = (round.status === 'crashed') ? round.crashPoint : serverMult;
+  const stepMs = 80;
+  const capMult = localCrashed ? round.crashPoint : Infinity;
 
   for (let t = 0; t <= elapsedMs; t += stepMs) {
     let m = Math.pow(1.00006, t);
     if (m >= round.crashPoint) {
-      graphPoints.push({ x: Math.log(round.crashPoint)/Math.log(1.00006)/1000, y: round.crashPoint });
-      break;
+      const crashMs = Math.log(round.crashPoint) / Math.log(1.00006);
+      graphPoints.push({ x: crashMs / 1000, y: round.crashPoint });
+      return;
     }
-    graphPoints.push({ x: t / 1000, y: m });
+    graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) });
   }
 
   const lastT = elapsedMs / 1000;
-  const lastM = Math.min(maxMult, Math.pow(1.00006, elapsedMs));
+  const lastM = currentLocalMultiplier();
   const last = graphPoints[graphPoints.length - 1];
   if (!last || last.x < lastT) {
     graphPoints.push({ x: lastT, y: lastM });
   } else if (last) {
-    last.y = Math.min(maxMult, Math.pow(1.00006, elapsedMs));
+    last.y = lastM;
   }
 }
 
@@ -338,6 +360,8 @@ function applyServerState(d) {
     myBetIds = { 1: null, 2: null };
     myCashed = { 1: false, 2: false };
     graphPoints = [];
+    localCrashed = false;
+    localCrashMult = 1;
     loadBalance();
   }
 
@@ -351,12 +375,18 @@ function applyServerState(d) {
   round.serverMult = parseFloat(d.multiplier) || 1;
   round.bets = d.bets || [];
   round.history = d.history || [];
+  round.hasRealBet = d.hasRealBet || false;
+
+  if (d.status === 'crashed') {
+    localCrashed = true;
+    localCrashMult = round.crashPoint;
+  }
 
   if (roundChanged || isFirstLoad) {
     lastGraphRoundId = d.roundId;
     graphPoints = [];
     if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) {
-      rebuildGraphFromStart(round.serverMult);
+      rebuildGraphFromStart();
     }
   }
 
@@ -376,19 +406,25 @@ function frame() {
     prevMult = mult;
   }
 
-  if (round.status === 'waiting') {
+  const effStatus = localCrashed ? 'crashed' : round.status;
+
+  if (effStatus === 'waiting') {
     multValueEl.classList.remove('crashed');
-    multLabelEl.textContent = 'Ожидание ставок...';
+    multLabelEl.textContent = round.hasRealBet
+      ? 'Ставки приняты, старт...'
+      : 'Ожидание первой ставки...';
     graphPoints = [];
-  } else if (round.status === 'flying') {
+  } else if (effStatus === 'flying') {
     multValueEl.classList.remove('crashed');
     multLabelEl.textContent = '';
     if (round.startTime) {
       const t = (Date.now() - round.startTime) / 1000;
       const last = graphPoints[graphPoints.length - 1];
-      if (!last || t - last.x > 0.033) {
+      if (!last || t > last.x + 0.001) {
         graphPoints.push({ x: t, y: mult });
         if (graphPoints.length > 2000) graphPoints.shift();
+      } else if (last) {
+        last.y = mult;
       }
     }
     [1, 2].forEach(id => {
@@ -398,16 +434,23 @@ function frame() {
         if (box.checked && mult >= target) doCashout(id);
       }
     });
-  } else if (round.status === 'crashed') {
+  } else if (effStatus === 'crashed') {
     multValueEl.classList.add('crashed');
     multLabelEl.textContent = 'КРАШ!';
     if (graphPoints.length < 2 && round.startTime) {
-      rebuildGraphFromStart(round.crashPoint);
+      rebuildGraphFromStart();
+    }
+    if (round.startTime) {
+      const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) {
+        graphPoints.push({ x: crashSec, y: round.crashPoint });
+      }
     }
   }
 
-  drawGraph(mult, round.status);
-  updateBetButtonsLive(mult);
+  drawGraph(mult, effStatus);
+  updateBetButtonsLive(mult, effStatus);
 
   requestAnimationFrame(frame);
 }
@@ -430,8 +473,9 @@ function drawGraph(currentMult, status) {
     const drawW = W - paddingL - paddingR;
     const drawH = H - paddingT - paddingB;
 
-    const maxX = Math.max(5, graphPoints[graphPoints.length - 1].x);
-    const maxY = Math.max(2, currentMult);
+    const lastX = graphPoints[graphPoints.length - 1].x;
+    const maxX = Math.max(3, lastX);
+    const maxY = Math.max(currentMult * 1.15, 1.5);
 
     ctx.beginPath();
     ctx.strokeStyle = status === 'crashed' ? '#ff4d4d' : '#00e5ff';
@@ -467,13 +511,6 @@ function drawGraph(currentMult, status) {
 }
 
 /* ---------- ТАБЛИЦА СТАВОК ---------- */
-function maskCard(id) {
-  if (!id) return '••••';
-  const s = String(id);
-  if (s.length <= 4) return s;
-  return s.slice(0, 4) + '••••';
-}
-
 function renderBets(bets) {
   const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
   if (sig === lastBetsSig) return;
@@ -484,10 +521,9 @@ function renderBets(bets) {
 
   list.innerHTML = bets.map(b => {
     const isMine = b.player_id && String(b.player_id) === String(playerId);
-    const masked = b.player_name || maskCard(b.player_id);
+    const masked = b.player_name || '••••';
     const rank = b.player_rank || '';
     const label = (isMine ? '★ ' : '') + masked;
-    const avatarChar = (masked && masked[0]) ? masked[0] : '?';
     let multHtml = '--';
     let winHtml = '--';
     if (b.cashed_out) {
@@ -499,7 +535,7 @@ function renderBets(bets) {
     return `
       <div class="bet-row">
         <div class="bet-user">
-          <div class="user-avatar">${avatarChar}</div>
+          <div class="user-avatar">KW</div>
           <div class="user-meta">
             <div class="user-name">${label}</div>
             ${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}
@@ -529,12 +565,13 @@ function renderHistory(history) {
 
 /* ---------- КНОПКИ ---------- */
 function updateBetButtons() {
+  const effStatus = localCrashed ? 'crashed' : round.status;
   [1, 2].forEach(id => {
     const btn = document.getElementById('btnBet' + id);
     const betId = myBetIds[id];
     const cashed = myCashed[id];
 
-    if (round.status === 'waiting') {
+    if (effStatus === 'waiting') {
       if (betId) {
         btn.className = 'btn-action btn-cancel';
         btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
@@ -545,7 +582,7 @@ function updateBetButtons() {
         btn.innerHTML = `Ставка <div class="subtext" id="subtext${id}">${amt} ₽</div>`;
         btn.disabled = false;
       }
-    } else if (round.status === 'flying') {
+    } else if (effStatus === 'flying') {
       if (betId && !cashed) {
         btn.className = 'btn-action btn-cancel';
         btn.disabled = false;
@@ -566,9 +603,9 @@ function updateBetButtons() {
   });
 }
 
-function updateBetButtonsLive(mult) {
+function updateBetButtonsLive(mult, effStatus) {
   [1, 2].forEach(id => {
-    if (round.status === 'flying' && myBetIds[id] && !myCashed[id]) {
+    if (effStatus === 'flying' && myBetIds[id] && !myCashed[id]) {
       const btn = document.getElementById('btnBet' + id);
       const amt = getBetAmountById(myBetIds[id], round.bets);
       if (amt > 0) {
@@ -608,7 +645,7 @@ function setAmount(id, val) {
 
 async function placeBet(id) {
   if (myBetIds[id]) {
-    if (round.status === 'flying' && !myCashed[id]) return doCashout(id);
+    if (round.status === 'flying' && !myCashed[id] && !localCrashed) return doCashout(id);
     if (round.status === 'waiting') {
       showToast('Ставка уже принята', 'error');
       return;
