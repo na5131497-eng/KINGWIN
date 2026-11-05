@@ -55,22 +55,45 @@
 
   .content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
   
-  /* КРАСИВЫЙ CSS БАННЕР */
+  /* БАННЕР */
   .hero { 
-    position: relative; border-radius: 20px; overflow: hidden; 
-    background: linear-gradient(135deg, #0f1a2e 0%, #1e1440 50%, #0a1a1a 100%);
-    border: 1px solid rgba(0, 229, 255, 0.3); box-shadow: 0 0 40px rgba(0, 229, 255, 0.15), inset 0 0 60px rgba(168, 85, 247, 0.1);
-    width: 100%; margin-bottom: 30px; padding: 40px 20px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    position: relative; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    border: 1px solid rgba(0, 229, 255, 0.3); 
+    background: #0f1a2e;
+    width: 100%; 
+    margin-bottom: 30px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
-  .hero::before { content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); filter: blur(30px); }
-  .hero::after { content: ''; position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0, 229, 255, 0.4) 0%, transparent 70%); filter: blur(30px); }
-  .hero-badge { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 900; margin-bottom: 16px; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,255,136,0.5); z-index: 1; }
-  .hero-title { font-size: 42px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 12px; text-shadow: 0 4px 20px rgba(0,0,0,0.8); z-index: 1; }
-  .hero-title span { background: linear-gradient(90deg, #00ff88, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
-  .hero-sub { font-size: 16px; color: #d0d5e0; font-weight: 500; margin-bottom: 25px; z-index: 1; }
-  .hero-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; padding: 14px 36px; border-radius: 12px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 1; }
-  .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 229, 255, 0.6); }
+  .hero img { 
+    width: 100%; 
+    height: auto; 
+    display: block; 
+    object-fit: cover; 
+    max-height: 400px; 
+  }
+  
+  /* ПЛАШКА БОНУСА */
+  .bonus-tag {
+    position: absolute; 
+    bottom: 20px; 
+    right: 20px; 
+    background: rgba(9, 10, 16, 0.85); 
+    backdrop-filter: blur(10px); 
+    border: 2px solid var(--accent-green); 
+    border-radius: 16px; 
+    padding: 16px 24px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 136, 0.3); 
+    text-align: left; 
+    z-index: 2;
+    animation: float 4s ease-in-out infinite;
+  }
+  .bonus-tag .tag-lbl { font-size: 12px; font-weight: 900; color: var(--accent-green); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .bonus-tag .tag-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
+  .bonus-tag .tag-amount { font-size: 22px; font-weight: 900; color: var(--accent-green); margin-top: 6px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
   .section-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 30px; }
   .section-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; margin-right: 10px; vertical-align: text-bottom; }
@@ -149,9 +172,11 @@
     .mobile-burger { display: block; }
     .topbar { padding: 0 15px; height: 60px; gap: 10px; }
     .content { padding: 15px; padding-bottom: 40px; }
-    .hero { padding: 30px 15px; }
-    .hero-title { font-size: 28px; }
-    .hero-sub { font-size: 14px; }
+    .hero img { max-height: 250px; }
+    .bonus-tag { bottom: 10px; right: 10px; padding: 10px 14px; }
+    .bonus-tag .tag-lbl { font-size: 9px; }
+    .bonus-tag .tag-title { font-size: 12px; }
+    .bonus-tag .tag-amount { font-size: 16px; }
     .section-title { font-size: 18px; margin-top: 20px; }
     .games-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .balance-btn { padding: 6px 10px; font-size: 12px; }
@@ -207,12 +232,16 @@
 
   <div class="content">
     
-    <!-- КРАСИВЫЙ БАННЕР -->
+    <!-- БАННЕР С ДЕВУШКОЙ И БОНУСОМ -->
     <div class="hero">
-      <div class="hero-badge">БОНУС НОВИЧКАМ</div>
-      <div class="hero-title">100 ₽ <span>БЕСПЛАТНО</span></div>
-      <div class="hero-sub">при пополнении от 200 ₽ на первый депозит</div>
-      <button class="hero-btn" onclick="openDeposit()">Пополнить сейчас</button>
+      <!-- Название картинки можно поменять, если у тебя другое -->
+      <img src="/main_banner.jpg" alt="KINGWIN Bonus">
+      
+      <div class="bonus-tag">
+        <div class="tag-lbl">🎁 Bonus</div>
+        <div class="tag-title">На первый депозит от 200 ₽</div>
+        <div class="tag-amount">+100 ₽ ПОДАРОК</div>
+      </div>
     </div>
 
     <div class="section-title">Наши игры</div>
