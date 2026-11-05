@@ -198,7 +198,7 @@ const BOT_COUNT = 6;
 
 let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false };
 let crashTimeouts = [];
-let queuedBets = []; // Очередь ставок
+let queuedBets = [];
 
 function crashClearTimers() {
   crashTimeouts.forEach(t => clearTimeout(t));
@@ -232,7 +232,6 @@ function botInit() {
     const rank = ranks[Math.floor(Math.random() * ranks.length)];
     bots.push({ id, rank, masked: id.slice(0, 4) + '••••' });
   }
-  console.log('Боты созданы: ' + bots.length);
 }
 
 async function botPlaceBet(bot) {
@@ -279,9 +278,7 @@ async function crashStartWaiting() {
     crashState.status = 'waiting';
     crashState.hasRealBet = false;
     crashState.waitTimer = null;
-    console.log('CRASH round #' + crashState.roundId + ' waiting, point=' + cp.toFixed(2));
 
-    // Применяем очередь
     if (queuedBets.length > 0) {
       const toApply = queuedBets.slice();
       queuedBets = [];
@@ -305,14 +302,13 @@ async function crashStartWaiting() {
              VALUES ($1,$2,$3,$4,$5)`,
             [crashState.roundId, q.player_id, maskName, guest.rank || 'Bronze', q.amount]);
           crashState.hasRealBet = true;
-        } catch(e){ console.error('queue apply error:', e.message); }
+        } catch(e){}
       }
       if (crashState.hasRealBet) tryStartFlightCountdown();
     }
 
     scheduleBotsForRound();
   } catch (e) {
-    console.error('ОШИБКА crashStartWaiting:', e.message);
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), 3000));
   }
 }
@@ -350,11 +346,9 @@ async function crashStartFlight() {
       `UPDATE crash_rounds SET status='flying', start_time=$1 WHERE id=$2`,
       [crashState.startTime, crashState.roundId]
     );
-    console.log('CRASH round #' + crashState.roundId + ' FLYING');
     const msToCrash = Math.log(crashState.crashPoint) / Math.log(1.00006);
     crashTimeouts.push(setTimeout(() => crashEndRound(), Math.max(msToCrash, 200)));
   } catch (e) {
-    console.error('ОШИБКА crashStartFlight:', e.message);
     crashTimeouts.push(setTimeout(() => crashEndRound(), 1000));
   }
 }
@@ -385,10 +379,8 @@ async function crashEndRound() {
         );
       }
     } catch(err) {}
-    console.log('CRASH round #' + crashState.roundId + ' CRASHED at ' + crashState.crashPoint.toFixed(2));
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), CRASH_CRASH_PAUSE));
   } catch (e) {
-    console.error('ОШИБКА crashEndRound:', e.message);
     crashTimeouts.push(setTimeout(() => crashStartWaiting(), 3000));
   }
 }
@@ -482,6 +474,9 @@ async function initDB() {
         case_name TEXT, case_price NUMERIC DEFAULT 0, prize NUMERIC DEFAULT 0,
         created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS game_history (
+        id SERIAL PRIMARY KEY, game TEXT, player_name TEXT, bet NUMERIC DEFAULT 0, result NUMERIC DEFAULT 0, created_at TIMESTAMP DEFAULT NOW()
+      );
       CREATE TABLE IF NOT EXISTS dealer_balance (
         dealer_id INTEGER PRIMARY KEY, balance NUMERIC DEFAULT 0,
         updated_at TIMESTAMP DEFAULT NOW()
@@ -522,7 +517,7 @@ async function initDB() {
       `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`,
       `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`
     ];
-    for (const c of cols){ try { await pool.query(c); } catch(e){ console.error('ALTER err:', e.message); } }
+    for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){
@@ -814,16 +809,31 @@ const server = http.createServer(async (req, res) => {
       await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep + prize, guest.id]);
       await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`,
         [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
+      
+      await pool.query(
+        `INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`,
+        ['cases', guest.name, c.price, prize]
+      );
+
       const net = c.price - prize;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
         [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
       return sendJSON(res, 200, { ok: true, prize, new_balance: newBalance, case_name, price: c.price });
     }
 
+    if (url === '/api/cases/history' && method === 'GET') {
+      try {
+        const r = await pool.query(
+          `SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='cases' ORDER BY id DESC LIMIT 15`
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 200, []); }
+    }
+
     /* ================= MINER ================= */
     if (url === '/api/miner/play' && method === 'POST') {
       const b = await parseBody(req);
-      const { guest_id, bet, win } = b;
+      const { guest_id, bet, win, multiplier } = b;
       if (!guest_id) return sendJSON(res, 400, { error: 'no guest_id' });
       
       const betAmount = parseFloat(bet) || 0;
@@ -854,6 +864,14 @@ const server = http.createServer(async (req, res) => {
 
       await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [newBonus, newDep, guest.id]);
 
+      if (winAmount > 0 || multiplier) {
+         const mult = parseFloat(multiplier) || 1;
+         await pool.query(
+           `INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`,
+           ['miner', guest.name, betAmount || winAmount, mult]
+         );
+      }
+
       const net = betAmount - winAmount;
       if (betAmount > 0 || winAmount > 0) {
         const type = net >= 0 ? 'доход' : 'расход';
@@ -864,6 +882,15 @@ const server = http.createServer(async (req, res) => {
       }
 
       return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep });
+    }
+
+    if (url === '/api/miner/history' && method === 'GET') {
+      try {
+        const r = await pool.query(
+          `SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='miner' ORDER BY id DESC LIMIT 15`
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 200, []); }
     }
 
     /* ================= CRASH ================= */
@@ -1115,11 +1142,6 @@ const server = http.createServer(async (req, res) => {
       `, [newLevel, today, newPending, id]);
 
       return sendJSON(res, 200, { reward, level: newLevel, pending_bonus: newPending });
-    }
-
-    /* ================= WHEEL (совместимость) ================= */
-    if (url === '/api/guest/wheel-state' && method === 'GET') {
-      return sendJSON(res, 200, { can_spin: false, prizes: [] });
     }
 
     /* ================= СВОДКА ================= */
