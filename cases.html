@@ -66,7 +66,6 @@
 
   .roulette-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   .roulette-title { font-size: 20px; font-weight: 900; text-transform: uppercase; }
-  .roulette-chances { font-size: 12px; color: var(--text-muted); }
 
   .spin-window { position: relative; height: 140px; background: var(--bg-dark); border-radius: 16px; overflow: hidden; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
   .spin-track { display: flex; align-items: center; gap: 10px; height: 100%; padding: 0 20px; position: absolute; left: 0; }
@@ -100,14 +99,24 @@
   .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px rgba(0,255,136,0.5); margin: 20px 0; }
   .btn-close-win { background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 15px 40px; font-size: 16px; font-weight: 900; cursor: pointer; width: 100%; }
 
-  /* CHANCES TABLE */
-  .chances-table { display: none; background: var(--bg-panel); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
-  .chances-table.show { display: block; }
-  .chances-table h3 { font-size: 16px; margin-bottom: 15px; color: var(--text-muted); }
-  .chance-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
-  .chance-row:last-child { border-bottom: none; }
-  .chance-row .val { font-weight: 800; }
-  .chance-row .pct { color: var(--text-muted); }
+  /* МОДАЛКА СОДЕРЖИМОГО КЕЙСА */
+  .content-modal { background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 24px; padding: 30px; text-align: center; max-width: 600px; width: 100%; box-shadow: 0 0 50px rgba(0,229,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .content-modal h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
+  .prizes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 25px; }
+  .prize-item { background: #1e2230; border: 1px solid var(--border); border-radius: 12px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; }
+  .prize-item span { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 5px; }
+  .prize-item.r0 { border-color: rgba(255,255,255,0.1); color: #fff; }
+  .prize-item.r1 { border-color: rgba(63,191,127,0.5); color: #3fbf7f; background: rgba(63,191,127,0.1); }
+  .prize-item.r2 { border-color: rgba(0,119,255,0.5); color: #00e5ff; background: rgba(0,119,255,0.1); }
+  .prize-item.r3 { border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.1); }
+  .prize-item.r4 { border-color: rgba(255,215,0,0.5); color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button { flex: 1; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+  .btn-confirm { background: linear-gradient(135deg, #00ff88, #00b366); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+  .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,136,0.5); }
 
   @media (max-width: 900px) {
     .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -120,6 +129,7 @@
   }
   @media (max-width: 500px) {
     .cases-grid { grid-template-columns: repeat(2, 1fr); }
+    .content-modal { padding: 20px; }
   }
 </style>
 </head>
@@ -139,21 +149,12 @@
   <div class="section-title">Кейсы</div>
 
   <!-- Сетка кейсов -->
-  <div class="cases-grid" id="casesGrid">
-    <!-- Генерируется скриптом -->
-  </div>
+  <div class="cases-grid" id="casesGrid"></div>
 
-  <!-- Таблица шансов выбранного кейса -->
-  <div class="chances-table" id="chancesTable">
-    <h3 id="chancesTitle">Содержимое кейса</h3>
-    <div id="chancesList"></div>
-  </div>
-
-  <!-- Зона прокрутки -->
+  <!-- Зона прокрутки (появляется после клика на кейс) -->
   <div class="roulette-container" id="rouletteContainer">
     <div class="roulette-header">
       <div class="roulette-title" id="rouletteCaseName">Новичок</div>
-      <div class="roulette-chances">RTP 95%</div>
     </div>
 
     <div class="spin-window">
@@ -161,7 +162,19 @@
       <div class="spin-track" id="spinTrack"></div>
     </div>
 
-    <button class="btn-spin" id="btnSpin" onclick="spin()">Крутить за 39.99 ₽</button>
+    <button class="btn-spin" id="btnSpin" disabled>Крутить</button>
+  </div>
+</div>
+
+<!-- Модалка содержимого кейса (Стартовая) -->
+<div class="win-overlay" id="caseContentOverlay">
+  <div class="content-modal">
+    <h2 id="contentTitle">Содержимое кейса</h2>
+    <div class="prizes-grid" id="prizesGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeContentModal()">Отмена</button>
+      <button class="btn-confirm" id="btnStartSpin" onclick="startSpinFromModal()">Крутить</button>
+    </div>
   </div>
 </div>
 
@@ -237,7 +250,14 @@ async function initCases() {
       const div = document.createElement('div');
       div.className = `case-card ${c.available ? '' : 'locked'}`;
       div.dataset.rank = c.minRank;
-      div.onclick = () => { if(c.available) selectCase(c); else alert('Этот кейс недоступен для вашего ранга'); };
+      // Клик по карточке открывает модалку с содержимым
+      div.onclick = () => { 
+        if(c.available) {
+          openContentModal(c);
+        } else {
+          alert('Этот кейс недоступен для вашего ранга');
+        }
+      };
 
       div.innerHTML = `
         <div class="case-name">${c.name}</div>
@@ -248,43 +268,61 @@ async function initCases() {
 
       grid.appendChild(div);
     });
-
-    // Автовыбор первого
-    const first = casesData.find(c => c.available);
-    if(first) selectCase(first);
-
   } catch(e) {
     console.error(e);
   }
 }
 
-function selectCase(c) {
+// Открытие модалки содержимого
+function openContentModal(c) {
   selectedCase = c;
   
   // Подсветка карточки
   document.querySelectorAll('.case-card').forEach(el => el.classList.remove('active'));
-  document.querySelector(`.case-card:nth-child(${casesData.indexOf(c)+1})`).classList.add('active');
+  const cards = Array.from(document.querySelectorAll('.case-card'));
+  const idx = casesData.indexOf(c);
+  if(cards[idx]) cards[idx].classList.add('active');
 
+  document.getElementById('contentTitle').textContent = `Содержимое кейса "${c.name}"`;
+  
+  // Заполняем сетку призов
+  const grid = document.getElementById('prizesGrid');
+  grid.innerHTML = c.prizes.map(p => {
+    const rar = getRarityClass(p.v);
+    return `
+      <div class="prize-item ${rar}">
+        ${p.v} ₽
+        <span>${p.v > 0 ? 'Приз' : 'Пусто'}</span>
+      </div>
+    `;
+  }).join('');
+
+  // Настраиваем кнопку
+  const btn = document.getElementById('btnStartSpin');
+  btn.textContent = `Крутить за ${fmt(c.price)} ₽`;
+  
+  document.getElementById('caseContentOverlay').classList.add('show');
+}
+
+function closeContentModal() {
+  document.getElementById('caseContentOverlay').classList.remove('show');
+}
+
+// Запуск прокрутки из модалки
+function startSpinFromModal() {
+  closeContentModal();
+  
   // Показываем зону крутки
   document.getElementById('rouletteContainer').classList.add('show');
-  document.getElementById('rouletteCaseName').textContent = c.name;
-  document.getElementById('btnSpin').textContent = `Крутить за ${fmt(c.price)} ₽`;
-
-  // Рендер шансов
-  const chancesTable = document.getElementById('chancesTable');
-  const chancesList = document.getElementById('chancesList');
-  chancesTable.classList.add('show');
-  document.getElementById('chancesTitle').textContent = `Содержимое кейса "${c.name}"`;
+  document.getElementById('rouletteCaseName').textContent = selectedCase.name;
+  document.getElementById('btnSpin').textContent = `Крутить за ${fmt(selectedCase.price)} ₽`;
+  document.getElementById('btnSpin').disabled = true;
   
-  // У нас на клиенте нет полного списка призов, только те, что передаст сервер,
-  // но для отображения шансов мы можем сделать запрос или использовать захардкоженные данные,
-  // которые пришли с сервера. В данном случае мы просто создадим заглушку, так как
-  // сервер отдает только список кейсов. В реальности, шансы можно передать в /api/cases/list.
+  // Инициализация визуальной ленты
+  renderTrack(selectedCase);
   
-  chancesList.innerHTML = `<div class="chance-row"><span>Шансы и призы генерируются на сервере для честности</span></div>`;
-  
-  // Инициализация ленты
-  renderTrack(c);
+  // Автоматический запуск прокрутки
+  spin();
 }
 
 function renderTrack(c) {
