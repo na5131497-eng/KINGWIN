@@ -76,7 +76,6 @@
   .roulette-overlay.show { display: flex; }
   .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; margin-bottom: 30px; }
   .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
-  @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
   .roulette-item { width: 130px; height: 110px; margin: 0 5px; background: linear-gradient(135deg, #131624 0%, #1a1c29 100%); border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-size: 24px; font-weight: 900; color: #fff; }
   .roulette-item.silver { border: 2px solid #eef2f3; color: #eef2f3; }
   .roulette-item.blue { border: 2px solid var(--accent); color: var(--accent); }
@@ -91,7 +90,16 @@
   .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
   .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); margin-bottom: 20px; }
 
-  /* ========== АДАПТИВ ========== */
+  /* КРАСИВОЕ ОКНО ОШИБКИ */
+  .alert-modal { background: var(--bg-panel); border: 2px solid var(--red); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 0 60px rgba(255,77,77,0.3); display: none; z-index: 3000; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; }
+  .alert-modal.show { display: block; animation: pop 0.4s ease; }
+  .alert-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+  .alert-text { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+  .alert-btn { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: 12px 30px; font-weight: 800; cursor: pointer; }
+  .alert-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; z-index: 2999; }
+  .alert-bg.show { display: block; }
+
+  /* АДАПТИВ */
   @media (max-width: 768px) {
     .topbar { padding-left: 65px; height: 60px; }
     .container { padding: 15px; }
@@ -164,10 +172,30 @@
   </div>
 </div>
 
+<!-- КРАСИВОЕ ОКНО ОШИБКИ -->
+<div class="alert-bg" id="alertBg" onclick="closeAlert()"></div>
+<div class="alert-modal" id="alertModal">
+  <div class="alert-title" id="alertTitle">Ошибка</div>
+  <div class="alert-text" id="alertText">Произошла ошибка.</div>
+  <button class="alert-btn" onclick="closeAlert()">ОК</button>
+</div>
+
 <script>
 let playerId = localStorage.getItem('kingwin_player_id');
 let currentCase = null;
 let allCasesList = [];
+
+// Вспомогательные функции для красивого окна вместо alert
+function showAlert(title, text) {
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertText').textContent = text;
+  document.getElementById('alertBg').classList.add('show');
+  document.getElementById('alertModal').classList.add('show');
+}
+function closeAlert() {
+  document.getElementById('alertBg').classList.remove('show');
+  document.getElementById('alertModal').classList.remove('show');
+}
 
 async function loadProfile() {
   if(!playerId) return;
@@ -225,7 +253,7 @@ function backToCatalog() {
 }
 
 async function openCaseAction() {
-  if(!playerId) { alert('Войдите в аккаунт!'); return; }
+  if(!playerId) { showAlert('Ошибка', 'Войдите в аккаунт!'); return; }
   if(!currentCase) return;
   const btn = document.getElementById('roomOpenBtn');
   btn.disabled = true; btn.textContent = 'Загрузка...';
@@ -233,10 +261,14 @@ async function openCaseAction() {
   try {
     const r = await fetch('/api/cases/open', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, case_name: currentCase.name }) });
     const d = await r.json();
-    if(!r.ok) { alert(d.error || 'Ошибка'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; return; }
+    if(!r.ok) { 
+      showAlert('Ошибка', d.error || 'Недостаточно средств');
+      btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; 
+      return; 
+    }
     startRouletteAnimation(d.prize);
     loadProfile(); loadHistory();
-  } catch(e) { alert('Ошибка соединения'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
+  } catch(e) { showAlert('Ошибка', 'Ошибка соединения'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
 }
 
 function startRouletteAnimation(prize) {
