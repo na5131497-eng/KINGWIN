@@ -269,7 +269,7 @@
 const PLAYER_KEY = 'kingwin_player_id';
 const MAX_BET = 100;
 const MIN_BET = 10;
-const POLL_MS = 500;
+const POLL_MS = 300;
 
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
@@ -293,9 +293,10 @@ let lastGraphRoundId = null;
 let lastBetsSig = '';
 let lastHistorySig = '';
 
+// Локальный краш ТОЛЬКО когда сервер подтвердил
 let localCrashed = false;
 let localCrashMult = 1;
-let crashedRoundId = null; // ВАЖНО: в каком раунде был локальный краш
+let crashedRoundId = null;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -322,7 +323,6 @@ function historyColorClass(mult) {
   return 'red';
 }
 
-/* ---------- СБРОС ЛОКАЛЬНОГО КРАША ---------- */
 function resetLocalCrash() {
   localCrashed = false;
   localCrashMult = 1;
@@ -353,9 +353,13 @@ document.getElementById('balanceBadge').addEventListener('click', () => {
   window.location.href = '/';
 });
 
-/* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ---------- */
+/* ---------- ЛОКАЛЬНЫЙ РАСЧЁТ МНОЖИТЕЛЯ ----------
+   ВАЖНО: клиент НЕ решает, когда краш. Он просто считает
+   множитель по времени. Краш приходит только с сервера.
+   Это убирает рассинхрон, когда клиент думает что краш
+   на 1.55, а сервер летит до 1.70. */
 function currentLocalMultiplier() {
-  // Если локальный краш от другого раунда — сбрасываем
+  // локальный краш от другого раунда — сброс
   if (localCrashed && crashedRoundId !== round.id) {
     resetLocalCrash();
   }
@@ -364,16 +368,7 @@ function currentLocalMultiplier() {
   if (round.status === 'crashed' || localCrashed) return localCrashMult;
   if (round.status === 'flying' && round.startTime) {
     const elapsed = Date.now() - round.startTime;
-    let m = Math.pow(1.00006, elapsed);
-    if (m >= round.crashPoint) {
-      if (!localCrashed) {
-        localCrashed = true;
-        localCrashMult = round.crashPoint;
-        crashedRoundId = round.id;
-      }
-      return localCrashMult;
-    }
-    return m;
+    return Math.pow(1.00006, elapsed);
   }
   return 1;
 }
@@ -426,7 +421,6 @@ function applyServerState(d) {
   const isNewRound = round.id !== null && d.roundId !== round.id;
   const roundChanged = round.id !== d.roundId;
 
-  // НОВЫЙ РАУНД — жёсткий сброс ВСЕГО
   if (isNewRound || roundChanged) {
     myBetIds = { 1: null, 2: null };
     myCashed = { 1: false, 2: false };
@@ -435,7 +429,6 @@ function applyServerState(d) {
   }
 
   const prevStatus = round.status;
-  // Смена статуса с crashed на не-crashed — тоже сброс локального краша
   if (prevStatus === 'crashed' && d.status !== 'crashed') {
     resetLocalCrash();
   }
@@ -449,6 +442,7 @@ function applyServerState(d) {
   round.history = d.history || [];
   round.hasRealBet = d.hasRealBet || false;
 
+  // КРАШ ТОЛЬКО ОТ СЕРВЕРА — больше никакой локальной самодеятельности
   if (d.status === 'crashed') {
     if (!localCrashed) {
       localCrashed = true;
@@ -474,7 +468,6 @@ function applyServerState(d) {
 let prevMult = 1;
 
 function frame() {
-  // Защита: если локальный краш от другого раунда — сброс
   if (localCrashed && crashedRoundId !== round.id) {
     resetLocalCrash();
   }
@@ -761,7 +754,6 @@ async function placeBet(id) {
     }
     myBetIds[id] = d.bet.id;
     myCashed[id] = false;
-    // НОВАЯ СТАВКА — всегда сбрасываем локальный краш прошлого раунда
     if (d.bet.round_id !== crashedRoundId) {
       resetLocalCrash();
     }
