@@ -3,222 +3,290 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🪜 ЛЕСЕНКА — KINGWIN</title>
+<title>📦 КЕЙСЫ — KINGWIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root { --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); --red: #ff4d4d; --gold: #f1c40f; }
+  :root { 
+    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; 
+    --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; 
+    --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); 
+    --red: #ff4d4d; --gold: #f1c40f; 
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg-main) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  /* МЕНЮ */
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
   .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
-  .float-menu a { display: flex; padding: 10px 12px; border-radius: 10px; color: #8b92a5; font-size: 12px; font-weight: 700; text-decoration: none; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
 
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); }
-  .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 700; }
-  .balance-badge .num { color: var(--accent-green); }
-  
+  /* ТОПБАР */
+  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
+  .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; gap: 8px; }
+  .balance-badge span { color: var(--accent); }
+
+  /* ИСТОРИЯ */
   .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; }
-  .history-item .h-res { color: var(--accent-green); font-weight: 900; }
+  .history-bar::-webkit-scrollbar { display: none; }
+  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
+  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .history-item .h-name { color: var(--text-muted); }
+  .history-item .h-res { color: var(--accent); }
+  .history-item .h-res.gold { color: var(--gold); text-shadow: 0 0 10px rgba(241,196,15,0.5); }
 
-  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1100px; width: 100%; margin: 20px auto; padding: 0 15px; flex: 1; align-items: start; }
-  .sidebar { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
-  .bet-input { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
-  .bet-input input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; width: 100%; outline: none; }
-  .stones-select { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
-  .stone-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted); font-weight: 900; cursor: pointer; }
-  .stone-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.4); }
-  .btn-main { width: 100%; padding: 18px; border-radius: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-  .btn-main.cashout { background: linear-gradient(135deg, #00ff88, #00b366); }
+  /* КОНТЕНТ */
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
+  .view-catalog { display: block; }
+  .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+  .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
+  
+  .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .case-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; cursor: pointer; }
+  .case-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,229,255,0.1); }
+  .case-image { width: 120px; height: 120px; margin: 0 auto 15px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); }
+  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+  .case-price { font-size: 14px; color: var(--gold); font-weight: 700; }
 
-  .game-area { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; min-height: 500px; display: flex; justify-content: center; }
-  .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; padding: 10px; scrollbar-width: none; }
-  .grid-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; }
-  .row { display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 10px; }
-  .m-val { width: 50px; padding: 6px 0; text-align: center; font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--bg-dark); border-radius: 6px; }
-  .m-val.active { background: var(--accent); color: #000; }
-  .cells-container { display: flex; gap: 6px; justify-content: center; }
-  .cell { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-dark); border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; }
-  .cell.current { border-color: var(--accent); animation: pulse 1s infinite; }
-  .cell.selected.safe { background: rgba(0,255,136,0.2); border-color: var(--accent-green); }
-  .cell.selected.boom { background: rgba(255,77,77,0.3); border-color: var(--red); }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  /* КОМНАТА КЕЙСА */
+  .view-room { display: none; flex-direction: column; align-items: center; }
+  .view-room.active { display: flex; }
+  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .room-back:hover { color: #fff; }
+  .room-case-preview { text-align: center; margin-bottom: 30px; }
+  .room-case-preview img { width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); margin-bottom: 10px; }
+  .room-case-preview h2 { font-size: 28px; font-weight: 900; }
+  .room-case-preview p { color: var(--accent); font-weight: 800; font-size: 18px; margin-top: 5px; }
+  
+  .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+  .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
+  .prize-chip { padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 15px; background: #131624; border: 1px solid var(--border); }
+  .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); box-shadow: 0 0 10px rgba(241,196,15,0.1); }
+  .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
+  .prize-chip.silver { color: #ccc; }
+  
+  .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); }
+  .open-big-btn:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
+  .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
-  @media (max-width: 800px) {
-    .layout { grid-template-columns: 1fr; margin: 10px auto; }
-    .game-area { min-height: 400px; padding: 5px; order: -1; }
-    .cell { width: 24px; height: 24px; border-radius: 6px; font-size: 12px; }
-    .row { grid-template-columns: 40px 1fr; gap: 6px; }
-    .m-val { width: 40px; font-size: 10px; }
+  /* РУЛЕТКА */
+  .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
+  .roulette-overlay.show { display: flex; }
+  .roulette-wrapper { width: 100%; max-width: 1000px; position: relative; height: 140px; background: #000; overflow: hidden; margin-bottom: 30px; }
+  .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; }
+  @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .roulette-item { width: 130px; height: 110px; margin: 0 5px; background: linear-gradient(135deg, #131624 0%, #1a1c29 100%); border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-size: 24px; font-weight: 900; color: #fff; }
+  .roulette-item.silver { border: 2px solid #eef2f3; color: #eef2f3; }
+  .roulette-item.blue { border: 2px solid var(--accent); color: var(--accent); }
+  .roulette-item.gold { border: 2px solid #ffd700; color: #ffd700; }
+  .roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: var(--red); transform: translateX(-50%); z-index: 10; box-shadow: 0 0 15px var(--red); }
+  .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid var(--red); }
+  .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 18px solid var(--red); }
+  
+  .win-modal { background: var(--bg-panel); border: 2px solid var(--accent-green); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 60px rgba(0,255,136,0.3); display: none; z-index: 20; }
+  .win-modal.show { display: block; animation: pop 0.5s ease; }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
+  .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); margin-bottom: 20px; }
+
+  /* ========== АДАПТИВ ========== */
+  @media (max-width: 768px) {
     .topbar { padding-left: 65px; height: 60px; }
+    .container { padding: 15px; }
+    .cases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .case-image { width: 80px; height: 80px; }
+    .case-name { font-size: 14px; }
+    .case-price { font-size: 12px; }
+    
+    .room-case-preview img { width: 120px; height: 120px; }
+    .room-case-preview h2 { font-size: 20px; }
+    .open-big-btn { padding: 15px 30px; font-size: 16px; width: 100%; max-width: 300px; }
+    .case-items-grid { gap: 6px; }
+    .prize-chip { padding: 6px 12px; font-size: 12px; }
+
+    .roulette-wrapper { height: 100px; }
+    .roulette-item { width: 90px; height: 80px; margin: 0 3px; font-size: 18px; }
+    .win-modal { padding: 30px 20px; width: 90%; }
+    .win-amount { font-size: 32px; }
   }
 </style>
 </head>
 <body>
+
 <button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
 <div class="float-menu" id="floatMenu">
   <a href="/">Главная</a><a href="/crash.html">Crash</a><a href="/cases.html">Cases</a><a href="/miner.html">Miner</a><a href="/ladder.html">Ladder</a><a href="/plinko.html">Plinko</a>
 </div>
 
 <div class="topbar">
-  <div class="balance-badge"><span class="lbl">Баланс</span><span class="num"><span id="bal">0</span> ₽</span></div>
+  <a href="/" class="logo">KINGWIN</a>
+  <div class="balance-badge">Баланс: <span id="topBalance">0.00</span> ₽</div>
 </div>
 
 <div class="history-bar" id="historyBar">
-  <div class="history-title">Последние:</div>
+  <div class="history-title">Последние дропы:</div>
   <div id="historyList" style="display:flex; gap:8px;"></div>
 </div>
 
-<div class="layout">
-  <div class="game-area">
-    <div class="grid-scroll" id="gridScroll"><div class="grid-wrap" id="gridWrap"></div></div>
-  </div>
-  <div class="sidebar">
-    <h2 style="font-size:12px;color:#8b92a5;margin-bottom:10px;">СУММА СТАВКИ</h2>
-    <div class="bet-input"><input type="text" id="betInput" value="100"></div>
-    <h2 style="font-size:12px;color:#8b92a5;margin-bottom:10px;">КАМНЕЙ</h2>
-    <div class="stones-select" id="stonesSelect">
-      <button class="stone-btn" data-stones="3">3</button><button class="stone-btn" data-stones="4">4</button><button class="stone-btn" data-stones="5">5</button><button class="stone-btn active" data-stones="6">6</button><button class="stone-btn" data-stones="7">7</button>
+<div class="container">
+  <div class="view-catalog active" id="viewCatalog">
+    <div class="header-title">Выберите кейс</div>
+    <div class="cases-grid" id="casesGrid">
+      <div style="color:var(--text-muted); padding:20px;">Загрузка кейсов...</div>
     </div>
-    <button class="btn-main" id="mainBtn" onclick="handleMainBtn()">СДЕЛАТЬ СТАВКУ</button>
+  </div>
+
+  <div class="view-room" id="viewRoom">
+    <button class="room-back" onclick="backToCatalog()">← Назад к кейсам</button>
+    <div class="room-case-preview">
+      <img id="roomCaseImg" src="" alt="Case">
+      <h2 id="roomCaseName">Название</h2>
+      <p id="roomCasePrice">0 ₽</p>
+    </div>
+    <div class="case-items-title">Возможные выигрыши:</div>
+    <div class="case-items-grid" id="roomCaseItems"></div>
+    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+  </div>
+</div>
+
+<!-- ОКНО РУЛЕТКИ -->
+<div class="roulette-overlay" id="rouletteOverlay">
+  <div class="roulette-wrapper" id="rouletteWrapper">
+    <div class="roulette-pointer"></div>
+    <div class="roulette-track" id="rouletteTrack"></div>
+  </div>
+  <div class="win-modal" id="winModal">
+    <div class="win-title">Вы выиграли!</div>
+    <div class="win-amount" id="winAmount">0 ₽</div>
+    <button class="open-big-btn" style="padding: 12px 30px; font-size: 16px; background: var(--accent-green);" onclick="closeRoulette()">Забрать</button>
   </div>
 </div>
 
 <script>
 let playerId = localStorage.getItem('kingwin_player_id');
-let B = 0;
-const STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
-const TOTAL_STEPS = STEP_WIDTHS.length;
-let TOTAL_STONES = 6;
-let playing = false, currentBet = 0, currentStep = 0, stonePositions = [], isWaiting = false;
+let currentCase = null;
+let allCasesList = [];
 
-function fmt(n){ var r = Math.round(n*100)/100; if(r%1===0) return Math.floor(r).toLocaleString('ru-RU'); return r.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-
-async function loadBalance(){
-  if(!playerId) { window.location.replace('/'); return; }
+async function loadProfile() {
+  if(!playerId) return;
   try {
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
     const d = await r.json();
-    if(r.ok && d.guest) { B = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0); document.getElementById('bal').textContent = fmt(B); }
+    if(r.ok && d.guest) {
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      document.getElementById('topBalance').textContent = total.toFixed(2);
+    }
   } catch(e) {}
+}
+
+async function loadCases() {
+  try {
+    const url = playerId ? `/api/cases/list?guest_id=${playerId}` : '/api/cases/list';
+    const r = await fetch(url);
+    allCasesList = await r.json();
+    const grid = document.getElementById('casesGrid');
+    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
+    grid.innerHTML = allCasesList.map((c, i) => `
+      <div class="case-card" onclick="enterRoom(${i})">
+        <img src="/case_${c.name.toLowerCase()}.png" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
+        <div class="case-name">${c.name}</div>
+        <div class="case-price">${c.price} ₽</div>
+      </div>
+    `).join('');
+  } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка загрузки кейсов</div>'; }
+}
+
+function getPrizeClass(prize) { if (prize >= 500) return 'gold'; if (prize >= 50) return 'blue'; return 'silver'; }
+
+function enterRoom(index) {
+  currentCase = allCasesList[index];
+  document.getElementById('viewCatalog').classList.remove('active');
+  document.getElementById('viewRoom').classList.add('active');
+  document.getElementById('roomCaseImg').src = `/case_${currentCase.name.toLowerCase()}.png`;
+  document.getElementById('roomCaseImg').onerror = function() { this.src='/cases_card.jpg'; };
+  document.getElementById('roomCaseName').textContent = currentCase.name;
+  document.getElementById('roomCasePrice').textContent = currentCase.price + ' ₽';
+  
+  const itemsWrap = document.getElementById('roomCaseItems');
+  const sortedPrizes = [...currentCase.prizes].sort((a, b) => a - b);
+  itemsWrap.innerHTML = sortedPrizes.map(p => `<div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>`).join('');
+  
+  const btn = document.getElementById('roomOpenBtn');
+  if(currentCase.available) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
+  else { btn.disabled = true; btn.textContent = 'Недоступно для вашего ранга'; }
+}
+
+function backToCatalog() {
+  document.getElementById('viewRoom').classList.remove('active');
+  document.getElementById('viewCatalog').classList.add('active');
+  currentCase = null;
+}
+
+async function openCaseAction() {
+  if(!playerId) { alert('Войдите в аккаунт!'); return; }
+  if(!currentCase) return;
+  const btn = document.getElementById('roomOpenBtn');
+  btn.disabled = true; btn.textContent = 'Загрузка...';
+  
+  try {
+    const r = await fetch('/api/cases/open', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, case_name: currentCase.name }) });
+    const d = await r.json();
+    if(!r.ok) { alert(d.error || 'Ошибка'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; return; }
+    startRouletteAnimation(d.prize);
+    loadProfile(); loadHistory();
+  } catch(e) { alert('Ошибка соединения'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
+}
+
+function startRouletteAnimation(prize) {
+  const overlay = document.getElementById('rouletteOverlay');
+  const track = document.getElementById('rouletteTrack');
+  const wrapper = document.getElementById('rouletteWrapper');
+  const winModal = document.getElementById('winModal');
+  const winAmount = document.getElementById('winAmount');
+  
+  overlay.classList.add('show'); winModal.classList.remove('show');
+  track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
+  
+  const itemsCount = 60; const prizeIndex = 50; const pool = currentCase.prizes;
+  for(let i = 0; i < itemsCount; i++) {
+    let val = i === prizeIndex ? prize : pool[Math.floor(Math.random() * pool.length)];
+    let cls = getPrizeClass(val);
+    track.innerHTML += `<div class="roulette-item ${cls}">${val} ₽</div>`;
+  }
+  
+  setTimeout(() => {
+    const items = track.querySelectorAll('.roulette-item');
+    const winItem = items[prizeIndex];
+    const itemWidth = winItem.offsetWidth; const itemLeft = winItem.offsetLeft; const wrapperWidth = wrapper.offsetWidth;
+    const offset = itemLeft + (itemWidth / 2) - (wrapperWidth / 2);
+    
+    track.style.transition = 'transform 4s cubic-bezier(0.15, 0.9, 0.25, 1)';
+    track.style.transform = `translateX(-${offset}px)`;
+    
+    setTimeout(() => { winAmount.textContent = prize.toFixed(2) + ' ₽'; winModal.classList.add('show'); }, 4200);
+  }, 50);
+}
+
+function closeRoulette() {
+  document.getElementById('rouletteOverlay').classList.remove('show');
+  const btn = document.getElementById('roomOpenBtn');
+  if(currentCase) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
 }
 
 async function loadHistory() {
   try {
-    const r = await fetch('/api/ladder/history');
+    const r = await fetch('/api/cases/history');
     const data = await r.json();
     const list = document.getElementById('historyList');
-    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Пусто</div>'; return; }
-    list.innerHTML = data.map(h => `<div class="history-item"><span style="color:#8b92a5">${h.name}</span> <span class="h-res">x${parseFloat(h.result).toFixed(2)}</span></div>`).join('');
+    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет дропов</div>'; return; }
+    list.innerHTML = data.map(h => { const isGold = h.result >= 500; return `<div class="history-item"><span class="h-name">${h.name}</span><span class="h-res ${isGold?'gold':''}">${parseFloat(h.result).toFixed(0)} ₽</span></div>`; }).join('');
   } catch(e) {}
 }
 
-function getStepChance(stepIndex){ var cellsCount = STEP_WIDTHS[stepIndex]; return (cellsCount - TOTAL_STONES) / cellsCount; }
-function calcMult(step){ if(step === 0) return 1; var m = 1; for(var i=0; i<step; i++){ m = m / getStepChance(i); } return Math.min(m * 0.97, 10000); }
-
-document.getElementById('stonesSelect').addEventListener('click', function(e){
-  var btn = e.target.closest('.stone-btn');
-  if(!btn || playing || isWaiting) return;
-  var v = parseInt(btn.dataset.stones);
-  document.querySelectorAll('.stone-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  TOTAL_STONES = v;
-  renderGrid();
-});
-
-function renderGrid(){
-  var grid = document.getElementById('gridWrap'); grid.innerHTML = '';
-  for(var step = TOTAL_STEPS - 1; step >= 0; step--){
-    var row = document.createElement('div'); row.className = 'row';
-    var isPassed = (step < currentStep && playing);
-    var isCurrent = (step === currentStep && playing);
-    var mEl = document.createElement('div');
-    mEl.className = 'm-val ' + (isPassed ? 'passed' : '') + ' ' + (isCurrent ? 'active' : '');
-    mEl.textContent = 'x' + calcMult(step + 1).toFixed(2);
-    row.appendChild(mEl);
-    var cellsContainer = document.createElement('div'); cellsContainer.className = 'cells-container';
-    var cellsInRow = STEP_WIDTHS[step];
-    for(var c = 0; c < cellsInRow; c++){
-        var cell = document.createElement('div'); cell.className = 'cell';
-        if (step < currentStep) { cell.classList.add('opened', 'revealed-diamond', 'diamond-icon'); }
-        else if (step === currentStep && playing) { cell.classList.add('current'); (function(s, idx){ cell.onclick = function() { clickCell(s, idx, cell); }; })(step, c); }
-        cellsContainer.appendChild(cell);
-    }
-    row.appendChild(cellsContainer); grid.appendChild(row);
-  }
-}
-
-async function clickCell(step, cellIdx, cellEl){
-  if(!playing || step !== currentStep || isWaiting) return;
-  isWaiting = true;
-  var cellsContainer = cellEl.parentElement; var rowCells = cellsContainer.children;
-  for(var i=0; i<rowCells.length; i++){ rowCells[i].classList.remove('current'); }
-  var isStone = stonePositions[step] && stonePositions[step].indexOf(cellIdx) !== -1;
-  if(isStone){
-    cellEl.classList.add('opened', 'selected', 'boom'); cellEl.classList.add('stone-icon'); alert('💥 Камень! Вы проиграли'); playing = false;
-    fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: 0, multiplier: 0 }) });
-  } else {
-    cellEl.classList.add('opened', 'selected', 'safe'); cellEl.classList.add('diamond-icon');
-  }
-  setTimeout(function(){
-    if(isStone){
-        var grid = document.getElementById('gridWrap');
-        for(var r=0; r<TOTAL_STEPS; r++){
-            var visualIndex = TOTAL_STEPS - 1 - r; var currentRow = grid.children[visualIndex]; if(!currentRow) continue;
-            var cellsCont = currentRow.querySelector('.cells-container'); if(!cellsCont) continue; var cells = cellsCont.children;
-            for(var c=0; c<cells.length; c++){ cells[c].classList.remove('current'); cells[c].classList.add('opened'); }
-        }
-        document.getElementById('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; document.getElementById('mainBtn').className = 'btn-main';
-        setTimeout(function(){ playing = false; isWaiting = false; currentStep = 0; currentBet = 0; renderGrid(); }, 2500);
-    } else {
-        currentStep++; isWaiting = false;
-        if(currentStep >= TOTAL_STEPS){ cashOut(); return; }
-        var newMult = calcMult(currentStep); var winAmt = Math.floor(currentBet * newMult);
-        document.getElementById('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(winAmt) + ' ₽'; document.getElementById('mainBtn').className = 'btn-main cashout';
-        renderGrid();
-    }
-  }, 400);
-}
-
-async function handleMainBtn(){
-  if(playing){ cashOut(); return; }
-  if(isWaiting) return;
-  var bet = parseInt(document.getElementById('betInput').value) || 0;
-  if(bet < 1 || bet > B){ alert('Недостаточно средств'); return; }
-  try {
-    const r = await fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: bet, win: 0 }) });
-    const d = await r.json();
-    if(!r.ok){ alert(d.error || 'Ошибка'); return; }
-    B = d.new_balance; document.getElementById('bal').textContent = fmt(B); currentBet = bet; currentStep = 0; playing = true;
-    stonePositions = [];
-    for(var s=0; s<TOTAL_STEPS; s++){
-        var cellsCount = STEP_WIDTHS[s]; var positions = []; var stonesToPlace = Math.min(TOTAL_STONES, cellsCount - 1);
-        while(positions.length < stonesToPlace){ var p = Math.floor(Math.random() * cellsCount); if(positions.indexOf(p) === -1) positions.push(p); }
-        stonePositions.push(positions);
-    }
-    document.getElementById('mainBtn').textContent = 'ЗАБРАТЬ ' + fmt(currentBet * calcMult(currentStep)) + ' ₽'; document.getElementById('mainBtn').className = 'btn-main cashout';
-    renderGrid();
-  } catch(e) { alert('Ошибка соединения'); }
-}
-
-async function cashOut(){
-  if(!playing || currentStep === 0 || isWaiting) return;
-  var win = Math.floor(currentBet * calcMult(currentStep)); var mult = calcMult(currentStep);
-  try {
-    const r = await fetch('/api/ladder/play', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ guest_id: playerId, bet: 0, win: win, multiplier: mult }) });
-    const d = await r.json();
-    if(r.ok) { B = d.new_balance; document.getElementById('bal').textContent = fmt(B); loadHistory(); }
-  } catch(e) {}
-  alert('✅ Вы забрали ' + fmt(win) + ' ₽');
-  document.getElementById('mainBtn').textContent = 'СДЕЛАТЬ СТАВКУ'; document.getElementById('mainBtn').className = 'btn-main';
-  setTimeout(function(){ playing = false; currentStep = 0; currentBet = 0; renderGrid(); }, 2000);
-}
-
-renderGrid(); loadBalance(); loadHistory();
-setInterval(loadBalance, 5000); setInterval(loadHistory, 5000);
-document.getElementById('betInput').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+loadProfile(); loadCases(); loadHistory();
+setInterval(loadProfile, 5000); setInterval(loadHistory, 5000);
 </script>
 </body>
 </html>
