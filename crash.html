@@ -283,6 +283,39 @@ function currentLocalMultiplier() {
   return 1;
 }
 
+/* ---------- ВОССТАНОВЛЕНИЕ ГРАФИКА С НАЧАЛА РАУНДА ---------- */
+function rebuildGraphFromStart(serverMult) {
+  graphPoints = [];
+  if (!round.startTime) return;
+
+  const elapsedMs = Date.now() - round.startTime;
+  if (elapsedMs <= 0) return;
+
+  // строим точки от 0 до текущего момента, ~каждые 100 мс
+  const stepMs = 100;
+  const maxMult = (round.status === 'crashed') ? round.crashPoint : serverMult;
+
+  for (let t = 0; t <= elapsedMs; t += stepMs) {
+    let m = Math.pow(1.00006, t);
+    if (m >= round.crashPoint) {
+      // дошли до краша — последняя точка ровно crashPoint
+      graphPoints.push({ x: round.crashPoint ? Math.log(round.crashPoint)/Math.log(1.00006)/1000 : t/1000, y: round.crashPoint });
+      break;
+    }
+    graphPoints.push({ x: t / 1000, y: m });
+  }
+
+  // добиваем текущей точкой
+  const lastT = elapsedMs / 1000;
+  const lastM = Math.min(maxMult, Math.pow(1.00006, elapsedMs));
+  const last = graphPoints[graphPoints.length - 1];
+  if (!last || last.x < lastT) {
+    graphPoints.push({ x: lastT, y: lastM });
+  } else if (last) {
+    last.y = Math.min(maxMult, Math.pow(1.00006, elapsedMs));
+  }
+}
+
 /* ---------- ПОЛЛИНГ ---------- */
 async function pollRound() {
   try {
@@ -293,17 +326,17 @@ async function pollRound() {
 }
 
 function applyServerState(d) {
-  if (round.id !== null && d.roundId !== round.id) {
+  const isNewRound = round.id !== null && d.roundId !== round.id;
+
+  if (isNewRound) {
     myBetIds = { 1: null, 2: null };
     myCashed = { 1: false, 2: false };
     graphPoints = [];
-    lastGraphRoundId = d.roundId;
     loadBalance();
   }
-  if (lastGraphRoundId !== d.roundId) {
-    lastGraphRoundId = d.roundId;
-    graphPoints = [];
-  }
+
+  const isFirstLoad = round.id === null;
+  const roundChanged = round.id !== d.roundId;
 
   round.id = d.roundId;
   round.status = d.status;
@@ -312,6 +345,15 @@ function applyServerState(d) {
   round.serverMult = parseFloat(d.multiplier) || 1;
   round.bets = d.bets || [];
   round.history = d.history || [];
+
+  // Если зашли в середине раунда или после F5 — восстанавливаем график
+  if (roundChanged || isFirstLoad) {
+    lastGraphRoundId = d.roundId;
+    graphPoints = [];
+    if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) {
+      rebuildGraphFromStart(round.serverMult);
+    }
+  }
 
   renderBets(round.bets);
   renderHistory(round.history);
@@ -336,11 +378,13 @@ function frame() {
   } else if (round.status === 'flying') {
     multValueEl.classList.remove('crashed');
     multLabelEl.textContent = '';
-    const t = (Date.now() - round.startTime) / 1000;
-    const last = graphPoints[graphPoints.length - 1];
-    if (!last || t - last.x > 0.033) {
-      graphPoints.push({ x: t, y: mult });
-      if (graphPoints.length > 2000) graphPoints.shift();
+    if (round.startTime) {
+      const t = (Date.now() - round.startTime) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || t - last.x > 0.033) {
+        graphPoints.push({ x: t, y: mult });
+        if (graphPoints.length > 2000) graphPoints.shift();
+      }
     }
     [1, 2].forEach(id => {
       if (myBetIds[id] && !myCashed[id]) {
@@ -352,6 +396,10 @@ function frame() {
   } else if (round.status === 'crashed') {
     multValueEl.classList.add('crashed');
     multLabelEl.textContent = 'КРАШ!';
+    // если после краша точек нет — строим заново
+    if (graphPoints.length < 2 && round.startTime) {
+      rebuildGraphFromStart(round.crashPoint);
+    }
   }
 
   drawGraph(mult, round.status);
