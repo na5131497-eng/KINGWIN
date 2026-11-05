@@ -79,8 +79,8 @@ async function getActualJackpot() {
   }
 }
 
-/* ---------- КЕЙСЫ (БЕЗ ПРОИГРЫШЕЙ, RTP ~95%) ---------- */
-// Убираем нули, минимальный приз всегда > 0
+/* ---------- КЕЙСЫ (БЕЗ ПРОИГРЫШЕЙ) ---------- */
+// RTP ~95%. Призы всегда > 0.
 const CASES = {
   'Новичок':  { price: 39.99,  minRank: 0, prizes: [
     { v: 5,    w: 2500 }, { v: 10,   w: 3000 }, { v: 15,   w: 2000 },
@@ -469,7 +469,11 @@ const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8'
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp'
 };
 
 function sendJSON(res, code, data) {
@@ -548,6 +552,22 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
+    /* ИСТОРИЯ ПОСЛЕДНИХ ВЫПАДЕНИЙ */
+    if (url === '/api/cases/last-drops' && method === 'GET') {
+      try {
+        const r = await pool.query(`
+          SELECT guest_name, case_name, prize, created_at 
+          FROM cases_log 
+          WHERE prize > 0
+          ORDER BY id DESC 
+          LIMIT 20
+        `);
+        return sendJSON(res, 200, r.rows);
+      } catch (e) {
+        return sendJSON(res, 200, []);
+      }
+    }
+
     /* КЕЙСЫ */
     if (url === '/api/cases/list' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
@@ -562,7 +582,7 @@ const server = http.createServer(async (req, res) => {
         return {
           name, price: c.price, minRank: c.minRank,
           available: rankIdx >= c.minRank,
-          prizes: c.prizes.map(p => p.v) // только суммы призов
+          prizes: c.prizes.map(p => p.v)
         };
       });
       
