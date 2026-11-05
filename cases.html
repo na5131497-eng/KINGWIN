@@ -7,93 +7,77 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { 
-    --bg-main: #090a10; --bg-panel: #181a24; --bg-dark: #11121a; 
-    --accent: #00e5ff; --accent-green: #00ff88; --text-main: #fff; 
-    --text-muted: #8b92a5; --border: rgba(255,255,255,0.06); 
+    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b; 
+    --accent: #00e5ff; --accent-green: #00e676; 
+    --text-main: #fff; --text-muted: #8b92a5; 
+    --border: rgba(255,255,255,0.05); 
     --red: #ff4d4d; --gold: #f1c40f; 
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-  /* МЕНЮ */
-  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
-  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
-  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
-  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
-  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
-
-  /* ТОПБАР */
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; border-bottom: 1px solid var(--border); background: rgba(9, 10, 16, 0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+  /* ШАПКА (как на главной) */
+  .topbar { height: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+  .header-left { display: flex; align-items: center; gap: 30px; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
-  .balance-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; display: flex; gap: 8px; }
-  .balance-badge span { color: var(--accent); }
-
-  /* ИСТОРИЯ */
-  .history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-  .history-bar::-webkit-scrollbar { display: none; }
-  .history-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
-  .history-item { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--bg-dark); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
-  .history-item .h-name { color: var(--text-muted); }
-  .history-item .h-res { color: var(--accent); }
-  .history-item .h-res.gold { color: var(--gold); text-shadow: 0 0 10px rgba(241,196,15,0.5); }
+  
+  .header-right { display: flex; align-items: center; gap: 15px; }
+  .btn-back { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; text-decoration: none; transition: 0.2s; }
+  .btn-back:hover { border-color: var(--accent); }
+  
+  .balance-info { display: flex; flex-direction: column; align-items: flex-end; }
+  .balance-info .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+  .balance-info .val { font-size: 14px; font-weight: 800; color: var(--accent-green); }
 
   /* КОНТЕНТ */
-  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
-  .view-catalog { display: block; }
-  .header-title { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
-  .header-title::before { content: ''; display: inline-block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; margin-right: 12px; vertical-align: middle; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
   
   /* СЕТКА КЕЙСОВ */
-  .cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+  .cases-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
   
-  /* БЕЛЫЕ КАРТОЧКИ */
+  /* КАРТОЧКА КЕЙСА (Белая) */
   .case-card { 
     background: #ffffff; 
-    border: 2px solid rgba(0,229,255,0.4); 
-    border-radius: 16px; 
+    border-radius: 12px; 
     padding: 20px; 
     text-align: center; 
     transition: 0.3s; 
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     text-decoration: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid rgba(255,255,255,0.1);
   }
   .case-card:hover { 
     transform: translateY(-5px); 
     border-color: var(--accent); 
-    box-shadow: 0 12px 35px rgba(0,229,255,0.2);
+    box-shadow: 0 10px 25px rgba(0,229,255,0.2);
   }
-  .case-image { width: 130px; height: 130px; margin: 0 auto 15px; object-fit: contain; }
-  .case-name { font-size: 18px; font-weight: 800; margin-bottom: 5px; color: #0a0d14; }
-  .case-price { font-size: 14px; color: #b8860b; font-weight: 800; }
+  .case-image { width: 120px; height: 120px; object-fit: contain; margin-bottom: 15px; }
+  .case-name { font-size: 16px; font-weight: 800; margin-bottom: 5px; color: #0a0d14; }
+  .case-price { font-size: 13px; color: #b8860b; font-weight: 800; }
 
-  /* КОМНАТА КЕЙСА */
+  /* КОМНАТА (ВНУТРИ КЕЙСА) */
   .view-room { display: none; flex-direction: column; align-items: center; }
   .view-room.active { display: flex; }
-  .room-back { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; text-decoration: none; }
-  .room-back:hover { color: #fff; }
   
-  .room-case-preview { text-align: center; margin-bottom: 30px; background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 2px solid var(--accent); }
-  .room-case-preview img { width: 180px; height: 180px; object-fit: contain; margin-bottom: 15px; }
-  .room-case-preview h2 { font-size: 28px; font-weight: 900; color: #000; }
-  .room-case-preview p { color: #00a86b; font-weight: 900; font-size: 18px; margin-top: 5px; }
+  .room-preview { text-align: center; margin-bottom: 30px; background: #ffffff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 2px solid var(--accent); }
+  .room-preview img { width: 180px; height: 180px; object-fit: contain; margin-bottom: 15px; }
+  .room-preview h2 { font-size: 28px; font-weight: 900; color: #0a0d14; }
+  .room-preview p { color: #00a86b; font-weight: 900; font-size: 18px; margin-top: 5px; }
   
-  .case-items-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
-  .case-items-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; max-width: 800px; }
-  .prize-chip { padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 15px; background: #131624; border: 1px solid var(--border); }
-  .prize-chip.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); box-shadow: 0 0 10px rgba(241,196,15,0.1); }
-  .prize-chip.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
-  .prize-chip.silver { color: #ccc; }
-  
-  .open-big-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); width: 100%; max-width: 400px; margin-bottom: 30px; }
-  .open-big-btn:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,229,255,0.6); }
-  .open-big-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+  .open-btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px 60px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 20px rgba(0,229,255,0.3); margin-bottom: 20px; width: 100%; max-width: 400px; }
+  .open-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.6); }
+  .open-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ДРУГИЕ КЕЙСЫ */
-  .other-cases { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-  .other-case-link { background: var(--bg-panel); border: 1px solid var(--border); padding: 10px 15px; border-radius: 10px; color: var(--text-muted); font-size: 13px; font-weight: 700; text-decoration: none; transition: 0.2s; }
-  .other-case-link:hover { border-color: var(--accent); color: var(--accent); }
+  /* СПИСОК ПРИЗОВ */
+  .prizes-title { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+  .prizes-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; max-width: 600px; }
+  .prize { padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 14px; background: var(--bg-panel); border: 1px solid var(--border); }
+  .prize.gold { color: #ffd700; border-color: rgba(241,196,15,0.5); }
+  .prize.blue { color: var(--accent); border-color: rgba(0,229,255,0.3); }
+  .prize.silver { color: #ccc; }
 
   /* РУЛЕТКА */
   .roulette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; }
@@ -114,7 +98,7 @@
   .win-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
   .win-amount { font-size: 48px; font-weight: 900; color: var(--accent-green); margin-bottom: 20px; }
 
-  /* КРАСИВОЕ ОКНО ОШИБКИ */
+  /* ОШИБКИ */
   .alert-modal { background: var(--bg-panel); border: 2px solid var(--red); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 0 60px rgba(255,77,77,0.3); display: none; z-index: 3000; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; }
   .alert-modal.show { display: block; animation: pop 0.4s ease; }
   .alert-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 10px; }
@@ -124,21 +108,27 @@
   .alert-bg.show { display: block; }
 
   /* АДАПТИВ */
-  @media (max-width: 768px) {
-    .topbar { padding-left: 65px; height: 60px; }
-    .container { padding: 15px; }
-    .cases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 1200px) {
+    .cases-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .cases-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .case-card { padding: 15px; }
-    .case-image { width: 80px; height: 80px; }
+    .case-image { width: 90px; height: 90px; }
     .case-name { font-size: 14px; }
-    .case-price { font-size: 12px; }
+    .header-left { gap: 10px; }
+    .balance-info { display: none; }
+  }
+  @media (max-width: 600px) {
+    .topbar { padding: 0 10px; }
+    .logo { font-size: 16px; }
+    .btn-back { padding: 8px 12px; font-size: 11px; }
+    .cases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .case-image { width: 80px; height: 80px; }
+    .room-preview img { width: 120px; height: 120px; }
+    .room-preview h2 { font-size: 20px; }
+    .open-btn { padding: 15px 30px; font-size: 16px; }
     
-    .room-case-preview img { width: 120px; height: 120px; }
-    .room-case-preview h2 { font-size: 20px; }
-    .open-big-btn { padding: 15px 30px; font-size: 16px; width: 100%; max-width: 300px; }
-    .case-items-grid { gap: 6px; }
-    .prize-chip { padding: 6px 12px; font-size: 12px; }
-
     .roulette-wrapper { height: 100px; }
     .roulette-item { width: 90px; height: 80px; margin: 0 3px; font-size: 18px; }
     .win-modal { padding: 30px 20px; width: 90%; }
@@ -148,48 +138,41 @@
 </head>
 <body>
 
-<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
-<div class="float-menu" id="floatMenu">
-  <a href="/">Главная</a><a href="/crash.html">Crash</a><a href="/cases.html">Cases</a><a href="/miner.html">Miner</a><a href="/ladder.html">Ladder</a><a href="/plinko.html">Plinko</a>
-</div>
-
 <div class="topbar">
-  <a href="/" class="logo">KINGWIN</a>
-  <div class="balance-badge">Баланс: <span id="topBalance">0.00</span> ₽</div>
-</div>
-
-<div class="history-bar" id="historyBar">
-  <div class="history-title">Последние дропы:</div>
-  <div id="historyList" style="display:flex; gap:8px;"></div>
+  <div class="header-left">
+    <a href="/" class="logo">KINGWIN</a>
+  </div>
+  <div class="header-right">
+    <div class="balance-info">
+      <div class="lbl">Ваш баланс</div>
+      <div class="val"><span id="topBalance">0.00</span> ₽</div>
+    </div>
+    <a href="/" class="btn-back">← На главную</a>
+  </div>
 </div>
 
 <div class="container">
   <!-- КАТАЛОГ -->
-  <div class="view-catalog active" id="viewCatalog">
-    <div class="header-title">Выберите кейс</div>
+  <div id="viewCatalog">
     <div class="cases-grid" id="casesGrid">
-      <div style="color:var(--text-muted); padding:20px;">Загрузка кейсов...</div>
+      <div style="color:var(--text-muted); padding:20px; grid-column: 1/-1;">Загрузка кейсов...</div>
     </div>
   </div>
 
   <!-- КОМНАТА -->
   <div class="view-room" id="viewRoom">
-    <a href="/cases.html" class="room-back">← Назад ко всем кейсам</a>
+    <a href="/cases.html" class="btn-back" style="margin-bottom: 20px;">← Назад ко всем кейсам</a>
     
-    <div class="room-case-preview">
+    <div class="room-preview">
       <img id="roomCaseImg" src="" alt="Case">
       <h2 id="roomCaseName">Название</h2>
       <p id="roomCasePrice">0 ₽</p>
     </div>
     
-    <button class="open-big-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
+    <button class="open-btn" id="roomOpenBtn" onclick="openCaseAction()">Открыть кейс</button>
 
-    <div class="case-items-title">Возможные выигрыши:</div>
-    <div class="case-items-grid" id="roomCaseItems"></div>
-
-    <!-- ССЫЛКИ НА ДРУГИЕ КЕЙСЫ -->
-    <div class="case-items-title" style="margin-top:20px;">Перейти к другим кейсам:</div>
-    <div class="other-cases" id="otherCasesLinks"></div>
+    <div class="prizes-title">Возможные выигрыши:</div>
+    <div class="prizes-grid" id="roomCaseItems"></div>
   </div>
 </div>
 
@@ -202,11 +185,11 @@
   <div class="win-modal" id="winModal">
     <div class="win-title">Вы выиграли!</div>
     <div class="win-amount" id="winAmount">0 ₽</div>
-    <button class="open-big-btn" style="padding: 12px 30px; font-size: 16px; background: var(--accent-green);" onclick="closeRoulette()">Забрать</button>
+    <button class="open-btn" style="padding: 12px 30px; font-size: 16px; background: var(--accent-green); margin-bottom:0;" onclick="closeRoulette()">Забрать</button>
   </div>
 </div>
 
-<!-- КРАСИВОЕ ОКНО ОШИБКИ -->
+<!-- ОКНО ОШИБКИ -->
 <div class="alert-bg" id="alertBg" onclick="closeAlert()"></div>
 <div class="alert-modal" id="alertModal">
   <div class="alert-title" id="alertTitle">Ошибка</div>
@@ -257,11 +240,11 @@ async function loadCases() {
     allCasesList = await r.json();
     const grid = document.getElementById('casesGrid');
     
-    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted);">Нет доступных кейсов</div>'; return; }
+    if(!allCasesList || allCasesList.length === 0) { grid.innerHTML = '<div style="color:var(--text-muted); grid-column:1/-1;">Нет доступных кейсов</div>'; return; }
 
     grid.innerHTML = allCasesList.map((c) => {
       const imgName = imageMap[c.name] || 'case_novice.png';
-      const idParam = c.name.toLowerCase(); // Используем название как ID в ссылке
+      const idParam = c.name.toLowerCase();
       return `
       <a href="/cases.html?id=${idParam}" class="case-card">
         <img src="/${imgName}" class="case-image" onerror="this.src='/cases_card.jpg'" alt="${c.name}">
@@ -270,15 +253,14 @@ async function loadCases() {
       </a>
     `}).join('');
 
-    // Проверяем, есть ли параметр id в URL
     const params = new URLSearchParams(window.location.search);
     const caseId = params.get('id');
     if(caseId) {
       const found = allCasesList.find(c => c.name.toLowerCase() === caseId.toLowerCase());
-      if(found) enterRoom(found, false); // false - не пушим историю, мы уже на этой странице
+      if(found) enterRoom(found, false); 
     }
 
-  } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red);">Ошибка загрузки кейсов</div>'; }
+  } catch(e) { document.getElementById('casesGrid').innerHTML = '<div style="color:var(--red); grid-column:1/-1;">Ошибка загрузки кейсов</div>'; }
 }
 
 function getPrizeClass(prize) { if (prize >= 500) return 'gold'; if (prize >= 50) return 'blue'; return 'silver'; }
@@ -290,7 +272,7 @@ function enterRoom(caseObj, updateHistory = true) {
     history.pushState({ caseId: caseObj.name }, '', `/cases.html?id=${caseObj.name.toLowerCase()}`);
   }
 
-  document.getElementById('viewCatalog').classList.remove('active');
+  document.getElementById('viewCatalog').style.display = 'none';
   document.getElementById('viewRoom').classList.add('active');
   
   const imgName = imageMap[currentCase.name] || 'case_novice.png';
@@ -301,31 +283,20 @@ function enterRoom(caseObj, updateHistory = true) {
   
   const itemsWrap = document.getElementById('roomCaseItems');
   const sortedPrizes = [...currentCase.prizes].sort((a, b) => a - b);
-  itemsWrap.innerHTML = sortedPrizes.map(p => `<div class="prize-chip ${getPrizeClass(p)}">${p} ₽</div>`).join('');
-  
-  // Ссылки на другие кейсы
-  const otherWrap = document.getElementById('otherCasesLinks');
-  otherWrap.innerHTML = allCasesList
-    .filter(c => c.name !== currentCase.name)
-    .map(c => `<a href="/cases.html?id=${c.name.toLowerCase()}" class="other-case-link">${c.name}</a>`)
-    .join('');
+  itemsWrap.innerHTML = sortedPrizes.map(p => `<div class="prize ${getPrizeClass(p)}">${p} ₽</div>`).join('');
   
   const btn = document.getElementById('roomOpenBtn');
   if(currentCase.available) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
   else { btn.disabled = true; btn.textContent = 'Недоступно для вашего ранга'; }
-
-  window.scrollTo(0, 0);
 }
 
-// Обработка кнопки "Назад" в браузере
 window.onpopstate = function(event) {
   if(event.state && event.state.caseId) {
     const found = allCasesList.find(c => c.name.toLowerCase() === event.state.caseId.toLowerCase());
     if(found) enterRoom(found, false);
   } else {
-    // Возврат в каталог
     document.getElementById('viewRoom').classList.remove('active');
-    document.getElementById('viewCatalog').classList.add('active');
+    document.getElementById('viewCatalog').style.display = 'block';
     currentCase = null;
   }
 };
@@ -345,7 +316,7 @@ async function openCaseAction() {
       return; 
     }
     startRouletteAnimation(d.prize);
-    loadProfile(); loadHistory();
+    loadProfile();
   } catch(e) { showAlert('Ошибка', 'Ошибка соединения'); btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
 }
 
@@ -385,18 +356,8 @@ function closeRoulette() {
   if(currentCase) { btn.disabled = false; btn.textContent = `Открыть за ${currentCase.price} ₽`; }
 }
 
-async function loadHistory() {
-  try {
-    const r = await fetch('/api/cases/history');
-    const data = await r.json();
-    const list = document.getElementById('historyList');
-    if(!data || data.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Нет дропов</div>'; return; }
-    list.innerHTML = data.map(h => { const isGold = h.result >= 500; return `<div class="history-item"><span class="h-name">${h.name}</span><span class="h-res ${isGold?'gold':''}">${parseFloat(h.result).toFixed(0)} ₽</span></div>`; }).join('');
-  } catch(e) {}
-}
-
-loadProfile(); loadCases(); loadHistory();
-setInterval(loadProfile, 5000); setInterval(loadHistory, 5000);
+loadProfile(); loadCases();
+setInterval(loadProfile, 5000);
 </script>
 </body>
 </html>
