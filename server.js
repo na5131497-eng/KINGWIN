@@ -893,6 +893,69 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return sendJSON(res, 200, []); }
     }
 
+    /* ================= LADDER ================= */
+    if (url === '/api/ladder/play' && method === 'POST') {
+      const b = await parseBody(req);
+      const { guest_id, bet, win, multiplier } = b;
+      if (!guest_id) return sendJSON(res, 400, { error: 'no guest_id' });
+      
+      const betAmount = parseFloat(bet) || 0;
+      const winAmount = parseFloat(win) || 0;
+      
+      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guest_id]);
+      if (!g.rows.length) return sendJSON(res, 404, { error: 'Гость не найден' });
+      const guest = g.rows[0];
+      
+      const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
+      
+      if (betAmount > 0 && totalBal < betAmount) {
+        return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      }
+
+      let newBonus = parseFloat(guest.bonus_balance) || 0;
+      let newDep = parseFloat(guest.deposit_balance) || 0;
+      
+      if (betAmount > 0) {
+        let remaining = betAmount;
+        if (newBonus >= remaining) { newBonus -= remaining; remaining = 0; }
+        else { remaining -= newBonus; newBonus = 0; newDep -= remaining; }
+      }
+
+      if (winAmount > 0) {
+        newDep += winAmount;
+      }
+
+      await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [newBonus, newDep, guest.id]);
+
+      if (winAmount > 0 || multiplier) {
+         const mult = parseFloat(multiplier) || 1;
+         await pool.query(
+           `INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`,
+           ['ladder', guest.name, betAmount || winAmount, mult]
+         );
+      }
+
+      const net = betAmount - winAmount;
+      if (betAmount > 0 || winAmount > 0) {
+        const type = net >= 0 ? 'доход' : 'расход';
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`,
+          [todayStr(), type, Math.abs(net), `Ladder (${guest.name})`]
+        );
+      }
+
+      return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep });
+    }
+
+    if (url === '/api/ladder/history' && method === 'GET') {
+      try {
+        const r = await pool.query(
+          `SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='ladder' ORDER BY id DESC LIMIT 15`
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 200, []); }
+    }
+
     /* ================= CRASH ================= */
     if (url === '/api/crash/current' && method === 'GET') {
       let multiplier = 1;
