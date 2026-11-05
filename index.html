@@ -73,7 +73,6 @@
     text-align: center;
   }
   
-  /* Декоративные элементы на баннере */
   .hero::before {
     content: ''; position: absolute; top: -50px; left: -50px; width: 200px; height: 200px;
     background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); filter: blur(30px);
@@ -96,7 +95,7 @@
   /* ИГРЫ */
   .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
   
-  /* Карточки игр (Crash и Cases) */
+  /* Карточки игр */
   .crash-card {
     position: relative; width: 100%; aspect-ratio: 1 / 1;
     border-radius: 18px; overflow: hidden; cursor: pointer;
@@ -279,11 +278,22 @@
         </div>
       </div>
 
-      <!-- Заготовки (осталось 3) -->
-      <div class="placeholder-card">
-        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        <div class="placeholder-text">Скоро</div>
+      <!-- Miner -->
+      <div class="crash-card" onclick="showMinerStub()">
+        <img src="/miner_card.jpg" alt="Miner" onerror="this.style.display='none'">
+        <div class="crash-overlay"></div>
+        <div class="crash-info">
+          <div>
+            <div class="crash-title">Miner</div>
+            <div class="crash-sub">Найди золото</div>
+          </div>
+          <div class="crash-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
       </div>
+
+      <!-- Заготовки (осталось 2) -->
       <div class="placeholder-card">
         <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <div class="placeholder-text">Скоро</div>
@@ -392,6 +402,10 @@ function showCasesStub() {
   showToast('Кейсы скоро появятся', 'success');
 }
 
+function showMinerStub() {
+  showToast('Miner скоро появится', 'success');
+}
+
 function openModal(id) { 
   if(id === 'depositModal' && !currentPlayer) {
     showToast('Сначала войдите в аккаунт', 'error');
@@ -462,9 +476,7 @@ function updateDepDisplay() {
   const val = parseInt(document.getElementById('depAmount').value) || 200;
   document.getElementById('depSumDisplay').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
   
-  let finalSum = val;
   if (isFirstDeposit && val >= 200) {
-    finalSum = val + 100;
     document.getElementById('depSumDisplay2').innerHTML = `${val.toLocaleString('ru-RU')}.00 ₽ <span style="color:#00ff88; font-size:11px; margin-left:5px;">(+100 ₽ БОНУС)</span>`;
   } else {
     document.getElementById('depSumDisplay2').textContent = val.toLocaleString('ru-RU') + '.00 ₽';
