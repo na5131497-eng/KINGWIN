@@ -88,17 +88,27 @@ let currentAmount = 0;
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 
-// Генерация уникальной суммы (добавляем случайные копейки, чтобы отличать переводы)
+// Генерация уникальной суммы (добавляем копейки)
 function generateUniqueAmount(baseAmount) {
   const kopecks = Math.floor(Math.random() * 99) + 1;
   return baseAmount + (kopecks / 100);
 }
 
 async function init() {
+  // Если сумма уже сохранена в localStorage, берем её (чтобы не генерировать новую при перезагрузке)
+  const savedAmount = localStorage.getItem('kingwin_pay_amount');
   const urlParams = new URLSearchParams(window.location.search);
-  const baseAmount = parseFloat(urlParams.get('amount')) || 500;
-  
-  currentAmount = generateUniqueAmount(baseAmount);
+  const urlAmount = urlParams.get('amount');
+
+  if(urlAmount && !savedAmount) {
+    currentAmount = generateUniqueAmount(parseFloat(urlAmount));
+    localStorage.setItem('kingwin_pay_amount', currentAmount);
+  } else if(savedAmount) {
+    currentAmount = parseFloat(savedAmount);
+  } else {
+    currentAmount = generateUniqueAmount(500);
+    localStorage.setItem('kingwin_pay_amount', currentAmount);
+  }
   
   document.getElementById('paySumDisplay').textContent = currentAmount.toFixed(2) + ' ₽';
   document.getElementById('payExactSum').textContent = currentAmount.toFixed(2) + ' ₽';
@@ -118,36 +128,49 @@ async function confirmPayment() {
   document.getElementById('payCard').style.display = 'none';
   document.getElementById('loaderCard').style.display = 'flex';
   
-  // Создаем заявку в базе
+  // Создаем заявку в базе (только если её еще нет)
   try {
-    await fetch('/api/deposits', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        date: new Date().toISOString().slice(0,10),
-        nick: playerName, email: '', sum: currentAmount, status: 'pending'
-      })
-    });
+    const check = await fetch('/api/deposits');
+    const deps = await check.json();
+    const existing = deps.find(d => 
+      d.nick.toLowerCase() === playerName.toLowerCase() && 
+      Math.abs(d.sum - currentAmount) < 0.1 &&
+      d.status === 'pending'
+    );
+
+    if(!existing) {
+      await fetch('/api/deposits', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          date: new Date().toISOString().slice(0,10),
+          nick: playerName, email: '', sum: currentAmount, status: 'pending'
+        })
+      });
+    }
     
-    // Начинаем опрос сервера на предмет подтверждения админом
+    // Начинаем опрос сервера на предмет подтверждения
     const pollInterval = setInterval(async () => {
       const check = await fetch('/api/deposits');
       const deps = await check.json();
       
-      // Ищем наш депозит, который уже одобрен
+      // Ищем ЛЮБОЙ подтвержденный депозит этого игрока, начиная с нашей суммы
       const myDep = deps.find(d => 
         d.nick.toLowerCase() === playerName.toLowerCase() && 
         d.status === 'approved' && 
-        Math.abs(d.sum - currentAmount) < 0.01
+        Math.abs(d.sum - currentAmount) < 0.1
       );
       
       if(myDep) {
         clearInterval(pollInterval);
+        localStorage.removeItem('kingwin_pay_amount'); // Очищаем кэш суммы
         document.getElementById('successAmount').textContent = myDep.sum.toFixed(2);
         document.getElementById('successModal').classList.add('show');
         fetch('/api/deposits/' + myDep.id + '/seen', { method: 'POST' });
       }
     }, 3000);
-  } catch(e) {}
+  } catch(e) {
+    console.error(e);
+  }
 }
 
 init();
