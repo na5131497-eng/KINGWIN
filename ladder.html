@@ -63,16 +63,37 @@
   /* ИГРОВОЕ ПОЛЕ */
   .game-area { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-height: 500px; display: flex; justify-content: center; }
   
-  .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 10px; }
+  .grid-scroll { width: 100%; max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 10px 10px 10px 20px; }
   .grid-scroll::-webkit-scrollbar { display: none; }
   
-  .grid-wrap { display: flex; flex-direction: column; gap: 8px; }
-  .row { display: flex; gap: 6px; justify-content: center; align-items: center; }
+  /* СЕТКА */
+  .grid-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: max-content; }
   
-  /* МНОЖИТЕЛЬ ВНУТРИ РЯДА */
-  .m-val { width: 60px; padding: 6px 0; text-align: center; font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; margin-right: 15px; flex-shrink: 0; }
-  .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+  /* КАЖДАЯ СТРОКА (ЭТАЖ) */
+  .row { 
+    display: grid; 
+    grid-template-columns: 70px 1fr; /* Множитель | Клетки */
+    align-items: center; 
+    gap: 15px;
+  }
+
+  /* МНОЖИТЕЛЬ СЛЕВА */
+  .m-val { 
+    width: 70px; 
+    padding: 8px 0; 
+    text-align: center; 
+    font-size: 11px; 
+    font-weight: 900; 
+    color: var(--text-muted); 
+    background: var(--bg-dark); 
+    border: 1px solid var(--border); 
+    border-radius: 8px; 
+  }
+  .m-val.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.5); }
   .m-val.passed { color: var(--accent-green); border-color: rgba(0,255,136,0.3); }
+
+  /* КОНТЕЙНЕР ДЛЯ КЛЕТОК ОДНОГО ЭТАЖА */
+  .cells-container { display: flex; gap: 6px; justify-content: center; }
 
   .cell { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-dark); border: 2px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center; font-size: 16px; }
   .cell:hover:not(:disabled):not(.opened) { border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
@@ -99,7 +120,8 @@
   @media(max-width: 800px) {
     .layout { grid-template-columns: 1fr; margin: 10px auto; }
     .cell { width: 26px; height: 26px; font-size: 12px; }
-    .m-val { width: 50px; margin-right: 10px; font-size: 10px; }
+    .m-val { width: 50px; font-size: 10px; }
+    .row { grid-template-columns: 50px 1fr; gap: 10px; }
   }
 </style>
 </head>
@@ -134,9 +156,8 @@
       <button class="qbet" onclick="setBet(1000)">1000</button>
     </div>
 
-    <h2>Количество камней (от 3)</h2>
+    <h2>Количество камней</h2>
     <div class="stones-select" id="stonesSelect">
-      <!-- Убраны 1 и 2 -->
       <button class="stone-btn" data-stones="3">3</button>
       <button class="stone-btn" data-stones="4">4</button>
       <button class="stone-btn" data-stones="5">5</button>
@@ -162,7 +183,7 @@ let B = 0;
 
 const STEP_WIDTHS = [20, 19, 19, 18, 20, 16, 18, 15, 19, 10, 9, 8];
 const TOTAL_STEPS = STEP_WIDTHS.length;
-let TOTAL_STONES = 6; // По умолчанию 6
+let TOTAL_STONES = 6;
 let playing = false;
 let currentBet = 0;
 let currentStep = 0;
@@ -245,13 +266,12 @@ function renderGrid(){
   var grid = $('gridWrap');
   grid.innerHTML = '';
   
-  // Рисуем сетку снизу вверх, встраивая множитель прямо в строку
+  // Рисуем сетку снизу вверх, каждый этаж — это отдельная строка
   for(var step = TOTAL_STEPS - 1; step >= 0; step--){
     var row = document.createElement('div');
     row.className = 'row';
     
-    // Добавляем множитель слева
-    var m = calcMult(step + 1);
+    // Множитель (слева)
     var isPassed = (step < currentStep && playing);
     var isCurrent = (step === currentStep && playing);
     
@@ -260,7 +280,10 @@ function renderGrid(){
     mEl.textContent = 'x' + calcMult(step + 1).toFixed(2);
     row.appendChild(mEl);
 
-    // Добавляем сами клетки
+    // Клетки (справа)
+    var cellsContainer = document.createElement('div');
+    cellsContainer.className = 'cells-container';
+    
     var cellsInRow = STEP_WIDTHS[step];
     for(var c = 0; c < cellsInRow; c++){
         var cell = document.createElement('div');
@@ -275,8 +298,10 @@ function renderGrid(){
             })(step, c);
         }
         
-        row.appendChild(cell);
+        cellsContainer.appendChild(cell);
     }
+    
+    row.appendChild(cellsContainer);
     grid.appendChild(row);
   }
   
@@ -293,9 +318,11 @@ async function clickCell(step, cellIdx, cellEl){
   if(!playing || step !== currentStep || isWaiting) return;
   isWaiting = true;
   
-  var currentRow = cellEl.parentElement;
-  var rowCells = currentRow.children;
-  for(var i=1; i<rowCells.length; i++){ // Пропускаем 0-й (это множитель)
+  var row = cellEl.parentElement.parentElement; // Достаем саму строку (.row)
+  var cellsContainer = cellEl.parentElement; // Контейнер с клетками
+  var rowCells = cellsContainer.children;
+  
+  for(var i=0; i<rowCells.length; i++){
       rowCells[i].classList.remove('current');
   }
   
@@ -323,13 +350,16 @@ async function clickCell(step, cellIdx, cellEl){
         var grid = $('gridWrap');
         for(var r=0; r<TOTAL_STEPS; r++){
             var visualIndex = TOTAL_STEPS - 1 - r;
-            var row = grid.children[visualIndex];
-            if(!row) continue;
-            var cells = row.children;
-            for(var c=1; c<cells.length; c++){ // Пропускаем множитель
+            var currentRow = grid.children[visualIndex];
+            if(!currentRow) continue;
+            var cellsCont = currentRow.querySelector('.cells-container');
+            if(!cellsCont) continue;
+            var cells = cellsCont.children;
+            
+            for(var c=0; c<cells.length; c++){
                 cells[c].classList.remove('current');
                 cells[c].classList.add('opened');
-                if(stonePositions[r] && stonePositions[r].indexOf(c-1) !== -1){
+                if(stonePositions[r] && stonePositions[r].indexOf(c) !== -1){
                     cells[c].classList.add('revealed-stone', 'stone-icon');
                 } else {
                     cells[c].classList.add('revealed-diamond', 'diamond-icon');
@@ -442,10 +472,13 @@ async function cashOut(){
   var grid = $('gridWrap');
   for(var r=0; r<TOTAL_STEPS; r++){
         var visualIndex = TOTAL_STEPS - 1 - r;
-        var row = grid.children[visualIndex];
-        if(!row) continue;
-        var cells = row.children;
-        for(var c=1; c<cells.length; c++){ // Пропускаем множитель
+        var currentRow = grid.children[visualIndex];
+        if(!currentRow) continue;
+        var cellsCont = currentRow.querySelector('.cells-container');
+        if(!cellsCont) continue;
+        var cells = cellsCont.children;
+        
+        for(var c=0; c<cells.length; c++){
             cells[c].classList.remove('current');
             if(r < currentStep){
                 cells[c].classList.add('opened', 'revealed-diamond', 'diamond-icon');
