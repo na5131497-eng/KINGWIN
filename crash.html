@@ -280,6 +280,42 @@ let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
+/* ============ ЗВУК ОТСЧЁТА (без цифр на экране) ============ */
+let countdownInterval = null;
+let lastWaitingRoundId = null;
+let countdownAudio = null;
+
+function playTickSound() {
+  try {
+    if (!countdownAudio) {
+      countdownAudio = new Audio('/countdown.mp3');
+      countdownAudio.volume = 0.6;
+    }
+    countdownAudio.currentTime = 0;
+    const p = countdownAudio.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch(e) {}
+}
+
+function startCountdownSound(seconds) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  let left = seconds;
+  playTickSound();
+  countdownInterval = setInterval(() => {
+    left--;
+    if (left <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      return;
+    }
+    playTickSound();
+  }, 1000);
+}
+
+function stopCountdownSound() {
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+}
+
 /* ============ ЗВУКИ (Web Audio API) ============ */
 let audioCtx = null;
 let flyOsc = null;
@@ -323,26 +359,20 @@ function startFlySound() {
   flyOsc = audioCtx.createOscillator();
   flyGain = audioCtx.createGain();
   flyOsc.type = 'sine';
-  flyOsc.frequency.setValueAtTime(55, now);
+  flyOsc.frequency.setValueAtTime(80, now);
 
   const lfo = audioCtx.createOscillator();
   const lfoGain = audioCtx.createGain();
   lfo.type = 'sine';
-  lfo.frequency.setValueAtTime(0.5, now);
-  lfoGain.gain.setValueAtTime(3, now);
+  lfo.frequency.setValueAtTime(0.8, now);
+  lfoGain.gain.setValueAtTime(6, now);
   lfo.connect(lfoGain);
   lfoGain.connect(flyOsc.frequency);
   lfo.start(now);
 
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(300, now);
+  flyGain.gain.setValueAtTime(0.12, now);
 
-  flyGain.gain.setValueAtTime(0.0001, now);
-  flyGain.gain.exponentialRampToValueAtTime(0.05, now + 0.5);
-
-  flyOsc.connect(filter);
-  filter.connect(flyGain);
+  flyOsc.connect(flyGain);
   flyGain.connect(audioCtx.destination);
   flyOsc.start(now);
   flyOsc._lfo = lfo;
@@ -351,9 +381,9 @@ function startFlySound() {
 function updateFlySound(mult) {
   if (!flyActive || !flyOsc || !audioCtx) return;
   const now = audioCtx.currentTime;
-  const freq = Math.min(220, 55 + Math.log(mult) * 40);
+  const freq = Math.min(320, 80 + Math.log(mult) * 60);
   flyOsc.frequency.setTargetAtTime(freq, now, 0.2);
-  const vol = Math.min(0.09, 0.04 + Math.log(mult) * 0.015);
+  const vol = Math.min(0.22, 0.12 + Math.log(mult) * 0.03);
   flyGain.gain.setTargetAtTime(vol, now, 0.2);
 }
 
@@ -376,7 +406,6 @@ function playCrashSound() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
 
-  // Низкий бум
   const boom = audioCtx.createOscillator();
   const boomGain = audioCtx.createGain();
   boom.type = 'sine';
@@ -389,7 +418,6 @@ function playCrashSound() {
   boom.start(now);
   boom.stop(now + 0.9);
 
-  // Раскат
   const noiseSize = audioCtx.sampleRate * 1.2;
   const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -408,7 +436,6 @@ function playCrashSound() {
   noiseGain.connect(audioCtx.destination);
   noise.start(now);
 
-  // Треск детонатора
   const crackSize = audioCtx.sampleRate * 0.15;
   const crackBuf = audioCtx.createBuffer(1, crackSize, audioCtx.sampleRate);
   const crackData = crackBuf.getChannelData(0);
@@ -624,6 +651,15 @@ function applyServerState(d) {
   renderBets(round.bets);
   renderHistory(round.history);
   updateBetButtons();
+
+  // === ЗВУК ОТСЧЁТА 10 СЕК (без цифр на экране) ===
+  if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
+    lastWaitingRoundId = d.roundId;
+    startCountdownSound(10);
+  }
+  if (d.status === 'flying' || d.status === 'crashed') {
+    stopCountdownSound();
+  }
 }
 
 let prevMult = 1;
