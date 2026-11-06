@@ -1562,15 +1562,41 @@ const server = http.createServer(async (req, res) => {
             ON CONFLICT (dealer_id, date) DO UPDATE SET hands = $3`, [dId.rows[0].id, today, hands]);
         }
       } catch(e) {}
+
+      // === ДЖЕКПОТ: Вариант A — в pending_bonus игроку + отыгрыш x3 ===
       let currentJP = await getActualJackpot();
-      if (jackpotHit) { currentJP = 0; }
-      else {
+      let jackpotWon = 0;
+      if (jackpotHit) {
+        jackpotWon = currentJP;
+        currentJP = 0;
+        if (jackpotWon > 0) {
+          try {
+            const gRes = await pool.query(
+              `SELECT id FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`,
+              [nick]
+            );
+            if (gRes.rows.length > 0) {
+              const guestId = gRes.rows[0].id;
+              const wageringAdd = jackpotWon * 3;
+              await pool.query(`
+                UPDATE guests SET
+                  pending_bonus = pending_bonus + $1,
+                  wagering_required = wagering_required + $2
+                WHERE id = $3
+              `, [jackpotWon, wageringAdd, guestId]);
+            }
+          } catch(e) { console.error('jackpot accrue error:', e.message); }
+        }
+      } else {
         currentJP += Math.max(1, bet * 0.15);
         if (currentJP >= JACKPOT_MAX) currentJP = 0;
       }
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
-      return sendJSON(res, 200, { ok: true, session: sessionRow, jackpot: currentJP, jackpot_reset: jackpotHit });
+      return sendJSON(res, 200, {
+        ok: true, session: sessionRow, jackpot: currentJP,
+        jackpot_reset: jackpotHit, jackpot_won: jackpotWon
+      });
     }
 
     /* ================= БАККАРА ================= */
