@@ -110,14 +110,12 @@
   .withdraw-block .cond .title { font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
 
-  /* NEWS */
   .news-item { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
     border-radius: 12px; padding: 14px; margin-bottom: 10px; }
   .news-item .title { font-size: 14px; font-weight: 800; color: #00e5ff; margin-bottom: 6px; }
   .news-item .body { font-size: 13px; color: #fff; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
   .news-item .date { font-size: 11px; color: #8fa2b8; }
 
-  /* REVIEWS */
   .review-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
     border-radius: 16px; padding: 20px; margin-bottom: 14px; }
   .review-block h3 { font-size: 13px; font-weight: 800; text-transform: uppercase;
@@ -149,12 +147,12 @@
   .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; }
 
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
+    display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; overflow-y: auto; }
   .modal-backdrop.show { display: flex; }
   .modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid #00e5ff;
     border-radius: 24px; padding: 36px 28px; max-width: 400px; width: 100%; text-align: center;
     box-shadow: 0 0 60px rgba(0,229,255,0.4); animation: slideUp .4s ease;
-    position: relative; overflow: hidden; }
+    position: relative; overflow: hidden; margin: auto; }
   @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal.rank-up { border-color: #f1c40f; box-shadow: 0 0 70px rgba(241,196,15,.5); }
   .modal-logo { font-size: 36px; font-weight: 900; letter-spacing: 4px;
@@ -193,6 +191,11 @@
   .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4); color: #ff8a8a;
     border-radius: 12px; padding: 14px; text-align: center; font-weight: 600; margin: 12px 0; }
   .footer { text-align: center; font-size: 11px; color: #6d819a; margin-top: 20px; }
+
+  .cp-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 12px; color: #fff; font-size: 15px; margin-bottom: 10px;
+    text-align: center; font-family: inherit; }
+  .cp-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
 </style>
 </head>
 <body>
@@ -305,11 +308,44 @@
   </div>
 </div>
 
+<!-- МОДАЛКА СМЕНЫ ПАРОЛЯ -->
+<div class="modal-backdrop" id="changePassModal">
+  <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
+    <button class="modal-close" onclick="closeChangePassModal()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Security</div>
+    <div class="modal-title">Смена пароля</div>
+    <div class="modal-text" style="margin-bottom:16px;">Введите текущий и новый пароль.</div>
+
+    <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль" autocomplete="current-password">
+    <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4 символа)" autocomplete="new-password">
+    <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый пароль" autocomplete="new-password">
+    <div class="err" id="cpErr" style="display:none;"></div>
+
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:6px;">
+      <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
+      <button class="modal-btn green" onclick="submitChangePass()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА УСПЕХА СМЕНЫ ПАРОЛЯ -->
+<div class="modal-backdrop" id="changePassSuccessModal">
+  <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div>
+    <div class="modal-text">Используйте новый пароль при следующем входе.</div>
+    <button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 v5
+   KINGWIN — Profile 2 v6
    + Новости
-   + Оценка дилера (1 раз в 24ч на дилера — проверка на сервере)
+   + Оценка дилера
+   + Смена пароля
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -343,7 +379,7 @@ function renderLogin(prefillId){
       <p style="font-size:12px;color:#8fa2b8;text-align:center;margin-bottom:8px;">Введите номер карты и пароль</p>
       <div class="login-form">
         <label>Номер карты</label>
-        <input type="text" id="loginId" placeholder="12345678" value="${esc(prefillId||'')}">
+        <input type="text" id="loginId" placeholder="KING-0001" value="${esc(prefillId||'')}">
         <label>Пароль</label>
         <input type="password" id="loginPass" placeholder="••••">
         <div class="err" id="loginErr" style="display:none;margin-top:14px;"></div>
@@ -472,6 +508,14 @@ function renderProfile(){
           <div style="font-size:14px;font-weight:600;line-height:1.4;margin-bottom:10px">${esc(g.bonus_text)}</div>
           ${g.bonus_code ? `<div style="display:inline-block;font-family:'Courier New';font-size:13px;font-weight:800;color:#00e5ff;letter-spacing:2px;background:rgba(0,0,0,.5);padding:6px 12px;border-radius:8px;border:1px dashed rgba(0,229,255,.4)">${esc(g.bonus_code)}</div>` : ''}
         </div>` : ''}
+
+      <div class="info-block">
+        <div class="t">🔒 Безопасность</div>
+        <div style="font-size:12px;color:#8fa2b8;line-height:1.5;margin-bottom:10px;">
+          Смените пароль от карты. При следующем входе используйте новый пароль.
+        </div>
+        <button class="btn ghost" onclick="openChangePassModal()" style="width:100%;">Сменить пароль</button>
+      </div>
 
       <button class="btn ghost" onclick="doLogout()">Выйти</button>
     </div>`;
@@ -863,6 +907,52 @@ async function loadMyReviews(){
     }).join('');
   } catch(e) {
     box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:10px;">Ошибка загрузки</div>`;
+  }
+}
+
+/* ---------------- CHANGE PASSWORD ---------------- */
+function openChangePassModal(){
+  document.getElementById('cpOld').value = '';
+  document.getElementById('cpNew').value = '';
+  document.getElementById('cpNew2').value = '';
+  document.getElementById('cpErr').style.display = 'none';
+  document.getElementById('changePassModal').classList.add('show');
+}
+function closeChangePassModal(){
+  document.getElementById('changePassModal').classList.remove('show');
+}
+function closeChangePassSuccess(){
+  document.getElementById('changePassSuccessModal').classList.remove('show');
+}
+
+async function submitChangePass(){
+  if(!session) return;
+  const oldPass = document.getElementById('cpOld').value;
+  const newPass = document.getElementById('cpNew').value;
+  const newPass2 = document.getElementById('cpNew2').value;
+  const err = document.getElementById('cpErr');
+  err.style.display = 'none';
+
+  if(!oldPass){ err.textContent = 'Введите текущий пароль'; err.style.display = 'block'; return; }
+  if(!newPass || newPass.length < 4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
+  if(newPass !== newPass2){ err.textContent = 'Новые пароли не совпадают'; err.style.display = 'block'; return; }
+
+  try {
+    const r = await fetch('/api/guest/change-password', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id: session.id, old_pass: oldPass, new_pass: newPass })
+    });
+    const data = await r.json();
+    if(!r.ok){
+      err.textContent = data.error || 'Ошибка';
+      err.style.display = 'block';
+      return;
+    }
+    closeChangePassModal();
+    document.getElementById('changePassSuccessModal').classList.add('show');
+  } catch(e){
+    err.textContent = 'Ошибка соединения';
+    err.style.display = 'block';
   }
 }
 
