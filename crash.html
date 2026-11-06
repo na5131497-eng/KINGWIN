@@ -312,31 +312,49 @@ function playBetSound() {
   osc.stop(now + 0.15);
 }
 
-// 2. Звук полёта — нарастающий гул
+// 2. Звук полёта — «космос»: глубокий гул с мерцанием
 function startFlySound() {
   if (flyActive) return;
   initAudio();
   if (!audioCtx) return;
   flyActive = true;
   const now = audioCtx.currentTime;
+
   flyOsc = audioCtx.createOscillator();
   flyGain = audioCtx.createGain();
-  flyOsc.type = 'sawtooth';
-  flyOsc.frequency.setValueAtTime(60, now);
+  flyOsc.type = 'sine';
+  flyOsc.frequency.setValueAtTime(55, now);
+
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.type = 'sine';
+  lfo.frequency.setValueAtTime(0.5, now);
+  lfoGain.gain.setValueAtTime(3, now);
+  lfo.connect(lfoGain);
+  lfoGain.connect(flyOsc.frequency);
+  lfo.start(now);
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(300, now);
+
   flyGain.gain.setValueAtTime(0.0001, now);
-  flyGain.gain.exponentialRampToValueAtTime(0.06, now + 0.3);
-  flyOsc.connect(flyGain);
+  flyGain.gain.exponentialRampToValueAtTime(0.05, now + 0.5);
+
+  flyOsc.connect(filter);
+  filter.connect(flyGain);
   flyGain.connect(audioCtx.destination);
   flyOsc.start(now);
+  flyOsc._lfo = lfo;
 }
 
 function updateFlySound(mult) {
   if (!flyActive || !flyOsc || !audioCtx) return;
   const now = audioCtx.currentTime;
-  const freq = Math.min(400, 60 + Math.log(mult) * 80);
-  flyOsc.frequency.setTargetAtTime(freq, now, 0.1);
-  const vol = Math.min(0.12, 0.04 + Math.log(mult) * 0.02);
-  flyGain.gain.setTargetAtTime(vol, now, 0.1);
+  const freq = Math.min(220, 55 + Math.log(mult) * 40);
+  flyOsc.frequency.setTargetAtTime(freq, now, 0.2);
+  const vol = Math.min(0.09, 0.04 + Math.log(mult) * 0.015);
+  flyGain.gain.setTargetAtTime(vol, now, 0.2);
 }
 
 function stopFlySound() {
@@ -344,46 +362,69 @@ function stopFlySound() {
   flyActive = false;
   if (flyOsc && flyGain && audioCtx) {
     const now = audioCtx.currentTime;
-    flyGain.gain.setTargetAtTime(0.0001, now, 0.05);
-    flyOsc.stop(now + 0.2);
+    flyGain.gain.setTargetAtTime(0.0001, now, 0.08);
+    if (flyOsc._lfo) { try { flyOsc._lfo.stop(now + 0.3); } catch(e){} }
+    flyOsc.stop(now + 0.3);
     flyOsc = null;
     flyGain = null;
   }
 }
 
-// 3. Звук краша — резкий «взрыв»
+// 3. Звук краша — «взрыв бомбы»
 function playCrashSound() {
   initAudio();
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
-  const bufferSize = audioCtx.sampleRate * 0.4;
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+
+  // Низкий бум
+  const boom = audioCtx.createOscillator();
+  const boomGain = audioCtx.createGain();
+  boom.type = 'sine';
+  boom.frequency.setValueAtTime(80, now);
+  boom.frequency.exponentialRampToValueAtTime(20, now + 0.6);
+  boomGain.gain.setValueAtTime(0.6, now);
+  boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+  boom.connect(boomGain);
+  boomGain.connect(audioCtx.destination);
+  boom.start(now);
+  boom.stop(now + 0.9);
+
+  // Раскат
+  const noiseSize = audioCtx.sampleRate * 1.2;
+  const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate);
   const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < noiseSize; i++) data[i] = Math.random() * 2 - 1;
   const noise = audioCtx.createBufferSource();
   noise.buffer = buffer;
   const noiseGain = audioCtx.createGain();
-  noiseGain.gain.setValueAtTime(0.25, now);
-  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+  noiseGain.gain.setValueAtTime(0.35, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
   const noiseFilter = audioCtx.createBiquadFilter();
   noiseFilter.type = 'lowpass';
-  noiseFilter.frequency.setValueAtTime(1500, now);
-  noiseFilter.frequency.exponentialRampToValueAtTime(200, now + 0.4);
+  noiseFilter.frequency.setValueAtTime(800, now);
+  noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
   noise.connect(noiseFilter);
   noiseFilter.connect(noiseGain);
   noiseGain.connect(audioCtx.destination);
   noise.start(now);
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(120, now);
-  osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
-  gain.gain.setValueAtTime(0.4, now);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(now);
-  osc.stop(now + 0.4);
+
+  // Треск детонатора
+  const crackSize = audioCtx.sampleRate * 0.15;
+  const crackBuf = audioCtx.createBuffer(1, crackSize, audioCtx.sampleRate);
+  const crackData = crackBuf.getChannelData(0);
+  for (let i = 0; i < crackSize; i++) crackData[i] = Math.random() * 2 - 1;
+  const crack = audioCtx.createBufferSource();
+  crack.buffer = crackBuf;
+  const crackGain = audioCtx.createGain();
+  crackGain.gain.setValueAtTime(0.2, now);
+  crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+  const crackFilter = audioCtx.createBiquadFilter();
+  crackFilter.type = 'highpass';
+  crackFilter.frequency.setValueAtTime(2000, now);
+  crack.connect(crackFilter);
+  crackFilter.connect(crackGain);
+  crackGain.connect(audioCtx.destination);
+  crack.start(now);
 }
 
 // 4. Звук забрал ставку — приятный «динь»
@@ -565,7 +606,6 @@ function applyServerState(d) {
 
   restoreMyBetsFromServer(round.bets);
 
-  // звук полёта
   if (d.status === 'flying' && prevStatus !== 'flying') {
     startFlySound();
   }
