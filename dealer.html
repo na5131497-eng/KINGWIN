@@ -186,6 +186,28 @@
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
 
+  /* chips */
+  .player-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,229,255,.15); border: 1px solid rgba(0,229,255,.4);
+    color: #00e5ff; padding: 6px 12px; border-radius: 16px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: all .2s;
+  }
+  .player-chip:hover { background: rgba(0,229,255,.25); }
+  .player-chip .del {
+    color: #ff4d4d; cursor: pointer; font-weight: 900;
+    padding-left: 2px;
+  }
+  .player-chip .del:hover { color: #ff8a8a; }
+  .chips-empty { color: #8fa2b8; font-size: 12px; font-style: italic; padding: 4px 0; }
+
+  .session-counter {
+    display: inline-block; background: rgba(63,191,127,.15); color: #3fbf7f;
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
+    margin-left: 6px;
+  }
+
   @media (max-width: 600px) {
     body { padding: 12px; }
     .main-container { padding: 18px 14px; border-radius: 16px; }
@@ -288,9 +310,22 @@
     <button data-tab="profile" onclick="switchTab('profile')">Профиль</button>
   </div>
 
+  <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
   <div class="tab active" id="tab-data">
-    <h2>Новый раунд</h2>
-    <div class="sub">Вбивайте каждый раунд. Система сама посчитает сессию.</div>
+    <h2>Новый раунд <span id="roundCounter" class="session-counter" style="display:none">Сегодня: 0</span></h2>
+    <div class="sub">Кликните по игроку, заполните ставку и нажмите Enter.</div>
+
+    <!-- СПИСОК ИГРОКОВ ЗА СТОЛОМ -->
+    <div class="form-group">
+      <label>Игроки за столом <span style="color:#8fa2b8;font-size:10px;text-transform:none;">(клик — выбрать)</span></label>
+      <div id="playersChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+        <span class="chips-empty">Пока никого. Добавьте игрока ↓</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="newPlayerNick" placeholder="Ник нового игрока" style="flex:1;" autocomplete="off">
+        <button class="btn-submit" style="width:auto;padding:0 16px;margin:0;background:#3fbf7f;color:#000;" onclick="addPlayerChip()">+</button>
+      </div>
+    </div>
 
     <div class="form-group">
       <label>Игра</label>
@@ -302,7 +337,8 @@
 
     <div class="form-group">
       <label>Ник игрока</label>
-      <input type="text" id="playerNick" placeholder="Иван">
+      <input type="text" id="playerNick" placeholder="Выберите из списка или введите" list="playersDatalist" autocomplete="off">
+      <datalist id="playersDatalist"></datalist>
     </div>
 
     <div class="row">
@@ -324,10 +360,19 @@
       </span>
     </label>
 
-    <button class="btn-submit" id="btnSubmit" onclick="saveRound()">Внести раунд</button>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn-submit" id="btnSubmit" onclick="saveRound()" style="flex:2;">Внести раунд</button>
+      <button class="btn-submit" onclick="repeatLastRound()" style="flex:1;background:rgba(255,255,255,0.1);color:#fff;" title="Повторить последний раунд">🔁</button>
+    </div>
     <div class="msg" id="msgData"></div>
+
+    <div style="margin-top:14px;font-size:11px;color:#8fa2b8;text-align:center;line-height:1.6;">
+      <b>Enter</b> — сохранить раунд · <b>🔁</b> — повторить последний<br>
+      Список игроков сохраняется на этом устройстве
+    </div>
   </div>
 
+  <!-- ВКЛАДКА: ЗАДАНИЯ -->
   <div class="tab" id="tab-tasks">
     <h2>Ежедневные задания</h2>
     <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
@@ -339,6 +384,7 @@
     <div class="msg" id="msgTask"></div>
   </div>
 
+  <!-- ВКЛАДКА: БАЛАНС -->
   <div class="tab" id="tab-balance">
     <h2>Мой баланс</h2>
     <div class="sub">Зарплата + награды за задания</div>
@@ -371,6 +417,7 @@
     <div id="withdrawHistory"></div>
   </div>
 
+  <!-- ВКЛАДКА: ПРОФИЛЬ -->
   <div class="tab" id="tab-profile">
     <h2>Мой профиль</h2>
     <div class="sub">Ваш статус и рейтинг</div>
@@ -381,6 +428,7 @@
   </div>
 </div>
 
+<!-- Модалка вывода -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h3>Вывод средств</h3>
@@ -405,6 +453,7 @@
   </div>
 </div>
 
+<!-- Модалка уведомлений -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box" id="infoBox">
     <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
@@ -473,6 +522,8 @@ async function doLogin(){
     document.getElementById('dealerName').textContent = currentDealer.name;
     document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
+    renderPlayersChips();
+    updateRoundCounter();
     loadTasks();
     loadSilence();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
@@ -488,6 +539,96 @@ function confirmLogout(){
   document.getElementById('loginPass').value = '';
 }
 
+/* --- СПИСОК ИГРОКОВ --- */
+function playersKey(){ return 'dealer_players_' + (currentDealer?.id || '0'); }
+function loadPlayersChips(){
+  try {
+    const raw = localStorage.getItem(playersKey());
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+function savePlayersChips(list){
+  try { localStorage.setItem(playersKey(), JSON.stringify(list)); } catch(e) {}
+}
+function renderPlayersChips(){
+  const list = loadPlayersChips();
+  const box = document.getElementById('playersChips');
+  const datalist = document.getElementById('playersDatalist');
+  if(!box) return;
+  if(list.length === 0){
+    box.innerHTML = '<span class="chips-empty">Пока никого. Добавьте игрока ↓</span>';
+  } else {
+    box.innerHTML = list.map((nick, i) => `
+      <span class="player-chip" onclick="pickPlayer('${nick.replace(/'/g,"\\'")}')">
+        ${nick}
+        <span class="del" onclick="event.stopPropagation();removePlayerChip(${i})">×</span>
+      </span>
+    `).join('');
+  }
+  if(datalist){
+    datalist.innerHTML = list.map(n => `<option value="${n}">`).join('');
+  }
+}
+function addPlayerChip(){
+  const inp = document.getElementById('newPlayerNick');
+  const nick = inp.value.trim();
+  if(!nick) return;
+  const list = loadPlayersChips();
+  if(list.includes(nick)){ inp.value = ''; return; }
+  list.push(nick);
+  savePlayersChips(list);
+  renderPlayersChips();
+  inp.value = '';
+  pickPlayer(nick);
+}
+function removePlayerChip(idx){
+  const list = loadPlayersChips();
+  list.splice(idx, 1);
+  savePlayersChips(list);
+  renderPlayersChips();
+}
+function pickPlayer(nick){
+  document.getElementById('playerNick').value = nick;
+  document.getElementById('betAmount').focus();
+}
+
+/* --- СЧЁТЧИК РАУНДОВ ЗА СЕГОДНЯ --- */
+function roundsKey(){ return 'dealer_rounds_' + (currentDealer?.id || '0') + '_' + new Date().toISOString().slice(0,10); }
+function getRoundsToday(){
+  try { return parseInt(localStorage.getItem(roundsKey())) || 0; } catch(e) { return 0; }
+}
+function incRoundsToday(){
+  const n = getRoundsToday() + 1;
+  try { localStorage.setItem(roundsKey(), String(n)); } catch(e) {}
+  return n;
+}
+function updateRoundCounter(){
+  const el = document.getElementById('roundCounter');
+  if(!el) return;
+  const n = getRoundsToday();
+  if(n > 0){ el.style.display = 'inline-block'; el.textContent = 'Сегодня: ' + n; }
+  else el.style.display = 'none';
+}
+
+/* --- ПОВТОРИТЬ ПОСЛЕДНИЙ РАУНД --- */
+function lastRoundKey(){ return 'dealer_last_round_' + (currentDealer?.id || '0'); }
+function repeatLastRound(){
+  try {
+    const raw = localStorage.getItem(lastRoundKey());
+    if(!raw){ showInfo('Нет данных', 'Сначала внесите хотя бы один раунд', 'err'); return; }
+    const last = JSON.parse(raw);
+    document.getElementById('gameType').value = last.game || 'bj';
+    document.getElementById('playerNick').value = last.nick || '';
+    document.getElementById('betAmount').value = last.bet || '';
+    document.getElementById('winAmount').value = last.win || '';
+    document.getElementById('jackpotCheck').checked = false;
+    document.getElementById('betAmount').focus();
+  } catch(e) {
+    showInfo('Ошибка', 'Не удалось восстановить последний раунд');
+  }
+}
+
+/* --- СОХРАНЕНИЕ РАУНДА --- */
 async function saveRound(){
   const gameType = document.getElementById('gameType').value;
   const playerNick = document.getElementById('playerNick').value.trim();
@@ -517,7 +658,20 @@ async function saveRound(){
     const data = await res.json();
     
     if(res.ok) {
-      showMsg('msgData', jackpot ? 'Раунд сохранен! Джекпот сброшен до 0 ₽' : 'Раунд сохранен!', true);
+      try {
+        localStorage.setItem(lastRoundKey(), JSON.stringify({
+          game: gameType, nick: playerNick, bet: betAmount, win: winAmount
+        }));
+      } catch(e) {}
+      incRoundsToday();
+      updateRoundCounter();
+
+      if (jackpot && data.jackpot_won > 0) {
+        showMsg('msgData', `Джекпот ${fmt(data.jackpot_won)} ₽ начислен игроку ${playerNick}!`, true);
+      } else {
+        showMsg('msgData', 'Раунд сохранён!', true);
+      }
+
       document.getElementById('playerNick').value = '';
       document.getElementById('betAmount').value = '';
       document.getElementById('winAmount').value = '';
@@ -534,6 +688,25 @@ async function saveRound(){
   }
 }
 
+/* --- ENTER В ПОЛЯХ --- */
+function bindEnterKeys(){
+  ['playerNick','betAmount','winAmount'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('keypress', e => {
+        if(e.key === 'Enter'){ e.preventDefault(); saveRound(); }
+      });
+    }
+  });
+  const newNick = document.getElementById('newPlayerNick');
+  if(newNick){
+    newNick.addEventListener('keypress', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); addPlayerChip(); }
+    });
+  }
+}
+
+/* --- ЗАДАНИЯ --- */
 async function loadTasks(){
   if(!currentDealer) return;
   try {
@@ -591,6 +764,7 @@ async function claimTask(taskId){
   } catch(e){ showInfo('Ошибка', 'Ошибка соединения'); }
 }
 
+/* --- БОНУС ЗА ТИШИНУ --- */
 async function loadSilence(){
   if(!currentDealer) return;
   try {
@@ -624,6 +798,7 @@ async function loadSilence(){
   } catch(e){}
 }
 
+/* --- БАЛАНС --- */
 async function loadBalance(){
   if(!currentDealer) return;
   try {
@@ -651,6 +826,7 @@ async function loadBalance(){
   } catch(e){}
 }
 
+/* --- ВЫВОД --- */
 function openWithdrawModal(){
   if(dealerBalance <= 0){
     showInfo('Нет средств', 'На вашем балансе 0 ₽. Выполните задания или дождитесь зарплаты.', 'err');
@@ -714,6 +890,7 @@ async function doWithdraw(){
   }
 }
 
+/* --- ПРОФИЛЬ --- */
 async function loadProfile(){
   if(!currentDealer) return;
   const box = document.getElementById('profileContent');
@@ -780,6 +957,11 @@ async function loadProfile(){
     box.innerHTML = '<div style="text-align:center; padding:30px; color:#ff4d4d">Ошибка соединения</div>';
   }
 }
+
+/* --- INIT --- */
+document.addEventListener('DOMContentLoaded', function(){
+  bindEnterKeys();
+});
 </script>
 </body>
 </html>
