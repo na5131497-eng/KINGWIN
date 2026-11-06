@@ -441,6 +441,16 @@ async function initDB() {
         id SERIAL PRIMARY KEY, title TEXT, body TEXT, date TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS dealer_reviews (
+        id SERIAL PRIMARY KEY,
+        date TEXT,
+        guest_id TEXT,
+        guest_name TEXT,
+        dealer_name TEXT,
+        stars INTEGER DEFAULT 0,
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
       CREATE TABLE IF NOT EXISTS guests (
         id TEXT PRIMARY KEY, name TEXT, rank TEXT DEFAULT 'Bronze',
         points INTEGER DEFAULT 0, visits INTEGER DEFAULT 0,
@@ -1644,6 +1654,72 @@ const server = http.createServer(async (req, res) => {
       const id = url.split('/')[4];
       try {
         await pool.query('DELETE FROM news WHERE id=$1', [id]);
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    /* ================= ОЦЕНКИ ДИЛЕРОВ ================= */
+    if (url === '/api/dealer-reviews' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const guestId = u.searchParams.get('guest_id');
+      const dealer = u.searchParams.get('dealer');
+      try {
+        let r;
+        if (guestId) {
+          r = await pool.query(
+            `SELECT * FROM dealer_reviews WHERE guest_id=$1 ORDER BY id DESC`,
+            [guestId]
+          );
+        } else if (dealer) {
+          r = await pool.query(
+            `SELECT * FROM dealer_reviews WHERE LOWER(dealer_name) = LOWER($1) ORDER BY id DESC`,
+            [dealer]
+          );
+        } else {
+          r = await pool.query(`SELECT * FROM dealer_reviews ORDER BY id DESC LIMIT 500`);
+        }
+        return sendJSON(res, 200, r.rows);
+      } catch (e) { return sendJSON(res, 200, []); }
+    }
+
+    if (url === '/api/dealer-reviews' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const dealerName = String(b.dealer_name || '').trim();
+      const stars = parseInt(b.stars, 10) || 0;
+      const comment = String(b.comment || '').trim();
+      if (!guestId) return sendJSON(res, 400, { error: 'Нет guest_id' });
+      if (!dealerName) return sendJSON(res, 400, { error: 'Введите имя дилера' });
+      if (stars < 1 || stars > 5) return sendJSON(res, 400, { error: 'Оценка должна быть от 1 до 5' });
+      try {
+        const r = await pool.query(
+          `INSERT INTO dealer_reviews (date, guest_id, guest_name, dealer_name, stars, comment)
+           VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+          [todayStr(), guestId, String(b.guest_name || ''), dealerName, stars, comment]
+        );
+        return sendJSON(res, 200, { ok: true, review: r.rows[0] });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url === '/api/dealer-ratings' && method === 'GET') {
+      try {
+        const r = await pool.query(`
+          SELECT LOWER(dealer_name) AS dealer,
+                 COUNT(*)::int AS reviews_count,
+                 ROUND(AVG(stars)::numeric, 2) AS avg_stars,
+                 SUM(stars)::int AS sum_stars
+          FROM dealer_reviews
+          GROUP BY LOWER(dealer_name)
+          ORDER BY avg_stars DESC NULLS LAST
+        `);
+        return sendJSON(res, 200, r.rows);
+      } catch (e) { return sendJSON(res, 200, []); }
+    }
+
+    if (url.startsWith('/api/dealer-reviews/') && method === 'DELETE') {
+      const id = url.split('/')[3];
+      try {
+        await pool.query('DELETE FROM dealer_reviews WHERE id=$1', [id]);
         return sendJSON(res, 200, { ok: true });
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
