@@ -328,7 +328,7 @@
   </div>
 
   <div class="games-grid">
-    <!-- Crash -->
+    <!-- Crash (работает) -->
     <a href="/crash.html" class="game-card" id="gameCrash" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash">
@@ -361,27 +361,27 @@
       </div>
     </div>
 
-    <!-- Ladder -->
-    <a href="/ladder.html" class="game-card" id="gameLadder" onclick="return requireLogin(event)">
+    <!-- Ladder (СКОРО) -->
+    <div class="game-card coming-soon" onclick="showComingSoon('Ladder')">
       <div class="game-img-wrap">
         <img src="/ladder_card.jpg" alt="Ladder">
       </div>
       <div class="game-info">
         <div class="game-title">Ladder</div>
-        <div class="game-sub">Поднимайся выше</div>
+        <div class="game-sub">Скоро</div>
       </div>
-    </a>
+    </div>
 
-    <!-- Plinko -->
-    <a href="/plinko.html" class="game-card" id="gamePlinko" onclick="return requireLogin(event)">
+    <!-- Plinko (СКОРО) -->
+    <div class="game-card coming-soon" onclick="showComingSoon('Plinko')">
       <div class="game-img-wrap">
         <img src="/plinko_card.jpg" alt="Plinko">
       </div>
       <div class="game-info">
         <div class="game-title">Plinko</div>
-        <div class="game-sub">Поймай удачу</div>
+        <div class="game-sub">Скоро</div>
       </div>
-    </a>
+    </div>
   </div>
 
 </div>
@@ -563,20 +563,16 @@ function updateUI() {
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
 
-    // разблокировать игры (только рабочие)
-    ['gameCrash','gameLadder','gamePlinko'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.classList.remove('locked');
-    });
+    // разблокировать только Crash
+    const el = document.getElementById('gameCrash');
+    if(el) el.classList.remove('locked');
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
 
-    // заблокировать игры (только рабочие)
-    ['gameCrash','gameLadder','gamePlinko'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.classList.add('locked');
-    });
+    // заблокировать Crash
+    const el = document.getElementById('gameCrash');
+    if(el) el.classList.add('locked');
   }
 }
 
