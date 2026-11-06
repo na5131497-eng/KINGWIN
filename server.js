@@ -50,20 +50,22 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
-/* ---------- РАНГИ ДИЛЕРОВ (Вариант A — Престиж) ---------- */
+/* ---------- РАНГИ ДИЛЕРОВ (1 очко = 5 ₽ оборота) ---------- */
+const DEALER_POINTS_PER_RUB = 0.2;
+
 const DEALER_RANKS = [
-  { key: 'Trainee', label: 'Стажёр',    min: 0,    percent: 10, bonus: 0   },
-  { key: 'Dealer',  label: 'Дилер',     min: 100,  percent: 11, bonus: 0   },
-  { key: 'Senior',  label: 'Ст. дилер', min: 300,  percent: 12, bonus: 100 },
-  { key: 'Master',  label: 'Мастер',    min: 600,  percent: 13, bonus: 200 },
-  { key: 'Elite',   label: 'Элит',      min: 1000, percent: 14, bonus: 300 },
-  { key: 'VIP',     label: 'VIP',       min: 1500, percent: 15, bonus: 500 }
+  { key: 'Trainee', label: 'Стажёр',    min: 0,    percent: 10, bonus: 0,   color: '#cd7f32' },
+  { key: 'Dealer',  label: 'Дилер',     min: 200,  percent: 11, bonus: 0,   color: '#c0c0c0' },
+  { key: 'Senior',  label: 'Ст. дилер', min: 600,  percent: 12, bonus: 100, color: '#f1c40f' },
+  { key: 'Master',  label: 'Мастер',    min: 1200, percent: 13, bonus: 200, color: '#e5e4e2' },
+  { key: 'Elite',   label: 'Элит',      min: 2000, percent: 14, bonus: 300, color: '#b9f2ff' },
+  { key: 'VIP',     label: 'VIP',       min: 3000, percent: 15, bonus: 500, color: '#ffe066' }
 ];
 
-function getDealerRank(prestige){
+function getDealerRank(points){
   let rank = DEALER_RANKS[0];
   for (const r of DEALER_RANKS) {
-    if (prestige >= r.min) rank = r;
+    if (points >= r.min) rank = r;
     else break;
   }
   return rank;
@@ -158,7 +160,7 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-/* ---------- ЗАДАНИЯ ДИЛЕРА (чёт/нечет + лимит 50₽/день) ---------- */
+/* ---------- ЗАДАНИЯ ДИЛЕРА ---------- */
 const DEALER_TASKS_BJ = [
   { id: 'bj_hands_10',  title: 'Блэкджек: 10 раздач за день',  goal: 10,  reward: 10, type: 'bj' },
   { id: 'bj_hands_30',  title: 'Блэкджек: 30 раздач за день',  goal: 30,  reward: 15, type: 'bj' },
@@ -888,22 +890,35 @@ const server = http.createServer(async (req, res) => {
         avgStars = parseFloat(rRes.rows[0]?.avg) || 0;
       } catch (e) {}
 
-      let sessions = 0;
+      let sessions = 0, totalTurnover = 0;
       try {
-        const s1 = await pool.query(`SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer)=LOWER($1)`, [dealer.name]);
-        const s2 = await pool.query(`SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer)=LOWER($1)`, [dealer.name]);
-        sessions = (s1.rows[0]?.c || 0) + (s2.rows[0]?.c || 0);
+        const s1 = await pool.query(
+          `SELECT COUNT(*)::int AS c, COALESCE(SUM(dep), 0)::numeric AS sum FROM sessions WHERE LOWER(dealer)=LOWER($1)`,
+          [dealer.name]
+        );
+        sessions += s1.rows[0]?.c || 0;
+        totalTurnover += parseFloat(s1.rows[0]?.sum) || 0;
+
+        const s2 = await pool.query(
+          `SELECT COUNT(*)::int AS c, COALESCE(SUM(sum), 0)::numeric AS sum FROM baccarat WHERE LOWER(dealer)=LOWER($1)`,
+          [dealer.name]
+        );
+        sessions += s2.rows[0]?.c || 0;
+        totalTurnover += parseFloat(s2.rows[0]?.sum) || 0;
       } catch (e) {}
 
-      let monthsWorked = 0;
-      try {
-        const created = dealer.created_at ? new Date(dealer.created_at) : new Date();
-        monthsWorked = Math.max(0, Math.floor((Date.now() - created.getTime()) / (30 * 24 * 60 * 60 * 1000)));
-      } catch (e) {}
+      const points = Math.floor(totalTurnover * DEALER_POINTS_PER_RUB);
 
-      const prestige = Math.round(sessions + (avgStars * 20) + (monthsWorked * 5));
-      const rank = getDealerRank(prestige);
-      const nextRank = DEALER_RANKS.find(r => r.min > prestige) || null;
+      const rank = getDealerRank(points);
+      const nextRank = DEALER_RANKS.find(r => r.min > points) || null;
+      const currentMin = rank.min;
+
+      let progressPct = 100, nextLabel = 'Максимальный ранг', pointsToNext = 0;
+      if (nextRank) {
+        progressPct = Math.min(100, Math.round(((points - currentMin) / (nextRank.min - currentMin)) * 100));
+        pointsToNext = Math.max(0, nextRank.min - points);
+        nextLabel = `До ${nextRank.label}: ${points} / ${nextRank.min}`;
+      }
 
       return sendJSON(res, 200, {
         dealer: {
@@ -913,15 +928,18 @@ const server = http.createServer(async (req, res) => {
           avg_stars: Math.round(avgStars * 100) / 100,
           reviews_count: reviewsCount,
           sessions,
-          months_worked: monthsWorked,
-          prestige,
+          total_turnover: Math.round(totalTurnover * 100) / 100,
+          points,
           rank: rank.key,
           rank_label: rank.label,
+          rank_color: rank.color,
           rank_percent: rank.percent,
           rank_bonus: rank.bonus,
           next_rank_label: nextRank ? nextRank.label : null,
           next_rank_min: nextRank ? nextRank.min : null,
-          ranks_info: DEALER_RANKS
+          progress_pct: progressPct,
+          points_to_next: pointsToNext,
+          next_label: nextLabel
         }
       });
     }
@@ -1845,7 +1863,6 @@ const server = http.createServer(async (req, res) => {
       if (!dealerName) return sendJSON(res, 400, { error: 'Введите имя дилера' });
       if (stars < 1 || stars > 5) return sendJSON(res, 400, { error: 'Оценка должна быть от 1 до 5' });
 
-      // === один отзыв на дилера в 24 часа ===
       try {
         const lastRes = await pool.query(
           `SELECT created_at FROM dealer_reviews
