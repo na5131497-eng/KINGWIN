@@ -6,154 +6,237 @@
 <title>KINGWIN — Оплата</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #090a10; --panel: #181a24; --accent: #00e5ff; --green: #00ff88; --border: rgba(255,255,255,0.06); }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: radial-gradient(circle at top center, #1a1c29 0%, var(--bg) 60%); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-  
-  .pay-card { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
-  .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #8b92a5; font-size: 24px; cursor: pointer; }
-  .close-btn:hover { color: #fff; }
-  
-  h1 { font-size: 22px; font-weight: 900; margin-bottom: 20px; text-align: center; }
-  
-  .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #8b92a5; }
-  .info-row b { color: #fff; font-size: 16px; }
-  
-  .card-box { background: #fff; color: #000; font-size: 24px; font-weight: 900; padding: 20px; border-radius: 12px; font-family: 'Courier New', monospace; text-align: center; letter-spacing: 2px; margin: 15px 0; }
-  
-  .amount-box { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
-  .amount-box .lbl { font-size: 11px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .amount-box .val { font-size: 32px; font-weight: 900; color: #00ff88; }
-  
-  .pay-btn { width: 100%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; border: none; border-radius: 12px; padding: 18px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
-  .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.6); }
-  
-  .loader { display: none; flex-direction: column; align-items: center; text-align: center; }
-  .spinner { width: 50px; height: 50px; border: 4px solid rgba(0,229,255,0.1); border-top-color: #00e5ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top, #1a2332, #0a0d14);
+    color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 24px 16px; }
+  .wrap { width: 100%; max-width: 460px; }
+  .logo { text-align: center; font-size: 28px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .logo-sub { text-align: center; font-size: 10px; letter-spacing: 4px; color: #8fa2b8;
+    text-transform: uppercase; margin-bottom: 22px; }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    margin-bottom: 16px; }
+
+  .amount-label { text-align: center; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1.5px; font-weight: 700; margin-bottom: 8px; }
+  .amount-big { text-align: center; font-size: 44px; font-weight: 900; color: #00e5ff;
+    text-shadow: 0 0 30px rgba(0,229,255,.4); line-height: 1; margin-bottom: 6px; }
+  .amount-sub { text-align: center; font-size: 12px; color: #8fa2b8; margin-bottom: 22px; }
+
+  .summary { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .summary .line { display: flex; justify-content: space-between; font-size: 14px;
+    padding: 6px 0; gap: 10px; }
+  .summary .line span:first-child { color: #8fa2b8; }
+  .summary .line span:last-child { font-weight: 800; color: #fff; }
+  .summary .line.real span:last-child { color: #3fbf7f; }
+  .summary .line.bonus span:last-child { color: #00e5ff; }
+  .summary .line.total { border-top: 1px solid rgba(255,255,255,.1); margin-top: 6px;
+    padding-top: 10px; font-size: 15px; }
+  .summary .line.total span:first-child { color: #fff; font-weight: 800; }
+  .summary .line.total span:last-child { color: #3fbf7f; font-size: 18px; font-weight: 900; }
+
+  .bonus-info { background: rgba(0,229,255,.08); border: 1px solid rgba(0,229,255,.3);
+    border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 12px;
+    color: #8fa2b8; line-height: 1.5; }
+  .bonus-info b { color: #00e5ff; }
+  .bonus-info .wager-line { color: #f1c40f; font-weight: 700; margin-top: 4px; }
+
+  .card-info { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .card-info .t { font-size: 11px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
+  .card-info .row { display: flex; justify-content: space-between; font-size: 13px;
+    padding: 6px 0; gap: 10px; }
+  .card-info .row span:first-child { color: #8fa2b8; }
+  .card-info .row b { color: #fff; font-family: 'Courier New', monospace; font-size: 15px;
+    letter-spacing: 1px; }
+
+  .btn { width: 100%; background: #3fbf7f; color: #000; border: none; border-radius: 10px;
+    padding: 15px; font-size: 15px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: .3s; }
+  .btn:hover { box-shadow: 0 0 25px rgba(63,191,127,.5); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.15);
+    margin-top: 10px; }
+  .btn.ghost:hover { border-color: #00e5ff; color: #00e5ff; box-shadow: none; transform: none; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center;
+    z-index: 3000; padding: 20px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--panel); border: 2px solid var(--green); border-radius: 20px; padding: 30px; text-align: center; max-width: 400px; width: 100%; }
-  .modal-box h2 { color: var(--green); font-size: 24px; margin-bottom: 10px; }
-  .modal-box p { font-size: 14px; color: #8b92a5; margin-bottom: 20px; line-height: 1.5; }
-  .modal-btn { background: var(--green); color: #000; border: none; border-radius: 10px; padding: 14px 30px; font-weight: 900; font-size: 15px; cursor: pointer; width: 100%; text-transform: uppercase; }
+  .modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid #3fbf7f;
+    border-radius: 24px; padding: 36px 28px; max-width: 400px; width: 100%; text-align: center;
+    box-shadow: 0 0 60px rgba(63,191,127,.4); margin: auto; }
+  .modal-logo { font-size: 36px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .modal-sub { font-size: 10px; color: #8fa2b8; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 22px; }
+  .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 12px; }
+  .modal-title span { color: #3fbf7f; }
+  .modal-text { font-size: 14px; color: #a0aec0; line-height: 1.6; margin-bottom: 14px; }
+  .modal-btn { background: #3fbf7f; color: #000; border: none; border-radius: 12px;
+    padding: 14px 40px; font-size: 15px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1px; cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 20px rgba(63,191,127,.4); transition: .3s; }
+  .modal-btn:hover { box-shadow: 0 0 30px rgba(63,191,127,.7); }
+
+  .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4);
+    color: #ff8a8a; border-radius: 12px; padding: 14px; text-align: center;
+    font-weight: 600; margin: 12px 0; }
+
+  @media (max-width: 600px) {
+    body { padding: 14px 10px; }
+    .amount-big { font-size: 36px; }
+    .card { padding: 18px; }
+    .modal { padding: 28px 18px; }
+  }
 </style>
 </head>
 <body>
+<div class="wrap">
+  <div class="logo">KINGWIN</div>
+  <div class="logo-sub">Payment</div>
 
-<div class="pay-card" id="payCard">
-  <button class="close-btn" onclick="window.location.href='/'">✕</button>
-  <h1>Пополнение баланса</h1>
-  
-  <div class="info-row">
-    <span>Сумма к оплате:</span>
-    <b id="paySumDisplay">0.00 ₽</b>
+  <div class="card">
+    <div class="amount-label">Сумма к оплате</div>
+    <div class="amount-big" id="payAmount">200 ₽</div>
+    <div class="amount-sub" id="payAmountSub">Переведите указанную сумму на карту</div>
+
+    <div class="summary" id="summaryBox">
+      <div class="line real"><span>На реальный баланс</span><span id="realAmount">200 ₽</span></div>
+      <div class="line bonus" id="bonusLine" style="display:none"><span>Бонус новичкам</span><span id="bonusAmount">+100 ₽</span></div>
+      <div class="line total"><span>Итого получите</span><span id="totalAmount">200 ₽</span></div>
+    </div>
+
+    <div class="bonus-info" id="bonusInfo" style="display:none">
+      <div>Бонус <b>100 ₽</b> зачисляется на <b>бонусный баланс</b>. Вывести его нельзя — нужно отыграть.</div>
+      <div class="wager-line">Вейджер: x20 → нужно сделать ставок на <span id="wagerAmount">2000 ₽</span></div>
+      <div style="margin-top:6px;">После отыгрыша бонус <b>×2</b> переходит на реальный баланс (<b>+200 ₽</b>), бонусные сгорают.</div>
+    </div>
+
+    <div class="card-info">
+      <div class="t">Реквизиты для перевода</div>
+      <div class="row"><span>Способ:</span> <b>Перевод на карту</b></div>
+      <div class="row"><span>Номер:</span> <b>2200 7010 1234 5678</b></div>
+      <div class="row"><span>Получатель:</span> <b>Павел С</b></div>
+    </div>
+
+    <button class="btn" id="btnPay" onclick="confirmPayment()">Я оплатил(а)</button>
+    <button class="btn ghost" onclick="window.location.href='/'">Отменить и вернуться</button>
+
+    <div id="payErr"></div>
   </div>
-  <div class="info-row">
-    <span>Способ оплаты:</span>
-    <b>Перевод на карту</b>
-  </div>
-
-  <div class="card-box">2200 7010 1234 5678</div>
-  <p style="font-size: 12px; color: #8b92a5; text-align: center; margin-bottom: 20px;">Получатель: КИНГВИН КАЗИНО</p>
-
-  <div class="amount-box">
-    <div class="lbl">Переведите ровно эту сумму</div>
-    <div class="val" id="payExactSum">0.00 ₽</div>
-  </div>
-
-  <button class="pay-btn" id="payBtn" onclick="confirmPayment()">Я оплатил (Проверить)</button>
 </div>
 
-<div class="pay-card loader" id="loaderCard">
-  <div class="spinner"></div>
-  <h2 style="font-size: 18px; margin-bottom: 10px;">Ищем ваш перевод</h2>
-  <p style="font-size: 14px; color: #8b92a5; text-align: center;">Обычно это занимает до 5 минут. Пожалуйста, не закрывайте страницу.</p>
-</div>
-
-<!-- ОКНО УСПЕХА -->
+<!-- МОДАЛКА УСПЕХА -->
 <div class="modal-overlay" id="successModal">
-  <div class="modal-box">
-    <h2>Добро пожаловать<br>в королевскую игру</h2>
-    <p>Баланс успешно пополнен на <b id="successAmount" style="color:#fff;">0</b> ₽.</p>
-    <button class="modal-btn" onclick="window.location.href='/'">В бой!</button>
+  <div class="modal">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Заявка <span>создана!</span></div>
+    <div class="modal-text">
+      Сумма: <b id="successSum" style="color:#fff;">200</b> ₽<br>
+      <span id="successBonusText" style="display:none;">Бонус: <b style="color:#00e5ff;">+100 ₽</b><br></span>
+      <small style="color:#8fa2b8;">Ожидайте подтверждения администратора. Обычно это занимает до 15 минут.</small>
+    </div>
+    <button class="modal-btn" onclick="window.location.href='/'">На главную</button>
   </div>
 </div>
 
 <script>
-let playerId = localStorage.getItem('kingwin_player_id');
-let playerName = '';
-let currentAmount = 0;
-let myDepositId = null;
+const params = new URLSearchParams(location.search);
+const amount = parseInt(params.get('amount')) || 500;
+const method = params.get('method') || 'bonus';
+const promo = params.get('promo') || '';
 
-function generateUniqueAmount(baseAmount) {
-  const kopecks = Math.floor(Math.random() * 99) + 1;
-  return baseAmount + (kopecks / 100);
-}
+const BONUS_MIN = 200;
+const BONUS_AMOUNT = 100;
+const BONUS_WAGER = 20;
+const BONUS_CONVERT = 2;
 
-async function init() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlAmount = parseFloat(urlParams.get('amount')) || 500;
-  
-  currentAmount = generateUniqueAmount(urlAmount);
-  
-  document.getElementById('paySumDisplay').textContent = currentAmount.toFixed(2) + ' ₽';
-  document.getElementById('payExactSum').textContent = currentAmount.toFixed(2) + ' ₽';
-  
-  if(playerId) {
-    try {
-      const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-      const d = await r.json();
-      if(d.guest) playerName = d.guest.name;
-    } catch(e) {}
-  }
+let playerId = localStorage.getItem('kingwin_guest_id');
+
+// Проверка: первый ли это депозит? (фронт не может точно знать, но проверяем по наличию)
+// Реальное решение — на сервере. Фронт только отображает.
+// Если method=bonus — показываем бонус. Если бонус уже был — сервер не начислит повторно,
+// но фронт покажет. Поэтому лучше запросить /api/guest/me и проверить,
+// есть ли уже депозиты. Но для простоты — показываем бонус, если method=bonus и amount >= 200.
+
+const isBonus = (method === 'bonus' && amount >= BONUS_MIN);
+const realAmount = amount;
+const bonusAmount = isBonus ? BONUS_AMOUNT : 0;
+const totalAmount = realAmount + bonusAmount;
+
+document.getElementById('payAmount').textContent = amount + ' ₽';
+document.getElementById('realAmount').textContent = realAmount + ' ₽';
+document.getElementById('totalAmount').textContent = totalAmount + ' ₽';
+
+if (isBonus) {
+  document.getElementById('bonusLine').style.display = 'flex';
+  document.getElementById('bonusInfo').style.display = 'block';
+  document.getElementById('bonusAmount').textContent = '+' + bonusAmount + ' ₽';
+  const wagerSum = bonusAmount * BONUS_WAGER;
+  document.getElementById('wagerAmount').textContent = wagerSum.toLocaleString('ru-RU') + ' ₽';
+} else {
+  document.getElementById('bonusLine').style.display = 'none';
+  document.getElementById('bonusInfo').style.display = 'none';
 }
 
 async function confirmPayment() {
-  if(!playerId) { alert('Войдите в аккаунт'); return; }
-  if(!playerName) { alert('Ошибка: не найден игрок'); return; }
-  
-  document.getElementById('payCard').style.display = 'none';
-  document.getElementById('loaderCard').style.display = 'flex';
-  
+  if (!playerId) {
+    document.getElementById('payErr').innerHTML = '<div class="err">Вы не вошли в аккаунт. <a href="/" style="color:#00e5ff;">Войти</a></div>';
+    return;
+  }
+
+  const btn = document.getElementById('btnPay');
+  btn.disabled = true; btn.textContent = 'Отправка...';
+
   try {
-    const res = await fetch('/api/deposits', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+    // получаем данные гостя (nick для депозита)
+    const meRes = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const meData = await meRes.json();
+    if (!meData.guest) {
+      document.getElementById('payErr').innerHTML = '<div class="err">Не удалось получить данные аккаунта</div>';
+      btn.disabled = false; btn.textContent = 'Я оплатил(а)';
+      return;
+    }
+    const nick = meData.guest.name;
+
+    // создаём депозит со статусом pending
+    const depRes = await fetch('/api/deposits', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         date: new Date().toISOString().slice(0,10),
-        nick: playerName, email: '', sum: currentAmount, status: 'pending'
+        nick: nick,
+        email: '',
+        sum: amount,
+        status: 'pending'
       })
     });
-    
-    const data = await res.json();
-    if(data.ok && data.deposit) {
-      myDepositId = data.deposit.id;
-      console.log('Заявка создана, ID:', myDepositId);
-    } else {
-      console.error('Ошибка создания заявки', data);
+    const depData = await depRes.json();
+    if (!depRes.ok) {
+      document.getElementById('payErr').innerHTML = '<div class="err">' + (depData.error || 'Ошибка создания заявки') + '</div>';
+      btn.disabled = false; btn.textContent = 'Я оплатил(а)';
       return;
     }
 
-    const pollInterval = setInterval(async () => {
-      const check = await fetch('/api/deposits');
-      const deps = await check.json();
-      
-      const myDep = deps.find(d => d.id === myDepositId);
-      
-      if(myDep && myDep.status === 'approved') {
-        clearInterval(pollInterval);
-        // ИСПРАВЛЕНИЕ: parseFloat() превращает строку в число
-        document.getElementById('successAmount').textContent = parseFloat(myDep.sum).toFixed(2);
-        document.getElementById('successModal').classList.add('show');
-      }
-    }, 3000);
+    // показываем успех
+    document.getElementById('successSum').textContent = amount;
+    if (isBonus) {
+      document.getElementById('successBonusText').style.display = 'block';
+    }
+    document.getElementById('successModal').classList.add('show');
   } catch(e) {
-    console.error(e);
+    document.getElementById('payErr').innerHTML = '<div class="err">Ошибка соединения. Попробуйте ещё раз.</div>';
+    btn.disabled = false; btn.textContent = 'Я оплатил(а)';
   }
 }
-
-init();
 </script>
 </body>
 </html>
