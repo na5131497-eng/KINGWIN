@@ -71,7 +71,7 @@ function getDealerRank(points){
   return rank;
 }
 
-/* ---------- DAILY: 10/15/20/25/30/35/40 ---------- */
+/* ---------- DAILY ---------- */
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 
 function todayStr(){ return new Date().toISOString().slice(0, 10); }
@@ -1317,6 +1317,37 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { guest, unseen_deposits: unseen });
     }
 
+    /* ================= СМЕНА ПАРОЛЯ ================= */
+    if (url === '/api/guest/change-password' && method === 'POST') {
+      const b = await parseBody(req);
+      const id = String(b.id || '').trim();
+      const oldPass = String(b.old_pass || '');
+      const newPass = String(b.new_pass || '').trim();
+
+      if (!id) return sendJSON(res, 400, { error: 'Нет ID карты' });
+      if (!oldPass) return sendJSON(res, 400, { error: 'Введите текущий пароль' });
+      if (!newPass) return sendJSON(res, 400, { error: 'Введите новый пароль' });
+      if (newPass.length < 4) return sendJSON(res, 400, { error: 'Новый пароль — минимум 4 символа' });
+      if (newPass.length > 20) return sendJSON(res, 400, { error: 'Новый пароль — максимум 20 символов' });
+
+      try {
+        const gRes = await pool.query('SELECT id, pass FROM guests WHERE id=$1', [id]);
+        if (gRes.rows.length === 0) return sendJSON(res, 404, { error: 'Карта не найдена' });
+        const guest = gRes.rows[0];
+        const realPass = guest.pass || '1234';
+        if (String(oldPass) !== String(realPass)) {
+          return sendJSON(res, 401, { error: 'Текущий пароль неверный' });
+        }
+        if (String(newPass) === String(realPass)) {
+          return sendJSON(res, 400, { error: 'Новый пароль совпадает с текущим' });
+        }
+        await pool.query('UPDATE guests SET pass=$1 WHERE id=$2', [newPass, id]);
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
+    }
+
     /* ================= DAILY ================= */
     if (url === '/api/guest/daily' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
@@ -1563,7 +1594,7 @@ const server = http.createServer(async (req, res) => {
         }
       } catch(e) {}
 
-      // === ДЖЕКПОТ: Вариант A — в pending_bonus игроку + отыгрыш x3 ===
+      // ДЖЕКПОТ: в pending_bonus игроку + отыгрыш x3
       let currentJP = await getActualJackpot();
       let jackpotWon = 0;
       if (jackpotHit) {
@@ -1939,6 +1970,61 @@ const server = http.createServer(async (req, res) => {
         await pool.query('DELETE FROM dealer_reviews WHERE id=$1', [id]);
         return sendJSON(res, 200, { ok: true });
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    /* ================= ГЕНЕРАЦИЯ КАРТ ПАЧКОЙ ================= */
+    if (url === '/api/admin/guests/generate' && method === 'POST') {
+      const b = await parseBody(req);
+      const count = Math.min(500, Math.max(1, parseInt(b.count, 10) || 10));
+      const prefix = String(b.prefix || 'KING').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+      const created = [];
+      let startNum = 1;
+      try {
+        const r = await pool.query(
+          `SELECT id FROM guests WHERE id LIKE $1 ORDER BY id DESC LIMIT 1`,
+          [prefix + '-%']
+        );
+        if (r.rows.length > 0) {
+          const lastId = r.rows[0].id;
+          const m = lastId.match(/-(\d+)$/);
+          if (m) startNum = parseInt(m[1], 10) + 1;
+        }
+      } catch(e) {}
+
+      for (let i = 0; i < count; i++) {
+        const num = String(startNum + i).padStart(4, '0');
+        const cardId = `${prefix}-${num}`;
+        const pass = String(Math.floor(1000 + Math.random() * 9000));
+        try {
+          const r = await pool.query(
+            `INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+            [cardId, `Гость ${num}`, 'Bronze', 0, 0, '', '', pass]
+          );
+          created.push(r.rows[0]);
+        } catch(e) {}
+      }
+      return sendJSON(res, 200, { ok: true, count: created.length, cards: created });
+    }
+
+    if (url === '/api/admin/guests/list-for-print' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const prefix = u.searchParams.get('prefix') || '';
+      try {
+        let r;
+        if (prefix) {
+          r = await pool.query(
+            `SELECT id, name, pass, rank FROM guests WHERE id LIKE $1 ORDER BY id`,
+            [prefix + '-%']
+          );
+        } else {
+          r = await pool.query(
+            `SELECT id, name, pass, rank FROM guests ORDER BY id`
+          );
+        }
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     /* ================= ЛОГИН ================= */
