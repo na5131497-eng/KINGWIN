@@ -280,12 +280,12 @@ let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
-/* ============ ЗВУК ОТСЧЁТА (без цифр на экране) ============ */
-let countdownInterval = null;
-let lastWaitingRoundId = null;
+/* ============ ЗВУК ОТСЧЁТА (один длинный файл /countdown.mp3) ============ */
 let countdownAudio = null;
+let lastWaitingRoundId = null;
 
-function playTickSound() {
+function startCountdownSound() {
+  stopCountdownSound();
   try {
     if (!countdownAudio) {
       countdownAudio = new Audio('/countdown.mp3');
@@ -297,23 +297,10 @@ function playTickSound() {
   } catch(e) {}
 }
 
-function startCountdownSound(seconds) {
-  if (countdownInterval) clearInterval(countdownInterval);
-  let left = seconds;
-  playTickSound();
-  countdownInterval = setInterval(() => {
-    left--;
-    if (left <= 0) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-      return;
-    }
-    playTickSound();
-  }, 1000);
-}
-
 function stopCountdownSound() {
-  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  if (countdownAudio) {
+    try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {}
+  }
 }
 
 /* ============ ЗВУКИ (Web Audio API) ============ */
@@ -652,10 +639,10 @@ function applyServerState(d) {
   renderHistory(round.history);
   updateBetButtons();
 
-  // === ЗВУК ОТСЧЁТА 10 СЕК (без цифр на экране) ===
+  // === ЗВУК ОТСЧЁТА 10 СЕК (один файл, играет 1 раз) ===
   if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
     lastWaitingRoundId = d.roundId;
-    startCountdownSound(10);
+    startCountdownSound();
   }
   if (d.status === 'flying' || d.status === 'crashed') {
     stopCountdownSound();
