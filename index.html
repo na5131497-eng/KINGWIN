@@ -47,7 +47,7 @@
   /* ОСНОВНОЙ КОНТЕНТ */
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-  /* БОЛЬШОЙ БАННЕР С АНИМЕ-ДЕВУШКОЙ */
+  /* БОЛЬШОЙ БАННЕР */
   .hero-banner {
     position: relative;
     width: 100%;
@@ -56,31 +56,25 @@
     margin-bottom: 30px;
     background: linear-gradient(135deg, #1c2230, #0f1219);
     border: 1px solid var(--border);
-    min-height: 300px; /* Запасная высота, если картинка не загрузится */
+    min-height: 300px;
     display: flex;
     align-items: center;
   }
-  
-  /* Фоновая картинка */
   .hero-banner img.bg-img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 30%; /* Сдвигаем фокус, чтобы девушка была видна */
+    object-position: center 30%;
     z-index: 1;
   }
-
-  /* Затемнение для читаемости текста */
   .hero-banner .overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.5) 50%, transparent 100%);
     z-index: 2;
   }
-
-  /* Текст слева */
   .hero-content {
     position: relative;
     z-index: 3;
@@ -119,18 +113,41 @@
     box-shadow: 0 0 30px rgba(0,230,118,0.6);
   }
 
-  /* ВЕРХНИЕ МАЛЫЕ БАННЕРЫ */
-  .banners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-  .banner-card { 
-    background: linear-gradient(135deg, #1c2230, #0f1219); 
-    border-radius: 12px; padding: 20px; border: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    text-decoration: none; transition: 0.2s; cursor: pointer;
+  /* КАРТОЧКА БАЛАНСА НА ГЛАВНОЙ */
+  .balance-card-main {
+    background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08));
+    border: 1px solid rgba(63,191,127,.35);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
-  .banner-card:hover { border-color: var(--accent); }
-  .banner-text h3 { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-  .banner-text p { font-size: 11px; color: var(--text-muted); }
-  .banner-img { font-size: 40px; }
+  .balance-card-main.show { display: flex; }
+  .balance-card-main .b-left { display: flex; flex-direction: column; gap: 4px; }
+  .balance-card-main .b-lbl {
+    font-size: 11px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1.5px; font-weight: 700;
+  }
+  .balance-card-main .b-val {
+    font-size: 32px; font-weight: 900; color: #3fbf7f; line-height: 1;
+  }
+  .balance-card-main .b-val small { font-size: 14px; color: #8fa2b8; font-weight: 700; }
+  .balance-card-main .b-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .balance-card-main .b-btn {
+    background: #3fbf7f; color: #000; border: none; border-radius: 10px;
+    padding: 12px 22px; font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+    font-family: inherit; transition: 0.2s;
+  }
+  .balance-card-main .b-btn:hover { box-shadow: 0 0 20px rgba(63,191,127,.5); transform: translateY(-1px); }
+  .balance-card-main .b-btn.ghost {
+    background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.2);
+  }
+  .balance-card-main .b-btn.ghost:hover { border-color: #00e5ff; color: #00e5ff; box-shadow: none; }
 
   /* СЕКЦИИ */
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
@@ -139,13 +156,18 @@
   /* СЕТКА ИГР */
   .games-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; }
   
-  /* КАРТОЧКА ИГРЫ */
   .game-card { 
     background: var(--bg-card); border-radius: 12px; overflow: hidden; cursor: pointer; 
     transition: 0.3s; border: 1px solid var(--border); text-decoration: none;
     display: flex; flex-direction: column; aspect-ratio: 3 / 4;
+    position: relative;
   }
   .game-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  .game-card.locked { opacity: 0.5; }
+  .game-card.locked::after {
+    content: '🔒'; position: absolute; top: 10px; right: 10px;
+    font-size: 18px; z-index: 5;
+  }
   
   .game-img-wrap { width: 100%; flex: 1; position: relative; overflow: hidden; }
   .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: 0.3s; }
@@ -156,13 +178,15 @@
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* МОДАЛКИ */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; }
+  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; margin: auto; }
   .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
   .modal-close:hover { color: #fff; }
   .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; }
+  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; font-family: inherit; }
+  .modal-box input:focus { border-color: var(--accent); }
+  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
   
   /* ДЕПОЗИТ */
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -170,7 +194,7 @@
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
   .dep-banner { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-weight: 800; font-size: 14px; color: var(--accent-green); }
   .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
-  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; }
+  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; font-family: inherit; }
   
   .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: left; }
   .card-info .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
@@ -190,19 +214,22 @@
   }
   @media (max-width: 900px) {
     .games-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .banners-grid { grid-template-columns: 1fr; }
     .nav-menu { display: none; }
     .balance-info { display: none; }
     .profile-avatar { width: 34px; height: 34px; }
     
-    /* Баннер на мобилке */
     .hero-banner { min-height: 250px; }
     .hero-content { padding: 20px; }
     .hero-content h1 { font-size: 28px; }
     .hero-content p { font-size: 14px; }
     .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
-    .hero-banner img.bg-img { object-position: right center; } /* Девушку сдвигаем вправо */
+    .hero-banner img.bg-img { object-position: right center; }
     .hero-banner .overlay { background: linear-gradient(90deg, rgba(11,14,20,0.95) 0%, rgba(11,14,20,0.6) 60%, transparent 100%); }
+
+    .balance-card-main { padding: 16px; }
+    .balance-card-main .b-val { font-size: 26px; }
+    .balance-card-main .b-actions { width: 100%; }
+    .balance-card-main .b-btn { flex: 1; padding: 11px 14px; font-size: 12px; }
   }
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; }
@@ -216,6 +243,10 @@
     
     .hero-content h1 { font-size: 24px; }
     .hero-content p { font-size: 12px; }
+
+    .modal-box { padding: 22px 18px; }
+    .modal-box h2 { font-size: 19px; }
+    .dep-methods { flex-direction: column; }
   }
 </style>
 </head>
@@ -231,7 +262,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> 
         Главная
       </a>
-      <a href="/profile.html" class="nav-item">
+      <a href="/profile.html" class="nav-item" onclick="return requireLogin(event)">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 
         Профиль
       </a>
@@ -257,38 +288,24 @@
   
   <!-- БОЛЬШОЙ БАННЕР С АНИМЕ-ДЕВУШКОЙ -->
   <div class="hero-banner">
-    <!-- Фоновая картинка. Если у тебя другое имя файла - замени -->
     <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
     <div class="overlay"></div>
     <div class="hero-content">
       <h1>+100 ₽</h1>
       <p>к первому депозиту<br>от 200 ₽</p>
-      <button class="btn-claim" onclick="openDeposit()">Забрать бонус</button>
+      <button class="btn-claim" onclick="actionRequireLogin('openDeposit')">Забрать бонус</button>
     </div>
   </div>
 
-  <!-- ВЕРХНИЕ МАЛЫЕ БАННЕРЫ -->
-  <div class="banners-grid">
-    <div class="banner-card" onclick="openDeposit()">
-      <div class="banner-text">
-        <h3>Бонус новичкам</h3>
-        <p>+100 ₽ при пополнении от 200 ₽</p>
-      </div>
-      <div class="banner-img">🎁</div>
+  <!-- КАРТОЧКА БАЛАНСА (только после логина) -->
+  <div class="balance-card-main" id="mainBalanceCard">
+    <div class="b-left">
+      <div class="b-lbl">Ваш баланс</div>
+      <div class="b-val"><span id="mainBalanceVal">0.00</span> <small>₽</small></div>
     </div>
-    <div class="banner-card">
-      <div class="banner-text">
-        <h3>Турнир недели</h3>
-        <p>Призовой фонд 50 000 ₽</p>
-      </div>
-      <div class="banner-img">🏆</div>
-    </div>
-    <div class="banner-card" onclick="window.location.href='/cases.html'">
-      <div class="banner-text">
-        <h3>Королевские кейсы</h3>
-        <p>Выиграй до 100 000 ₽</p>
-      </div>
-      <div class="banner-img">📦</div>
+    <div class="b-actions">
+      <button class="b-btn" onclick="openDeposit()">Пополнить</button>
+      <button class="b-btn ghost" onclick="goToProfile()">Профиль</button>
     </div>
   </div>
 
@@ -300,7 +317,7 @@
 
   <div class="games-grid">
     <!-- Crash -->
-    <a href="/crash.html" class="game-card">
+    <a href="/crash.html" class="game-card" id="gameCrash" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash">
       </div>
@@ -311,7 +328,7 @@
     </a>
 
     <!-- Cases -->
-    <a href="/cases.html" class="game-card">
+    <a href="/cases.html" class="game-card" id="gameCases" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/cases_card.jpg" alt="Cases">
       </div>
@@ -322,7 +339,7 @@
     </a>
 
     <!-- Miner -->
-    <a href="/miner.html" class="game-card">
+    <a href="/miner.html" class="game-card" id="gameMiner" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/miner_card.jpg" alt="Miner">
       </div>
@@ -333,7 +350,7 @@
     </a>
 
     <!-- Ladder -->
-    <a href="/ladder.html" class="game-card">
+    <a href="/ladder.html" class="game-card" id="gameLadder" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/ladder_card.jpg" alt="Ladder">
       </div>
@@ -344,7 +361,7 @@
     </a>
 
     <!-- Plinko -->
-    <a href="/plinko.html" class="game-card">
+    <a href="/plinko.html" class="game-card" id="gamePlinko" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/plinko_card.jpg" alt="Plinko">
       </div>
@@ -362,8 +379,10 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
     <h2>Вход в аккаунт</h2>
-    <input type="text" id="loginId" placeholder="Номер карты">
+    <p>Введите номер карты и пароль</p>
+    <input type="text" id="loginId" placeholder="KING-0001">
     <input type="password" id="loginPass" placeholder="Пароль">
+    <div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div>
     <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="doLogin()">Войти</button>
   </div>
 </div>
@@ -401,6 +420,7 @@
 <script>
 let currentPlayer = null;
 let selectedDepMethod = 'bonus';
+let balanceRefreshTimer = null;
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
@@ -421,8 +441,29 @@ function openModal(id) {
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+/* ============ ПРОВЕРКА ЛОГИНА ============ */
+function requireLogin(e) {
+  if (!currentPlayer) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    openModal('loginModal');
+    return false;
+  }
+  return true;
+}
+
+function actionRequireLogin(fnName) {
+  if (!currentPlayer) {
+    openModal('loginModal');
+    return;
+  }
+  if (typeof window[fnName] === 'function') {
+    window[fnName]();
+  }
+}
+
 function goToProfile() {
-  if(currentPlayer) window.location.href = `/profile.html?id=${currentPlayer.id}`;
+  if(!currentPlayer) { openModal('loginModal'); return; }
+  window.location.href = `/profile.html?id=${currentPlayer.id}`;
 }
 
 function openDeposit() {
@@ -459,6 +500,7 @@ function selectDepMethod(method) {
 }
 
 function goToPayment() {
+  if(!currentPlayer) { openModal('loginModal'); return; }
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
   if(amount < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
   
@@ -476,7 +518,9 @@ function goToPayment() {
 async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pass = document.getElementById('loginPass').value;
-  if(!id || !pass) { showToast('Введите номер и пароль', 'error'); return; }
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if(!id || !pass) { err.textContent = 'Введите номер карты и пароль'; err.style.display = 'block'; return; }
   
   try {
     const res = await fetch('/api/guest/login', {
@@ -484,37 +528,87 @@ async function doLogin() {
       body: JSON.stringify({ id, pass })
     });
     const data = await res.json();
-    if(!res.ok) { showToast(data.error || 'Ошибка входа', 'error'); return; }
+    if(!res.ok) { err.textContent = data.error || 'Ошибка входа'; err.style.display = 'block'; return; }
     
     currentPlayer = data.guest;
-    localStorage.setItem('kingwin_player_id', id);
+    localStorage.setItem('kingwin_guest_id', id);
     closeModal('loginModal');
     updateUI();
+    startBalanceRefresh();
     showToast(`С возвращением, ${currentPlayer.name}!`, 'success');
-  } catch(e) { showToast('Ошибка соединения', 'error'); }
+  } catch(e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
 function updateUI() {
   if(currentPlayer) {
     document.getElementById('userArea').style.display = 'flex';
     document.getElementById('loginArea').style.display = 'none';
+    
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
+    
+    // карточка баланса на главной
+    const card = document.getElementById('mainBalanceCard');
+    const valEl = document.getElementById('mainBalanceVal');
+    if(card && valEl){
+      card.classList.add('show');
+      valEl.textContent = total.toFixed(2);
+    }
+
+    // разблокировать игры
+    ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove('locked');
+    });
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
+    
+    const card = document.getElementById('mainBalanceCard');
+    if(card) card.classList.remove('show');
+
+    // заблокировать игры
+    ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.add('locked');
+    });
   }
 }
 
+function startBalanceRefresh() {
+  if (balanceRefreshTimer) clearInterval(balanceRefreshTimer);
+  balanceRefreshTimer = setInterval(refreshBalance, 5000);
+}
+
+async function refreshBalance() {
+  if (!currentPlayer) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id));
+    if (r.ok) {
+      const data = await r.json();
+      if (data.guest) {
+        currentPlayer = data.guest;
+        const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
+        document.getElementById('topBalance').textContent = total.toFixed(2);
+        const valEl = document.getElementById('mainBalanceVal');
+        if (valEl) valEl.textContent = total.toFixed(2);
+      }
+    }
+  } catch(e) {}
+}
+
 window.onload = () => {
-  const savedId = localStorage.getItem('kingwin_player_id');
+  const savedId = localStorage.getItem('kingwin_guest_id');
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => { 
       if(data.guest) { 
         currentPlayer = data.guest; 
         updateUI(); 
+        startBalanceRefresh();
       } 
     }).catch(() => {});
+  } else {
+    updateUI();
   }
 };
 </script>
