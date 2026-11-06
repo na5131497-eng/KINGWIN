@@ -30,19 +30,36 @@
   .nav-item:hover, .nav-item.active { color: #fff; }
   .nav-item.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 2px; background: var(--accent); }
 
-  .header-right { display: flex; align-items: center; gap: 15px; }
-  .balance-info { display: flex; flex-direction: column; align-items: flex-end; }
-  .balance-info .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
-  .balance-info .val { font-size: 14px; font-weight: 800; color: var(--accent-green); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
   
-  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; }
+  .balance-pill {
+    background: rgba(0,230,118,0.12);
+    border: 1px solid rgba(0,230,118,0.35);
+    color: #00e676;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 13px;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; font-family: inherit; }
   .btn-deposit:hover { box-shadow: 0 0 15px rgba(0,230,118,0.4); transform: translateY(-1px); }
-  .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; }
+  .btn-profile {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .btn-profile:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
   .btn-login:hover { border-color: var(--accent); }
-  
-  .profile-avatar { width: 40px; height: 40px; background: #2a2d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
-  .profile-avatar:hover { border-color: var(--accent); }
-  .profile-avatar svg { width: 20px; height: 20px; fill: #8b92a5; }
 
   /* ОСНОВНОЙ КОНТЕНТ */
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
@@ -107,47 +124,12 @@
     cursor: pointer;
     transition: 0.3s;
     box-shadow: 0 0 20px rgba(0,230,118,0.4);
+    font-family: inherit;
   }
   .hero-content .btn-claim:hover {
     transform: translateY(-2px);
     box-shadow: 0 0 30px rgba(0,230,118,0.6);
   }
-
-  /* КАРТОЧКА БАЛАНСА НА ГЛАВНОЙ */
-  .balance-card-main {
-    background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08));
-    border: 1px solid rgba(63,191,127,.35);
-    border-radius: 16px;
-    padding: 20px 24px;
-    margin-bottom: 30px;
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .balance-card-main.show { display: flex; }
-  .balance-card-main .b-left { display: flex; flex-direction: column; gap: 4px; }
-  .balance-card-main .b-lbl {
-    font-size: 11px; color: #8fa2b8; text-transform: uppercase;
-    letter-spacing: 1.5px; font-weight: 700;
-  }
-  .balance-card-main .b-val {
-    font-size: 32px; font-weight: 900; color: #3fbf7f; line-height: 1;
-  }
-  .balance-card-main .b-val small { font-size: 14px; color: #8fa2b8; font-weight: 700; }
-  .balance-card-main .b-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .balance-card-main .b-btn {
-    background: #3fbf7f; color: #000; border: none; border-radius: 10px;
-    padding: 12px 22px; font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-    font-family: inherit; transition: 0.2s;
-  }
-  .balance-card-main .b-btn:hover { box-shadow: 0 0 20px rgba(63,191,127,.5); transform: translateY(-1px); }
-  .balance-card-main .b-btn.ghost {
-    background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.2);
-  }
-  .balance-card-main .b-btn.ghost:hover { border-color: #00e5ff; color: #00e5ff; box-shadow: none; }
 
   /* СЕКЦИИ */
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
@@ -215,8 +197,9 @@
   @media (max-width: 900px) {
     .games-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .nav-menu { display: none; }
-    .balance-info { display: none; }
-    .profile-avatar { width: 34px; height: 34px; }
+    .balance-pill { padding: 8px 10px; font-size: 12px; }
+    .btn-profile { padding: 8px 12px; font-size: 12px; }
+    .btn-deposit { padding: 8px 12px; font-size: 12px; }
     
     .hero-banner { min-height: 250px; }
     .hero-content { padding: 20px; }
@@ -225,16 +208,14 @@
     .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
     .hero-banner img.bg-img { object-position: right center; }
     .hero-banner .overlay { background: linear-gradient(90deg, rgba(11,14,20,0.95) 0%, rgba(11,14,20,0.6) 60%, transparent 100%); }
-
-    .balance-card-main { padding: 16px; }
-    .balance-card-main .b-val { font-size: 26px; }
-    .balance-card-main .b-actions { width: 100%; }
-    .balance-card-main .b-btn { flex: 1; padding: 11px 14px; font-size: 12px; }
   }
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; }
     .logo { font-size: 16px; }
-    .btn-deposit { padding: 8px 12px; font-size: 11px; }
+    .header-right { gap: 6px; }
+    .balance-pill { padding: 7px 9px; font-size: 11px; }
+    .btn-deposit { padding: 7px 10px; font-size: 11px; }
+    .btn-profile { padding: 7px 10px; font-size: 11px; }
     .btn-login { padding: 8px 12px; font-size: 11px; }
     .games-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .game-info { padding: 8px; }
@@ -247,6 +228,10 @@
     .modal-box { padding: 22px 18px; }
     .modal-box h2 { font-size: 19px; }
     .dep-methods { flex-direction: column; }
+  }
+  @media (max-width: 380px) {
+    .balance-pill { padding: 6px 8px; font-size: 10px; }
+    .btn-deposit, .btn-profile { padding: 6px 8px; font-size: 10px; }
   }
 </style>
 </head>
@@ -270,14 +255,11 @@
   </div>
   
   <div class="header-right" id="userArea" style="display:none">
-    <div class="balance-info">
-      <div class="lbl">Ваш баланс</div>
-      <div class="val"><span id="topBalance">0.00</span> ₽</div>
+    <div class="balance-pill">
+      <span id="topBalance">0.00</span> ₽
     </div>
     <button class="btn-deposit" onclick="openDeposit()">Пополнить</button>
-    <div class="profile-avatar" onclick="goToProfile()">
-      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    </div>
+    <button class="btn-profile" onclick="goToProfile()">Профиль</button>
   </div>
   <div class="header-right" id="loginArea">
     <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
@@ -294,18 +276,6 @@
       <h1>+100 ₽</h1>
       <p>к первому депозиту<br>от 200 ₽</p>
       <button class="btn-claim" onclick="actionRequireLogin('openDeposit')">Забрать бонус</button>
-    </div>
-  </div>
-
-  <!-- КАРТОЧКА БАЛАНСА (только после логина) -->
-  <div class="balance-card-main" id="mainBalanceCard">
-    <div class="b-left">
-      <div class="b-lbl">Ваш баланс</div>
-      <div class="b-val"><span id="mainBalanceVal">0.00</span> <small>₽</small></div>
-    </div>
-    <div class="b-actions">
-      <button class="b-btn" onclick="openDeposit()">Пополнить</button>
-      <button class="b-btn ghost" onclick="goToProfile()">Профиль</button>
     </div>
   </div>
 
@@ -546,14 +516,6 @@ function updateUI() {
     
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
-    
-    // карточка баланса на главной
-    const card = document.getElementById('mainBalanceCard');
-    const valEl = document.getElementById('mainBalanceVal');
-    if(card && valEl){
-      card.classList.add('show');
-      valEl.textContent = total.toFixed(2);
-    }
 
     // разблокировать игры
     ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
@@ -563,9 +525,6 @@ function updateUI() {
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
-    
-    const card = document.getElementById('mainBalanceCard');
-    if(card) card.classList.remove('show');
 
     // заблокировать игры
     ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
@@ -590,8 +549,6 @@ async function refreshBalance() {
         currentPlayer = data.guest;
         const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
         document.getElementById('topBalance').textContent = total.toFixed(2);
-        const valEl = document.getElementById('mainBalanceVal');
-        if (valEl) valEl.textContent = total.toFixed(2);
       }
     }
   } catch(e) {}
