@@ -249,10 +249,10 @@
   <!-- ВКЛАДКА: ЗАДАНИЯ -->
   <div class="tab" id="tab-tasks">
     <h2>Ежедневные задания</h2>
-    <div class="sub">Обновляются каждый день</div>
+    <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
     <div>
       <span id="weekBadge" class="week-badge">День: —</span>
-      <span id="limitBadge" class="limit-badge">Лимит: 50 ₽/день</span>
+      <span id="limitBadge" class="limit-badge">Заработано сегодня: 0 / 50 ₽</span>
     </div>
     <div id="tasksList"></div>
     <div class="msg" id="msgTask"></div>
@@ -266,10 +266,10 @@
     <div class="silence-card" id="silenceCard">
       <div class="s-top">
         <div class="s-title">Бонус за тишину</div>
-        <div class="s-percent" id="silencePercent">15%<small>от сессии</small></div>
+        <div class="s-percent" id="silencePercent">10%<small>от сессии</small></div>
       </div>
       <div class="s-desc">
-        Если за последние 7 дней никто не узнал об этом приложении — ваш процент от сессии 15%.
+        Если за последние 7 дней никто не узнал об этом приложении — ваш процент от сессии 10%.
         Если кто-то узнал — 7%.
       </div>
       <div class="s-bar" id="silenceBar"><div id="silenceBarFill" style="width:0%"></div></div>
@@ -529,7 +529,7 @@ async function loadSilence(){
     const daysEl = document.getElementById('silenceDays');
     const statusEl = document.getElementById('silenceStatus');
 
-    const good = data.percent >= 15;
+    const good = data.percent >= 10;
     pctEl.className = 's-percent' + (good ? '' : ' bad');
     pctEl.innerHTML = data.percent + '%<small>от сессии</small>';
 
@@ -660,12 +660,33 @@ async function loadProfile(){
     const starsLine = '★'.repeat(full) + '☆'.repeat(5 - full);
     const initials = (d.name || '?').slice(0, 2).toUpperCase();
 
+    const rankClassMap = {
+      Trainee: 'Bronze', Dealer: 'Silver', Senior: 'Gold',
+      Master: 'Platinum', Elite: 'Diamond', VIP: 'VIP'
+    };
+    const rankCls = rankClassMap[d.rank] || 'Bronze';
+
+    let progressPct = 100, nextLabel = 'Максимальный ранг';
+    if (d.next_rank_min != null) {
+      const curMin = (d.ranks_info.find(x => x.key === d.rank) || {}).min || 0;
+      progressPct = Math.min(100, Math.round(((d.prestige - curMin) / (d.next_rank_min - curMin)) * 100));
+      nextLabel = `До ${d.next_rank_label}: ${d.prestige} / ${d.next_rank_min}`;
+    }
+
+    const ranksRows = d.ranks_info.map(rk => {
+      const active = rk.key === d.rank;
+      return `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.03); font-size:12px; ${active ? 'color:#00e5ff; font-weight:800;' : 'color:#a0aec0;'}">
+        <span>${rk.label} ${active ? '← вы здесь' : ''}</span>
+        <span>${rk.min}+ · ${rk.percent}% · бонус ${rk.bonus} ₽</span>
+      </div>`;
+    }).join('');
+
     box.innerHTML = `
       <div class="profile-head">
         <div class="profile-avatar">${initials}</div>
         <div class="pname">${d.name}</div>
         <div class="pid">ID: ${d.id}</div>
-        <div class="rank-pill ${d.rank}">${d.rank}</div>
+        <div class="rank-pill ${rankCls}">${d.rank_label}</div>
       </div>
 
       <div class="profile-cats">
@@ -674,8 +695,8 @@ async function loadProfile(){
           <div class="val gold">${avg.toFixed(2)}</div>
         </div>
         <div class="profile-cat">
-          <div class="lbl">Отзывов</div>
-          <div class="val">${d.reviews_count}</div>
+          <div class="lbl">Престиж</div>
+          <div class="val">${d.prestige}</div>
         </div>
         <div class="profile-cat">
           <div class="lbl">Баланс</div>
@@ -691,25 +712,32 @@ async function loadProfile(){
       </div>
 
       <div class="profile-info">
-        <div class="row-line"><span>Имя дилера</span><b>${d.name}</b></div>
-        <div class="row-line"><span>Логин</span><b>${d.login || '—'}</b></div>
-        <div class="row-line"><span>ID</span><b>${d.id}</b></div>
-        <div class="row-line"><span>Ранг</span><b>${d.rank}</b></div>
-        <div class="row-line"><span>Всего сессий</span><b>${d.sessions}</b></div>
-        <div class="row-line"><span>Баланс</span><b style="color:#3fbf7f">${fmt(d.balance)} ₽</b></div>
-        <div class="row-line"><span>Дата регистрации</span><b>${d.created_at ? new Date(d.created_at).toLocaleDateString('ru-RU') : '—'}</b></div>
+        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Прогресс ранга</div>
+        <div style="font-size:12px; color:#a0aec0; margin-bottom:8px;">${nextLabel}</div>
+        <div class="progress-bar" style="height:10px; background:rgba(255,255,255,.08); border-radius:5px; overflow:hidden;">
+          <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg,#3fbf7f,#00e5ff); border-radius:5px; transition:width .4s;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:#8fa2b8;">
+          <span>${d.rank_label}</span>
+          <span>${d.next_rank_label || 'MAX'}</span>
+        </div>
       </div>
 
       <div class="profile-info">
-        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Ранги дилера</div>
-        <div style="font-size:12px; line-height:1.8; color:#a0aec0;">
-          <div>🥉 <b style="color:#e8a76a;">Bronze</b> — 0+ сессий</div>
-          <div>🥈 <b style="color:#d9d9d9;">Silver</b> — 25+ сессий</div>
-          <div>🥇 <b style="color:#f1c40f;">Gold</b> — 75+ сессий</div>
-          <div>💎 <b style="color:#e5e4e2;">Platinum</b> — 150+ сессий</div>
-          <div>💠 <b style="color:#b9f2ff;">Diamond</b> — 300+ сессий</div>
-          <div>👑 <b style="color:#ffe066;">VIP</b> — 500+ сессий</div>
-        </div>
+        <div class="row-line"><span>Имя дилера</span><b>${d.name}</b></div>
+        <div class="row-line"><span>Логин</span><b>${d.login || '—'}</b></div>
+        <div class="row-line"><span>ID</span><b>${d.id}</b></div>
+        <div class="row-line"><span>Ранг</span><b>${d.rank_label}</b></div>
+        <div class="row-line"><span>Процент от дохода</span><b style="color:#3fbf7f">${d.rank_percent}%</b></div>
+        <div class="row-line"><span>Бонус за ранг</span><b>${d.rank_bonus} ₽/мес</b></div>
+        <div class="row-line"><span>Всего сессий</span><b>${d.sessions}</b></div>
+        <div class="row-line"><span>Стаж</span><b>${d.months_worked} мес.</b></div>
+        <div class="row-line"><span>Баланс</span><b style="color:#3fbf7f">${fmt(d.balance)} ₽</b></div>
+      </div>
+
+      <div class="profile-info">
+        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Все ранги дилеров</div>
+        ${ranksRows}
       </div>
     `;
   } catch(e){
