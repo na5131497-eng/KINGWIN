@@ -27,7 +27,6 @@
     min-height: 100vh;
   }
 
-  /* SIDEBAR */
   aside {
     width: 240px;
     background: rgba(18, 24, 38, 0.95);
@@ -146,7 +145,8 @@
   .dot-yes { color: var(--green); font-weight: 800; }
   .dot-no  { color: var(--muted); }
 
-  /* MODALS */
+  .star-line { color: #f1c40f; font-size: 15px; letter-spacing: 2px; }
+
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
   .modal-backdrop.show { display: flex; }
@@ -165,7 +165,6 @@
   .modal .form-row label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .modal .form-row input, .modal .form-row select { width: 100%; }
 
-  /* LOGIN */
   .login-screen { position: fixed; inset: 0; background: radial-gradient(circle at top left, #1a2332, #0a0d14);
     display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
   .login-screen.hidden { display: none; }
@@ -179,17 +178,14 @@
   .login-box button { width: 100%; padding: 15px; font-size: 16px; }
   .login-err { color: var(--red); font-size: 13px; height: 18px; font-weight: 600; margin-bottom: 10px; }
 
-  /* MOBILE MENU BTN */
   .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; backdrop-filter: blur(5px); }
   .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 240; backdrop-filter: blur(2px); }
 
-  /* news editor */
   .news-edit-row { display: flex; gap: 8px; align-items: flex-start; padding: 10px; background: rgba(0,0,0,.3); border-radius: 10px; margin-bottom: 8px; }
   .news-edit-row .col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
   .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
   .news-edit-row textarea { min-height: 50px; resize: vertical; font-family: inherit; }
 
-  /* ============ АДАПТИВ ============ */
   @media (max-width: 900px) {
     .mobile-menu-btn { display: block; }
     aside { position: fixed; top: 0; left: 0; height: 100vh; z-index: 250; transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
@@ -250,6 +246,7 @@
     <button data-page="players" onclick="switchPage('players')">Игроки</button>
     <button data-page="guests" onclick="switchPage('guests')">Гости (Профиль 2)</button>
     <button data-page="news" onclick="switchPage('news')">📰 Новости</button>
+    <button data-page="reviews" onclick="switchPage('reviews')">⭐ Отзывы о дилерах</button>
     <button data-page="online" onclick="switchPage('online')">Онлайн-казино (Crash)</button>
     <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
     <button data-page="history" onclick="switchPage('history')">История</button>
@@ -263,7 +260,6 @@
 </aside>
 
 <main>
-  <!-- ГЛАВНАЯ -->
   <div class="page active" id="page-dash">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
@@ -281,7 +277,6 @@
     </div>
   </div>
 
-  <!-- ФИНАНСЫ -->
   <div class="page" id="page-finance">
     <h1>Депозиты и выводы</h1>
     <div class="sub">Заявки от игроков и гостей</div>
@@ -299,7 +294,6 @@
     </div>
   </div>
 
-  <!-- ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
     <div class="sub">Сводная статистика по игрокам</div>
@@ -312,7 +306,6 @@
     </div>
   </div>
 
-  <!-- ГОСТИ -->
   <div class="page" id="page-guests">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
@@ -351,7 +344,6 @@
     </div>
   </div>
 
-  <!-- НОВОСТИ -->
   <div class="page" id="page-news">
     <h1>📰 Новости и акции</h1>
     <div class="sub">Отображаются в профиле гостя</div>
@@ -375,7 +367,29 @@
     </div>
   </div>
 
-  <!-- CRASH -->
+  <div class="page" id="page-reviews">
+    <h1>⭐ Отзывы о дилерах</h1>
+    <div class="sub">Оценки от гостей — рейтинг, комментарии</div>
+
+    <div class="cards" id="reviewCards"></div>
+
+    <div class="panel">
+      <h3>Рейтинг дилеров</h3>
+      <div class="wrap"><table><thead><tr>
+        <th>#</th><th>Дилер</th><th>Средний рейтинг</th><th>Отзывов</th>
+      </tr></thead><tbody id="ratingsBody"></tbody></table></div>
+      <div class="empty" id="ratingsEmpty">Пока нет оценок</div>
+    </div>
+
+    <div class="panel">
+      <h3>Все отзывы</h3>
+      <div class="wrap"><table><thead><tr>
+        <th>Дата</th><th>Гость</th><th>Дилер</th><th>Оценка</th><th>Комментарий</th><th></th>
+      </tr></thead><tbody id="reviewsBody"></tbody></table></div>
+      <div class="empty" id="reviewsEmpty">Пока нет отзывов</div>
+    </div>
+  </div>
+
   <div class="page" id="page-online">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
       <div>
@@ -396,7 +410,6 @@
     </div>
   </div>
 
-  <!-- ВЫПЛАТЫ -->
   <div class="page" id="page-payouts">
     <h1>Выплаты дилерам</h1>
     <div class="sub">Начисления и зарплаты</div>
@@ -425,7 +438,6 @@
     </div>
   </div>
 
-  <!-- ИСТОРИЯ -->
   <div class="page" id="page-history">
     <h1>История действий</h1>
     <div class="sub">Лог всех операций в системе</div>
@@ -440,7 +452,6 @@
     </div>
   </div>
 
-  <!-- РОЛИ -->
   <div class="page" id="page-roles">
     <h1>Роли</h1>
     <div class="sub">Управление доступами</div>
@@ -479,7 +490,6 @@
   </div>
 </main>
 
-<!-- МОДАЛКИ -->
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal">
     <h2 id="confirmTitle">Подтверждение</h2>
@@ -569,7 +579,7 @@
 </div>
 
 <script>
-let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [] };
+let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [], dealer_reviews: [], dealer_ratings: [] };
 let newsList = [];
 let currentUser = null;
 let currentRole = null;
@@ -626,7 +636,9 @@ async function loadDB(){
     dealers: '/api/dealers',
     online: '/api/online',
     guests: '/api/guests',
-    crash_bets: '/api/crash/all-bets'
+    crash_bets: '/api/crash/all-bets',
+    dealer_reviews: '/api/dealer-reviews',
+    dealer_ratings: '/api/dealer-ratings'
   };
   const results = await Promise.all(
     Object.entries(endpoints).map(async ([key, url]) => {
@@ -648,8 +660,8 @@ async function audit(action, details){
 }
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','online','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','online','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','online','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','online','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
@@ -807,7 +819,6 @@ function onlineStats(){
   return { income, expense, net: income - expense };
 }
 
-/* ================ DASH ================ */
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
   let totalDeposits = 0;
@@ -897,7 +908,6 @@ function drawChart(){
   ctx.shadowBlur = 0;
 }
 
-/* ================ FINANCE ================ */
 function renderFinance(){
   document.getElementById('depositsBody').innerHTML = db.deposits.map(d=>`
     <tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td>
@@ -924,7 +934,6 @@ async function wdAction(id, status){ await apiPut('/api/withdrawals/'+id, {statu
 async function delDeposit(id){ await apiDelete('/api/deposits/'+id); await loadDB(); renderFinance(); }
 async function delWithdrawal(id){ await apiDelete('/api/withdrawals/'+id); await loadDB(); renderFinance(); }
 
-/* ================ PLAYERS ================ */
 function renderPlayers(){
   const names = new Set();
   db.sessions.forEach(s=>{ if(s.nick) names.add(s.nick); });
@@ -951,7 +960,6 @@ function renderPlayers(){
 }
 async function toggleVIP(nick, val){ await apiPost('/api/players', {nick, vip:val}); await audit('vip_toggle', nick); await loadDB(); renderPlayers(); }
 
-/* ================ ONLINE ================ */
 function renderOnline() {
   const cashouts = db.crash_bets.filter(b => b.cashed_out);
   const totalBets = db.crash_bets.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
@@ -978,7 +986,6 @@ function renderOnline() {
   document.getElementById('onlineEmpty').style.display = cashouts.length ? 'none' : 'block';
 }
 
-/* ================ GUESTS ================ */
 async function loadGuests(){
   db.guests = await apiGet('/api/guests');
   const body = document.getElementById('guestsBody');
@@ -1112,7 +1119,6 @@ async function delGuest(id){
   await loadDB();
 }
 
-/* ================ NEWS ================ */
 function renderNewsAdmin(){
   const wrap = document.getElementById('newsList');
   if(!newsList.length){
@@ -1171,7 +1177,58 @@ async function delNews(id){
   renderNewsAdmin();
 }
 
-/* ================ PAYOUTS ================ */
+/* ================ ОТЗЫВЫ О ДИЛЕРАХ ================ */
+function renderReviews(){
+  const reviews = db.dealer_reviews || [];
+  const ratings = db.dealer_ratings || [];
+
+  const totalReviews = reviews.length;
+  const avgAll = totalReviews
+    ? (reviews.reduce((a, r) => a + (parseInt(r.stars) || 0), 0) / totalReviews)
+    : 0;
+  const uniqueDealers = ratings.length;
+
+  document.getElementById('reviewCards').innerHTML = `
+    <div class="card"><div class="label">Всего отзывов</div><div class="value accent">${totalReviews}</div></div>
+    <div class="card"><div class="label">Средний рейтинг</div><div class="value gold">${avgAll.toFixed(2)} ⭐</div></div>
+    <div class="card"><div class="label">Дилеров с оценками</div><div class="value green">${uniqueDealers}</div></div>
+  `;
+
+  document.getElementById('ratingsBody').innerHTML = ratings.map((r, i) => {
+    const avg = parseFloat(r.avg_stars) || 0;
+    const full = Math.round(avg);
+    const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
+    return `<tr>
+      <td>${i+1}</td>
+      <td style="text-transform:capitalize;">${r.dealer}</td>
+      <td><span class="star-line">${stars}</span> <b>${avg.toFixed(2)}</b></td>
+      <td>${r.reviews_count}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('ratingsEmpty').style.display = ratings.length ? 'none' : 'block';
+
+  document.getElementById('reviewsBody').innerHTML = reviews.map(rv => {
+    const stars = '★'.repeat(parseInt(rv.stars) || 0) + '☆'.repeat(5 - (parseInt(rv.stars) || 0));
+    const date = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date || '—');
+    return `<tr>
+      <td>${date}</td>
+      <td>${rv.guest_name || '—'}<br><span style="font-size:11px;color:#a0aec0">${rv.guest_id || ''}</span></td>
+      <td style="text-transform:capitalize;">${rv.dealer_name}</td>
+      <td><span class="star-line">${stars}</span></td>
+      <td style="white-space:normal; max-width:300px;">${escHtml(rv.comment || '—')}</td>
+      <td><button class="danger small" onclick="delReview(${rv.id})">Удалить</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('reviewsEmpty').style.display = reviews.length ? 'none' : 'block';
+}
+
+async function delReview(id){
+  if(!confirm('Удалить отзыв?')) return;
+  await apiDelete('/api/dealer-reviews/' + id);
+  await loadDB();
+  renderReviews();
+}
+
 function dealerNames(){
   const set = new Set();
   db.sessions.forEach(s=>{ if(s.dealer && s.dealer!=='—') set.add(s.dealer); });
@@ -1226,7 +1283,6 @@ function openPayoutModal(){
 }
 async function delPayout(id){ await apiDelete('/api/payouts/'+id); await loadDB(); renderPayouts(); }
 
-/* ================ HISTORY ================ */
 function renderHistory(){
   document.getElementById('historyBody').innerHTML = db.audit.map(a=>`
     <tr><td>${a.time}</td><td>${a.user_name}</td><td>${a.action}</td><td>${a.details}</td></tr>`).join('');
@@ -1234,7 +1290,6 @@ function renderHistory(){
 }
 async function clearHistory(){ await apiDelete('/api/audit'); await loadDB(); renderHistory(); }
 
-/* ================ ROLES ================ */
 function renderRoles(){
   document.getElementById('rolesBody').innerHTML = db.employees.map((e,i)=>`
     <tr><td>${i+1}</td><td>${e.name}</td><td>${e.login}</td>
@@ -1278,6 +1333,7 @@ function renderAll(){
   if(hasPerm('players')) renderPlayers();
   if(hasPerm('guests')) loadGuests();
   if(hasPerm('news')) renderNewsAdmin();
+  if(hasPerm('reviews')) renderReviews();
   if(hasPerm('online')) renderOnline();
   if(hasPerm('payouts')) renderPayouts();
   if(hasPerm('history')) renderHistory();
