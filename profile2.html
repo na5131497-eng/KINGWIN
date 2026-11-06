@@ -17,10 +17,10 @@
     text-transform: uppercase; margin-bottom: 22px; }
 
   .tabs { display: flex; gap: 6px; background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
-    padding: 6px; border-radius: 14px; margin-bottom: 16px; }
-  .tab { flex: 1; padding: 11px 6px; text-align: center; border-radius: 10px; font-size: 11px;
+    padding: 6px; border-radius: 14px; margin-bottom: 16px; overflow-x: auto; }
+  .tab { flex: 1; min-width: 70px; padding: 11px 6px; text-align: center; border-radius: 10px; font-size: 11px;
     font-weight: 800; text-transform: uppercase; letter-spacing: .5px; cursor: pointer;
-    color: #8fa2b8; transition: .3s; user-select: none; }
+    color: #8fa2b8; transition: .3s; user-select: none; white-space: nowrap; }
   .tab.active { background: rgba(0,229,255,.15); color: #00e5ff; box-shadow: 0 0 12px rgba(0,229,255,.3); }
 
   .page { display: none; animation: fadeIn .3s ease; }
@@ -108,6 +108,44 @@
   .withdraw-block .cond .bad { color: #ff8a8a; font-weight: 700; }
   .withdraw-block .cond .title { font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+
+  /* NEWS */
+  .news-item { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .news-item .title { font-size: 14px; font-weight: 800; color: #00e5ff; margin-bottom: 6px; }
+  .news-item .body { font-size: 13px; color: #fff; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
+  .news-item .date { font-size: 11px; color: #8fa2b8; }
+
+  /* REVIEWS */
+  .review-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+  .review-block h3 { font-size: 13px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: #00e5ff; margin-bottom: 14px; }
+  .review-block label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
+  .review-block input, .review-block textarea, .review-block select {
+    width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 12px; font-size: 14px; color: #fff; font-family: inherit;
+    margin-bottom: 14px; outline: none; }
+  .review-block input:focus, .review-block textarea:focus, .review-block select:focus {
+    border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
+  .review-block textarea { min-height: 80px; resize: vertical; }
+
+  .stars { display: flex; gap: 8px; margin-bottom: 14px; justify-content: center; }
+  .star { font-size: 34px; cursor: pointer; color: rgba(255,255,255,.15); transition: .2s;
+    user-select: none; line-height: 1; }
+  .star.active { color: #f1c40f; text-shadow: 0 0 16px rgba(241,196,15,.7); }
+  .star:hover { transform: scale(1.15); }
+
+  .my-reviews { margin-top: 20px; }
+  .my-reviews h4 { font-size: 12px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
+  .my-review-item { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+  .my-review-item .head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .my-review-item .dname { font-weight: 800; color: #00e5ff; }
+  .my-review-item .stars-line { color: #f1c40f; font-size: 14px; }
+  .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; }
 
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
@@ -244,10 +282,22 @@
   </div>
 </div>
 
+<!-- МОДАЛКА УСПЕШНОЙ ОЦЕНКИ -->
+<div class="modal-backdrop" id="reviewSuccessModal">
+  <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Thanks</div>
+    <div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div>
+    <div class="modal-text">Ваша оценка дилера отправлена. Это помогает нам становиться лучше.</div>
+    <button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 v3.3
-   Daily: 10/15/20/25/30/35/40, streak по дням подряд.
+   KINGWIN — Profile 2 v4
+   + Новости
+   + Оценка дилера (звёзды + комментарий)
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -257,7 +307,6 @@ const RANKS_INFO = {
   Diamond:  { next: 1500, label: 'VIP',      gift: 1000 },
   VIP:      { next: null, label: null,       gift: 3000 }
 };
-// Прогрессия 1..7
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 
 let session = null;
@@ -269,6 +318,7 @@ let refreshTimer = null;
 let claimLock = false;
 let pendingTransferAmount = 0;
 let pendingRealWithdrawAmount = 0;
+let selectedStars = 0;
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -374,6 +424,8 @@ function renderProfile(){
       <div class="tab ${currentTab==='profile'?'active':''}" onclick="switchTab('profile')">Профиль</div>
       <div class="tab ${currentTab==='bonus'?'active':''}" onclick="switchTab('bonus')">Бонусы</div>
       <div class="tab ${currentTab==='withdraw'?'active':''}" onclick="switchTab('withdraw')">Вывод</div>
+      <div class="tab ${currentTab==='news'?'active':''}" onclick="switchTab('news')">Новости</div>
+      <div class="tab ${currentTab==='review'?'active':''}" onclick="switchTab('review')">Оценка</div>
     </div>`;
 
   let profilePage = `
@@ -422,7 +474,54 @@ function renderProfile(){
       ${renderWithdrawHtml()}
     </div>`;
 
-  document.getElementById('content').innerHTML = tabs + profilePage + bonusPage + withdrawPage;
+  let newsPage = `
+    <div class="page ${currentTab==='news'?'active':''}">
+      <div class="card">
+        <h2 style="font-size:18px; font-weight:800; margin-bottom:15px;">📰 Новости и акции</h2>
+        <div id="newsContainer">
+          <div style="color:#8fa2b8; font-size:13px; text-align:center; padding:20px;">Загрузка...</div>
+        </div>
+      </div>
+    </div>`;
+
+  let reviewPage = `
+    <div class="page ${currentTab==='review'?'active':''}">
+      <div class="review-block">
+        <h3>⭐ Оцените дилера</h3>
+        <div style="font-size:11px; color:#8fa2b8; margin-bottom:14px; line-height:1.5;">
+          С кем вы играли? Введите имя дилера, поставьте оценку и оставьте комментарий.
+        </div>
+
+        <label>Имя дилера</label>
+        <input type="text" id="reviewDealerName" placeholder="Например: Дилер" maxlength="100">
+
+        <label>Оценка</label>
+        <div class="stars" id="starsRow">
+          <span class="star" data-val="1" onclick="selectStars(1)">★</span>
+          <span class="star" data-val="2" onclick="selectStars(2)">★</span>
+          <span class="star" data-val="3" onclick="selectStars(3)">★</span>
+          <span class="star" data-val="4" onclick="selectStars(4)">★</span>
+          <span class="star" data-val="5" onclick="selectStars(5)">★</span>
+        </div>
+
+        <label>Комментарий (необязательно)</label>
+        <textarea id="reviewComment" placeholder="Что понравилось / не понравилось?" maxlength="1000"></textarea>
+
+        <button class="btn green" onclick="submitReview()">Отправить оценку</button>
+      </div>
+
+      <div class="my-reviews">
+        <h4>Ваши прошлые оценки</h4>
+        <div id="myReviewsList">
+          <div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Загрузка...</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('content').innerHTML = tabs + profilePage + bonusPage + withdrawPage + newsPage + reviewPage;
+
+  if(currentTab === 'news') loadNews();
+  if(currentTab === 'review') loadMyReviews();
 }
 
 /* ---------------- DAILY ---------------- */
@@ -646,6 +745,97 @@ async function executeRealWithdraw(){
 }
 function closeSuccessRealWithdraw(){
   document.getElementById('successRealWithdrawModal').classList.remove('show');
+}
+
+/* ---------------- NEWS ---------------- */
+async function loadNews(){
+  const box = document.getElementById('newsContainer');
+  if(!box) return;
+  try {
+    const r = await fetch('/api/news');
+    const list = await r.json();
+    if(!Array.isArray(list) || list.length === 0){
+      box.innerHTML = `<div style="color:#8fa2b8; font-size:13px; text-align:center; padding:20px;">Пока нет новостей</div>`;
+      return;
+    }
+    box.innerHTML = list.map(n => `
+      <div class="news-item">
+        <div class="title">${esc(n.title)}</div>
+        <div class="body">${esc(n.body)}</div>
+        <div class="date">${esc(n.date || '')}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    box.innerHTML = `<div style="color:#ff8a8a; font-size:13px; text-align:center; padding:20px;">Ошибка загрузки новостей</div>`;
+  }
+}
+
+/* ---------------- REVIEWS ---------------- */
+function selectStars(val){
+  selectedStars = val;
+  document.querySelectorAll('#starsRow .star').forEach(s => {
+    const v = parseInt(s.dataset.val);
+    s.classList.toggle('active', v <= val);
+  });
+}
+
+async function submitReview(){
+  if(!session) return;
+  const dealerName = document.getElementById('reviewDealerName').value.trim();
+  const comment = document.getElementById('reviewComment').value.trim();
+  if(!dealerName){ alert('Введите имя дилера'); return; }
+  if(selectedStars < 1){ alert('Поставьте оценку (1–5 звёзд)'); return; }
+
+  try {
+    const r = await fetch('/api/dealer-reviews', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        guest_id: session.id,
+        guest_name: session.name,
+        dealer_name: dealerName,
+        stars: selectedStars,
+        comment: comment
+      })
+    });
+    const data = await r.json();
+    if(!r.ok){ alert(data.error || 'Ошибка отправки'); return; }
+
+    document.getElementById('reviewDealerName').value = '';
+    document.getElementById('reviewComment').value = '';
+    selectedStars = 0;
+    document.querySelectorAll('#starsRow .star').forEach(s => s.classList.remove('active'));
+
+    document.getElementById('reviewSuccessModal').classList.add('show');
+    await loadMyReviews();
+  } catch(e){ alert('Ошибка соединения'); }
+}
+
+function closeReviewSuccess(){
+  document.getElementById('reviewSuccessModal').classList.remove('show');
+}
+
+async function loadMyReviews(){
+  const box = document.getElementById('myReviewsList');
+  if(!box || !session) return;
+  try {
+    const r = await fetch('/api/dealer-reviews?guest_id=' + encodeURIComponent(session.id));
+    const list = await r.json();
+    if(!Array.isArray(list) || list.length === 0){
+      box.innerHTML = `<div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Вы ещё не оставляли оценок</div>`;
+      return;
+    }
+    box.innerHTML = list.map(rv => `
+      <div class="my-review-item">
+        <div class="head">
+          <span class="dname">${esc(rv.dealer_name)}</span>
+          <span class="stars-line">${'★'.repeat(parseInt(rv.stars)||0)}${'☆'.repeat(5-(parseInt(rv.stars)||0))}</span>
+        </div>
+        ${rv.comment ? `<div class="txt">${esc(rv.comment)}</div>` : ''}
+      </div>
+    `).join('');
+  } catch(e) {
+    box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:10px;">Ошибка загрузки</div>`;
+  }
 }
 
 /* ---------------- TABS ---------------- */
