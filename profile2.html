@@ -196,6 +196,106 @@
     border-radius: 10px; padding: 12px; color: #fff; font-size: 15px; margin-bottom: 10px;
     text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
+
+  /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
+  @media (max-width: 600px) {
+    body { padding: 14px 10px; }
+    .wrap { max-width: 100%; }
+
+    .logo { font-size: 24px; letter-spacing: 3px; }
+    .logo-sub { font-size: 9px; letter-spacing: 3px; margin-bottom: 16px; }
+
+    .tabs {
+      flex-direction: row !important;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 5px;
+      padding: 5px;
+      margin-bottom: 12px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto;
+      min-width: 90px;
+      font-size: 10px;
+      padding: 10px 8px;
+    }
+
+    .card { padding: 18px 14px; border-radius: 16px; }
+
+    .top-head .name { font-size: 22px; }
+    .top-head .cid { font-size: 11px; }
+    .top-head .rank-badge { font-size: 11px; padding: 7px 16px; }
+
+    .cats { gap: 8px; margin-bottom: 16px; }
+    .cat { padding: 12px 6px; }
+    .cat .val { font-size: 18px; }
+    .cat .lbl { font-size: 8px; }
+    .cat.rank .val { font-size: 12px; }
+
+    .info-block { padding: 14px; }
+    .info-block .row { font-size: 12px; }
+
+    .btn { padding: 13px; font-size: 13px; }
+
+    .daily-card { padding: 16px; }
+    .daily-days { gap: 4px; }
+    .daily-day .num { font-size: 8px; }
+    .daily-day .reward { font-size: 10px; }
+
+    .withdraw-block { padding: 16px; }
+    .withdraw-block .amount { font-size: 28px; }
+    .withdraw-block .amount.small { font-size: 24px; }
+    .withdraw-block h3 { font-size: 11px; }
+    .withdraw-block .cond { font-size: 11px; }
+
+    .news-item { padding: 12px; }
+    .news-item .title { font-size: 13px; }
+    .news-item .body { font-size: 12px; }
+
+    .review-block { padding: 16px; }
+    .review-block h3 { font-size: 12px; }
+    .review-block input, .review-block textarea { font-size: 15px; padding: 12px; }
+    .star { font-size: 30px; }
+    .stars { gap: 6px; }
+
+    .modal-backdrop { padding: 12px; }
+    .modal { padding: 28px 18px; border-radius: 20px; max-width: 100%; }
+    .modal-logo { font-size: 30px; letter-spacing: 3px; }
+    .modal-sub { font-size: 9px; letter-spacing: 2px; margin-bottom: 16px; }
+    .modal-title { font-size: 19px; }
+    .modal-text { font-size: 13px; }
+    .modal-amount { font-size: 32px; margin: 10px 0; }
+    .modal-hint { font-size: 11px; }
+    .modal-btn { padding: 12px 26px; font-size: 13px; width: 100%; }
+    .modal-btn.cancel { margin-right: 0; margin-bottom: 8px; }
+    .modal-close { font-size: 22px; top: 12px; right: 12px; }
+
+    .modal > div[style*="display:flex"] {
+      flex-direction: column !important;
+    }
+
+    .cp-input { font-size: 15px; padding: 12px; }
+
+    .login-form input { font-size: 16px; padding: 13px; }
+
+    .footer { font-size: 10px; margin-top: 14px; }
+  }
+
+  @media (max-width: 380px) {
+    body { padding: 10px 8px; }
+    .tab { min-width: 82px; font-size: 9px; padding: 9px 6px; }
+    .card { padding: 16px 12px; }
+    .cats { grid-template-columns: 1fr 1fr; }
+    .cat.rank { grid-column: 1 / -1; }
+    .cat .val { font-size: 17px; }
+    .top-head .name { font-size: 20px; }
+    .daily-days { grid-template-columns: repeat(4, 1fr); }
+    .modal-amount { font-size: 28px; }
+    .star { font-size: 26px; }
+    .modal-btn { font-size: 12px; padding: 11px 20px; }
+  }
 </style>
 </head>
 <body>
@@ -346,6 +446,7 @@
    + Новости
    + Оценка дилера
    + Смена пароля
+   + Мобильная адаптация
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
