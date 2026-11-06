@@ -183,18 +183,7 @@
   .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; backdrop-filter: blur(5px); }
   .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 240; backdrop-filter: blur(2px); }
 
-  /* ---------- engage ---------- */
-  .engage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
-  .engage-block { background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-  .engage-block h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px; }
-  .engage-block .hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-  .daily-rewards-edit { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .daily-rewards-edit input { padding: 8px 6px; font-size: 13px; text-align: center; width: 100%; }
-  .daily-rewards-edit label { font-size: 9px; text-align: center; align-items: center; }
-  .prize-row { display: grid; grid-template-columns: 1fr 70px 70px 80px 32px; gap: 6px; margin-bottom: 6px; align-items: center; }
-  .prize-row input { padding: 6px 8px; font-size: 12px; width: 100%; }
-  .prize-row input[type="color"] { padding: 2px; height: 30px; cursor: pointer; }
-  .prize-row .del { background: var(--red); color:#fff; border-radius: 6px; padding: 4px 8px; cursor:pointer; border:none; font-size: 12px; }
+  /* news editor */
   .news-edit-row { display: flex; gap: 8px; align-items: flex-start; padding: 10px; background: rgba(0,0,0,.3); border-radius: 10px; margin-bottom: 8px; }
   .news-edit-row .col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
   .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
@@ -221,7 +210,6 @@
     label input, label select { width: 100%; }
     .row button { width: 100%; }
     .modal { padding: 20px; }
-    .daily-rewards-edit { grid-template-columns: repeat(4, 1fr); }
   }
   @media (max-width: 480px) {
     .cards { grid-template-columns: 1fr; }
@@ -230,7 +218,6 @@
     h1 { font-size: 20px; }
     .panel { padding: 12px; }
     th, td { padding: 8px 5px; }
-    .prize-row { grid-template-columns: 1fr 50px 50px 60px 28px; }
   }
 </style>
 </head>
@@ -262,7 +249,6 @@
     <button data-page="finance" onclick="switchPage('finance')">Депозиты и выводы</button>
     <button data-page="players" onclick="switchPage('players')">Игроки</button>
     <button data-page="guests" onclick="switchPage('guests')">Гости (Профиль 2)</button>
-    <button data-page="engage" onclick="switchPage('engage')">🎯 Вовлечение</button>
     <button data-page="news" onclick="switchPage('news')">📰 Новости</button>
     <button data-page="online" onclick="switchPage('online')">Онлайн-казино (Crash)</button>
     <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
@@ -292,11 +278,6 @@
     <div class="panel">
       <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
-    </div>
-
-    <div class="panel">
-      <h3>Вовлечение гостей (Профиль 2)</h3>
-      <div class="cards" id="engageCards" style="margin-bottom:0"></div>
     </div>
   </div>
 
@@ -370,41 +351,10 @@
     </div>
   </div>
 
-  <!-- ВОВЛЕЧЕНИЕ -->
-  <div class="page" id="page-engage">
-    <h1>🎯 Вовлечение (Профиль 2)</h1>
-    <div class="sub">Настройка daily reward, колеса фортуны и streak-механик</div>
-
-    <div class="cards" id="engageStats"></div>
-
-    <div class="engage-grid">
-      <div class="engage-block" style="grid-column: 1 / -1;">
-        <h4>🔥 Ежедневный бонус — награды за 7 дней</h4>
-        <div class="hint">Сумма в рублях, начисляемая в бонусный баланс. День 1 — минимальный, день 7 — максимальный.</div>
-        <div class="daily-rewards-edit" id="dailyRewardsEdit"></div>
-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="success" onclick="saveDailyRewards()">💾 Сохранить награды</button>
-          <button class="ghost" onclick="resetAllStreaks()">♻️ Сбросить всем streak</button>
-        </div>
-      </div>
-
-      <div class="engage-block" style="grid-column: 1 / -1;">
-        <h4>🎡 Колесо фортуны — призы</h4>
-        <div class="hint">Вес = вероятность. Чем больше вес относительно суммы — тем чаще выпадает. Цвет — для отрисовки сектора.</div>
-        <div id="prizeEditor"></div>
-        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="ghost small" onclick="addPrizeRow()">+ Приз</button>
-          <button class="success" onclick="saveWheelPrizes()">💾 Сохранить призы</button>
-          <button class="ghost" onclick="resetWheelToday()">♻️ Разрешить всем крутить сегодня</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- НОВОСТИ -->
   <div class="page" id="page-news">
     <h1>📰 Новости и акции</h1>
-    <div class="sub">Отображаются в профиле гостя (profile2)</div>
+    <div class="sub">Отображаются в профиле гостя</div>
 
     <div class="panel">
       <h3>Добавить новость</h3>
@@ -620,7 +570,6 @@
 
 <script>
 let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [] };
-let engageConfig = { daily_rewards: [50,75,100,150,200,300,500], wheel_prizes: [] };
 let newsList = [];
 let currentUser = null;
 let currentRole = null;
@@ -688,29 +637,6 @@ async function loadDB(){
   results.forEach(([key, data]) => { db[key] = data; });
 }
 
-async function loadEngage(){
-  try {
-    const cfg = await apiGet('/api/admin/engage-config');
-    if(cfg && !Array.isArray(cfg)){
-      if(Array.isArray(cfg.daily_rewards) && cfg.daily_rewards.length === 7)
-        engageConfig.daily_rewards = cfg.daily_rewards;
-      if(Array.isArray(cfg.wheel_prizes) && cfg.wheel_prizes.length)
-        engageConfig.wheel_prizes = cfg.wheel_prizes;
-    }
-  } catch(e){}
-  if(!engageConfig.wheel_prizes.length){
-    engageConfig.wheel_prizes = [
-      { label: '50 ₽',   value: 50,   type: 'bonus',  weight: 25, color: '#00e5ff' },
-      { label: '100 ₽',  value: 100,  type: 'bonus',  weight: 20, color: '#3fbf7f' },
-      { label: '10 баллов', value: 10, type: 'points', weight: 20, color: '#d4af37' },
-      { label: '25 баллов', value: 25, type: 'points', weight: 15, color: '#ff8a8a' },
-      { label: '200 ₽',  value: 200,  type: 'bonus',  weight: 8,  color: '#b9f2ff' },
-      { label: '500 ₽',  value: 500,  type: 'bonus',  weight: 3,  color: '#ffe066' },
-      { label: 'Пусто',  value: 0,    type: 'none',   weight: 9,  color: '#6d819a' }
-    ];
-  }
-}
-
 async function loadNewsList(){
   const data = await apiGet('/api/news');
   newsList = Array.isArray(data) ? data : [];
@@ -722,8 +648,8 @@ async function audit(action, details){
 }
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','engage','news','online','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','engage','news','online','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','online','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','online','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
@@ -755,7 +681,7 @@ async function doLogin(){
     err.textContent = '';
     document.getElementById('loginScreen').classList.add('hidden');
     await audit('login', `${currentUser} вошёл`);
-    await Promise.all([loadDB(), loadEngage(), loadNewsList()]);
+    await Promise.all([loadDB(), loadNewsList()]);
     switchPage('dash');
     renderAll();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
@@ -887,29 +813,15 @@ function renderDash(){
   let totalDeposits = 0;
   db.deposits.forEach(d => { if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0; });
 
-  const onlineTotal = totalDeposits + on.net;
-  const totalIncome = bj.income + bac.income + onlineTotal;
+  const onlineIncome = on.net;
+  const totalIncome = bj.income + bac.income + onlineIncome;
 
   document.getElementById('dashCards').innerHTML = `
     <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
     <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
-    <div class="card"><div class="label">Онлайн-казино (вкл. депозиты)</div><div class="value accent">${fmt(onlineTotal)} ₽</div></div>
+    <div class="card"><div class="label">Доход Crash (онлайн)</div><div class="value accent">${fmt(onlineIncome)} ₽</div></div>
+    <div class="card"><div class="label">Депозиты (не доход)</div><div class="value">${fmt(totalDeposits)} ₽</div></div>
     <div class="card" style="border-color: var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(totalIncome)} ₽</div></div>
-  `;
-
-  // engage cards
-  const todayS = today();
-  const totalGuests = db.guests.length;
-  const activeToday = db.guests.filter(g => g.last_visit && String(g.last_visit).slice(0,10) === todayS).length;
-  const spinningToday = db.guests.filter(g => g.last_wheel_spin && String(g.last_wheel_spin).slice(0,10) === todayS).length;
-  const avgStreak = totalGuests ? (db.guests.reduce((a,g)=>a+(parseInt(g.streak)||0),0) / totalGuests) : 0;
-  const maxStreak = db.guests.reduce((a,g)=>Math.max(a, parseInt(g.streak)||0), 0);
-
-  document.getElementById('engageCards').innerHTML = `
-    <div class="card"><div class="label">Гостей всего</div><div class="value accent">${totalGuests}</div></div>
-    <div class="card"><div class="label">Заходили сегодня (DAU)</div><div class="value green">${activeToday}</div></div>
-    <div class="card"><div class="label">Крутили колесо</div><div class="value gold">${spinningToday}</div></div>
-    <div class="card"><div class="label">Средний streak</div><div class="value">${avgStreak.toFixed(1)} <span style="font-size:14px;color:var(--muted)">/ макс ${maxStreak}</span></div></div>
   `;
 
   drawChart();
@@ -930,9 +842,6 @@ function drawChart(){
   db.baccarat.forEach(b=>{ if(!b.date) return; if(!map[b.date]) map[b.date]=0; map[b.date]+=bacCalc(b).casino; });
   db.online.forEach(o=>{ if(!o.date) return; if(!map[o.date]) map[o.date]=0;
     if(o.type === 'доход') map[o.date]+=parseFloat(o.sum)||0; else map[o.date]-=parseFloat(o.sum)||0;
-  });
-  db.deposits.forEach(d=>{ if(d.status !== 'approved' || !d.date) return;
-    if(!map[d.date]) map[d.date]=0; map[d.date]+=parseFloat(d.sum)||0;
   });
 
   const dates = Object.keys(map).sort();
@@ -1203,100 +1112,6 @@ async function delGuest(id){
   await loadDB();
 }
 
-/* ================ ENGAGE ================ */
-function renderEngage(){
-  // stats
-  const todayS = today();
-  const total = db.guests.length;
-  const activeToday = db.guests.filter(g => g.last_visit && String(g.last_visit).slice(0,10) === todayS).length;
-  const spinningToday = db.guests.filter(g => g.last_wheel_spin && String(g.last_wheel_spin).slice(0,10) === todayS).length;
-  const claimedToday = db.guests.filter(g => g.last_daily_claim && String(g.last_daily_claim).slice(0,10) === todayS).length;
-  document.getElementById('engageStats').innerHTML = `
-    <div class="card"><div class="label">Всего гостей</div><div class="value accent">${total}</div></div>
-    <div class="card"><div class="label">DAU (заходили сегодня)</div><div class="value green">${activeToday}</div></div>
-    <div class="card"><div class="label">Забрали daily</div><div class="value gold">${claimedToday}</div></div>
-    <div class="card"><div class="label">Крутили колесо</div><div class="value gold">${spinningToday}</div></div>
-  `;
-
-  // daily rewards editor
-  const rewardsWrap = document.getElementById('dailyRewardsEdit');
-  rewardsWrap.innerHTML = engageConfig.daily_rewards.map((v,i)=>`
-    <label>Д${i+1}
-      <input type="number" min="0" step="10" value="${v}" data-idx="${i}" id="dr_${i}">
-    </label>
-  `).join('');
-
-  // wheel prizes editor
-  const prizesWrap = document.getElementById('prizeEditor');
-  prizesWrap.innerHTML = engageConfig.wheel_prizes.map((p,i)=>`
-    <div class="prize-row">
-      <input type="text" value="${(p.label||'').replace(/"/g,'&quot;')}" data-idx="${i}" data-field="label" placeholder="Название">
-      <input type="number" value="${p.weight||1}" data-idx="${i}" data-field="weight" placeholder="Вес">
-      <input type="number" value="${p.value||0}" data-idx="${i}" data-field="value" placeholder="Сумма">
-      <input type="color" value="${p.color||'#00e5ff'}" data-idx="${i}" data-field="color">
-      <button class="del" onclick="removePrizeRow(${i})">✕</button>
-    </div>
-  `).join('');
-}
-
-function addPrizeRow(){
-  engageConfig.wheel_prizes.push({ label: 'Новый приз', value: 100, type: 'bonus', weight: 5, color: '#00e5ff' });
-  renderEngage();
-}
-function removePrizeRow(idx){
-  engageConfig.wheel_prizes.splice(idx, 1);
-  renderEngage();
-}
-
-async function saveDailyRewards(){
-  const rewards = engageConfig.daily_rewards.map((_,i)=>{
-    const v = parseFloat(document.getElementById('dr_'+i).value) || 0;
-    return v;
-  });
-  const r = await apiPost('/api/admin/daily-rewards', { rewards });
-  if(r.error){ showInfo('Ошибка', r.error); return; }
-  engageConfig.daily_rewards = rewards;
-  await audit('daily_rewards_edit', JSON.stringify(rewards));
-  showInfo('Готово', 'Награды за 7 дней сохранены.');
-}
-
-async function resetAllStreaks(){
-  showConfirm('Сбросить streak всем?', 'У всех гостей обнулится streak и отметка daily. Продолжить?', 'Сбросить', 'danger', async ()=>{
-    await apiPost('/api/admin/reset-all-streaks', {});
-    await audit('reset_all_streaks', '');
-    await loadDB(); loadGuests(); renderEngage();
-    showInfo('Готово', 'Streak у всех сброшен.');
-  });
-}
-
-async function saveWheelPrizes(){
-  const rows = document.querySelectorAll('#prizeEditor .prize-row');
-  const prizes = [];
-  rows.forEach(row=>{
-    const label = row.querySelector('input[data-field="label"]').value.trim();
-    const weight = parseFloat(row.querySelector('input[data-field="weight"]').value) || 1;
-    const value = parseFloat(row.querySelector('input[data-field="value"]').value) || 0;
-    const color = row.querySelector('input[data-field="color"]').value || '#00e5ff';
-    if(!label) return;
-    prizes.push({ label, value, type: 'bonus', weight, color });
-  });
-  if(!prizes.length){ showInfo('Ошибка', 'Нужен хотя бы один приз'); return; }
-  const r = await apiPost('/api/admin/wheel-prizes', { prizes });
-  if(r.error){ showInfo('Ошибка', r.error); return; }
-  engageConfig.wheel_prizes = prizes;
-  await audit('wheel_prizes_edit', JSON.stringify(prizes));
-  showInfo('Готово', 'Призы колеса сохранены.');
-}
-
-async function resetWheelToday(){
-  showConfirm('Разрешить всем крутить?', 'У всех гостей сбросится отметка колеса — они смогут крутить ещё раз сегодня.', 'Разрешить', 'success', async ()=>{
-    await apiPost('/api/admin/reset-wheel-today', {});
-    await audit('reset_wheel_today', '');
-    await loadDB(); loadGuests(); renderEngage();
-    showInfo('Готово', 'Отметка колеса сброшена у всех.');
-  });
-}
-
 /* ================ NEWS ================ */
 function renderNewsAdmin(){
   const wrap = document.getElementById('newsList');
@@ -1336,6 +1151,7 @@ async function addNews(){
   await loadNewsList();
   renderNewsAdmin();
 }
+
 async function saveNews(id){
   const row = document.querySelector(`.news-edit-row input[data-id="${id}"]`).closest('.news-edit-row');
   const title = row.querySelector('input[data-field="title"]').value.trim();
@@ -1347,6 +1163,7 @@ async function saveNews(id){
   renderNewsAdmin();
   showInfo('Готово', 'Новость обновлена.');
 }
+
 async function delNews(id){
   if(!confirm('Удалить новость?')) return;
   await apiDelete('/api/admin/news/' + id);
@@ -1460,7 +1277,6 @@ function renderAll(){
   if(hasPerm('finance')) renderFinance();
   if(hasPerm('players')) renderPlayers();
   if(hasPerm('guests')) loadGuests();
-  if(hasPerm('engage')) renderEngage();
   if(hasPerm('news')) renderNewsAdmin();
   if(hasPerm('online')) renderOnline();
   if(hasPerm('payouts')) renderPayouts();
