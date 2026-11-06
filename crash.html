@@ -280,6 +280,133 @@ let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
+/* ============ ЗВУКИ (Web Audio API) ============ */
+let audioCtx = null;
+let flyOsc = null;
+let flyGain = null;
+let flyActive = false;
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { audioCtx = null; }
+}
+
+// 1. Звук ставки — короткий «клик/всплеск»
+function playBetSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(880, now);
+  osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.15);
+}
+
+// 2. Звук полёта — нарастающий гул
+function startFlySound() {
+  if (flyActive) return;
+  initAudio();
+  if (!audioCtx) return;
+  flyActive = true;
+  const now = audioCtx.currentTime;
+  flyOsc = audioCtx.createOscillator();
+  flyGain = audioCtx.createGain();
+  flyOsc.type = 'sawtooth';
+  flyOsc.frequency.setValueAtTime(60, now);
+  flyGain.gain.setValueAtTime(0.0001, now);
+  flyGain.gain.exponentialRampToValueAtTime(0.06, now + 0.3);
+  flyOsc.connect(flyGain);
+  flyGain.connect(audioCtx.destination);
+  flyOsc.start(now);
+}
+
+function updateFlySound(mult) {
+  if (!flyActive || !flyOsc || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const freq = Math.min(400, 60 + Math.log(mult) * 80);
+  flyOsc.frequency.setTargetAtTime(freq, now, 0.1);
+  const vol = Math.min(0.12, 0.04 + Math.log(mult) * 0.02);
+  flyGain.gain.setTargetAtTime(vol, now, 0.1);
+}
+
+function stopFlySound() {
+  if (!flyActive) return;
+  flyActive = false;
+  if (flyOsc && flyGain && audioCtx) {
+    const now = audioCtx.currentTime;
+    flyGain.gain.setTargetAtTime(0.0001, now, 0.05);
+    flyOsc.stop(now + 0.2);
+    flyOsc = null;
+    flyGain = null;
+  }
+}
+
+// 3. Звук краша — резкий «взрыв»
+function playCrashSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const bufferSize = audioCtx.sampleRate * 0.4;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.25, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.setValueAtTime(1500, now);
+  noiseFilter.frequency.exponentialRampToValueAtTime(200, now + 0.4);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(now);
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(120, now);
+  osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+  gain.gain.setValueAtTime(0.4, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.4);
+}
+
+// 4. Звук забрал ставку — приятный «динь»
+function playCashoutSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const freqs = [880, 1320];
+  freqs.forEach((f, idx) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f, now + idx * 0.08);
+    gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now + idx * 0.08);
+    osc.stop(now + idx * 0.08 + 0.3);
+  });
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const multValueEl = document.getElementById('multValue');
@@ -369,20 +496,15 @@ async function pollRound() {
   } catch(e) {}
 }
 
-/* ============ ВОССТАНОВЛЕНИЕ СТАВОК ============ */
 function restoreMyBetsFromServer(serverBets) {
   if (!playerId || !Array.isArray(serverBets)) return;
-  
   const myActive = serverBets.filter(b => 
     b.player_id && 
     String(b.player_id) === String(playerId) && 
     !String(b.player_id).startsWith('BOT')
   );
-  
   if (myActive.length === 0) return;
-  
   let changed = false;
-  
   myActive.forEach(b => {
     const betId = b.id;
     const existingSlot = [1, 2].find(id => myBetIds[id] === betId);
@@ -402,7 +524,6 @@ function restoreMyBetsFromServer(serverBets) {
       }
     }
   });
-  
   if (changed) updateBetButtons();
 }
 
@@ -444,8 +565,17 @@ function applyServerState(d) {
 
   restoreMyBetsFromServer(round.bets);
 
+  // звук полёта
+  if (d.status === 'flying' && prevStatus !== 'flying') {
+    startFlySound();
+  }
+  if (prevStatus === 'flying' && d.status !== 'flying') {
+    stopFlySound();
+  }
+
   if (d.status === 'crashed' && !localCrashed) {
     localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id;
+    playCrashSound();
   }
   if (roundChanged) {
     lastGraphRoundId = d.roundId; graphPoints = [];
@@ -475,6 +605,7 @@ function frame() {
     multValueEl.classList.remove('crashed');
     multValueEl.style.opacity = '1';
     multLabelEl.textContent = '';
+    updateFlySound(mult);
     if (mult < 1) multValueEl.textContent = '1.00x';
     if (mult >= 10) multValueEl.classList.add('golden');
     else multValueEl.classList.remove('golden');
@@ -677,6 +808,7 @@ async function placeBet(id) {
     if (d.queued) { queuedBets[id] = { amount: amt, roundIdWhenQueued: round.id }; showToast(`Ставка ${amt} ₽ — на следующий раунд`, 'success'); updateBetButtons(); return; }
     myBetIds[id] = d.bet.id; myCashed[id] = false;
     if (d.bet.round_id !== crashedRoundId) resetLocalCrash();
+    playBetSound();
     showToast(`Ставка ${amt} ₽ принята`, 'success');
     loadBalance(); pollRound();
   } catch(e) { showToast('Ошибка соединения', 'error'); btn.disabled = false; updateBetButtons(); }
@@ -689,6 +821,7 @@ async function doCashout(id) {
     const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
     const d = await r.json();
     if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed[id] = false; return; }
+    playCashoutSound();
     showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
     loadBalance(); pollRound();
   } catch(e) { showToast('Ошибка соединения', 'error'); myCashed[id] = false; }
