@@ -28,7 +28,7 @@
   .logout:hover { border-color: #ff4d4d; color: #ff4d4d; }
 
   .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .tabs button { flex: 1; min-width: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .tabs button { flex: 1; min-width: 90px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .tabs button.active { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
   .tab { display: none; } .tab.active { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -41,9 +41,6 @@
   .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 15px; color: #fff; font-family: inherit; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
   .row { display: flex; gap: 12px; } .row .form-group { flex: 1; }
-  .choice-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; }
-  .choice-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #a0aec0; padding: 10px 5px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
-  .choice-btn.selected { background: rgba(0, 229, 255, 0.15); border-color: #00e5ff; color: #00e5ff; }
   .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; }
   .btn-submit:hover:not(:disabled) { background: #33ebff; }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -52,7 +49,6 @@
   .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
   .hidden { display: none !important; }
 
-  /* ЧЕКБОКС ДЖЕКПОТА */
   .jackpot-check {
     display: flex; align-items: center; gap: 12px; cursor: pointer;
     background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(255,77,77,.06));
@@ -77,7 +73,6 @@
   .jackpot-check .txt small { display: block; color: #8fa2b8; font-size: 11px; font-weight: 500; margin-top: 2px; }
   .jackpot-check input:checked ~ .txt { color: #f1c40f; }
 
-  /* БОНУС ЗА ТИШИНУ */
   .silence-card {
     background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.08));
     border: 1px solid rgba(0,229,255,.35);
@@ -85,10 +80,7 @@
   }
   .silence-card .s-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .silence-card .s-title { font-size: 14px; font-weight: 800; color: #00e5ff; text-transform: uppercase; letter-spacing: .5px; }
-  .silence-card .s-percent {
-    font-size: 26px; font-weight: 900; line-height: 1;
-    color: #3fbf7f;
-  }
+  .silence-card .s-percent { font-size: 26px; font-weight: 900; line-height: 1; color: #3fbf7f; }
   .silence-card .s-percent.bad { color: #ff4d4d; }
   .silence-card .s-percent small { font-size: 12px; font-weight: 700; color: #8fa2b8; display: block; margin-top: 2px; }
   .silence-card .s-desc { font-size: 12px; color: #a0aec0; line-height: 1.45; margin-bottom: 12px; }
@@ -107,6 +99,7 @@
 
   .task { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
   .task.done { border-color: rgba(63,191,127,.4); }
+  .task.blocked { opacity: 0.6; }
   .task .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
   .task .title { font-size: 14px; font-weight: 600; line-height: 1.3; }
   .task .reward { font-size: 15px; font-weight: 800; color: #00e5ff; white-space: nowrap; }
@@ -116,8 +109,11 @@
   .task .claim-btn { background: #3fbf7f; color: #000; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
   .task .claim-btn:hover { filter: brightness(1.1); }
   .task .claimed-label { color: #3fbf7f; font-weight: 700; font-size: 12px; }
+  .task .blocked-label { color: #ff8a8a; font-weight: 700; font-size: 12px; }
 
   .week-badge { display: inline-block; background: rgba(0,229,255,.15); color: #00e5ff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .limit-badge { display: inline-block; background: rgba(241,196,15,.15); color: #f1c40f; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-left: 6px; margin-bottom: 14px; }
+  .limit-badge.reached { background: rgba(255,77,77,.15); color: #ff4d4d; }
 
   .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
   .status { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
@@ -125,15 +121,52 @@
   .status.approved { background: rgba(63,191,127,.15); color: #3fbf7f; }
   .status.rejected { background: rgba(255,77,77,.15); color: #ff4d4d; }
 
+  /* PROFILE */
+  .profile-head { text-align: center; margin-bottom: 20px; }
+  .profile-avatar { width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; box-shadow: 0 0 30px rgba(0,229,255,.4); }
+  .profile-head .pname { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+  .profile-head .pid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 1px; }
+  .rank-pill { display: inline-block; margin-top: 10px; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .rank-pill.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border: 1px solid #cd7f32; }
+  .rank-pill.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border: 1px solid #c0c0c0; }
+  .rank-pill.Gold     { background: rgba(241,196,15,.2); color: #f1c40f; border: 1px solid #f1c40f; }
+  .rank-pill.Platinum { background: rgba(229,228,226,.2); color: #e5e4e2; border: 1px solid #e5e4e2; }
+  .rank-pill.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border: 1px solid #b9f2ff; }
+  .rank-pill.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border: 1px solid #d4af37; box-shadow: 0 0 12px rgba(212,175,55,.6); }
+
+  .profile-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .profile-cat { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px 8px; text-align: center; }
+  .profile-cat .lbl { font-size: 9px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
+  .profile-cat .val { font-size: 20px; font-weight: 900; color: #00e5ff; }
+  .profile-cat .val.gold { color: #f1c40f; }
+  .profile-cat .val.green { color: #3fbf7f; }
+
+  .stars-big { font-size: 26px; color: #f1c40f; letter-spacing: 3px; text-shadow: 0 0 12px rgba(241,196,15,.5); }
+
+  .profile-info { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .profile-info .row-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+  .profile-info .row-line:last-child { border-bottom: none; }
+  .profile-info .row-line span:first-child { color: #8fa2b8; }
+  .profile-info .row-line b { color: #fff; }
+
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: rgba(18, 24, 38, 0.95); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 350px; text-align: center; }
+  .modal-box { background: rgba(18, 24, 38, 0.95); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 380px; text-align: center; }
   .modal-box h3 { font-size: 20px; margin-bottom: 10px; }
   .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 20px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; text-align: center; }
+  .modal-box input:focus { outline: none; border-color: #00e5ff; }
+  .modal-box label { display: block; font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; text-align: left; }
   .modal-actions { display: flex; gap: 10px; }
   .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
   .btn-confirm { flex: 1; background: #00e5ff; border: none; color: #000; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+  .withdraw-summary { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 14px; margin-bottom: 14px; text-align: left; }
+  .withdraw-summary .line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  .withdraw-summary .line span:first-child { color: #8fa2b8; }
+  .withdraw-summary .line.fee { color: #ff8a8a; }
+  .withdraw-summary .line.total { color: #3fbf7f; font-weight: 800; font-size: 15px; border-top: 1px solid rgba(255,255,255,.1); margin-top: 6px; padding-top: 8px; }
+  .withdraw-summary .line.total b { color: #3fbf7f; }
 
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
@@ -141,7 +174,7 @@
   @media (max-width: 500px) {
     .row { flex-direction: column; gap: 0; }
     .tabs { flex-direction: column; }
-    .choice-group { grid-template-columns: repeat(2, 1fr); }
+    .profile-cats { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -169,6 +202,7 @@
     <button class="active" data-tab="data" onclick="switchTab('data')">Внести раунд</button>
     <button data-tab="tasks" onclick="switchTab('tasks')">Задания</button>
     <button data-tab="balance" onclick="switchTab('balance')">Баланс</button>
+    <button data-tab="profile" onclick="switchTab('profile')">Профиль</button>
   </div>
 
   <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
@@ -200,7 +234,6 @@
       </div>
     </div>
 
-    <!-- ГАЛОЧКА ДЖЕКПОТА -->
     <label class="jackpot-check" for="jackpotCheck">
       <input type="checkbox" id="jackpotCheck">
       <span class="box"></span>
@@ -217,7 +250,10 @@
   <div class="tab" id="tab-tasks">
     <h2>Ежедневные задания</h2>
     <div class="sub">Обновляются каждый день</div>
-    <div id="weekBadge" class="week-badge">День: —</div>
+    <div>
+      <span id="weekBadge" class="week-badge">День: —</span>
+      <span id="limitBadge" class="limit-badge">Лимит: 50 ₽/день</span>
+    </div>
     <div id="tasksList"></div>
     <div class="msg" id="msgTask"></div>
   </div>
@@ -227,7 +263,6 @@
     <h2>Мой баланс</h2>
     <div class="sub">Зарплата + награды за задания</div>
 
-    <!-- БОНУС ЗА ТИШИНУ -->
     <div class="silence-card" id="silenceCard">
       <div class="s-top">
         <div class="s-title">Бонус за тишину</div>
@@ -255,14 +290,36 @@
     <h2 style="margin-top:24px;font-size:16px">История выводов</h2>
     <div id="withdrawHistory"></div>
   </div>
+
+  <!-- ВКЛАДКА: ПРОФИЛЬ -->
+  <div class="tab" id="tab-profile">
+    <h2>Мой профиль</h2>
+    <div class="sub">Ваш статус и рейтинг</div>
+
+    <div id="profileContent">
+      <div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>
+    </div>
+  </div>
 </div>
 
-<!-- Модалки -->
+<!-- Модалка вывода -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h3>Вывод средств</h3>
-    <p>Введите сумму к выводу (не больше баланса)</p>
-    <input type="number" id="withdrawSum" placeholder="0" min="1">
+    <p>Введите карту и сумму к выводу</p>
+
+    <label>Номер карты</label>
+    <input type="text" id="withdrawCard" placeholder="0000 0000 0000 0000" maxlength="19">
+
+    <label>Сумма к выводу (₽)</label>
+    <input type="number" id="withdrawSum" placeholder="0" min="1" oninput="updateWithdrawSummary()">
+
+    <div class="withdraw-summary" id="withdrawSummary" style="display:none">
+      <div class="line"><span>Сумма к выводу</span><span id="wsSum">0 ₽</span></div>
+      <div class="line fee"><span>Комиссия (7%)</span><span id="wsFee">-0 ₽</span></div>
+      <div class="line total"><span>К зачислению на карту</span><b id="wsNet">0 ₽</b></div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeWithdrawModal()">Отмена</button>
       <button class="btn-confirm" onclick="doWithdraw()">Вывести</button>
@@ -270,6 +327,7 @@
   </div>
 </div>
 
+<!-- Модалка уведомлений -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box" id="infoBox">
     <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
@@ -284,6 +342,8 @@
 <script>
 let currentDealer = null;
 let dealerBalance = 0;
+let tasksState = null;
+const COMMISSION = 0.07;
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 
@@ -304,6 +364,7 @@ function switchTab(name){
   document.getElementById('tab-' + name).classList.add('active');
   if(name === 'tasks') loadTasks();
   if(name === 'balance') { loadBalance(); loadSilence(); }
+  if(name === 'profile') loadProfile();
 }
 
 function showMsg(id, text, ok){
@@ -403,20 +464,34 @@ async function loadTasks(){
   try {
     const r = await fetch('/api/dealer/tasks?id=' + currentDealer.id);
     const data = await r.json();
+    tasksState = data;
     document.getElementById('weekBadge').textContent = 'День: ' + (data.day || '—');
+    
+    const lb = document.getElementById('limitBadge');
+    const earned = parseFloat(data.earned_today) || 0;
+    const limit = parseFloat(data.daily_limit) || 50;
+    lb.textContent = `Заработано сегодня: ${fmt(earned)} / ${fmt(limit)} ₽`;
+    lb.className = 'limit-badge' + (data.limit_reached ? ' reached' : '');
+
     const list = data.tasks || [];
     document.getElementById('tasksList').innerHTML = list.map(t => {
       const pct = Math.round((t.progress / t.goal) * 100);
-      const claimBtn = t.canClaim
-        ? `<button class="claim-btn" onclick="claimTask('${t.id}')">Забрать ${t.reward} ₽</button>`
-        : t.claimed
-          ? `<span class="claimed-label">✓ Получено</span>`
-          : `<span>${t.progress} / ${t.goal}</span>`;
+      let action;
+      if (t.claimed) {
+        action = `<span class="claimed-label">✓ Получено</span>`;
+      } else if (t.blocked) {
+        action = `<span class="blocked-label">Лимит 50 ₽</span>`;
+      } else if (t.canClaim) {
+        action = `<button class="claim-btn" onclick="claimTask('${t.id}')">Забрать ${t.reward} ₽</button>`;
+      } else {
+        action = `<span>${t.progress} / ${t.goal}</span>`;
+      }
+      const typeLabel = t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара';
       return `
-        <div class="task ${t.done ? 'done' : ''}">
+        <div class="task ${t.done ? 'done' : ''} ${t.blocked ? 'blocked' : ''}">
           <div class="top"><div class="title">${t.title}</div><div class="reward">${t.reward} ₽</div></div>
           <div class="progress-bar"><div style="width:${pct}%"></div></div>
-          <div class="bottom"><span>${t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара'}</span>${claimBtn}</div>
+          <div class="bottom"><span>${typeLabel}</span>${action}</div>
         </div>`;
     }).join('') || '<div style="color:#8fa2b8;text-align:center;padding:20px">Заданий нет</div>';
   } catch(e){
@@ -488,58 +563,165 @@ async function loadBalance(){
 
     const w = data.withdrawals || [];
     document.getElementById('withdrawHistory').innerHTML = w.length
-      ? w.map(x => `
-        <div class="withdraw-item">
-          <div>
-            <div style="font-weight:600">${fmt(x.sum)} ₽</div>
-            <div style="font-size:11px;color:#8fa2b8">${x.date}</div>
-          </div>
-          <span class="status ${x.status}">${x.status}</span>
-        </div>`).join('')
+      ? w.map(x => {
+          const net = x.net != null ? parseFloat(x.net) : parseFloat(x.sum);
+          return `
+          <div class="withdraw-item">
+            <div>
+              <div style="font-weight:600">${fmt(x.sum)} ₽</div>
+              <div style="font-size:11px;color:#8fa2b8">К зачислению: ${fmt(net)} ₽ · ${x.date}</div>
+            </div>
+            <span class="status ${x.status}">${x.status}</span>
+          </div>`;
+        }).join('')
       : '<div style="color:#8fa2b8;text-align:center;padding:20px;font-size:13px">Выводов пока не было</div>';
   } catch(e){}
 }
 
+/* --- ВЫВОД С КОМИССИЕЙ 7% --- */
 function openWithdrawModal(){
   if(dealerBalance <= 0){
     showInfo('Нет средств', 'На вашем балансе 0 ₽. Выполните задания или дождитесь зарплаты.', 'err');
     return;
   }
-  document.getElementById('withdrawSum').value = dealerBalance;
+  document.getElementById('withdrawCard').value = '';
+  document.getElementById('withdrawSum').value = '';
+  document.getElementById('withdrawSummary').style.display = 'none';
   document.getElementById('withdrawModal').classList.add('show');
 }
 function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.remove('show'); }
 
-async function doWithdraw(){
+function updateWithdrawSummary(){
   const sum = parseFloat(document.getElementById('withdrawSum').value) || 0;
-  if(sum <= 0){ 
-    closeWithdrawModal();
-    showInfo('Ошибка', 'Введите сумму больше 0'); 
-    return; 
+  const box = document.getElementById('withdrawSummary');
+  if (sum <= 0) { box.style.display = 'none'; return; }
+  const fee = Math.round(sum * COMMISSION * 100) / 100;
+  const net = Math.round((sum - fee) * 100) / 100;
+  document.getElementById('wsSum').textContent = fmt(sum) + ' ₽';
+  document.getElementById('wsFee').textContent = '-' + fmt(fee) + ' ₽';
+  document.getElementById('wsNet').textContent = fmt(net) + ' ₽';
+  box.style.display = 'block';
+}
+
+async function doWithdraw(){
+  const card = document.getElementById('withdrawCard').value.trim();
+  const sum = parseFloat(document.getElementById('withdrawSum').value) || 0;
+
+  if(!card || card.replace(/\s/g, '').length < 16){
+    showInfo('Ошибка', 'Введите корректный номер карты (16 цифр)');
+    return;
   }
-  if(sum > dealerBalance){ 
-    closeWithdrawModal();
-    showInfo('Ошибка', `Недостаточно средств. Баланс: ${fmt(dealerBalance)} ₽`); 
-    return; 
+  if(sum <= 0){
+    showInfo('Ошибка', 'Введите сумму больше 0');
+    return;
   }
+  if(sum > dealerBalance){
+    showInfo('Ошибка', `Недостаточно средств. Баланс: ${fmt(dealerBalance)} ₽`);
+    return;
+  }
+
   try {
     const r = await fetch('/api/dealer/withdraw', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id: currentDealer.id, sum })
+      body: JSON.stringify({ id: currentDealer.id, sum, card })
     });
     const data = await r.json();
-    if(!r.ok){ 
+    if(!r.ok){
       closeWithdrawModal();
-      showInfo('Ошибка', data.error || 'Не удалось создать заявку'); 
-      return; 
+      showInfo('Ошибка', data.error || 'Не удалось создать заявку');
+      return;
     }
     closeWithdrawModal();
-    showInfo('Заявка создана', 'Ожидайте подтверждения администратора', 'ok');
+    showInfo('Заявка создана',
+      `Сумма: <b>${fmt(data.sum)} ₽</b><br>Комиссия 7%: <b style="color:#ff8a8a">-${fmt(data.fee)} ₽</b><br>К зачислению на карту: <b style="color:#3fbf7f">${fmt(data.net)} ₽</b><br><br><small>Ожидайте подтверждения администратора</small>`,
+      'ok');
     loadBalance();
-  } catch(e){ 
+  } catch(e){
     closeWithdrawModal();
-    showInfo('Ошибка', 'Ошибка соединения'); 
+    showInfo('Ошибка', 'Ошибка соединения');
   }
+}
+
+/* --- ПРОФИЛЬ --- */
+async function loadProfile(){
+  if(!currentDealer) return;
+  const box = document.getElementById('profileContent');
+  box.innerHTML = '<div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>';
+  try {
+    const r = await fetch('/api/dealer/profile?id=' + currentDealer.id);
+    const data = await r.json();
+    if(!r.ok){
+      box.innerHTML = '<div style="text-align:center; padding:30px; color:#ff4d4d">Ошибка загрузки профиля</div>';
+      return;
+    }
+    const d = data.dealer;
+    const avg = parseFloat(d.avg_stars) || 0;
+    const full = Math.round(avg);
+    const starsLine = '★'.repeat(full) + '☆'.repeat(5 - full);
+    const initials = (d.name || '?').slice(0, 2).toUpperCase();
+
+    box.innerHTML = `
+      <div class="profile-head">
+        <div class="profile-avatar">${initials}</div>
+        <div class="pname">${d.name}</div>
+        <div class="pid">ID: ${d.id}</div>
+        <div class="rank-pill ${d.rank}">${d.rank}</div>
+      </div>
+
+      <div class="profile-cats">
+        <div class="profile-cat">
+          <div class="lbl">Звёзды</div>
+          <div class="val gold">${avg.toFixed(2)}</div>
+        </div>
+        <div class="profile-cat">
+          <div class="lbl">Отзывов</div>
+          <div class="val">${d.reviews_count}</div>
+        </div>
+        <div class="profile-cat">
+          <div class="lbl">Баланс</div>
+          <div class="val green">${fmt(d.balance)}</div>
+        </div>
+      </div>
+
+      <div class="profile-info" style="text-align:center;">
+        <div class="stars-big">${starsLine}</div>
+        <div style="font-size:12px; color:#8fa2b8; margin-top:8px;">
+          Средний рейтинг по ${d.reviews_count} ${plural(d.reviews_count, 'отзыву','отзывам','отзывам')}
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="row-line"><span>Имя дилера</span><b>${d.name}</b></div>
+        <div class="row-line"><span>Логин</span><b>${d.login || '—'}</b></div>
+        <div class="row-line"><span>ID</span><b>${d.id}</b></div>
+        <div class="row-line"><span>Ранг</span><b>${d.rank}</b></div>
+        <div class="row-line"><span>Всего сессий</span><b>${d.sessions}</b></div>
+        <div class="row-line"><span>Баланс</span><b style="color:#3fbf7f">${fmt(d.balance)} ₽</b></div>
+        <div class="row-line"><span>Дата регистрации</span><b>${d.created_at ? new Date(d.created_at).toLocaleDateString('ru-RU') : '—'}</b></div>
+      </div>
+
+      <div class="profile-info">
+        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Ранги дилера</div>
+        <div style="font-size:12px; line-height:1.8; color:#a0aec0;">
+          <div>🥉 <b style="color:#e8a76a;">Bronze</b> — 0+ сессий</div>
+          <div>🥈 <b style="color:#d9d9d9;">Silver</b> — 25+ сессий</div>
+          <div>🥇 <b style="color:#f1c40f;">Gold</b> — 75+ сессий</div>
+          <div>💎 <b style="color:#e5e4e2;">Platinum</b> — 150+ сессий</div>
+          <div>💠 <b style="color:#b9f2ff;">Diamond</b> — 300+ сессий</div>
+          <div>👑 <b style="color:#ffe066;">VIP</b> — 500+ сессий</div>
+        </div>
+      </div>
+    `;
+  } catch(e){
+    box.innerHTML = '<div style="text-align:center; padding:30px; color:#ff4d4d">Ошибка соединения</div>';
+  }
+}
+
+function plural(n, one, few, many){
+  const m10 = n % 10, m100 = n % 100;
+  if(m10 === 1 && m100 !== 11) return one;
+  if(m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+  return many;
 }
 </script>
 </body>
