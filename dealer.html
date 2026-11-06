@@ -125,35 +125,44 @@
 
   /* PROFILE */
   .profile-head { text-align: center; margin-bottom: 20px; }
-  .profile-avatar { width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; box-shadow: 0 0 30px rgba(0,229,255,.4); }
+  .profile-avatar { width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; }
   .profile-head .pname { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
   .profile-head .pid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 1px; }
-  .rank-pill { display: inline-block; margin-top: 10px; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-  .rank-pill.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border: 1px solid #cd7f32; }
-  .rank-pill.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border: 1px solid #c0c0c0; }
-  .rank-pill.Gold     { background: rgba(241,196,15,.2); color: #f1c40f; border: 1px solid #f1c40f; }
-  .rank-pill.Platinum { background: rgba(229,228,226,.2); color: #e5e4e2; border: 1px solid #e5e4e2; }
-  .rank-pill.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border: 1px solid #b9f2ff; }
-  .rank-pill.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border: 1px solid #d4af37; box-shadow: 0 0 12px rgba(212,175,55,.6); }
 
-  .profile-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-  .profile-cat { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px 8px; text-align: center; }
-  .profile-cat .lbl { font-size: 9px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
-  .profile-cat .val { font-size: 20px; font-weight: 900; color: #00e5ff; }
-  .profile-cat .val.gold { color: #f1c40f; }
-  .profile-cat .val.green { color: #3fbf7f; }
+  .rank-badge-custom {
+    display: inline-block; margin-top: 12px; padding: 8px 22px;
+    border-radius: 22px; font-size: 13px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    border: 1.5px solid; backdrop-filter: blur(4px);
+  }
 
-  .stars-big { font-size: 26px; color: #f1c40f; letter-spacing: 3px; text-shadow: 0 0 12px rgba(241,196,15,.5); }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 16px 12px; text-align: center; }
+  .stat-lbl { font-size: 10px; color: #8fa2b8; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .stat-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
 
-  .profile-info { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-  .profile-info .row-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); gap: 10px; flex-wrap: wrap; }
-  .profile-info .row-line:last-child { border-bottom: none; }
-  .profile-info .row-line span:first-child { color: #8fa2b8; }
-  .profile-info .row-line b { color: #fff; }
+  .progress-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+  .progress-pct { color: #00e5ff; font-size: 13px; }
+  .progress-bar-big { height: 12px; background: rgba(255,255,255,.08);
+    border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar-big > div { height: 100%; border-radius: 6px; transition: width .6s;
+    box-shadow: 0 0 14px rgba(0,229,255,.5); }
+  .progress-foot { display: flex; justify-content: space-between; font-size: 11px;
+    color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
+  .progress-foot b { color: #fff; }
 
-  .rank-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); font-size: 12px; color: #a0aec0; gap: 10px; flex-wrap: wrap; }
-  .rank-row.active { color: #00e5ff; font-weight: 800; }
-  .rank-row:last-child { border-bottom: none; }
+  .info-list { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 6px 16px; }
+  .info-line { display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; gap: 10px; flex-wrap: wrap; }
+  .info-line:last-child { border-bottom: none; }
+  .info-line span:first-child { color: #8fa2b8; }
+  .info-line b { color: #fff; }
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
@@ -177,7 +186,6 @@
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
 
-  /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
   @media (max-width: 600px) {
     body { padding: 12px; }
     .main-container { padding: 18px 14px; border-radius: 16px; }
@@ -232,14 +240,8 @@
 
     .profile-avatar { width: 70px; height: 70px; font-size: 28px; }
     .profile-head .pname { font-size: 20px; }
-    .profile-cats { grid-template-columns: repeat(3, 1fr) !important; gap: 6px; }
-    .profile-cat { padding: 12px 4px; }
-    .profile-cat .val { font-size: 16px; }
-    .profile-cat .lbl { font-size: 8px; letter-spacing: 0.5px; }
     .stars-big { font-size: 22px; letter-spacing: 2px; }
-    .profile-info { padding: 14px; }
-    .profile-info .row-line { font-size: 12px; }
-    .rank-row { font-size: 11px; }
+    .info-line { font-size: 12px; }
 
     .modal-box { padding: 22px 16px; max-width: 100%; }
     .modal-box h3 { font-size: 18px; }
@@ -250,7 +252,8 @@
   }
 
   @media (max-width: 380px) {
-    .profile-cats { grid-template-columns: 1fr !important; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .stat-val { font-size: 20px; }
     .tabs button { min-width: 95px; font-size: 11px; padding: 10px 8px; }
     .main-container { padding: 14px 10px; }
     .task .top { gap: 4px; }
@@ -286,7 +289,6 @@
     <button data-tab="profile" onclick="switchTab('profile')">Профиль</button>
   </div>
 
-  <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
   <div class="tab active" id="tab-data">
     <h2>Новый раунд</h2>
     <div class="sub">Вбивайте каждый раунд. Система сама посчитает сессию.</div>
@@ -327,19 +329,17 @@
     <div class="msg" id="msgData"></div>
   </div>
 
-  <!-- ВКЛАДКА: ЗАДАНИЯ -->
   <div class="tab" id="tab-tasks">
     <h2>Ежедневные задания</h2>
     <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
     <div>
       <span id="weekBadge" class="week-badge">День: —</span>
-      <span id="limitBadge" class="limit-badge">Заработано сегодня: 0 / 50 ₽</span>
+      <span id="limitBadge" class="limit-badge">Заработано: 0 / 50 ₽</span>
     </div>
     <div id="tasksList"></div>
     <div class="msg" id="msgTask"></div>
   </div>
 
-  <!-- ВКЛАДКА: БАЛАНС -->
   <div class="tab" id="tab-balance">
     <h2>Мой баланс</h2>
     <div class="sub">Зарплата + награды за задания</div>
@@ -372,7 +372,6 @@
     <div id="withdrawHistory"></div>
   </div>
 
-  <!-- ВКЛАДКА: ПРОФИЛЬ -->
   <div class="tab" id="tab-profile">
     <h2>Мой профиль</h2>
     <div class="sub">Ваш статус и рейтинг</div>
@@ -383,7 +382,6 @@
   </div>
 </div>
 
-<!-- Модалка вывода -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h3>Вывод средств</h3>
@@ -408,7 +406,6 @@
   </div>
 </div>
 
-<!-- Модалка уведомлений -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box" id="infoBox">
     <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
@@ -492,7 +489,6 @@ function confirmLogout(){
   document.getElementById('loginPass').value = '';
 }
 
-/* --- СОХРАНЕНИЕ РАУНДА --- */
 async function saveRound(){
   const gameType = document.getElementById('gameType').value;
   const playerNick = document.getElementById('playerNick').value.trim();
@@ -539,7 +535,6 @@ async function saveRound(){
   }
 }
 
-/* --- ЗАДАНИЯ --- */
 async function loadTasks(){
   if(!currentDealer) return;
   try {
@@ -597,7 +592,6 @@ async function claimTask(taskId){
   } catch(e){ showInfo('Ошибка', 'Ошибка соединения'); }
 }
 
-/* --- БОНУС ЗА ТИШИНУ --- */
 async function loadSilence(){
   if(!currentDealer) return;
   try {
@@ -631,7 +625,6 @@ async function loadSilence(){
   } catch(e){}
 }
 
-/* --- БАЛАНС --- */
 async function loadBalance(){
   if(!currentDealer) return;
   try {
@@ -659,7 +652,6 @@ async function loadBalance(){
   } catch(e){}
 }
 
-/* --- ВЫВОД С КОМИССИЕЙ 7% --- */
 function openWithdrawModal(){
   if(dealerBalance <= 0){
     showInfo('Нет средств', 'На вашем балансе 0 ₽. Выполните задания или дождитесь зарплаты.', 'err');
@@ -723,7 +715,6 @@ async function doWithdraw(){
   }
 }
 
-/* --- ПРОФИЛЬ --- */
 async function loadProfile(){
   if(!currentDealer) return;
   const box = document.getElementById('profileContent');
@@ -737,100 +728,58 @@ async function loadProfile(){
     }
     const d = data.dealer;
     const avg = parseFloat(d.avg_stars) || 0;
-    const full = Math.round(avg);
-    const starsLine = '★'.repeat(full) + '☆'.repeat(5 - full);
     const initials = (d.name || '?').slice(0, 2).toUpperCase();
-
-    const rankClassMap = {
-      Trainee: 'Bronze', Dealer: 'Silver', Senior: 'Gold',
-      Master: 'Platinum', Elite: 'Diamond', VIP: 'VIP'
-    };
-    const rankCls = rankClassMap[d.rank] || 'Bronze';
-
-    let progressPct = 100, nextLabel = 'Максимальный ранг';
-    if (d.next_rank_min != null) {
-      const curMin = (d.ranks_info.find(x => x.key === d.rank) || {}).min || 0;
-      progressPct = Math.min(100, Math.round(((d.prestige - curMin) / (d.next_rank_min - curMin)) * 100));
-      nextLabel = `До ${d.next_rank_label}: ${d.prestige} / ${d.next_rank_min}`;
-    }
-
-    const ranksRows = d.ranks_info.map(rk => {
-      const active = rk.key === d.rank;
-      return `<div class="rank-row ${active ? 'active' : ''}">
-        <span>${rk.label} ${active ? '← вы здесь' : ''}</span>
-        <span>${rk.min}+ · ${rk.percent}% · бонус ${rk.bonus} ₽</span>
-      </div>`;
-    }).join('');
+    const registered = d.created_at ? new Date(d.created_at).toLocaleDateString('ru-RU') : '—';
+    const rankColor = d.rank_color || '#cd7f32';
 
     box.innerHTML = `
       <div class="profile-head">
-        <div class="profile-avatar">${initials}</div>
+        <div class="profile-avatar" style="background:linear-gradient(135deg,${rankColor},#0077ff);box-shadow:0 0 30px ${rankColor}80;">${initials}</div>
         <div class="pname">${d.name}</div>
         <div class="pid">ID: ${d.id}</div>
-        <div class="rank-pill ${rankCls}">${d.rank_label}</div>
-      </div>
-
-      <div class="profile-cats">
-        <div class="profile-cat">
-          <div class="lbl">Звёзды</div>
-          <div class="val gold">${avg.toFixed(2)}</div>
-        </div>
-        <div class="profile-cat">
-          <div class="lbl">Престиж</div>
-          <div class="val">${d.prestige}</div>
-        </div>
-        <div class="profile-cat">
-          <div class="lbl">Баланс</div>
-          <div class="val green">${fmt(d.balance)}</div>
+        <div class="rank-badge-custom" style="border-color:${rankColor};color:${rankColor};box-shadow:0 0 18px ${rankColor}55;background:${rankColor}18;">
+          ${d.rank_label}
         </div>
       </div>
 
-      <div class="profile-info" style="text-align:center;">
-        <div class="stars-big">${starsLine}</div>
-        <div style="font-size:12px; color:#8fa2b8; margin-top:8px;">
-          Средний рейтинг по ${d.reviews_count} ${plural(d.reviews_count, 'отзыву','отзывам','отзывам')}
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">Средний рейтинг</div>
+          <div class="stat-val" style="color:#f1c40f;">${avg.toFixed(2)} <span style="font-size:14px;color:#8fa2b8;">★</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Баланс</div>
+          <div class="stat-val" style="color:#3fbf7f;">${fmt(d.balance)} ₽</div>
         </div>
       </div>
 
-      <div class="profile-info">
-        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Прогресс ранга</div>
-        <div style="font-size:12px; color:#a0aec0; margin-bottom:8px;">${nextLabel}</div>
-        <div class="progress-bar" style="height:10px; background:rgba(255,255,255,.08); border-radius:5px; overflow:hidden;">
-          <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg,#3fbf7f,#00e5ff); border-radius:5px; transition:width .4s;"></div>
+      <div class="progress-card">
+        <div class="progress-head">
+          <span>${d.next_label}</span>
+          <span class="progress-pct">${d.progress_pct}%</span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:#8fa2b8; gap:8px;">
-          <span>${d.rank_label}</span>
-          <span>${d.next_rank_label || 'MAX'}</span>
+        <div class="progress-bar-big">
+          <div style="width:${d.progress_pct}%; background:linear-gradient(90deg,${rankColor},#00e5ff);"></div>
+        </div>
+        <div class="progress-foot">
+          <span>Очков: <b>${d.points}</b></span>
+          ${d.next_rank_label ? `<span>До повышения: <b>${d.points_to_next}</b> очк.</span>` : '<span>Максимальный ранг</span>'}
         </div>
       </div>
 
-      <div class="profile-info">
-        <div class="row-line"><span>Имя дилера</span><b>${d.name}</b></div>
-        <div class="row-line"><span>Логин</span><b>${d.login || '—'}</b></div>
-        <div class="row-line"><span>ID</span><b>${d.id}</b></div>
-        <div class="row-line"><span>Ранг</span><b>${d.rank_label}</b></div>
-        <div class="row-line"><span>Процент от дохода</span><b style="color:#3fbf7f">${d.rank_percent}%</b></div>
-        <div class="row-line"><span>Бонус за ранг</span><b>${d.rank_bonus} ₽/мес</b></div>
-        <div class="row-line"><span>Всего сессий</span><b>${d.sessions}</b></div>
-        <div class="row-line"><span>Стаж</span><b>${d.months_worked} мес.</b></div>
-        <div class="row-line"><span>Баланс</span><b style="color:#3fbf7f">${fmt(d.balance)} ₽</b></div>
-      </div>
-
-      <div class="profile-info">
-        <div style="font-size:11px; color:#8fa2b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Все ранги дилеров</div>
-        ${ranksRows}
+      <div class="info-list">
+        <div class="info-line"><span>Логин</span><b>${d.login || '—'}</b></div>
+        <div class="info-line"><span>Ранг</span><b style="color:${rankColor};">${d.rank_label}</b></div>
+        <div class="info-line"><span>Процент от дохода</span><b style="color:#3fbf7f;">${d.rank_percent}%</b></div>
+        <div class="info-line"><span>Бонус за ранг</span><b>${d.rank_bonus} ₽/мес</b></div>
+        <div class="info-line"><span>Сессий проведено</span><b>${d.sessions}</b></div>
+        <div class="info-line"><span>Оборот ставок</span><b>${fmt(d.total_turnover)} ₽</b></div>
+        <div class="info-line"><span>Дата регистрации</span><b>${registered}</b></div>
       </div>
     `;
   } catch(e){
     box.innerHTML = '<div style="text-align:center; padding:30px; color:#ff4d4d">Ошибка соединения</div>';
   }
-}
-
-function plural(n, one, few, many){
-  const m10 = n % 10, m100 = n % 100;
-  if(m10 === 1 && m100 !== 11) return one;
-  if(m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
-  return many;
 }
 </script>
 </body>
