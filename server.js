@@ -50,6 +50,25 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
+/* ---------- РАНГИ ДИЛЕРОВ (Вариант A — Престиж) ---------- */
+const DEALER_RANKS = [
+  { key: 'Trainee', label: 'Стажёр',    min: 0,    percent: 10, bonus: 0   },
+  { key: 'Dealer',  label: 'Дилер',     min: 100,  percent: 11, bonus: 0   },
+  { key: 'Senior',  label: 'Ст. дилер', min: 300,  percent: 12, bonus: 100 },
+  { key: 'Master',  label: 'Мастер',    min: 600,  percent: 13, bonus: 200 },
+  { key: 'Elite',   label: 'Элит',      min: 1000, percent: 14, bonus: 300 },
+  { key: 'VIP',     label: 'VIP',       min: 1500, percent: 15, bonus: 500 }
+];
+
+function getDealerRank(prestige){
+  let rank = DEALER_RANKS[0];
+  for (const r of DEALER_RANKS) {
+    if (prestige >= r.min) rank = r;
+    else break;
+  }
+  return rank;
+}
+
 /* ---------- DAILY: 10/15/20/25/30/35/40 ---------- */
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 
@@ -95,7 +114,7 @@ async function getActualJackpot() {
   }
 }
 
-/* ---------- КЕЙСЫ (ОТБАЛАНСИРОВАННЫЕ) ---------- */
+/* ---------- КЕЙСЫ ---------- */
 const CASES = {
   'Новичок':  { price: 39.99,  minRank: 0, prizes: [
     { v: 2,    w: 1500 }, { v: 5,    w: 2000 }, { v: 10,   w: 2500 },
@@ -139,25 +158,51 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-/* ---------- ЗАДАНИЯ ДИЛЕРА ---------- */
-const DEALER_TASKS = [
-  { id: 'hands_10',  title: 'Сыграй 10 раздач за день',  goal: 10,  reward: 15,  type: 'any' },
-  { id: 'hands_30',  title: 'Сыграй 30 раздач за день',  goal: 30,  reward: 30,  type: 'any' },
-  { id: 'hands_50',  title: 'Сыграй 50 раздач за день',  goal: 50,  reward: 50,  type: 'any' },
-  { id: 'hands_100', title: 'Сыграй 100 раздач за день', goal: 100, reward: 100, type: 'any' }
+/* ---------- ЗАДАНИЯ ДИЛЕРА (чёт/нечет + лимит 50₽/день) ---------- */
+const DEALER_TASKS_BJ = [
+  { id: 'bj_hands_10',  title: 'Блэкджек: 10 раздач за день',  goal: 10,  reward: 10, type: 'bj' },
+  { id: 'bj_hands_30',  title: 'Блэкджек: 30 раздач за день',  goal: 30,  reward: 15, type: 'bj' },
+  { id: 'bj_hands_50',  title: 'Блэкджек: 50 раздач за день',  goal: 50,  reward: 25, type: 'bj' }
 ];
+const DEALER_TASKS_BAC = [
+  { id: 'bac_hands_10', title: 'Баккара: 10 раздач за день',   goal: 10,  reward: 10, type: 'bac' },
+  { id: 'bac_hands_30', title: 'Баккара: 30 раздач за день',   goal: 30,  reward: 15, type: 'bac' },
+  { id: 'bac_hands_50', title: 'Баккара: 50 раздач за день',   goal: 50,  reward: 25, type: 'bac' }
+];
+const DEALER_DAILY_LIMIT = 50;
 
-async function getDealerHandsToday(dealerName){
+function getDealerTasksForToday(){
+  const dayNum = new Date().getDate();
+  return (dayNum % 2 === 0) ? DEALER_TASKS_BAC : DEALER_TASKS_BJ;
+}
+
+async function getDealerHandsTodayByType(dealerName, type){
   try {
-    const sRes = await pool.query(
-      `SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer) = LOWER($1) AND date = $2`,
-      [dealerName, todayStr()]
+    if (type === 'bj') {
+      const r = await pool.query(
+        `SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer) = LOWER($1) AND date = $2`,
+        [dealerName, todayStr()]
+      );
+      return r.rows[0]?.c || 0;
+    } else {
+      const r = await pool.query(
+        `SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer) = LOWER($1) AND date = $2`,
+        [dealerName, todayStr()]
+      );
+      return r.rows[0]?.c || 0;
+    }
+  } catch (e) { return 0; }
+}
+
+async function getDealerEarnedToday(dealerId){
+  try {
+    const r = await pool.query(
+      `SELECT COALESCE(SUM(reward), 0)::numeric AS s
+       FROM dealer_tasks
+       WHERE dealer_id=$1 AND date=$2 AND claimed=TRUE`,
+      [dealerId, todayStr()]
     );
-    const bRes = await pool.query(
-      `SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer) = LOWER($1) AND date = $2`,
-      [dealerName, todayStr()]
-    );
-    return (sRes.rows[0]?.c || 0) + (bRes.rows[0]?.c || 0);
+    return parseFloat(r.rows[0]?.s) || 0;
   } catch (e) { return 0; }
 }
 
@@ -524,7 +569,10 @@ async function initDB() {
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS pending_bonus NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_visit TIMESTAMP DEFAULT NOW()`,
       `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`,
-      `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`
+      `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`,
+      `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS card TEXT`,
+      `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS fee NUMERIC DEFAULT 0`,
+      `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS net NUMERIC DEFAULT 0`
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
 
@@ -680,7 +728,7 @@ const server = http.createServer(async (req, res) => {
       const daysLeft = Math.max(0, 7 - daysPassed);
       return sendJSON(res, 200, {
         dealer_id: dealerId, week_start: weekStart, days_passed: daysPassed,
-        days_left: daysLeft, incident, percent: incident ? 7 : 15
+        days_left: daysLeft, incident, percent: incident ? 7 : 10
       });
     }
 
@@ -705,18 +753,39 @@ const server = http.createServer(async (req, res) => {
       if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'dealer not found' });
       const dealer = dRes.rows[0];
       const day = todayStr();
-      const hands = await getDealerHandsToday(dealer.name);
+      const tasksForToday = getDealerTasksForToday();
+      const taskType = tasksForToday[0]?.type || 'bj';
+      const hands = await getDealerHandsTodayByType(dealer.name, taskType);
       await pool.query(`INSERT INTO dealer_daily (dealer_id, date, hands) VALUES ($1,$2,$3)
         ON CONFLICT (dealer_id, date) DO UPDATE SET hands = $3`, [dealerId, day, hands]);
-      const claimedRes = await pool.query(`SELECT task_id FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND claimed=TRUE`, [dealerId, day]);
+
+      const claimedRes = await pool.query(
+        `SELECT task_id FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND claimed=TRUE`,
+        [dealerId, day]
+      );
       const claimedSet = new Set(claimedRes.rows.map(r => r.task_id));
-      const tasks = DEALER_TASKS.map(t => {
+      const earnedToday = await getDealerEarnedToday(dealerId);
+      const limitReached = earnedToday >= DEALER_DAILY_LIMIT;
+
+      const tasks = tasksForToday.map(t => {
         const done = hands >= t.goal;
         const claimed = claimedSet.has(t.id);
-        return { id: t.id, title: t.title, goal: t.goal, reward: t.reward,
-          progress: Math.min(hands, t.goal), done, claimed, canClaim: done && !claimed, type: t.type };
+        const canClaim = done && !claimed && !limitReached;
+        return {
+          id: t.id, title: t.title, goal: t.goal, reward: t.reward,
+          progress: Math.min(hands, t.goal), done, claimed,
+          canClaim, type: t.type,
+          blocked: limitReached && !claimed
+        };
       });
-      return sendJSON(res, 200, { day, hands, tasks });
+
+      return sendJSON(res, 200, {
+        day, hands, tasks,
+        task_type: taskType,
+        daily_limit: DEALER_DAILY_LIMIT,
+        earned_today: earnedToday,
+        limit_reached: limitReached
+      });
     }
 
     if (url === '/api/dealer/tasks/claim' && method === 'POST') {
@@ -724,23 +793,36 @@ const server = http.createServer(async (req, res) => {
       const dealerId = parseInt(b.dealer_id, 10);
       const taskId = String(b.task_id || '');
       if (!dealerId || !taskId) return sendJSON(res, 400, { error: 'no data' });
-      const task = DEALER_TASKS.find(t => t.id === taskId);
+      const tasksForToday = getDealerTasksForToday();
+      const task = tasksForToday.find(t => t.id === taskId);
       if (!task) return sendJSON(res, 404, { error: 'task not found' });
       const dRes = await pool.query('SELECT id, name FROM dealers WHERE id=$1', [dealerId]);
       if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'dealer not found' });
       const dealer = dRes.rows[0];
       const day = todayStr();
-      const hands = await getDealerHandsToday(dealer.name);
+      const hands = await getDealerHandsTodayByType(dealer.name, task.type);
       if (hands < task.goal) return sendJSON(res, 400, { error: 'Условие ещё не выполнено' });
-      const already = await pool.query(`SELECT id FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND task_id=$3 AND claimed=TRUE`, [dealerId, day, taskId]);
+      const already = await pool.query(
+        `SELECT id FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND task_id=$3 AND claimed=TRUE`,
+        [dealerId, day, taskId]
+      );
       if (already.rows.length > 0) return sendJSON(res, 400, { error: 'Награда уже получена' });
+      const earnedToday = await getDealerEarnedToday(dealerId);
+      if (earnedToday + task.reward > DEALER_DAILY_LIMIT) {
+        return sendJSON(res, 400, { error: `Дневной лимит ${DEALER_DAILY_LIMIT} ₽. Уже заработано ${earnedToday.toFixed(2)} ₽.` });
+      }
       await pool.query(`INSERT INTO dealer_tasks (dealer_id, date, task_id, claimed, reward)
         VALUES ($1,$2,$3,TRUE,$4)
         ON CONFLICT (dealer_id, date, task_id) DO UPDATE SET claimed=TRUE, reward=$4, claimed_at=NOW()`,
         [dealerId, day, taskId, task.reward]);
       await addDealerBalance(dealerId, task.reward);
       const newBalance = await getDealerBalance(dealerId);
-      return sendJSON(res, 200, { ok: true, reward: task.reward, balance: newBalance });
+      const newEarned = earnedToday + task.reward;
+      return sendJSON(res, 200, {
+        ok: true, reward: task.reward, balance: newBalance,
+        earned_today: newEarned, daily_limit: DEALER_DAILY_LIMIT,
+        limit_reached: newEarned >= DEALER_DAILY_LIMIT
+      });
     }
 
     if (url === '/api/dealer/balance' && method === 'GET') {
@@ -752,7 +834,11 @@ const server = http.createServer(async (req, res) => {
       const balance = await getDealerBalance(dealerId);
       let withdrawals = [];
       try {
-        const wRes = await pool.query(`SELECT id, sum, status, created_at::date::text AS date FROM dealer_withdrawals WHERE dealer_id=$1 ORDER BY id DESC LIMIT 50`, [dealerId]);
+        const wRes = await pool.query(
+          `SELECT id, sum, fee, net, card, status, created_at::date::text AS date
+           FROM dealer_withdrawals WHERE dealer_id=$1 ORDER BY id DESC LIMIT 50`,
+          [dealerId]
+        );
         withdrawals = wRes.rows;
       } catch(e) {}
       return sendJSON(res, 200, { dealer: { id: dealerId, name: dRes.rows[0].name, balance }, withdrawals });
@@ -762,13 +848,82 @@ const server = http.createServer(async (req, res) => {
       const b = await parseBody(req);
       const dealerId = parseInt(b.id, 10);
       const sum = parseFloat(b.sum) || 0;
+      const card = String(b.card || '').trim();
+      const COMMISSION = 0.07;
       if (!dealerId) return sendJSON(res, 400, { error: 'no dealer id' });
       if (sum <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть больше 0' });
+      if (!card || card.replace(/\s/g, '').length < 16) {
+        return sendJSON(res, 400, { error: 'Введите корректный номер карты (16 цифр)' });
+      }
       const balance = await getDealerBalance(dealerId);
       if (sum > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      const fee = Math.round(sum * COMMISSION * 100) / 100;
+      const net = Math.round((sum - fee) * 100) / 100;
       await addDealerBalance(dealerId, -sum);
-      await pool.query(`INSERT INTO dealer_withdrawals (dealer_id, sum, status) VALUES ($1,$2,'pending')`, [dealerId, sum]);
-      return sendJSON(res, 200, { ok: true });
+      await pool.query(
+        `INSERT INTO dealer_withdrawals (dealer_id, sum, status, card, fee, net)
+         VALUES ($1,$2,'pending',$3,$4,$5)`,
+        [dealerId, sum, card, fee, net]
+      );
+      return sendJSON(res, 200, { ok: true, sum, fee, net, commission: COMMISSION });
+    }
+
+    if (url === '/api/dealer/profile' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const dealerId = parseInt(u.searchParams.get('id'), 10);
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer id' });
+      const dRes = await pool.query('SELECT id, name, login, created_at FROM dealers WHERE id=$1', [dealerId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'dealer not found' });
+      const dealer = dRes.rows[0];
+      const balance = await getDealerBalance(dealerId);
+
+      let avgStars = 0, reviewsCount = 0;
+      try {
+        const rRes = await pool.query(
+          `SELECT COUNT(*)::int AS c, COALESCE(AVG(stars), 0)::numeric AS avg
+           FROM dealer_reviews WHERE LOWER(dealer_name) = LOWER($1)`,
+          [dealer.name]
+        );
+        reviewsCount = rRes.rows[0]?.c || 0;
+        avgStars = parseFloat(rRes.rows[0]?.avg) || 0;
+      } catch (e) {}
+
+      let sessions = 0;
+      try {
+        const s1 = await pool.query(`SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer)=LOWER($1)`, [dealer.name]);
+        const s2 = await pool.query(`SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer)=LOWER($1)`, [dealer.name]);
+        sessions = (s1.rows[0]?.c || 0) + (s2.rows[0]?.c || 0);
+      } catch (e) {}
+
+      let monthsWorked = 0;
+      try {
+        const created = dealer.created_at ? new Date(dealer.created_at) : new Date();
+        monthsWorked = Math.max(0, Math.floor((Date.now() - created.getTime()) / (30 * 24 * 60 * 60 * 1000)));
+      } catch (e) {}
+
+      const prestige = Math.round(sessions + (avgStars * 20) + (monthsWorked * 5));
+      const rank = getDealerRank(prestige);
+      const nextRank = DEALER_RANKS.find(r => r.min > prestige) || null;
+
+      return sendJSON(res, 200, {
+        dealer: {
+          id: dealer.id, name: dealer.name, login: dealer.login,
+          created_at: dealer.created_at,
+          balance,
+          avg_stars: Math.round(avgStars * 100) / 100,
+          reviews_count: reviewsCount,
+          sessions,
+          months_worked: monthsWorked,
+          prestige,
+          rank: rank.key,
+          rank_label: rank.label,
+          rank_percent: rank.percent,
+          rank_bonus: rank.bonus,
+          next_rank_label: nextRank ? nextRank.label : null,
+          next_rank_min: nextRank ? nextRank.min : null,
+          ranks_info: DEALER_RANKS
+        }
+      });
     }
 
     /* ================= КЕЙСЫ ================= */
@@ -1382,7 +1537,7 @@ const server = http.createServer(async (req, res) => {
         await accruePointsByNick(nick, bet, 'baccarat');
       }
       try {
-        const hands = await getDealerHandsToday(dealer);
+        const hands = await getDealerHandsTodayByType(dealer, gameType);
         const dId = await pool.query(`SELECT id FROM dealers WHERE name=$1 LIMIT 1`, [dealer]);
         if (dId.rows.length > 0) {
           await pool.query(`INSERT INTO dealer_daily (dealer_id, date, hands) VALUES ($1,$2,$3)
@@ -1397,8 +1552,6 @@ const server = http.createServer(async (req, res) => {
       }
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
-      // ВАЖНО: дублирующая запись в online для блэкджека/баккары УДАЛЕНА.
-      // Доход этих игр уже считается из таблиц sessions и baccarat.
       return sendJSON(res, 200, { ok: true, session: sessionRow, jackpot: currentJP, jackpot_reset: jackpotHit });
     }
 
@@ -1691,6 +1844,27 @@ const server = http.createServer(async (req, res) => {
       if (!guestId) return sendJSON(res, 400, { error: 'Нет guest_id' });
       if (!dealerName) return sendJSON(res, 400, { error: 'Введите имя дилера' });
       if (stars < 1 || stars > 5) return sendJSON(res, 400, { error: 'Оценка должна быть от 1 до 5' });
+
+      // === один отзыв на дилера в 24 часа ===
+      try {
+        const lastRes = await pool.query(
+          `SELECT created_at FROM dealer_reviews
+           WHERE guest_id=$1 AND LOWER(dealer_name)=LOWER($2)
+           ORDER BY id DESC LIMIT 1`,
+          [guestId, dealerName]
+        );
+        if (lastRes.rows.length > 0) {
+          const lastTime = new Date(lastRes.rows[0].created_at).getTime();
+          const hoursPassed = (Date.now() - lastTime) / 3600000;
+          if (hoursPassed < 24) {
+            const left = Math.ceil(24 - hoursPassed);
+            return sendJSON(res, 429, {
+              error: `Вы уже оценивали этого дилера. Следующая оценка через ${left} ч.`
+            });
+          }
+        }
+      } catch(e) {}
+
       try {
         const r = await pool.query(
           `INSERT INTO dealer_reviews (date, guest_id, guest_name, dealer_name, stars, comment)
@@ -1730,7 +1904,8 @@ const server = http.createServer(async (req, res) => {
       if(type === 'dealer'){
         const r = await pool.query('SELECT * FROM dealers WHERE login=$1 AND pass=$2', [login, pass]);
         if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
-        return sendJSON(res, 200, { ok: true, dealer: { id: r.rows[0].id, name: r.rows[0].name } });
+        const balance = await getDealerBalance(r.rows[0].id);
+        return sendJSON(res, 200, { ok: true, dealer: { id: r.rows[0].id, name: r.rows[0].name, balance } });
       } else {
         const r = await pool.query('SELECT * FROM employees WHERE login=$1 AND pass=$2', [login, pass]);
         if(r.rows.length === 0) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
