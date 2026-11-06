@@ -21,18 +21,25 @@
 
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
-  .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; transition: 0.3s; white-space: nowrap; }
+  .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
   .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
 
   .crash-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+  .tabs { display: flex; padding: 12px; gap: 8px; border-bottom: 1px solid var(--border); background: var(--bg-dark); }
+  .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 11px; font-weight: 700; padding: 7px 0; cursor: pointer; border-radius: 8px; transition: 0.2s; text-transform: uppercase; }
+  .tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
   .bets-header { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.3fr; padding: 10px 14px; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border); }
   .bets-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
   .bet-row { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.3fr; padding: 10px 14px; align-items: center; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .bet-row:hover { background: rgba(255,255,255,0.03); }
   .bet-user { display: flex; align-items: center; gap: 8px; font-weight: 600; min-width: 0; }
-  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 9px; font-weight: 900; color: #fff; flex-shrink: 0; }
-  .user-name { font-weight: 700; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 9px; font-weight: 900; color: #fff; letter-spacing: 0.3px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 0 8px rgba(0,229,255,0.3); }
+  .user-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .user-name { font-weight: 700; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-rank { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .user-rank.Bronze { color: #e8a76a; } .user-rank.Silver { color: #d9d9d9; } .user-rank.Gold { color: #f1c40f; } .user-rank.Platinum { color: #e5e4e2; } .user-rank.Diamond { color: #b9f2ff; } .user-rank.VIP { color: #ffe066; text-shadow: 0 0 6px rgba(212,175,55,0.7); }
   .bet-amount { color: var(--text-muted); font-weight: 600; font-size: 11px; }
   .bet-mult { display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-size: 11px; text-align: center; }
   .bet-mult.win { background: rgba(63,191,127,0.2); color: var(--accent-green); }
@@ -59,6 +66,8 @@
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; }
   .bet-box { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
   .bet-box.queued { border-color: rgba(0,229,255,0.4); box-shadow: 0 0 18px rgba(0,229,255,0.12); }
+  .queue-badge { display: none; position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 10px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 12px rgba(0,229,255,0.5); }
+  .bet-box.queued .queue-badge { display: block; }
 
   .amount-row { display: flex; gap: 8px; }
   .amount-input-wrap { flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 4px; min-width: 0; }
@@ -66,7 +75,7 @@
   .amount-input-wrap button:hover { background: rgba(255,255,255,0.1); }
   .amount-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 800; outline: none; font-family: inherit; }
   .amount-input-wrap input:disabled { opacity: 0.6; cursor: not-allowed; }
-
+  
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; min-width: 0; padding: 8px 10px; }
   .btn-action .subtext { font-size: 11px; font-weight: 600; opacity: 0.9; margin-top: 3px; }
   .btn-bet { background: var(--yellow); color: #000; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
@@ -83,8 +92,10 @@
     animation: cashoutPulse 1.6s ease-in-out infinite;
     position: relative; overflow: hidden;
   }
-  .btn-cashout:hover { background: linear-gradient(135deg, #102a5a 0%, #2a5a9b 50%, #102a5a 100%); border-color: #33ebff; color: #33ebff; }
+  .btn-cashout::before { content: ''; position: absolute; top: -50%; left: -100%; width: 50%; height: 200%; background: linear-gradient(90deg, transparent, rgba(0,229,255,0.35), transparent); transform: skewX(-25deg); animation: cashoutShine 2.4s ease-in-out infinite; }
+  .btn-cashout:hover { background: linear-gradient(135deg, #102a5a 0%, #2a5a9b 50%, #102a5a 100%); border-color: #33ebff; color: #33ebff; box-shadow: 0 0 25px rgba(0,229,255,0.7), 0 0 50px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); }
   @keyframes cashoutPulse { 0%, 100% { box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08); } 50% { box-shadow: 0 0 25px rgba(0,229,255,0.75), 0 0 45px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); } }
+  @keyframes cashoutShine { 0% { left: -100%; } 60%, 100% { left: 150%; } }
 
   .quick-bets { display: flex; gap: 6px; }
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
@@ -97,20 +108,22 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
-  .wait-timer { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,229,255,0.5); z-index: 11; }
-
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
     .topbar { padding: 10px 14px; padding-left: 70px; }
+    .balance-badge { padding: 6px 10px; font-size: 12px; }
     .balance-badge .lbl { display: none; }
     .crash-layout { display: flex; flex-direction: column; padding: 10px; gap: 10px; max-width: none; min-height: auto; height: auto; overflow: visible; }
     .game-area { flex: none; display: flex; flex-direction: column; gap: 10px; min-height: auto; order: 1; }
     .history-bar { padding: 8px 12px; border-radius: 14px; }
+    .history-title { font-size: 11px; }
     .history-item { padding: 4px 10px; font-size: 11px; }
     .canvas-container { flex: none; width: 100%; height: 42vh; min-height: 220px; max-height: 340px; border-radius: 16px; }
     .mult-value { font-size: 52px; }
+    .mult-label { font-size: 11px; letter-spacing: 1px; margin-top: 6px; }
     .control-panel { flex-direction: column; padding: 10px; gap: 10px; border-radius: 16px; }
+    .bet-box { padding: 12px; gap: 10px; border-radius: 14px; }
     .sidebar-bets { width: 100%; height: 260px; min-height: 200px; order: 2; flex-shrink: 0; border-radius: 16px; }
     .toast-container { top: 60px; right: 8px; left: 8px; }
     .toast { min-width: 0; width: 100%; transform: translateY(-120%); }
@@ -121,16 +134,26 @@
     .crash-layout { padding: 8px; gap: 8px; }
     .canvas-container { height: 38vh; min-height: 200px; max-height: 300px; }
     .mult-value { font-size: 42px; }
+    .mult-label { font-size: 10px; letter-spacing: 0.5px; }
+    .history-bar { padding: 6px 10px; }
+    .history-title { font-size: 10px; }
+    .history-item { padding: 3px 8px; font-size: 10px; }
     .amount-input-wrap { padding: 3px; }
     .amount-input-wrap button { width: 32px; height: 32px; font-size: 16px; }
     .amount-input-wrap input { font-size: 16px; }
     .btn-action { font-size: 13px; padding: 6px 6px; }
     .btn-action .subtext { font-size: 10px; }
+    .quick-bets { gap: 4px; }
     .quick-bets button { font-size: 10px; padding: 5px 4px; }
     .sidebar-bets { height: 220px; min-height: 180px; }
     .bets-header { padding: 8px 10px; font-size: 9px; }
     .bet-row { padding: 8px 10px; font-size: 11px; }
-    .wait-timer { font-size: 12px; bottom: 10px; }
+    .user-avatar { width: 20px; height: 20px; font-size: 8px; }
+    .user-name { font-size: 10px; }
+    .user-rank { font-size: 8px; }
+    .bet-amount { font-size: 10px; }
+    .bet-mult { font-size: 10px; padding: 2px 5px; }
+    .bet-cashout { font-size: 10px; }
   }
 </style>
 </head>
@@ -144,7 +167,7 @@
 
 <div class="topbar">
   <div class="topbar-logo">KINGWIN</div>
-  <div class="balance-badge">
+  <div class="balance-badge" id="balanceBadge">
     <span class="lbl">Баланс</span>
     <span class="val" id="balanceVal">0.00 ₽</span>
   </div>
@@ -154,6 +177,11 @@
 
 <div class="crash-layout">
   <aside class="sidebar-bets">
+    <div class="tabs">
+      <button class="tab-btn active">Все ставки</button>
+      <button class="tab-btn">Мои ставки</button>
+      <button class="tab-btn">Топ</button>
+    </div>
     <div class="bets-header">
       <div>Игрок</div>
       <div>Ставка</div>
@@ -175,11 +203,11 @@
         <div class="mult-value" id="multValue">1.00x</div>
         <div class="mult-label" id="multLabel">Ожидание первой ставки...</div>
       </div>
-      <div class="wait-timer" id="waitTimer"></div>
     </div>
 
     <div class="control-panel">
       <div class="bet-box" id="betBox1">
+        <div class="queue-badge">Ставка на след. раунд</div>
         <div class="amount-row">
           <div class="amount-input-wrap">
             <button id="btnMinus1" onclick="changeAmount(1, -1)">−</button>
@@ -192,14 +220,15 @@
           </button>
         </div>
         <div class="quick-bets">
-          <button onclick="setAmount(1, 10)">10</button>
-          <button onclick="setAmount(1, 50)">50</button>
-          <button onclick="setAmount(1, 100)">100</button>
-          <button onclick="setAmount(1, 200)">200</button>
+          <button id="quick1_1" onclick="setAmount(1, 10)">10</button>
+          <button id="quick1_2" onclick="setAmount(1, 50)">50</button>
+          <button id="quick1_3" onclick="setAmount(1, 100)">100</button>
+          <button id="quick1_4" onclick="setAmount(1, 200)">200</button>
         </div>
       </div>
 
       <div class="bet-box" id="betBox2">
+        <div class="queue-badge">Ставка на след. раунд</div>
         <div class="amount-row">
           <div class="amount-input-wrap">
             <button id="btnMinus2" onclick="changeAmount(2, -1)">−</button>
@@ -212,10 +241,10 @@
           </button>
         </div>
         <div class="quick-bets">
-          <button onclick="setAmount(2, 10)">10</button>
-          <button onclick="setAmount(2, 50)">50</button>
-          <button onclick="setAmount(2, 100)">100</button>
-          <button onclick="setAmount(2, 200)">200</button>
+          <button id="quick2_1" onclick="setAmount(2, 10)">10</button>
+          <button id="quick2_2" onclick="setAmount(2, 50)">50</button>
+          <button id="quick2_3" onclick="setAmount(2, 100)">100</button>
+          <button id="quick2_4" onclick="setAmount(2, 200)">200</button>
         </div>
       </div>
     </div>
@@ -223,42 +252,225 @@
 </div>
 
 <script>
-/* ==================== НАСТРОЙКИ ==================== */
-const MIN_BET = 1;
+const PLAYER_KEY = 'kingwin_guest_id';
 const MAX_BET = 200;
-const BETTING_SECONDS = 11;   // ← приём ставок 11 секунд
-const CRASH_GROWTH = 1.00006; // скорость роста множителя
+const MIN_BET = 1;
+const POLL_MS = 300;
+const WAITING_SECONDS = 11;   // ← длительность приёма ставок (было 7)
 
-/* ==================== СОСТОЯНИЕ ==================== */
-let balance = 1000;
+let playerId = localStorage.getItem(PLAYER_KEY);
+let playerBalance = 0;
 
-// bet[слот] = { amount, cashed } | null
-let bets = { 1: null, 2: null };
-
-// queued[слот] = { amount } | null — ставка на следующий раунд
-let queued = { 1: null, 2: null };
+let myBetIds = { 1: null, 2: null };
+let myCashed = { 1: false, 2: false };
+let queuedBets = { 1: null, 2: null };
+let lastRoundIdSeen = null;
 
 let round = {
-  id: 0,
-  status: 'betting',     // 'betting' | 'flying' | 'crashed'
-  crashPoint: 1,
-  startTime: 0,          // timestamp старта полёта
-  bettingEndTime: 0,     // timestamp конца приёма ставок
-  elapsed: 0,
-  mult: 1
+  id: null, status: 'waiting', startTime: 0, crashPoint: 1,
+  serverMult: 1, bets: [], history: [], hasRealBet: false
 };
 
-let history = [];
 let graphPoints = [];
+let lastGraphRoundId = null;
+let lastBetsSig = '';
+let lastHistorySig = '';
 
-let localCrashTime = 0; // для анимации краша
+let localCrashed = false;
+let localCrashMult = 1;
+let crashedRoundId = null;
+let timeOffset = 0;
 
-/* ==================== CANVAS ==================== */
+// Локальный таймер ожидания на 11 секунд
+let waitingTimer = null;
+let waitingSecondsLeft = 0;
+
+/* ============ ЗВУК ОТСЧЁТА (один длинный файл /countdown.mp3) ============ */
+let countdownAudio = null;
+let lastWaitingRoundId = null;
+
+function startCountdownSound() {
+  stopCountdownSound();
+  try {
+    if (!countdownAudio) {
+      countdownAudio = new Audio('/countdown.mp3');
+      countdownAudio.volume = 0.6;
+    }
+    countdownAudio.currentTime = 0;
+    const p = countdownAudio.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch(e) {}
+}
+
+function stopCountdownSound() {
+  if (countdownAudio) {
+    try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {}
+  }
+}
+
+/* ============ ЗВУКИ (Web Audio API) ============ */
+let audioCtx = null;
+let flyOsc = null;
+let flyGain = null;
+let flyActive = false;
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { audioCtx = null; }
+}
+
+// 1. Звук ставки — короткий «клик/всплеск»
+function playBetSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(880, now);
+  osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.15);
+}
+
+// 2. Звук полёта — «космос»: глубокий гул с мерцанием
+function startFlySound() {
+  if (flyActive) return;
+  initAudio();
+  if (!audioCtx) return;
+  flyActive = true;
+  const now = audioCtx.currentTime;
+
+  flyOsc = audioCtx.createOscillator();
+  flyGain = audioCtx.createGain();
+  flyOsc.type = 'sine';
+  flyOsc.frequency.setValueAtTime(80, now);
+
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.type = 'sine';
+  lfo.frequency.setValueAtTime(0.8, now);
+  lfoGain.gain.setValueAtTime(6, now);
+  lfo.connect(lfoGain);
+  lfoGain.connect(flyOsc.frequency);
+  lfo.start(now);
+
+  flyGain.gain.setValueAtTime(0.12, now);
+
+  flyOsc.connect(flyGain);
+  flyGain.connect(audioCtx.destination);
+  flyOsc.start(now);
+  flyOsc._lfo = lfo;
+}
+
+function updateFlySound(mult) {
+  if (!flyActive || !flyOsc || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const freq = Math.min(320, 80 + Math.log(mult) * 60);
+  flyOsc.frequency.setTargetAtTime(freq, now, 0.2);
+  const vol = Math.min(0.22, 0.12 + Math.log(mult) * 0.03);
+  flyGain.gain.setTargetAtTime(vol, now, 0.2);
+}
+
+function stopFlySound() {
+  if (!flyActive) return;
+  flyActive = false;
+  if (flyOsc && flyGain && audioCtx) {
+    const now = audioCtx.currentTime;
+    flyGain.gain.setTargetAtTime(0.0001, now, 0.08);
+    if (flyOsc._lfo) { try { flyOsc._lfo.stop(now + 0.3); } catch(e){} }
+    flyOsc.stop(now + 0.3);
+    flyOsc = null;
+    flyGain = null;
+  }
+}
+
+// 3. Звук краша — «взрыв бомбы»
+function playCrashSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+
+  const boom = audioCtx.createOscillator();
+  const boomGain = audioCtx.createGain();
+  boom.type = 'sine';
+  boom.frequency.setValueAtTime(80, now);
+  boom.frequency.exponentialRampToValueAtTime(20, now + 0.6);
+  boomGain.gain.setValueAtTime(0.6, now);
+  boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+  boom.connect(boomGain);
+  boomGain.connect(audioCtx.destination);
+  boom.start(now);
+  boom.stop(now + 0.9);
+
+  const noiseSize = audioCtx.sampleRate * 1.2;
+  const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < noiseSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.35, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.setValueAtTime(800, now);
+  noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(now);
+
+  const crackSize = audioCtx.sampleRate * 0.15;
+  const crackBuf = audioCtx.createBuffer(1, crackSize, audioCtx.sampleRate);
+  const crackData = crackBuf.getChannelData(0);
+  for (let i = 0; i < crackSize; i++) crackData[i] = Math.random() * 2 - 1;
+  const crack = audioCtx.createBufferSource();
+  crack.buffer = crackBuf;
+  const crackGain = audioCtx.createGain();
+  crackGain.gain.setValueAtTime(0.2, now);
+  crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+  const crackFilter = audioCtx.createBiquadFilter();
+  crackFilter.type = 'highpass';
+  crackFilter.frequency.setValueAtTime(2000, now);
+  crack.connect(crackFilter);
+  crackFilter.connect(crackGain);
+  crackGain.connect(audioCtx.destination);
+  crack.start(now);
+}
+
+// 4. Звук забрал ставку — приятный «динь»
+function playCashoutSound() {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const freqs = [880, 1320];
+  freqs.forEach((f, idx) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f, now + idx * 0.08);
+    gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now + idx * 0.08);
+    osc.stop(now + idx * 0.08 + 0.3);
+  });
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const multValueEl = document.getElementById('multValue');
 const multLabelEl = document.getElementById('multLabel');
-const waitTimerEl = document.getElementById('waitTimer');
 
 function resizeCanvas() {
   const p = canvas.parentElement;
@@ -273,385 +485,445 @@ window.addEventListener('resize', resizeCanvas);
 window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 resizeCanvas();
 
-/* ==================== УТИЛИТЫ ==================== */
-function genCrashPoint() {
-  // Простая модель: 97% — 1.00–2.00x, 3% — до 10x, редкие — до 50x
-  const r = Math.random();
-  if (r < 0.5) return 1.00 + Math.random() * 0.5;          // 50%: 1.00–1.50
-  if (r < 0.8) return 1.50 + Math.random() * 1.0;          // 30%: 1.50–2.50
-  if (r < 0.95) return 2.50 + Math.random() * 2.5;         // 15%: 2.50–5.00
-  if (r < 0.99) return 5.00 + Math.random() * 5.0;         // 4%:  5.00–10.00
-  return 10.00 + Math.random() * 40.0;                     // 1%:  10–50
-}
-
-function historyColorClass(m) {
-  if (m >= 10) return 'gold';
-  if (m >= 4) return 'purple';
-  if (m > 1.50) return 'blue';
+function historyColorClass(mult) {
+  if (mult >= 10) return 'gold';
+  if (mult >= 4) return 'purple';
+  if (mult > 1.50) return 'blue';
   return 'red';
 }
 
-/* ==================== ЖИЗНЕННЫЙ ЦИКЛ РАУНДА ==================== */
-function startBettingPhase() {
-  round.id++;
-  round.status = 'betting';
-  round.mult = 1;
-  round.crashPoint = genCrashPoint();
-  round.elapsed = 0;
-  round.startTime = 0;
-  round.bettingEndTime = Date.now() + BETTING_SECONDS * 1000;
+function resetLocalCrash() {
+  localCrashed = false; localCrashMult = 1; crashedRoundId = null;
+  graphPoints = []; prevMult = 1;
+}
+
+async function loadBalance() {
+  if (!playerId) { document.getElementById('balanceVal').textContent = '0.00 ₽'; return; }
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
+    const d = await r.json();
+    if (r.ok && d.guest) {
+      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
+      playerBalance = total;
+      document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽';
+    }
+  } catch(e) {}
+}
+loadBalance();
+setInterval(loadBalance, 5000);
+
+function currentLocalMultiplier() {
+  if (localCrashed && crashedRoundId !== round.id) resetLocalCrash();
+  if (round.status === 'waiting') return 1;
+  if (round.status === 'crashed' || localCrashed) return localCrashMult;
+  if (round.status === 'flying' && round.startTime) {
+    const elapsed = Date.now() - round.startTime - timeOffset;
+    if (elapsed <= 0) return 1;
+    return Math.pow(1.00006, elapsed);
+  }
+  return 1;
+}
+
+function rebuildGraphFromStart() {
   graphPoints = [];
-  localCrashTime = 0;
-
-  // Переносим queued-ставки в активные
-  [1, 2].forEach(id => {
-    if (queued[id]) {
-      bets[id] = { amount: queued[id].amount, cashed: false };
-      queued[id] = null;
-      balance -= bets[id].amount;
+  if (!round.startTime) return;
+  const elapsedMs = Date.now() - round.startTime - timeOffset;
+  if (elapsedMs <= 0) { graphPoints.push({ x: 0, y: 1 }); return; }
+  const stepMs = 80;
+  const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id);
+  const capMult = isCrashed ? round.crashPoint : Infinity;
+  for (let t = 0; t <= elapsedMs; t += stepMs) {
+    let m = Math.pow(1.00006, t);
+    if (isCrashed && m >= round.crashPoint) {
+      const crashMs = Math.log(round.crashPoint) / Math.log(1.00006);
+      graphPoints.push({ x: crashMs / 1000, y: round.crashPoint });
+      return;
     }
-  });
-
-  updateBalanceUI();
-  updateBetButtons();
-  renderBetsList();
-  multLabelEl.textContent = 'Приём ставок...';
-  multValueEl.classList.remove('crashed', 'golden');
+    graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) });
+  }
+  const lastT = elapsedMs / 1000;
+  const lastM = currentLocalMultiplier();
+  const last = graphPoints[graphPoints.length - 1];
+  if (!last || last.x < lastT) graphPoints.push({ x: lastT, y: lastM });
+  else if (last) last.y = lastM;
 }
 
-function startFlyingPhase() {
-  round.status = 'flying';
-  round.startTime = Date.now();
-  round.elapsed = 0;
-  round.mult = 1;
-  graphPoints = [{ x: 0, y: 1 }];
-  multLabelEl.textContent = '';
-  waitTimerEl.textContent = '';
+async function pollRound() {
+  try {
+    const r = await fetch('/api/crash/current');
+    const d = await r.json();
+    applyServerState(d);
+  } catch(e) {}
 }
 
-function crashRound() {
-  round.status = 'crashed';
-  round.mult = round.crashPoint;
-  history.unshift(round.crashPoint);
-  if (history.length > 20) history.pop();
-
-  // Проигравшие ставки — списываем уже при постановке, тут просто помечаем
-  [1, 2].forEach(id => {
-    if (bets[id] && !bets[id].cashed) {
-      bets[id].lost = true;
+function restoreMyBetsFromServer(serverBets) {
+  if (!playerId || !Array.isArray(serverBets)) return;
+  const myActive = serverBets.filter(b => 
+    b.player_id && 
+    String(b.player_id) === String(playerId) && 
+    !String(b.player_id).startsWith('BOT')
+  );
+  if (myActive.length === 0) return;
+  let changed = false;
+  myActive.forEach(b => {
+    const betId = b.id;
+    const existingSlot = [1, 2].find(id => myBetIds[id] === betId);
+    if (existingSlot) {
+      if (!!b.cashed_out !== myCashed[existingSlot]) {
+        myCashed[existingSlot] = !!b.cashed_out;
+        changed = true;
+      }
+      return;
     }
-  });
-
-  renderHistory();
-  renderBetsList();
-  updateBetButtons();
-}
-
-/* ==================== ГЛАВНЫЙ ЦИКЛ ==================== */
-function gameLoop() {
-  const now = Date.now();
-
-  if (round.status === 'betting') {
-    const left = Math.max(0, Math.ceil((round.bettingEndTime - now) / 1000));
-    waitTimerEl.textContent = left + ' сек до старта';
-    multValueEl.textContent = '1.00x';
-    multValueEl.style.opacity = '0.4';
-    if (left <= 0) {
-      startFlyingPhase();
-    }
-  } else if (round.status === 'flying') {
-    multValueEl.style.opacity = '1';
-    const elapsed = now - round.startTime;
-    const mult = Math.pow(CRASH_GROWTH, elapsed);
-
-    if (mult >= round.crashPoint) {
-      crashRound();
-    } else {
-      round.mult = mult;
-      round.elapsed = elapsed;
-      // добавляем точку в график
-      const t = elapsed / 1000;
-      const last = graphPoints[graphPoints.length - 1];
-      if (!last || t > last.x + 0.05) {
-        graphPoints.push({ x: t, y: mult });
-        if (graphPoints.length > 2000) graphPoints.shift();
-      } else if (last) {
-        last.y = mult;
+    for (const id of [1, 2]) {
+      if (!myBetIds[id] && !queuedBets[id]) {
+        myBetIds[id] = betId;
+        myCashed[id] = !!b.cashed_out;
+        changed = true;
+        break;
       }
     }
-  } else if (round.status === 'crashed') {
-    // ждём 2 секунды после краша и запускаем новый приём ставок
-    localCrashTime += 16;
-    if (localCrashTime >= 2000) {
-      startBettingPhase();
+  });
+  if (changed) updateBetButtons();
+}
+
+function applyServerState(d) {
+  if (d.status === 'flying' && d.startTime) {
+    const serverElapsed = parseFloat(d.multiplier) > 1 ? Math.log(parseFloat(d.multiplier)) / Math.log(1.00006) : 0;
+    const clientElapsed = Date.now() - d.startTime;
+    if (clientElapsed > 0) timeOffset = timeOffset * 0.8 + (clientElapsed - serverElapsed) * 0.2;
+  }
+  const isNewRound = round.id !== null && d.roundId !== round.id;
+  const roundChanged = round.id !== d.roundId;
+
+  if (isNewRound || roundChanged) {
+    myBetIds = { 1: null, 2: null };
+    myCashed = { 1: false, 2: false };
+    resetLocalCrash();
+    loadBalance();
+    setTimeout(() => {
+      [1, 2].forEach(id => {
+        if (queuedBets[id] && queuedBets[id].amount > 0) {
+          const candidates = (round.bets || []).filter(b => String(b.player_id) === String(playerId) && !b.cashed_out);
+          if (candidates.length > 0) {
+            myBetIds[id] = candidates[candidates.length - 1].id;
+            queuedBets[id] = null;
+          }
+        }
+      });
+      updateBetButtons();
+    }, 800);
+  }
+  const prevStatus = round.status;
+  if (prevStatus === 'crashed' && d.status !== 'crashed') resetLocalCrash();
+
+  round.id = d.roundId; round.status = d.status; round.startTime = d.startTime || 0;
+  round.crashPoint = d.crashPoint || round.crashPoint || 1;
+  round.serverMult = parseFloat(d.multiplier) || 1;
+  round.bets = d.bets || []; round.history = d.history || [];
+  round.hasRealBet = d.hasRealBet || false;
+
+  restoreMyBetsFromServer(round.bets);
+
+  if (d.status === 'flying' && prevStatus !== 'flying') {
+    startFlySound();
+  }
+  if (prevStatus === 'flying' && d.status !== 'flying') {
+    stopFlySound();
+  }
+
+  if (d.status === 'crashed' && !localCrashed) {
+    localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id;
+    playCrashSound();
+  }
+  if (roundChanged) {
+    lastGraphRoundId = d.roundId; graphPoints = [];
+    if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) rebuildGraphFromStart();
+  }
+  renderBets(round.bets);
+  renderHistory(round.history);
+  updateBetButtons();
+
+  // === ЗВУК ОТСЧЁТА ===
+  if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
+    lastWaitingRoundId = d.roundId;
+    startCountdownSound();
+    startWaitingTimer();   // ← запуск локального таймера на 11 секунд
+  }
+  if (d.status === 'flying' || d.status === 'crashed') {
+    stopCountdownSound();
+    stopWaitingTimer();    // ← остановка таймера при старте полёта
+  }
+}
+
+// Локальный таймер ожидания на WAITING_SECONDS секунд
+function startWaitingTimer() {
+  stopWaitingTimer();
+  waitingSecondsLeft = WAITING_SECONDS;
+  multLabelEl.textContent = 'До старта: ' + waitingSecondsLeft + ' сек';
+  waitingTimer = setInterval(() => {
+    waitingSecondsLeft--;
+    if (waitingSecondsLeft <= 0) {
+      stopWaitingTimer();
+      multLabelEl.textContent = 'Готовимся к росту...';
+    } else {
+      multLabelEl.textContent = 'До старта: ' + waitingSecondsLeft + ' сек';
+    }
+  }, 1000);
+}
+
+function stopWaitingTimer() {
+  if (waitingTimer) {
+    clearInterval(waitingTimer);
+    waitingTimer = null;
+  }
+  waitingSecondsLeft = 0;
+}
+
+let prevMult = 1;
+function frame() {
+  if (localCrashed && crashedRoundId !== round.id) resetLocalCrash();
+  const mult = currentLocalMultiplier();
+  if (Math.abs(mult - prevMult) > 0.001) { multValueEl.textContent = mult.toFixed(2) + 'x'; prevMult = mult; }
+  const effStatus = localCrashed ? 'crashed' : round.status;
+
+  if (effStatus === 'waiting') {
+    multValueEl.classList.remove('crashed', 'golden');
+    multValueEl.style.opacity = '0.3';
+    multValueEl.textContent = '1.00x';
+    if (round.status === 'crashed') {
+      // после краша — показываем обратный отсчёт нового раунда
+    } else if (!round.hasRealBet) {
+      // оставляем надпись из startWaitingTimer, если таймер активен
+      if (!waitingTimer) multLabelEl.textContent = 'Ожидание первой ставки...';
+    } else {
+      if (!waitingTimer) multLabelEl.textContent = 'Готовимся к росту...';
+    }
+    graphPoints = [];
+  } else if (effStatus === 'flying') {
+    multValueEl.classList.remove('crashed');
+    multValueEl.style.opacity = '1';
+    multLabelEl.textContent = '';
+    updateFlySound(mult);
+    if (mult < 1) multValueEl.textContent = '1.00x';
+    if (mult >= 10) multValueEl.classList.add('golden');
+    else multValueEl.classList.remove('golden');
+    if (round.startTime) {
+      const t = (Date.now() - round.startTime - timeOffset) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || t > last.x + 0.001) { graphPoints.push({ x: t, y: mult }); if (graphPoints.length > 2000) graphPoints.shift(); }
+      else if (last) last.y = mult;
+    }
+  } else if (effStatus === 'crashed') {
+    multValueEl.classList.add('crashed');
+    multValueEl.style.opacity = '1';
+    multLabelEl.textContent = '';
+    if (round.startTime) {
+      const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
+      const last = graphPoints[graphPoints.length - 1];
+      if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) graphPoints.push({ x: crashSec, y: round.crashPoint });
     }
   }
-
-  renderMultiplier();
-  drawGraph();
-  updateBetButtonsLive();
-  requestAnimationFrame(gameLoop);
+  drawGraph(mult, effStatus);
+  updateBetButtonsLive(mult, effStatus);
+  requestAnimationFrame(frame);
 }
 
-/* ==================== РЕНДЕР ==================== */
-function renderMultiplier() {
-  if (round.status === 'betting') {
-    multValueEl.textContent = '1.00x';
-    multValueEl.classList.remove('crashed', 'golden');
-    multValueEl.style.opacity = '0.4';
-  } else if (round.status === 'flying') {
-    multValueEl.textContent = round.mult.toFixed(2) + 'x';
-    multValueEl.style.opacity = '1';
-    multValueEl.classList.toggle('golden', round.mult >= 10);
-    multValueEl.classList.remove('crashed');
-  } else if (round.status === 'crashed') {
-    multValueEl.textContent = round.crashPoint.toFixed(2) + 'x';
-    multValueEl.classList.add('crashed');
-    multValueEl.classList.remove('golden');
-    multValueEl.style.opacity = '1';
-    multLabelEl.textContent = 'КРАШ';
-  }
-}
-
-function drawGraph() {
+function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
   for (let i = 0; i < H; i += 60) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
   for (let i = 0; i < W; i += 60) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
-
-  if ((round.status === 'flying' || round.status === 'crashed') && graphPoints.length > 1) {
+  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
     const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
     const drawW = W - paddingL - paddingR;
     const drawH = H - paddingT - paddingB;
     const lastX = graphPoints[graphPoints.length - 1].x;
     const maxX = Math.max(3, lastX);
-    const maxY = Math.max(round.mult * 1.15, 1.5);
-
-    let lineColor = '#00e5ff';
-    let shadowColor = 'rgba(0,229,255,0.5)';
-    if (round.status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
-    else if (round.mult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
-
-    ctx.beginPath();
-    ctx.strokeStyle = lineColor;
-    ctx.lineWidth = 3;
-    ctx.lineJoin = 'round';
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = shadowColor;
-
+    const maxY = Math.max(currentMult * 1.15, 1.5);
+    let lineColor = '#00e5ff', shadowColor = 'rgba(0,229,255,0.5)';
+    if (status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
+    else if (currentMult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
+    ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+    ctx.shadowBlur = 10; ctx.shadowColor = shadowColor;
     for (let i = 0; i < graphPoints.length; i++) {
       const p = graphPoints[i];
       const px = paddingL + (p.x / maxX) * drawW;
       const py = paddingT + drawH - ((p.y - 1) / (maxY - 1)) * drawH;
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
+    ctx.stroke(); ctx.shadowBlur = 0;
     const lastP = graphPoints[graphPoints.length - 1];
     const lx = paddingL + (lastP.x / maxX) * drawW;
     const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
-    ctx.beginPath();
-    ctx.fillStyle = lineColor;
-    ctx.arc(lx, ly, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = shadowColor;
-    ctx.beginPath();
-    ctx.arc(lx, ly, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
+    ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
   }
 }
 
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  list.innerHTML = history.map(m => {
-    const cls = historyColorClass(m);
-    return `<div class="history-item ${cls}">${m.toFixed(2)}x</div>`;
+function renderBets(bets) {
+  const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
+  if (sig === lastBetsSig) return;
+  lastBetsSig = sig;
+  const list = document.getElementById('betsList');
+  if (!bets || !bets.length) { list.innerHTML = ''; return; }
+  list.innerHTML = bets.map(b => {
+    const isMine = b.player_id && String(b.player_id) === String(playerId);
+    const masked = b.player_name || '••••';
+    const rank = b.player_rank || '';
+    const label = (isMine ? '★ ' : '') + masked;
+    let multHtml = '--', winHtml = '--';
+    if (b.cashed_out) {
+      const m = parseFloat(b.cashout_mult); const w = parseFloat(b.amount) * m;
+      multHtml = `<span class="bet-mult win">${m.toFixed(2)}x</span>`;
+      winHtml = `${w.toFixed(2)} ₽`;
+    }
+    return `<div class="bet-row">
+        <div class="bet-user">
+          <div class="user-avatar">KW</div>
+          <div class="user-meta">
+            <div class="user-name">${label}</div>
+            ${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}
+          </div>
+        </div>
+        <div class="bet-amount">${parseFloat(b.amount).toFixed(2)} ₽</div>
+        <div>${multHtml}</div>
+        <div class="bet-cashout">${winHtml}</div>
+      </div>`;
   }).join('');
 }
 
-function renderBetsList() {
-  const list = document.getElementById('betsList');
-  const rows = [];
-  [1, 2].forEach(id => {
-    const b = bets[id];
-    if (b) {
-      let multHtml = '--', winHtml = '--', rowClass = '';
-      if (b.cashed) {
-        multHtml = `<span class="bet-mult win">${b.cashMult.toFixed(2)}x</span>`;
-        winHtml = `${(b.amount * b.cashMult).toFixed(2)} ₽`;
-      } else if (round.status === 'crashed' || b.lost) {
-        multHtml = `<span style="color:#ff4d4d;font-size:10px">проигрыш</span>`;
-        winHtml = '--';
-      }
-      rows.push(`<div class="bet-row">
-        <div class="bet-user">
-          <div class="user-avatar">ВЫ</div>
-          <div class="user-name">Вы (слот ${id})</div>
-        </div>
-        <div class="bet-amount">${b.amount.toFixed(2)} ₽</div>
-        <div>${multHtml}</div>
-        <div class="bet-cashout">${winHtml}</div>
-      </div>`);
-    }
-  });
-  list.innerHTML = rows.join('') || '<div style="padding:20px;text-align:center;color:#8b92a5;font-size:12px">Нет активных ставок</div>';
-}
-
-/* ==================== UI / КНОПКИ ==================== */
-function updateBalanceUI() {
-  document.getElementById('balanceVal').textContent = balance.toFixed(2) + ' ₽';
+function renderHistory(history) {
+  const sig = (history || []).join('|');
+  if (sig === lastHistorySig) return;
+  lastHistorySig = sig;
+  const list = document.getElementById('historyList');
+  if (!history || !history.length) { list.innerHTML = ''; return; }
+  list.innerHTML = history.map(m => {
+    const cls = historyColorClass(m);
+    return `<div class="history-item ${cls}">${parseFloat(m).toFixed(2)}x</div>`;
+  }).join('');
 }
 
 function updateBetButtons() {
+  const effStatus = localCrashed ? 'crashed' : round.status;
   [1, 2].forEach(id => {
     const btn = document.getElementById('btnBet' + id);
-    const input = document.getElementById('betAmount' + id);
-    const b = bets[id];
-    const q = queued[id];
-    const isBetting = round.status === 'betting';
-    const isFlying = round.status === 'flying';
-    const isCrashed = round.status === 'crashed';
-
-    const locked = !!b || !!q;
-    input.disabled = locked;
-    document.getElementById('btnMinus' + id).disabled = locked;
-    document.getElementById('btnPlus' + id).disabled = locked;
-
-    if (q) {
+    const box = document.getElementById('betBox' + id);
+    const betId = myBetIds[id];
+    const cashed = myCashed[id];
+    const queued = queuedBets[id] && queuedBets[id].amount > 0;
+    const betAmountInput = document.getElementById('betAmount' + id);
+    const btnMinus = document.getElementById('btnMinus' + id);
+    const btnPlus = document.getElementById('btnPlus' + id);
+    const quickBtns = [document.getElementById('quick' + id + '_1'), document.getElementById('quick' + id + '_2'), document.getElementById('quick' + id + '_3'), document.getElementById('quick' + id + '_4')];
+    const settingsLocked = (betId !== null && betId !== 'queued' && !cashed) || queued;
+    betAmountInput.disabled = settingsLocked;
+    btnMinus.disabled = settingsLocked;
+    btnPlus.disabled = settingsLocked;
+    quickBtns.forEach(b => { if(b) b.disabled = settingsLocked; });
+    if (queued) box.classList.add('queued'); else box.classList.remove('queued');
+    if (queued) {
       btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `В очереди <div class="subtext">${q.amount} ₽</div>`;
-      btn.disabled = false;
-      btn.onclick = () => { queued[id] = null; updateBetButtons(); };
-      return;
+      btn.innerHTML = `В очереди <div class="subtext">${queuedBets[id].amount} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => cancelQueue(id); return;
     }
-
-    if (b && b.cashed) {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
-      btn.disabled = true;
-      return;
-    }
-
-    if (b && isFlying) {
-      btn.className = 'btn-action btn-cashout';
-      btn.disabled = false;
-      btn.onclick = () => doCashout(id);
-      return;
-    }
-
-    if (b && isCrashed) {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Проигрыш <div class="subtext">${b.amount} ₽</div>`;
-      btn.disabled = true;
-      return;
-    }
-
-    if (b && isBetting) {
-      btn.className = 'btn-action btn-cancel';
-      btn.innerHTML = `Отмена <div class="subtext">${b.amount} ₽</div>`;
-      btn.disabled = false;
-      btn.onclick = () => cancelBet(id);
-      return;
-    }
-
-    // Свободный слот
-    const amt = parseInt(input.value) || MIN_BET;
-    if (isBetting) {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = false;
-      btn.onclick = () => placeBet(id);
+    if (effStatus === 'waiting') {
+      if (betId) {
+        btn.className = 'btn-action btn-cancel';
+        btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      } else {
+        const amt = parseInt(betAmountInput.value) || MIN_BET;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
+    } else if (effStatus === 'flying') {
+      if (betId && betId !== 'queued' && !cashed) {
+        btn.className = 'btn-action btn-cashout';
+        btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(betId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => doCashout(id);
+      } else if (cashed) {
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
+        btn.disabled = true;
+      } else {
+        const amt = parseInt(betAmountInput.value) || MIN_BET;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
     } else {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `След. раунд <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = false;
-      btn.onclick = () => queueBet(id, amt);
+      if (betId && betId !== 'queued' && !cashed) {
+        const amt = getBetAmountById(betId, round.bets);
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = true;
+      } else {
+        const amt = parseInt(betAmountInput.value) || MIN_BET;
+        btn.className = 'btn-action btn-bet';
+        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+        btn.disabled = false; btn.onclick = () => placeBet(id);
+      }
     }
   });
 }
 
-function updateBetButtonsLive() {
-  if (round.status !== 'flying') return;
+function updateBetButtonsLive(mult, effStatus) {
   [1, 2].forEach(id => {
-    const b = bets[id];
-    if (!b || b.cashed) return;
-    const btn = document.getElementById('btnBet' + id);
-    const val = (b.amount * round.mult).toFixed(2);
-    const html = `Забрать <div class="subtext">${val} ₽</div>`;
-    if (btn.innerHTML !== html) btn.innerHTML = html;
+    if (effStatus === 'flying' && myBetIds[id] && myBetIds[id] !== 'queued' && !myCashed[id]) {
+      const btn = document.getElementById('btnBet' + id);
+      const amt = getBetAmountById(myBetIds[id], round.bets);
+      if (amt > 0) {
+        const val = (amt * mult).toFixed(2);
+        const html = `Забрать <div class="subtext">${val} ₽</div>`;
+        if (btn.innerHTML !== html) btn.innerHTML = html;
+      }
+    }
   });
 }
 
-/* ==================== ДЕЙСТВИЯ ==================== */
-function changeAmount(id, diff) {
-  if (bets[id] || queued[id]) return;
-  const input = document.getElementById('betAmount' + id);
-  let v = (parseInt(input.value) || MIN_BET) + diff;
-  v = Math.max(MIN_BET, Math.min(MAX_BET, v));
-  input.value = v;
-  document.getElementById('subtext' + id).textContent = v + ' ₽';
-  updateBetButtons();
-}
+function getBetAmountById(betId, bets) { if (!bets) return 0; const b = bets.find(x => x.id === betId); return b ? parseFloat(b.amount) : 0; }
+function changeAmount(id, diff) { if (myBetIds[id] || queuedBets[id]) return; const input = document.getElementById('betAmount' + id); let val = parseInt(input.value) || MIN_BET; val += diff; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; input.value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
+function setAmount(id, val) { if (myBetIds[id] || queuedBets[id]) return; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; document.getElementById('betAmount' + id).value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
+async function cancelQueue(id) { if (!queuedBets[id]) return; queuedBets[id] = null; showToast('Ставка снята с очереди', 'info'); updateBetButtons(); }
 
-function setAmount(id, val) {
-  if (bets[id] || queued[id]) return;
-  val = Math.max(MIN_BET, Math.min(MAX_BET, val));
-  document.getElementById('betAmount' + id).value = val;
-  document.getElementById('subtext' + id).textContent = val + ' ₽';
-  updateBetButtons();
-}
-
-function placeBet(id) {
-  if (bets[id] || round.status !== 'betting') return;
+async function placeBet(id) {
+  if (myBetIds[id] && round.status === 'waiting') { showToast('Ставка уже принята', 'error'); return; }
+  if (myBetIds[id] && myBetIds[id] !== 'queued' && round.status === 'flying' && !myCashed[id] && !localCrashed) return doCashout(id);
+  if (queuedBets[id]) return cancelQueue(id);
+  if (!playerId) { showToast('Войдите в аккаунт', 'error'); return; }
   const amt = parseInt(document.getElementById('betAmount' + id).value) || MIN_BET;
-  if (amt < MIN_BET || amt > MAX_BET) { showToast('Ставка от 1 до 200 ₽', 'error'); return; }
-  if (amt > balance) { showToast('Недостаточно средств', 'error'); return; }
-  bets[id] = { amount: amt, cashed: false };
-  balance -= amt;
-  updateBalanceUI();
-  updateBetButtons();
-  renderBetsList();
-  showToast(`Ставка ${amt} ₽ принята`, 'success');
+  if (amt < MIN_BET || amt > MAX_BET) { showToast(`Ставка от ${MIN_BET} до ${MAX_BET} ₽`, 'error'); return; }
+  const btn = document.getElementById('btnBet' + id); btn.disabled = true;
+  try {
+    const r = await fetch('/api/crash/bet', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ player_id: playerId, amount: amt }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Ошибка ставки', 'error'); btn.disabled = false; updateBetButtons(); return; }
+    if (d.queued) { queuedBets[id] = { amount: amt, roundIdWhenQueued: round.id }; showToast(`Ставка ${amt} ₽ — на следующий раунд`, 'success'); updateBetButtons(); return; }
+    myBetIds[id] = d.bet.id; myCashed[id] = false;
+    if (d.bet.round_id !== crashedRoundId) resetLocalCrash();
+    playBetSound();
+    showToast(`Ставка ${amt} ₽ принята`, 'success');
+    loadBalance(); pollRound();
+  } catch(e) { showToast('Ошибка соединения', 'error'); btn.disabled = false; updateBetButtons(); }
 }
 
-function cancelBet(id) {
-  if (!bets[id] || round.status !== 'betting') return;
-  balance += bets[id].amount;
-  bets[id] = null;
-  updateBalanceUI();
-  updateBetButtons();
-  renderBetsList();
-  showToast('Ставка отменена', 'info');
-}
-
-function queueBet(id, amt) {
-  if (bets[id] || round.status === 'betting') return;
-  if (amt < MIN_BET || amt > MAX_BET) { showToast('Ставка от 1 до 200 ₽', 'error'); return; }
-  if (amt > balance) { showToast('Недостаточно средств', 'error'); return; }
-  queued[id] = { amount: amt };
-  updateBetButtons();
-  showToast(`Ставка ${amt} ₽ на след. раунд`, 'success');
-}
-
-function doCashout(id) {
-  const b = bets[id];
-  if (!b || b.cashed || round.status !== 'flying') return;
-  const m = round.mult;
-  const win = b.amount * m;
-  balance += win;
-  b.cashed = true;
-  b.cashMult = m;
-  updateBalanceUI();
-  updateBetButtons();
-  renderBetsList();
-  showToast(`Выведено ${win.toFixed(2)} ₽ (x${m.toFixed(2)})`, 'success');
+async function doCashout(id) {
+  if (!myBetIds[id] || myCashed[id] || myBetIds[id] === 'queued') return;
+  const betId = myBetIds[id]; myCashed[id] = true;
+  try {
+    const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed[id] = false; return; }
+    playCashoutSound();
+    showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
+    loadBalance(); pollRound();
+  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed[id] = false; }
 }
 
 function showToast(text, type='success') {
@@ -664,10 +936,9 @@ function showToast(text, type='success') {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-/* ==================== СТАРТ ==================== */
-updateBalanceUI();
-startBettingPhase();
-requestAnimationFrame(gameLoop);
+pollRound();
+setInterval(pollRound, POLL_MS);
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
