@@ -161,10 +161,38 @@
     content: '🔒'; position: absolute; top: 10px; right: 10px;
     font-size: 18px; z-index: 5;
   }
+
+  /* ЗАГЛУШКА «СКОРО» */
+  .game-card.coming-soon {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+  }
+  .game-card.coming-soon::after {
+    content: 'СКОРО';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    background: linear-gradient(135deg, #f1c40f, #e67e22);
+    color: #000;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(241,196,15,0.5);
+  }
+  .game-card.coming-soon:hover {
+    transform: none;
+    border-color: var(--border);
+    box-shadow: none;
+  }
   
   .game-img-wrap { width: 100%; flex: 1; position: relative; overflow: hidden; }
   .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: 0.3s; }
   .game-card:hover .game-img-wrap img { transform: scale(1.05); }
+  .game-card.coming-soon:hover .game-img-wrap img { transform: none; }
   
   .game-info { padding: 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); flex-shrink: 0; }
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -200,6 +228,7 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
+  .toast.info { border-left-color: var(--gold); }
 
   /* АДАПТИВ */
   @media (max-width: 1200px) {
@@ -232,6 +261,7 @@
     .game-info { padding: 8px; }
     .game-title { font-size: 10px; }
     .game-sub { font-size: 8px; }
+    .game-card.coming-soon::after { font-size: 8px; padding: 2px 6px; top: 6px; right: 6px; }
     
     .hero-content h1 { font-size: 24px; }
     .hero-content p { font-size: 12px; }
@@ -280,7 +310,7 @@
 
 <div class="main-content">
   
-  <!-- БОЛЬШОЙ БАННЕР С АНИМЕ-ДЕВУШКОЙ -->
+  <!-- БОЛЬШОЙ БАННЕР -->
   <div class="hero-banner">
     <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
     <div class="overlay"></div>
@@ -309,27 +339,27 @@
       </div>
     </a>
 
-    <!-- Cases -->
-    <a href="/cases.html" class="game-card" id="gameCases" onclick="return requireLogin(event)">
+    <!-- Cases (СКОРО) -->
+    <div class="game-card coming-soon" onclick="showComingSoon('Cases')">
       <div class="game-img-wrap">
         <img src="/cases_card.jpg" alt="Cases">
       </div>
       <div class="game-info">
         <div class="game-title">Cases</div>
-        <div class="game-sub">Открой и выиграй</div>
+        <div class="game-sub">Скоро</div>
       </div>
-    </a>
+    </div>
 
-    <!-- Miner -->
-    <a href="/miner.html" class="game-card" id="gameMiner" onclick="return requireLogin(event)">
+    <!-- Miner (СКОРО) -->
+    <div class="game-card coming-soon" onclick="showComingSoon('Miner')">
       <div class="game-img-wrap">
         <img src="/miner_card.jpg" alt="Miner">
       </div>
       <div class="game-info">
         <div class="game-title">Miner</div>
-        <div class="game-sub">Найди золото</div>
+        <div class="game-sub">Скоро</div>
       </div>
-    </a>
+    </div>
 
     <!-- Ladder -->
     <a href="/ladder.html" class="game-card" id="gameLadder" onclick="return requireLogin(event)">
@@ -412,6 +442,10 @@ function showToast(text, type='success') {
   container.appendChild(toast);
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
+}
+
+function showComingSoon(gameName) {
+  showToast(`«${gameName}» скоро появится! Следите за новостями.`, 'info');
 }
 
 function openModal(id) { 
@@ -529,8 +563,8 @@ function updateUI() {
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
 
-    // разблокировать игры
-    ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
+    // разблокировать игры (только рабочие)
+    ['gameCrash','gameLadder','gamePlinko'].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.classList.remove('locked');
     });
@@ -538,8 +572,8 @@ function updateUI() {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
 
-    // заблокировать игры
-    ['gameCrash','gameCases','gameMiner','gameLadder','gamePlinko'].forEach(id => {
+    // заблокировать игры (только рабочие)
+    ['gameCrash','gameLadder','gamePlinko'].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.classList.add('locked');
     });
