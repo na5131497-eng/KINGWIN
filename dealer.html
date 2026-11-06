@@ -2,12 +2,13 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>KINGWIN — Панель дилера</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
+
   .login-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; }
   .logo-text { font-size: 32px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
   .login-subtitle { font-size: 14px; color: #a0aec0; font-weight: 600; margin-bottom: 35px; text-transform: uppercase; letter-spacing: 1px; }
@@ -20,15 +21,16 @@
   .login-err { color: #ff4d4d; font-size: 13px; margin-top: 15px; height: 18px; font-weight: 600; }
 
   .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; width: 100%; max-width: 620px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-  .topbar .name { font-size: 14px; color: #a0aec0; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); gap: 10px; }
+  .topbar .name { font-size: 14px; color: #a0aec0; min-width: 0; }
   .topbar .name b { color: #00e5ff; }
   .topbar .balance { font-size: 13px; color: #3fbf7f; font-weight: 700; margin-top: 4px; }
-  .logout { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-family: inherit; }
+  .logout { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-family: inherit; flex-shrink: 0; }
   .logout:hover { border-color: #ff4d4d; color: #ff4d4d; }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .tabs button { flex: 1; min-width: 90px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex: 1 0 auto; min-width: 90px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .tabs button.active { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
   .tab { display: none; } .tab.active { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -38,7 +40,7 @@
 
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 11px; color: #a0aec0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 15px; color: #fff; font-family: inherit; }
+  .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 16px; color: #fff; font-family: inherit; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
   .row { display: flex; gap: 12px; } .row .form-group { flex: 1; }
   .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; }
@@ -87,7 +89,7 @@
   .silence-card .s-bar { height: 10px; background: rgba(255,255,255,.08); border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
   .silence-card .s-bar > div { height: 100%; background: linear-gradient(90deg, #00e5ff, #3fbf7f); border-radius: 5px; transition: width .4s; }
   .silence-card .s-bar.bad > div { background: linear-gradient(90deg, #ff4d4d, #ff8a00); }
-  .silence-card .s-foot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #8fa2b8; }
+  .silence-card .s-foot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
   .silence-card .s-status { font-weight: 700; }
   .silence-card .s-status.ok { color: #3fbf7f; }
   .silence-card .s-status.bad { color: #ff4d4d; }
@@ -100,13 +102,13 @@
   .task { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
   .task.done { border-color: rgba(63,191,127,.4); }
   .task.blocked { opacity: 0.6; }
-  .task .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-  .task .title { font-size: 14px; font-weight: 600; line-height: 1.3; }
-  .task .reward { font-size: 15px; font-weight: 800; color: #00e5ff; white-space: nowrap; }
+  .task .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .task .title { font-size: 14px; font-weight: 600; line-height: 1.3; flex: 1; min-width: 0; }
+  .task .reward { font-size: 15px; font-weight: 800; color: #00e5ff; white-space: nowrap; margin-left: auto; }
   .task .progress-bar { height: 8px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
   .task .progress-bar > div { height: 100%; background: linear-gradient(90deg, #3fbf7f, #00e5ff); border-radius: 4px; transition: width .4s; }
-  .task .bottom { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8fa2b8; gap: 8px; }
-  .task .claim-btn { background: #3fbf7f; color: #000; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .task .bottom { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
+  .task .claim-btn { background: #3fbf7f; color: #000; border: none; border-radius: 6px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
   .task .claim-btn:hover { filter: brightness(1.1); }
   .task .claimed-label { color: #3fbf7f; font-weight: 700; font-size: 12px; }
   .task .blocked-label { color: #ff8a8a; font-weight: 700; font-size: 12px; }
@@ -115,7 +117,7 @@
   .limit-badge { display: inline-block; background: rgba(241,196,15,.15); color: #f1c40f; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-left: 6px; margin-bottom: 14px; }
   .limit-badge.reached { background: rgba(255,77,77,.15); color: #ff4d4d; }
 
-  .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
+  .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; gap: 10px; flex-wrap: wrap; }
   .status { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
   .status.pending { background: rgba(241,196,15,.15); color: #f1c40f; }
   .status.approved { background: rgba(63,191,127,.15); color: #3fbf7f; }
@@ -144,25 +146,29 @@
   .stars-big { font-size: 26px; color: #f1c40f; letter-spacing: 3px; text-shadow: 0 0 12px rgba(241,196,15,.5); }
 
   .profile-info { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-  .profile-info .row-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+  .profile-info .row-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); gap: 10px; flex-wrap: wrap; }
   .profile-info .row-line:last-child { border-bottom: none; }
   .profile-info .row-line span:first-child { color: #8fa2b8; }
   .profile-info .row-line b { color: #fff; }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+  .rank-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.03); font-size: 12px; color: #a0aec0; gap: 10px; flex-wrap: wrap; }
+  .rank-row.active { color: #00e5ff; font-weight: 800; }
+  .rank-row:last-child { border-bottom: none; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: rgba(18, 24, 38, 0.95); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 380px; text-align: center; }
+  .modal-box { background: rgba(18, 24, 38, 0.98); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 380px; text-align: center; margin: auto; }
   .modal-box h3 { font-size: 20px; margin-bottom: 10px; }
-  .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 20px; }
+  .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 18px; line-height: 1.5; }
   .modal-box input { width: 100%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; text-align: center; }
   .modal-box input:focus { outline: none; border-color: #00e5ff; }
   .modal-box label { display: block; font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; text-align: left; }
-  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
   .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
   .btn-confirm { flex: 1; background: #00e5ff; border: none; color: #000; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
   .withdraw-summary { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 14px; margin-bottom: 14px; text-align: left; }
-  .withdraw-summary .line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  .withdraw-summary .line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; gap: 10px; }
   .withdraw-summary .line span:first-child { color: #8fa2b8; }
   .withdraw-summary .line.fee { color: #ff8a8a; }
   .withdraw-summary .line.total { color: #3fbf7f; font-weight: 800; font-size: 15px; border-top: 1px solid rgba(255,255,255,.1); margin-top: 6px; padding-top: 8px; }
@@ -171,10 +177,85 @@
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
 
-  @media (max-width: 500px) {
+  /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .main-container { padding: 18px 14px; border-radius: 16px; }
+    .login-container { padding: 30px 22px; }
+
+    .tabs {
+      flex-direction: row !important;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tabs button {
+      flex: 0 0 auto;
+      min-width: 105px;
+      white-space: nowrap;
+      font-size: 12px;
+      padding: 11px 10px;
+    }
+
+    .topbar { flex-wrap: wrap; gap: 8px; }
+    .topbar .name { font-size: 13px; }
+
+    h2 { font-size: 17px; }
+    .sub { font-size: 12px; margin-bottom: 14px; }
+
     .row { flex-direction: column; gap: 0; }
-    .tabs { flex-direction: column; }
-    .profile-cats { grid-template-columns: 1fr; }
+    .form-group input, .form-group select { font-size: 16px; padding: 13px; }
+
+    .silence-card { padding: 16px; }
+    .silence-card .s-top { flex-wrap: wrap; }
+    .silence-card .s-percent { font-size: 24px; }
+    .silence-card .s-desc { font-size: 11px; }
+    .silence-card .s-foot { flex-wrap: wrap; font-size: 10px; }
+
+    .balance-card { padding: 16px; }
+    .balance-card .amount { font-size: 32px; }
+
+    .task { padding: 12px; }
+    .task .title { font-size: 13px; }
+    .task .reward { font-size: 14px; }
+    .task .bottom { font-size: 11px; }
+    .task .claim-btn { padding: 8px 12px; font-size: 11px; }
+
+    .week-badge, .limit-badge { font-size: 10px; padding: 3px 8px; margin-bottom: 10px; }
+
+    .withdraw-item { padding: 10px 0; }
+    .withdraw-item > div { flex: 1 1 100%; }
+    .withdraw-item .status { margin-left: auto; }
+
+    .profile-avatar { width: 70px; height: 70px; font-size: 28px; }
+    .profile-head .pname { font-size: 20px; }
+    .profile-cats { grid-template-columns: repeat(3, 1fr) !important; gap: 6px; }
+    .profile-cat { padding: 12px 4px; }
+    .profile-cat .val { font-size: 16px; }
+    .profile-cat .lbl { font-size: 8px; letter-spacing: 0.5px; }
+    .stars-big { font-size: 22px; letter-spacing: 2px; }
+    .profile-info { padding: 14px; }
+    .profile-info .row-line { font-size: 12px; }
+    .rank-row { font-size: 11px; }
+
+    .modal-box { padding: 22px 16px; max-width: 100%; }
+    .modal-box h3 { font-size: 18px; }
+    .modal-box p { font-size: 13px; margin-bottom: 14px; }
+    .modal-actions { flex-direction: column; }
+    .btn-cancel, .btn-confirm { width: 100%; padding: 13px; font-size: 14px; }
+    .withdraw-summary .line { font-size: 12px; }
+  }
+
+  @media (max-width: 380px) {
+    .profile-cats { grid-template-columns: 1fr !important; }
+    .tabs button { min-width: 95px; font-size: 11px; padding: 10px 8px; }
+    .main-container { padding: 14px 10px; }
+    .task .top { gap: 4px; }
+    .task .reward { font-size: 13px; }
+    .balance-card .amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -183,8 +264,8 @@
 <div id="loginScreen" class="login-container">
   <div class="logo-text">KINGWIN</div>
   <div class="login-subtitle">Вход дилерам</div>
-  <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer"></div>
-  <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••"></div>
+  <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer" autocomplete="username"></div>
+  <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password"></div>
   <div class="login-err" id="loginErr"></div>
   <button class="btn-glow" onclick="doLogin()">Войти</button>
 </div>
@@ -226,11 +307,11 @@
     <div class="row">
       <div class="form-group">
         <label>Ставка игрока (₽)</label>
-        <input type="number" id="betAmount" min="10" max="10000" placeholder="100">
+        <input type="number" id="betAmount" min="10" max="10000" placeholder="100" inputmode="numeric">
       </div>
       <div class="form-group">
         <label>Выигрыш игрока (₽)</label>
-        <input type="number" id="winAmount" min="0" max="100000" placeholder="0">
+        <input type="number" id="winAmount" min="0" max="100000" placeholder="0" inputmode="numeric">
       </div>
     </div>
 
@@ -309,10 +390,10 @@
     <p>Введите карту и сумму к выводу</p>
 
     <label>Номер карты</label>
-    <input type="text" id="withdrawCard" placeholder="0000 0000 0000 0000" maxlength="19">
+    <input type="text" id="withdrawCard" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
 
     <label>Сумма к выводу (₽)</label>
-    <input type="number" id="withdrawSum" placeholder="0" min="1" oninput="updateWithdrawSummary()">
+    <input type="number" id="withdrawSum" placeholder="0" min="1" inputmode="numeric" oninput="updateWithdrawSummary()">
 
     <div class="withdraw-summary" id="withdrawSummary" style="display:none">
       <div class="line"><span>Сумма к выводу</span><span id="wsSum">0 ₽</span></div>
@@ -470,7 +551,7 @@ async function loadTasks(){
     const lb = document.getElementById('limitBadge');
     const earned = parseFloat(data.earned_today) || 0;
     const limit = parseFloat(data.daily_limit) || 50;
-    lb.textContent = `Заработано сегодня: ${fmt(earned)} / ${fmt(limit)} ₽`;
+    lb.textContent = `Заработано: ${fmt(earned)} / ${fmt(limit)} ₽`;
     lb.className = 'limit-badge' + (data.limit_reached ? ' reached' : '');
 
     const list = data.tasks || [];
@@ -539,7 +620,7 @@ async function loadSilence(){
     barEl.className = 's-bar' + (good ? '' : ' bad');
     fillEl.style.width = widthPct + '%';
 
-    daysEl.textContent = 'Осталось дней: ' + (data.days_left != null ? data.days_left : '—');
+    daysEl.textContent = 'Осталось: ' + (data.days_left != null ? data.days_left + ' дн.' : '—');
     if (good) {
       statusEl.className = 's-status ok';
       statusEl.textContent = 'Всё чисто';
@@ -675,7 +756,7 @@ async function loadProfile(){
 
     const ranksRows = d.ranks_info.map(rk => {
       const active = rk.key === d.rank;
-      return `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.03); font-size:12px; ${active ? 'color:#00e5ff; font-weight:800;' : 'color:#a0aec0;'}">
+      return `<div class="rank-row ${active ? 'active' : ''}">
         <span>${rk.label} ${active ? '← вы здесь' : ''}</span>
         <span>${rk.min}+ · ${rk.percent}% · бонус ${rk.bonus} ₽</span>
       </div>`;
@@ -717,7 +798,7 @@ async function loadProfile(){
         <div class="progress-bar" style="height:10px; background:rgba(255,255,255,.08); border-radius:5px; overflow:hidden;">
           <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg,#3fbf7f,#00e5ff); border-radius:5px; transition:width .4s;"></div>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:#8fa2b8;">
+        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:#8fa2b8; gap:8px;">
           <span>${d.rank_label}</span>
           <span>${d.next_rank_label || 'MAX'}</span>
         </div>
