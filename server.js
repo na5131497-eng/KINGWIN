@@ -29,6 +29,10 @@ pool.on('error', (err) => {
 
 /* ---------- Конфиг ---------- */
 const POINTS_PER_RUB = 0.2;
+const FIRST_DEPOSIT_BONUS = 100;
+const FIRST_DEPOSIT_MIN = 200;
+const BONUS_WAGER_MULT = 20;
+const BONUS_CONVERT_MULT = 2;
 
 const RANKS = {
   Bronze:   { min: 0,     gift: 0    },
@@ -50,7 +54,7 @@ function rankByPoints(p){
   return 'Bronze';
 }
 
-/* ---------- РАНГИ ДИЛЕРОВ (1 очко = 5 ₽ оборота) ---------- */
+/* ---------- РАНГИ ДИЛЕРОВ ---------- */
 const DEALER_POINTS_PER_RUB = 0.2;
 
 const DEALER_RANKS = [
@@ -637,6 +641,7 @@ function parseBody(req){
   });
 }
 
+/* ============ НАЧИСЛЕНИЕ БАЛЛОВ + ОТЫГРЫШ БОНУСА ============ */
 async function accruePointsByNick(nick, rubAmount, source){
   if(!nick || !rubAmount || rubAmount <= 0) return null;
   const g = await pool.query(`SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [nick.trim()]);
@@ -662,16 +667,43 @@ async function accruePointsByNick(nick, rubAmount, source){
     giftText = `Поздравляем с достижением ранга ${newRank}! Вам подарок ${giftMoney} бонусных рублей.`;
     giftCode = `GIFT-${newRank.toUpperCase()}-${Math.floor(Math.random()*9000+1000)}`;
   }
-  const addWagerReq = giftMoney * 5;
-  const addWagerDone = addPoints;
+  const addWagerReqRank = giftMoney * 5;
   await pool.query(`
     UPDATE guests SET
       points = $1, rank = $2, last_rank = $3, bonus_text = $4, bonus_code = $5,
       bonus_balance = bonus_balance + $6,
-      wagering_required = wagering_required + $7,
-      wagering_done = wagering_done + $8
-    WHERE id = $9
-  `, [newPoints, newRank, newRank, giftText, giftCode, giftMoney, addWagerReq, addWagerDone, guest.id]);
+      wagering_required = wagering_required + $7
+    WHERE id = $8
+  `, [newPoints, newRank, newRank, giftText, giftCode, giftMoney, addWagerReqRank, guest.id]);
+
+  // wagering_done += ставка в рублях
+  await pool.query(`UPDATE guests SET wagering_done = wagering_done + $1 WHERE id=$2`, [rubAmount, guest.id]);
+
+  // проверка: отыграл ли бонус → конвертация ×2
+  try {
+    const gCheck = await pool.query(
+      `SELECT id, bonus_balance, wagering_required, wagering_done FROM guests WHERE id=$1`,
+      [guest.id]
+    );
+    if (gCheck.rows.length > 0) {
+      const gg = gCheck.rows[0];
+      const req = parseFloat(gg.wagering_required) || 0;
+      const done = parseFloat(gg.wagering_done) || 0;
+      const bonus = parseFloat(gg.bonus_balance) || 0;
+      if (req > 0 && done >= req && bonus > 0) {
+        const realCredit = bonus * BONUS_CONVERT_MULT;
+        await pool.query(`
+          UPDATE guests SET
+            deposit_balance = deposit_balance + $1,
+            bonus_balance = 0,
+            wagering_required = 0,
+            wagering_done = 0
+          WHERE id = $2
+        `, [realCredit, gg.id]);
+      }
+    }
+  } catch(e) {}
+
   return { guestId: guest.id, addPoints, newPoints, newRank, giftMoney, source, rankUp, rankUpGift };
 }
 
@@ -1063,6 +1095,11 @@ const server = http.createServer(async (req, res) => {
         );
       }
 
+      // отыгрыш бонуса
+      if (betAmount > 0) {
+        try { await accruePointsByNick(guest.name, betAmount, 'miner'); } catch(e){}
+      }
+
       return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep });
     }
 
@@ -1124,6 +1161,11 @@ const server = http.createServer(async (req, res) => {
           `INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`,
           [todayStr(), type, Math.abs(net), `Ladder (${guest.name})`]
         );
+      }
+
+      // отыгрыш бонуса
+      if (betAmount > 0) {
+        try { await accruePointsByNick(guest.name, betAmount, 'ladder'); } catch(e){}
       }
 
       return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep });
@@ -1228,6 +1270,15 @@ const server = http.createServer(async (req, res) => {
         [crashState.roundId, b.player_id || null, maskName, playerRank, amt]);
       if (b.player_id) crashState.hasRealBet = true;
       tryStartFlightCountdown();
+
+      // отыгрыш бонуса
+      if (b.player_id) {
+        try {
+          const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]);
+          if (gRes.rows.length > 0) await accruePointsByNick(gRes.rows[0].name, amt, 'crash');
+        } catch(e){}
+      }
+
       return sendJSON(res, 200, { ok: true, bet: r.rows[0] });
     }
 
@@ -1461,7 +1512,7 @@ const server = http.createServer(async (req, res) => {
       const req_ = parseFloat(g.wagering_required) || 0;
       const done = parseFloat(g.wagering_done) || 0;
       if(req_ > 0 && done < req_){
-        return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} баллов` });
+        return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} ₽ оборота` });
       }
 
       await pool.query(`
@@ -1486,7 +1537,7 @@ const server = http.createServer(async (req, res) => {
       const req_ = parseFloat(g.wagering_required) || 0;
       const done = parseFloat(g.wagering_done) || 0;
       if(req_ > 0 && done < req_){
-        return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} баллов` });
+        return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} ₽ оборота` });
       }
 
       const amount = parseFloat(g.deposit_balance) || 0;
@@ -1594,7 +1645,6 @@ const server = http.createServer(async (req, res) => {
         }
       } catch(e) {}
 
-      // ДЖЕКПОТ: в pending_bonus игроку + отыгрыш x3
       let currentJP = await getActualJackpot();
       let jackpotWon = 0;
       if (jackpotHit) {
@@ -1675,7 +1725,39 @@ const server = http.createServer(async (req, res) => {
       const dep = beforeRes.rows[0];
       await pool.query('UPDATE deposits SET status=$1 WHERE id=$2', [d.status, id]);
       if(d.status === 'approved' && dep.status !== 'approved'){
-        await addBalanceByNick(dep.nick, dep.sum, false);
+        const sum = parseFloat(dep.sum) || 0;
+
+        // реальные деньги
+        await addBalanceByNick(dep.nick, sum, false);
+
+        // бонус новичкам: первый депозит от 200 ₽ → +100 ₽ бонусных, вейджер x20, конвертация ×2
+        try {
+          const prevApproved = await pool.query(
+            `SELECT COUNT(*)::int AS c FROM deposits 
+             WHERE LOWER(nick)=LOWER($1) AND status='approved' AND id != $2`,
+            [dep.nick, id]
+          );
+          const isFirstDeposit = (prevApproved.rows[0]?.c || 0) === 0;
+
+          if (isFirstDeposit && sum >= FIRST_DEPOSIT_MIN) {
+            const gRes = await pool.query(
+              `SELECT id FROM guests WHERE LOWER(name)=LOWER($1) LIMIT 1`,
+              [dep.nick]
+            );
+            if (gRes.rows.length > 0) {
+              const guestId = gRes.rows[0].id;
+              const bonusAmount = FIRST_DEPOSIT_BONUS;
+              const wageringAdd = bonusAmount * BONUS_WAGER_MULT;
+              await pool.query(`
+                UPDATE guests SET
+                  bonus_balance = bonus_balance + $1,
+                  wagering_required = wagering_required + $2
+                WHERE id = $3
+              `, [bonusAmount, wageringAdd, guestId]);
+            }
+          }
+        } catch(e) { console.error('bonus accrue error:', e.message); }
+
         await pool.query(`UPDATE deposits SET seen = FALSE WHERE id=$1`, [id]);
       }
       if(d.status === 'rejected' && dep.status === 'approved'){
