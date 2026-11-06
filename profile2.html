@@ -17,7 +17,8 @@
     text-transform: uppercase; margin-bottom: 22px; }
 
   .tabs { display: flex; gap: 6px; background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06);
-    padding: 6px; border-radius: 14px; margin-bottom: 16px; overflow-x: auto; }
+    padding: 6px; border-radius: 14px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab { flex: 1; min-width: 70px; padding: 11px 6px; text-align: center; border-radius: 10px; font-size: 11px;
     font-weight: 800; text-transform: uppercase; letter-spacing: .5px; cursor: pointer;
     color: #8fa2b8; transition: .3s; user-select: none; white-space: nowrap; }
@@ -123,11 +124,11 @@
     letter-spacing: 1px; color: #00e5ff; margin-bottom: 14px; }
   .review-block label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
-  .review-block input, .review-block textarea, .review-block select {
+  .review-block input, .review-block textarea {
     width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
     border-radius: 10px; padding: 12px; font-size: 14px; color: #fff; font-family: inherit;
     margin-bottom: 14px; outline: none; }
-  .review-block input:focus, .review-block textarea:focus, .review-block select:focus {
+  .review-block input:focus, .review-block textarea:focus {
     border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
   .review-block textarea { min-height: 80px; resize: vertical; }
 
@@ -293,11 +294,22 @@
   </div>
 </div>
 
+<!-- МОДАЛКА ОШИБКИ ОЦЕНКИ -->
+<div class="modal-backdrop" id="reviewErrorModal">
+  <div class="modal" style="border-color:#ff4d4d; box-shadow:0 0 60px rgba(255,77,77,.3);">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Notice</div>
+    <div class="modal-title" style="color:#ff8a8a;">Не получилось</div>
+    <div class="modal-text" id="reviewErrorText">Ошибка</div>
+    <button class="modal-btn" style="background:#ff4d4d; color:#fff; box-shadow:0 0 20px rgba(255,77,77,.4);" onclick="closeReviewError()">Понятно</button>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   KINGWIN — Profile 2 v4
+   KINGWIN — Profile 2 v5
    + Новости
-   + Оценка дилера (звёзды + комментарий)
+   + Оценка дилера (1 раз в 24ч на дилера — проверка на сервере)
    ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
@@ -490,6 +502,7 @@ function renderProfile(){
         <h3>⭐ Оцените дилера</h3>
         <div style="font-size:11px; color:#8fa2b8; margin-bottom:14px; line-height:1.5;">
           С кем вы играли? Введите имя дилера, поставьте оценку и оставьте комментарий.
+          Одного дилера можно оценить не чаще 1 раза в 24 часа.
         </div>
 
         <label>Имя дилера</label>
@@ -779,12 +792,23 @@ function selectStars(val){
   });
 }
 
+function showReviewError(text){
+  document.getElementById('reviewErrorText').textContent = text;
+  document.getElementById('reviewErrorModal').classList.add('show');
+}
+function closeReviewError(){
+  document.getElementById('reviewErrorModal').classList.remove('show');
+}
+function closeReviewSuccess(){
+  document.getElementById('reviewSuccessModal').classList.remove('show');
+}
+
 async function submitReview(){
   if(!session) return;
   const dealerName = document.getElementById('reviewDealerName').value.trim();
   const comment = document.getElementById('reviewComment').value.trim();
-  if(!dealerName){ alert('Введите имя дилера'); return; }
-  if(selectedStars < 1){ alert('Поставьте оценку (1–5 звёзд)'); return; }
+  if(!dealerName){ showReviewError('Введите имя дилера'); return; }
+  if(selectedStars < 1){ showReviewError('Поставьте оценку (1–5 звёзд)'); return; }
 
   try {
     const r = await fetch('/api/dealer-reviews', {
@@ -798,7 +822,10 @@ async function submitReview(){
       })
     });
     const data = await r.json();
-    if(!r.ok){ alert(data.error || 'Ошибка отправки'); return; }
+    if(!r.ok){
+      showReviewError(data.error || 'Ошибка отправки');
+      return;
+    }
 
     document.getElementById('reviewDealerName').value = '';
     document.getElementById('reviewComment').value = '';
@@ -807,11 +834,7 @@ async function submitReview(){
 
     document.getElementById('reviewSuccessModal').classList.add('show');
     await loadMyReviews();
-  } catch(e){ alert('Ошибка соединения'); }
-}
-
-function closeReviewSuccess(){
-  document.getElementById('reviewSuccessModal').classList.remove('show');
+  } catch(e){ showReviewError('Ошибка соединения'); }
 }
 
 async function loadMyReviews(){
@@ -824,15 +847,20 @@ async function loadMyReviews(){
       box.innerHTML = `<div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Вы ещё не оставляли оценок</div>`;
       return;
     }
-    box.innerHTML = list.map(rv => `
+    box.innerHTML = list.map(rv => {
+      const st = parseInt(rv.stars) || 0;
+      const dt = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date || '');
+      return `
       <div class="my-review-item">
         <div class="head">
           <span class="dname">${esc(rv.dealer_name)}</span>
-          <span class="stars-line">${'★'.repeat(parseInt(rv.stars)||0)}${'☆'.repeat(5-(parseInt(rv.stars)||0))}</span>
+          <span class="stars-line">${'★'.repeat(st)}${'☆'.repeat(5-st)}</span>
         </div>
         ${rv.comment ? `<div class="txt">${esc(rv.comment)}</div>` : ''}
+        <div style="font-size:10px; color:#6d819a; margin-top:6px;">${esc(dt)}</div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   } catch(e) {
     box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:10px;">Ошибка загрузки</div>`;
   }
