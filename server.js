@@ -437,6 +437,10 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY, value TEXT
       );
+      CREATE TABLE IF NOT EXISTS news (
+        id SERIAL PRIMARY KEY, title TEXT, body TEXT, date TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
       CREATE TABLE IF NOT EXISTS guests (
         id TEXT PRIMARY KEY, name TEXT, rank TEXT DEFAULT 'Bronze',
         points INTEGER DEFAULT 0, visits INTEGER DEFAULT 0,
@@ -1383,11 +1387,8 @@ const server = http.createServer(async (req, res) => {
       }
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot'`, [currentJP.toString()]);
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
-      try {
-        const net = bet - win;
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
-          [today, net >= 0 ? 'доход' : 'расход', Math.abs(net), `${gameType === 'bj' ? 'Blackjack' : 'Baccarat'} (${nick})`]);
-      } catch(e) {}
+      // ВАЖНО: дублирующая запись в online для блэкджека/баккары УДАЛЕНА.
+      // Доход этих игр уже считается из таблиц sessions и baccarat.
       return sendJSON(res, 200, { ok: true, session: sessionRow, jackpot: currentJP, jackpot_reset: jackpotHit });
     }
 
@@ -1605,6 +1606,46 @@ const server = http.createServer(async (req, res) => {
       const id = url.split('/')[3];
       await pool.query('DELETE FROM online WHERE id=$1', [id]);
       return sendJSON(res, 200, { ok: true });
+    }
+
+    /* ================= НОВОСТИ ================= */
+    if (url === '/api/news' && method === 'GET') {
+      try {
+        const r = await pool.query('SELECT * FROM news ORDER BY id DESC');
+        return sendJSON(res, 200, r.rows);
+      } catch (e) { return sendJSON(res, 200, []); }
+    }
+
+    if (url === '/api/admin/news' && method === 'POST') {
+      const b = await parseBody(req);
+      if (!b.title) return sendJSON(res, 400, { error: 'Введите заголовок' });
+      try {
+        const r = await pool.query(
+          `INSERT INTO news (title, body, date) VALUES ($1,$2,$3) RETURNING *`,
+          [b.title, b.body || '', b.date || todayStr()]
+        );
+        return sendJSON(res, 200, { ok: true, news: r.rows[0] });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url.startsWith('/api/admin/news/') && method === 'POST') {
+      const id = url.split('/')[4];
+      const b = await parseBody(req);
+      try {
+        await pool.query(
+          `UPDATE news SET title=$1, body=$2, date=$3 WHERE id=$4`,
+          [b.title || '', b.body || '', b.date || todayStr(), id]
+        );
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url.startsWith('/api/admin/news/') && method === 'DELETE') {
+      const id = url.split('/')[4];
+      try {
+        await pool.query('DELETE FROM news WHERE id=$1', [id]);
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     /* ================= ЛОГИН ================= */
