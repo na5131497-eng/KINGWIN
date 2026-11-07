@@ -556,6 +556,18 @@ async function initDB() {
         id SERIAL PRIMARY KEY, dealer_id INTEGER, sum NUMERIC DEFAULT 0,
         status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS chips_log (
+        id SERIAL PRIMARY KEY,
+        dealer_id INTEGER,
+        dealer_name TEXT,
+        guest_id TEXT,
+        guest_name TEXT,
+        sum NUMERIC DEFAULT 0,
+        type TEXT DEFAULT 'in',
+        method TEXT DEFAULT 'transfer',
+        date TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
 
     const cols = [
@@ -718,7 +730,7 @@ async function getGuestById(id){
 }
 
 /* ============================================================
-   СЕРВЕР
+   СЕРВЕР — начало (продолжение в части 2)
    ============================================================ */
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
@@ -730,6 +742,8 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { jackpot });
     }
 
+    // ... (продолжение в части 2)
+  
     /* ================= ДИЛЕР ================= */
     if (url === '/api/dealer/silence' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
@@ -967,6 +981,256 @@ const server = http.createServer(async (req, res) => {
           next_label: nextLabel
         }
       });
+    }
+
+    /* ================= ДИЛЕР: НАЛИЧНЫЕ (приём от игрока) ================= */
+    if (url === '/api/dealer/cash-in' && method === 'POST') {
+      const b = await parseBody(req);
+      const dealerId = parseInt(b.dealer_id, 10);
+      const nick = String(b.nick || '').trim();
+      const sum = parseFloat(b.sum) || 0;
+
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer_id' });
+      if (!nick) return sendJSON(res, 400, { error: 'Введите ник игрока' });
+      if (sum <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть больше 0' });
+
+      const dRes = await pool.query('SELECT id, name FROM dealers WHERE id=$1', [dealerId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'Дилер не найден' });
+      const dealer = dRes.rows[0];
+
+      const gRes = await pool.query(
+        `SELECT id, name, deposit_balance FROM guests WHERE LOWER(name)=LOWER($1) LIMIT 1`,
+        [nick]
+      );
+      if (gRes.rows.length === 0) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const guest = gRes.rows[0];
+
+      await pool.query(
+        `UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2`,
+        [sum, guest.id]
+      );
+
+      await pool.query(
+        `INSERT INTO deposits (date, nick, email, sum, status, seen)
+         VALUES ($1,$2,$3,$4,'approved',FALSE)`,
+        [todayStr(), guest.name, 'наличные через дилера', sum]
+      );
+
+      return sendJSON(res, 200, { ok: true, sum, guest: guest.name });
+    }
+
+    /* ================= ДИЛЕР: ИГРОК «Я ПЕРЕВЁЛ» ================= */
+    if (url === '/api/guest/i-transferred' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const sum = parseFloat(b.sum) || 0;
+      if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+      if (sum < 10) return sendJSON(res, 400, { error: 'Минимум 10 ₽' });
+
+      const g = await getGuestById(guestId);
+      if (!g) return sendJSON(res, 404, { error: 'Гость не найден' });
+
+      await pool.query(
+        `INSERT INTO deposits (date, nick, email, sum, status, seen)
+         VALUES ($1,$2,$3,$4,'pending_transfer',FALSE)`,
+        [todayStr(), g.name, 'перевод на карту (офлайн-стол)', sum]
+      );
+
+      return sendJSON(res, 200, { ok: true, sum });
+    }
+
+    /* ================= ДИЛЕР: ПОСЛЕДНИЕ ПОСТУПЛЕНИЯ ================= */
+    if (url === '/api/dealer/pending-transfers' && method === 'GET') {
+      try {
+        const r = await pool.query(
+          `SELECT id, date, nick, sum, created_at
+           FROM deposits 
+           WHERE status='pending_transfer' 
+           ORDER BY id DESC LIMIT 20`
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 200, []); }
+    }
+
+    if (url === '/api/dealer/issue-chips' && method === 'POST') {
+      const b = await parseBody(req);
+      const depositId = parseInt(b.deposit_id, 10);
+      const dealerId = parseInt(b.dealer_id, 10);
+      if (!depositId) return sendJSON(res, 400, { error: 'no deposit_id' });
+
+      const dRes = await pool.query('SELECT * FROM deposits WHERE id=$1', [depositId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'Заявка не найдена' });
+      if (dRes.rows[0].status !== 'pending_transfer') {
+        return sendJSON(res, 400, { error: 'Заявка уже обработана' });
+      }
+      const dep = dRes.rows[0];
+      const sum = parseFloat(dep.sum) || 0;
+
+      await addBalanceByNick(dep.nick, sum, false);
+      await pool.query(`UPDATE deposits SET status='approved', seen=FALSE WHERE id=$1`, [depositId]);
+
+      if (dealerId) {
+        try {
+          const dName = await pool.query('SELECT name FROM dealers WHERE id=$1', [dealerId]);
+          if (dName.rows.length > 0) {
+            await pool.query(
+              `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+              [todayStr(), 'доход', sum, `Перевод на карту от ${dep.nick} (дилер ${dName.rows[0].name})`]
+            );
+          }
+        } catch(e) {}
+      }
+
+      return sendJSON(res, 200, { ok: true, sum, guest: dep.nick });
+    }
+
+    /* ================= ФИШКИ: ВЫДАТЬ (in) ================= */
+    if (url === '/api/dealer/chips-issue' && method === 'POST') {
+      const b = await parseBody(req);
+      const dealerId = parseInt(b.dealer_id, 10);
+      const nick = String(b.nick || '').trim();
+      const sum = parseFloat(b.sum) || 0;
+      const method_ = String(b.method || 'transfer');
+
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer_id' });
+      if (!nick) return sendJSON(res, 400, { error: 'Введите ник игрока' });
+      if (sum <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть больше 0' });
+      if (sum > 100000) return sendJSON(res, 400, { error: 'Максимум 100 000 ₽ за раз' });
+
+      const dRes = await pool.query('SELECT id, name FROM dealers WHERE id=$1', [dealerId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'Дилер не найден' });
+      const dealer = dRes.rows[0];
+
+      const gRes = await pool.query(
+        `SELECT id, name FROM guests WHERE LOWER(name)=LOWER($1) LIMIT 1`,
+        [nick]
+      );
+      if (gRes.rows.length === 0) return sendJSON(res, 404, { error: `Игрок "${nick}" не найден` });
+      const guest = gRes.rows[0];
+
+      await pool.query(
+        `INSERT INTO chips_log (dealer_id, dealer_name, guest_id, guest_name, sum, type, method, date)
+         VALUES ($1,$2,$3,$4,$5,'in',$6,$7)`,
+        [dealerId, dealer.name, guest.id, guest.name, sum, method_, todayStr()]
+      );
+
+      try {
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+          [todayStr(), 'доход', sum, `Фишки выданы: ${guest.name} (${method_ === 'cash' ? 'наличные' : 'перевод'}, дилер ${dealer.name})`]
+        );
+      } catch(e) {}
+
+      return sendJSON(res, 200, { ok: true, sum, guest: guest.name, method: method_, type: 'in' });
+    }
+
+    /* ================= ФИШКИ: ПРИНЯТЬ (out) ================= */
+    if (url === '/api/dealer/chips-accept' && method === 'POST') {
+      const b = await parseBody(req);
+      const dealerId = parseInt(b.dealer_id, 10);
+      const nick = String(b.nick || '').trim();
+      const sum = parseFloat(b.sum) || 0;
+
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer_id' });
+      if (!nick) return sendJSON(res, 400, { error: 'Введите ник игрока' });
+      if (sum <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть больше 0' });
+
+      const dRes = await pool.query('SELECT id, name FROM dealers WHERE id=$1', [dealerId]);
+      if (dRes.rows.length === 0) return sendJSON(res, 404, { error: 'Дилер не найден' });
+      const dealer = dRes.rows[0];
+
+      const gRes = await pool.query(
+        `SELECT id, name FROM guests WHERE LOWER(name)=LOWER($1) LIMIT 1`,
+        [nick]
+      );
+      if (gRes.rows.length === 0) return sendJSON(res, 404, { error: `Игрок "${nick}" не найден` });
+      const guest = gRes.rows[0];
+
+      await pool.query(
+        `INSERT INTO chips_log (dealer_id, dealer_name, guest_id, guest_name, sum, type, method, date)
+         VALUES ($1,$2,$3,$4,$5,'out','cash',$6)`,
+        [dealerId, dealer.name, guest.id, guest.name, sum, todayStr()]
+      );
+
+      try {
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+          [todayStr(), 'расход', sum, `Фишки приняты: ${guest.name} (дилер ${dealer.name})`]
+        );
+      } catch(e) {}
+
+      return sendJSON(res, 200, { ok: true, sum, guest: guest.name, type: 'out' });
+    }
+
+    /* ================= ФИШКИ: СВОДКА ДИЛЕРА ЗА ДЕНЬ ================= */
+    if (url === '/api/dealer/chips-summary' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const dealerId = parseInt(u.searchParams.get('id'), 10);
+      const date = u.searchParams.get('date') || todayStr();
+      if (!dealerId) return sendJSON(res, 400, { error: 'no dealer_id' });
+
+      try {
+        const r = await pool.query(
+          `SELECT * FROM chips_log WHERE dealer_id=$1 AND date=$2 ORDER BY id DESC`,
+          [dealerId, date]
+        );
+        const list = r.rows;
+        let totalIn = 0, totalOut = 0;
+        list.forEach(x => {
+          const s = parseFloat(x.sum) || 0;
+          if (x.type === 'in') totalIn += s;
+          else totalOut += s;
+        });
+        const profit = totalIn - totalOut;
+        return sendJSON(res, 200, { list, totalIn, totalOut, profit, date });
+      } catch(e) {
+        return sendJSON(res, 200, { list: [], totalIn: 0, totalOut: 0, profit: 0, date });
+      }
+    }
+
+    /* ================= АДМИН: ОБЩАЯ СВОДКА ПО ФИШКАМ ================= */
+    if (url === '/api/admin/chips-summary' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const date = u.searchParams.get('date') || todayStr();
+
+      try {
+        const r = await pool.query(
+          `SELECT dealer_id, dealer_name, type, SUM(sum)::numeric AS total, COUNT(*)::int AS cnt
+           FROM chips_log WHERE date=$1
+           GROUP BY dealer_id, dealer_name, type
+           ORDER BY dealer_name, type`,
+          [date]
+        );
+
+        const dealers = {};
+        r.rows.forEach(row => {
+          const key = row.dealer_id + '_' + row.dealer_name;
+          if (!dealers[key]) {
+            dealers[key] = { dealer_id: row.dealer_id, dealer_name: row.dealer_name, totalIn: 0, totalOut: 0 };
+          }
+          if (row.type === 'in') dealers[key].totalIn = parseFloat(row.total) || 0;
+          else dealers[key].totalOut = parseFloat(row.total) || 0;
+        });
+
+        const dealersArr = Object.values(dealers).map(d => ({
+          ...d,
+          profit: d.totalIn - d.totalOut
+        }));
+
+        const grandIn = dealersArr.reduce((a, d) => a + d.totalIn, 0);
+        const grandOut = dealersArr.reduce((a, d) => a + d.totalOut, 0);
+        const grandProfit = grandIn - grandOut;
+
+        return sendJSON(res, 200, {
+          date,
+          dealers: dealersArr,
+          grandIn,
+          grandOut,
+          grandProfit
+        });
+      } catch(e) {
+        return sendJSON(res, 200, { date, dealers: [], grandIn: 0, grandOut: 0, grandProfit: 0 });
+      }
     }
 
     /* ================= КЕЙСЫ ================= */
@@ -1413,23 +1677,17 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 400, { error: 'Нет активных бонусов' });
       }
 
-      let refunded = 0;
-      if (bonusId) {
-        refunded = bonusBal;
-        await pool.query(`
-          UPDATE guests SET
-            bonus_balance = 0,
-            bonus_text = '',
-            bonus_code = '',
-            wagering_required = 0,
-            wagering_done = 0
-          WHERE id = $1
-        `, [id]);
-      } else {
-        return sendJSON(res, 400, { error: 'Нечего отменять' });
-      }
+      await pool.query(`
+        UPDATE guests SET
+          bonus_balance = 0,
+          bonus_text = '',
+          bonus_code = '',
+          wagering_required = 0,
+          wagering_done = 0
+        WHERE id = $1
+      `, [id]);
 
-      return sendJSON(res, 200, { ok: true, refunded });
+      return sendJSON(res, 200, { ok: true, refunded: bonusBal });
     }
 
     /* ================= СМЕНА ПАРОЛЯ ================= */
@@ -1499,7 +1757,6 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    /* ================= ЕЖЕДНЕВНЫЙ БОНУС: ЗАБРАТЬ ================= */
     if (url === '/api/guest/daily-claim' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
@@ -1616,7 +1873,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* старая версия для совместимости */
     if(url === '/api/guest/withdraw' && method === 'POST'){
       const { id, sum } = await parseBody(req);
       if(!id) return sendJSON(res, 400, { error: 'no id' });
