@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>KINGWIN — Панель дилера</title>
+<title>KINGWIN — Рабочая панель</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -20,7 +20,7 @@
   .btn-glow:hover { background: #33ebff; transform: translateY(-2px); }
   .login-err { color: #ff4d4d; font-size: 13px; margin-top: 15px; height: 18px; font-weight: 600; }
 
-  .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; width: 100%; max-width: 620px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+  .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; width: 100%; max-width: 720px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); gap: 10px; }
   .topbar .name { font-size: 14px; color: #a0aec0; min-width: 0; }
   .topbar .name b { color: #00e5ff; }
@@ -123,7 +123,6 @@
   .status.approved { background: rgba(63,191,127,.15); color: #3fbf7f; }
   .status.rejected { background: rgba(255,77,77,.15); color: #ff4d4d; }
 
-  /* PROFILE */
   .profile-head { text-align: center; margin-bottom: 20px; }
   .profile-avatar { width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; }
   .profile-head .pname { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
@@ -186,7 +185,6 @@
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
 
-  /* chips */
   .player-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(0,229,255,.15); border: 1px solid rgba(0,229,255,.4);
@@ -207,6 +205,175 @@
     padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
     margin-left: 6px;
   }
+
+  /* ============ FAQ ============ */
+  .faq-search-wrap {
+    position: sticky;
+    top: 0;
+    background: rgba(18, 24, 38, 0.98);
+    padding: 10px 0 14px;
+    z-index: 10;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .faq-search {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 16px 12px 40px;
+    font-size: 14px;
+    color: #fff;
+    font-family: inherit;
+    outline: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fa2b8' stroke-width='2'%3e%3ccircle cx='11' cy='11' r='8'/%3e%3cpath d='m21 21-4.35-4.35'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 18px;
+  }
+  .faq-search:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.2); }
+
+  .faq-categories {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+  }
+  .faq-categories::-webkit-scrollbar { display: none; }
+  .faq-cat-btn {
+    flex: 0 0 auto;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #a0aec0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .faq-cat-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .faq-cat-btn.active { background: rgba(0,229,255,0.15); border-color: #00e5ff; color: #00e5ff; }
+
+  .faq-item {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .faq-item:hover { border-color: rgba(0,229,255,0.3); }
+  .faq-question {
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    user-select: none;
+  }
+  .faq-question:hover { color: #00e5ff; }
+  .faq-question .q-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0,229,255,0.15);
+    color: #00e5ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    transition: transform 0.2s;
+  }
+  .faq-item.open .faq-question .q-icon { transform: rotate(45deg); }
+  .faq-item.open .faq-question { color: #00e5ff; }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .faq-item.open .faq-answer { max-height: 800px; }
+  .faq-answer-inner {
+    padding: 0 16px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d0d5e0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding-top: 12px;
+  }
+  .faq-answer-inner .a-label {
+    font-size: 10px;
+    color: #3fbf7f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .faq-answer-inner .a-text {
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.6;
+    background: rgba(63,191,127,0.06);
+    border-left: 3px solid #3fbf7f;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .faq-answer-inner .a-note {
+    font-size: 11px;
+    color: #8fa2b8;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .copy-btn {
+    background: rgba(0,229,255,0.12);
+    border: 1px solid rgba(0,229,255,0.35);
+    color: #00e5ff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .copy-btn:hover { background: rgba(0,229,255,0.25); }
+  .copy-btn.copied { background: rgba(63,191,127,0.2); border-color: #3fbf7f; color: #3fbf7f; }
+
+  .faq-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8fa2b8;
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .faq-header-note {
+    background: linear-gradient(135deg, rgba(241,196,15,0.10), rgba(255,77,77,0.05));
+    border: 1px solid rgba(241,196,15,0.35);
+    border-left: 4px solid #f1c40f;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: #f4ecd8;
+    line-height: 1.55;
+  }
+  .faq-header-note b { color: #f1c40f; font-weight: 800; }
 
   @media (max-width: 600px) {
     body { padding: 12px; }
@@ -270,6 +437,11 @@
     .modal-actions { flex-direction: column; }
     .btn-cancel, .btn-confirm { width: 100%; padding: 13px; font-size: 14px; }
     .withdraw-summary .line { font-size: 12px; }
+
+    .faq-question { font-size: 13px; padding: 12px 14px; }
+    .faq-answer-inner { font-size: 12px; padding: 0 14px 14px; }
+    .faq-answer-inner .a-text { font-size: 12px; padding: 9px 10px; }
+    .faq-cat-btn { font-size: 11px; padding: 7px 12px; }
   }
 
   @media (max-width: 380px) {
@@ -287,7 +459,7 @@
 
 <div id="loginScreen" class="login-container">
   <div class="logo-text">KINGWIN</div>
-  <div class="login-subtitle">Вход дилерам</div>
+  <div class="login-subtitle">Рабочая панель</div>
   <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer" autocomplete="username"></div>
   <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password"></div>
   <div class="login-err" id="loginErr"></div>
@@ -297,7 +469,7 @@
 <div id="mainScreen" class="main-container hidden">
   <div class="topbar">
     <div class="name">
-      Дилер: <b id="dealerName">—</b>
+      Сотрудник: <b id="dealerName">—</b>
       <div class="balance">Баланс: <span id="dealerBalanceTop">0</span> ₽</div>
     </div>
     <button class="logout" onclick="confirmLogout()">Выйти</button>
@@ -308,6 +480,7 @@
     <button data-tab="tasks" onclick="switchTab('tasks')">Задания</button>
     <button data-tab="balance" onclick="switchTab('balance')">Баланс</button>
     <button data-tab="profile" onclick="switchTab('profile')">Профиль</button>
+    <button data-tab="faq" onclick="switchTab('faq')">💬 FAQ для игроков</button>
   </div>
 
   <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
@@ -315,7 +488,6 @@
     <h2>Новый раунд <span id="roundCounter" class="session-counter" style="display:none">Сегодня: 0</span></h2>
     <div class="sub">Кликните по игроку, заполните ставку и нажмите Enter.</div>
 
-    <!-- СПИСОК ИГРОКОВ ЗА СТОЛОМ -->
     <div class="form-group">
       <label>Игроки за столом <span style="color:#8fa2b8;font-size:10px;text-transform:none;">(клик — выбрать)</span></label>
       <div id="playersChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
@@ -395,7 +567,7 @@
         <div class="s-percent" id="silencePercent">10%<small>от сессии</small></div>
       </div>
       <div class="s-desc">
-        Если за последние 7 дней никто не узнал об этом приложении — ваш процент от сессии 10%.
+        Если за последние 7 дней никто не узнал о рабочей программе — ваш процент от сессии 10%.
         Если кто-то узнал — 7%.
       </div>
       <div class="s-bar" id="silenceBar"><div id="silenceBarFill" style="width:0%"></div></div>
@@ -425,6 +597,28 @@
     <div id="profileContent">
       <div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>
     </div>
+  </div>
+
+  <!-- ВКЛАДКА: FAQ ДЛЯ ИГРОКОВ -->
+  <div class="tab" id="tab-faq">
+    <h2>💬 FAQ для игроков</h2>
+    <div class="sub">Частые вопросы и готовые ответы. Кликни на вопрос — увидишь ответ.</div>
+
+    <div class="faq-header-note">
+      <b>Важно:</b> нигде не упоминай «панель», «система учёта», «база». Говори:
+      «рабочая программа», «отмечаю раздачу», «баланс обновляется автоматически».
+      Если игрок спрашивает про телефон — отвечай уверенно и коротко. Не прячь телефон — это выглядит подозрительно.
+    </div>
+
+    <div class="faq-search-wrap">
+      <input type="text" class="faq-search" id="faqSearch" placeholder="Поиск по вопросам..." oninput="filterFaq()">
+    </div>
+
+    <div class="faq-categories" id="faqCategories"></div>
+
+    <div id="faqList"></div>
+
+    <div class="faq-empty" id="faqEmpty" style="display:none;">Ничего не найдено. Попробуй другой запрос.</div>
   </div>
 </div>
 
@@ -491,6 +685,7 @@ function switchTab(name){
   if(name === 'tasks') loadTasks();
   if(name === 'balance') { loadBalance(); loadSilence(); }
   if(name === 'profile') loadProfile();
+  if(name === 'faq') renderFaq();
 }
 
 function showMsg(id, text, ok){
@@ -956,6 +1151,373 @@ async function loadProfile(){
   } catch(e){
     box.innerHTML = '<div style="text-align:center; padding:30px; color:#ff4d4d">Ошибка соединения</div>';
   }
+}
+
+/* ============================================================
+   FAQ ДЛЯ ИГРОКОВ
+   ============================================================ */
+const FAQ_CATEGORIES = [
+  { key: 'all', label: 'Все' },
+  { key: 'reg', label: '📝 Регистрация' },
+  { key: 'phone', label: '📱 «Что ты делаешь в телефоне»' },
+  { key: 'money', label: '💰 Деньги' },
+  { key: 'game', label: '🎲 Игра' },
+  { key: 'bonus', label: '🎁 Бонусы' },
+  { key: 'trust', label: '🛡 Доверие' }
+];
+
+const FAQ_DATA = [
+  /* === РЕГИСТРАЦИЯ === */
+  {
+    cat: 'reg',
+    q: 'Зачем мне регистрироваться? Я просто хочу поиграть.',
+    a: 'Без карты у вас нет счёта — и выигрыш некуда зачислить. Регистрация занимает 1 минуту: я даю карту с номером и паролем, вы заходите на сайт, вводите номер и пароль — и всё. Ваш счёт готов. Потом все ставки и выигрыши видны в приложении.',
+    note: 'Не говори «так положено». Говори «без карты выигрыш некуда зачислить».'
+  },
+  {
+    cat: 'reg',
+    q: 'А можно без приложения? Я не хочу регистрироваться.',
+    a: 'Понимаю. Но без карты я физически не смогу зачислить ваш выигрыш — его некуда записать. Если выиграете 500 ₽, я не смогу их вам отдать наличными, у нас всё через счёт. Регистрация — 1 минута, зато потом всё автоматически: баланс, история, бонусы.',
+    note: 'Спокойно, без давления. Главный аргумент — «выигрыш некуда зачислить».'
+  },
+  {
+    cat: 'reg',
+    q: 'У меня нет телефона / я не умею пользоваться приложением.',
+    a: 'Не проблема. Я дам вам карту с номером и паролем. Зайти можно с любого устройства — с телефона, с планшета, с компьютера. Если хотите, я помогу зайти прямо сейчас, покажу как. Это правда просто: номер карты и пароль.',
+    note: 'Предложи помощь. Не оставляй игрока одного с проблемой.'
+  },
+  {
+    cat: 'reg',
+    q: 'А если я не хочу, чтобы вы знали, сколько я проиграл?',
+    a: 'Мы не показываем вашу статистику никому. Только вы видите свой счёт и историю. Это ваша личная информация. Дилер видит только то, что нужно для игры — ставку и результат раунда.',
+    note: 'Это правда: дилер видит только ставку и выигрыш за раунд, не весь баланс и не историю.'
+  },
+  {
+    cat: 'reg',
+    q: 'А сколько стоит регистрация?',
+    a: 'Регистрация бесплатная. Вы платите только за вход в сессию — 15 ₽ (или 20/25/50 ₽ в зависимости от колоды). И за ставки. Сама карта и создание счёта — бесплатно.',
+    note: 'Подчеркни «бесплатно» — это снимает страх «разводят на деньги».'
+  },
+  {
+    cat: 'reg',
+    q: 'А если я потеряю карту?',
+    a: 'Не проблема. Скажите мне — я подскажу, как восстановить. Номер карты и пароль можно записать или сфотографировать. Если карта потерялась — администратор восстановит доступ.',
+    note: 'Не обещай того, чего нет. «Администратор восстановит» — общая формулировка.'
+  },
+
+  /* === ЧТО ТЫ ДЕЛАЕШЬ В ТЕЛЕФОНЕ === */
+  {
+    cat: 'phone',
+    q: 'Что вы там делаете в телефоне?',
+    a: 'Отмечаю раздачу — сколько вы поставили, сколько выиграли. Это для вашего же счёта: чтобы выигрыш сразу пришёл на баланс. Баланс обновляется автоматически, вы видите его в приложении.',
+    note: 'Главный ответ. Уверенно, коротко. Не мямли, не прячь телефон.'
+  },
+  {
+    cat: 'phone',
+    q: 'А зачем в телефоне, а не на бумаге?',
+    a: 'Так удобнее и точнее — вы сразу видите баланс, и ошибок меньше. На бумаге можно потерять запись, а тут всё сохраняется. И выигрыш приходит сразу, не надо ждать.',
+    note: '«Удобнее и точнее» — обыденно, не вызывает вопросов.'
+  },
+  {
+    cat: 'phone',
+    q: 'А можно посмотреть, что у вас на экране?',
+    a: 'Телефон рабочий, туда только сотрудники заходят. Но вы можете посмотреть свою историю в приложении — там все ваши ставки и выигрыши. Хотите, покажу как?',
+    note: 'Не давай телефон. Переводи фокус на приложение игрока.'
+  },
+  {
+    cat: 'phone',
+    q: 'А что это за программа у вас?',
+    a: 'Это рабочая программа — отмечаю результаты раздач. Как касса в магазине: пробиваю чек, только вместо чека — ваша ставка.',
+    note: 'Аналогия с кассой — понятна и скучна. Никто не спрашивает «а что за касса?».'
+  },
+  {
+    cat: 'phone',
+    q: 'А вы не жульничаете через телефон?',
+    a: 'Нет. Я отмечаю только то, что произошло за столом — вашу ставку и результат. Карты раздаются вживую, результат виден всем. Программа нужна, чтобы выигрыш пришёл на счёт, а не чтобы что-то подкрутить.',
+    note: 'Спокойно, без обиды. «Карты раздаются вживую» — правда, это снимает подозрение.'
+  },
+  {
+    cat: 'phone',
+    q: 'А покажите, что вы там вводите?',
+    a: 'Я ввожу вашу ставку и результат раунда — то, что вы сами видели за столом. Если хотите, после игры покажу в приложении, как это выглядит в истории. Там всё видно: ставка, результат, баланс.',
+    note: '«То, что вы сами видели» — правда. Не показывай экран, но и не отказывай грубо.'
+  },
+
+  /* === ДЕНЬГИ === */
+  {
+    cat: 'money',
+    q: 'Как пополнить счёт?',
+    a: 'В приложении нажмите «Пополнить» — введёте сумму, и деньги придут на счёт. Минимум 10 ₽. Пополнение без комиссии.',
+    note: 'Коротко. Не вдавайся в детали, если не спрашивают.'
+  },
+  {
+    cat: 'money',
+    q: 'Как вывести выигрыш?',
+    a: 'В приложении нажмите «Вывести» — введёте карту и сумму. Минимум 100 ₽. Комиссия за вывод — 10% в блэкджеке, 8% в баккаре. Выводите 100 ₽ — получаете 90 ₽ (или 92 ₽ в баккаре).',
+    note: 'Сразу говори про комиссию — это честно и снимает вопросы «а почему меньше».'
+  },
+  {
+    cat: 'money',
+    q: 'Почему комиссия за вывод?',
+    a: 'Это комиссия за перевод на карту. Пополнение — бесплатно, а вывод — 10% (или 8% в баккаре). Так устроено во всех онлайн-казино.',
+    note: 'Не оправдывайся. «Так устроено» — нейтрально.'
+  },
+  {
+    cat: 'money',
+    q: 'А когда придёт выигрыш?',
+    a: 'Сразу после раздачи — баланс обновляется автоматически. Вы можете проверить в приложении. Если что-то не сходится — покажу, как посмотреть историю.',
+    note: '«Автоматически» — ключевое слово. Не говори «я вобью».'
+  },
+  {
+    cat: 'money',
+    q: 'А можно наличными?',
+    a: 'Нет, у нас всё через счёт в приложении. Так удобнее: вы видите баланс, историю, и деньги не теряются. Вывести можно на карту из приложения.',
+    note: 'Не «нельзя», а «у нас так устроено».'
+  },
+  {
+    cat: 'money',
+    q: 'А если я проиграл больше, чем хотел?',
+    a: 'Вы сами решаете, когда остановиться. Если чувствуете, что заигрались — скажите, я остановлю игру. Никто вас не заставляет продолжать. В приложении видно, сколько вы потратили.',
+    note: 'Это важно. Дилер должен уметь остановить игрока. Это про ответственнось.'
+  },
+
+  /* === ИГРА === */
+  {
+    cat: 'game',
+    q: 'Какие правила блэкджека?',
+    a: 'Цель — набрать ближе к 21, чем у дилера, но не больше. Карты 2–10 по номиналу, валет/дама/король = 10, туз = 1 или 11. Блэкджек (туз + 10) платит 3:2. Дилер стоит на 17. Дабл, сплит до 3 рук, сдача разрешена.',
+    note: 'Коротко. Если игрок хочет подробнее — покажи памятку (memo_players.html).'
+  },
+  {
+    cat: 'game',
+    q: 'Какие правила баккары?',
+    a: 'Ставите на Игрока, Банк или Ничью. Игрок — 1:1, Банк — 1:1 минус 5%, Ничья — 8:1. Цель — набрать ближе к 9. Десятки и картинки = 0, туз = 1. Дилер раздаёт по правилам, вы только ставите.',
+    note: 'Подчеркни «вы только ставите» — это просто, не надо думать.'
+  },
+  {
+    cat: 'game',
+    q: 'А что такое блэкджек?',
+    a: 'Это туз + карта на 10 очков с первых двух карт. Платит 3:2 — поставили 100 ₽, получили 250 ₽. Если у дилера тоже блэкджек — ничья, ставка возвращается.',
+    note: 'Пример с 100 → 250 помогает понять выгоду.'
+  },
+  {
+    cat: 'game',
+    q: 'А что такое страховка?',
+    a: 'Если у дилера открыт туз, вы можете застраховаться. Если у дилера блэкджек — страховка платит 2:1. Если нет — страховка сгорает. Это дополнительная ставка, необязательная.',
+    note: '«Необязательная» — важно, чтобы игрок не думал, что заставляют.'
+  },
+  {
+    cat: 'game',
+    q: 'Сколько стоит вход за стол?',
+    a: 'Блэкджек: 15 ₽ за 6 колод, 20 ₽ за 4, 25 ₽ за 2, 50 ₽ за 1 колоду. Баккара: 15 ₽. Минимальная ставка — 10 ₽. Вход оплачивается один раз за сессию.',
+    note: 'Точные цифры — из memo_players.html.'
+  },
+  {
+    cat: 'game',
+    q: 'А если я вышел и зашёл обратно — платить снова?',
+    a: 'В блэкджеке: если зашли той же колодой — вход не платится. Сменили колоду — платите заново. В баккаре: каждый заход — новый вход.',
+    note: 'Это правило из памятки. Если игрок спорит — покажи памятку.'
+  },
+
+  /* === БОНУСЫ === */
+  {
+    cat: 'bonus',
+    q: 'А какие бонусы есть?',
+    a: 'За каждую ставку вы получаете очки. 100 очков = ранг Silver + 50 ₽ в подарок. Плюс каждый день можно забирать ежедневный бонус — 10 → 15 → 20 → ... ₽. Чем больше играете — тем больше подарков.',
+    note: 'Не обещай «много». Скажи конкретно: 100 очков = 50 ₽.'
+  },
+  {
+    cat: 'bonus',
+    q: 'А что такое ежедневный бонус?',
+    a: 'Заходите каждый день в приложение — получаете бонус. Первый день 10 ₽, второй 15 ₽, и так до 40 ₽. Пропустите день — серия сгорит, начнётся с 10 ₽. Это как ежедневная награда в игре.',
+    note: 'Аналогия с игрой — понятна.'
+  },
+  {
+    cat: 'bonus',
+    q: 'А как получить бонус за ранг?',
+    a: 'Играйте — очки капают автоматически. Когда наберёте нужное количество — ранг повысится, и подарок придёт на бонусный счёт. Чтобы его вывести, нужно отыграть определённое количество ставок. Всё видно в приложении.',
+    note: 'Не вдавайся в вейджер, если не спрашивают. «Отыграть» — общее слово.'
+  },
+  {
+    cat: 'bonus',
+    q: 'А что такое джекпот?',
+    a: 'Это общий банк, который растёт с каждой ставкой. Когда дилер отмечает «Джекпот выпал» — банк уходит игроку. Бывает не часто, но сумма большая.',
+    note: 'Коротко. Не обещай, что выпадет именно этому игроку.'
+  },
+  {
+    cat: 'bonus',
+    q: 'А почему бонус нельзя сразу вывести?',
+    a: 'Бонус — это подарок от казино. Чтобы его вывести, нужно немного поиграть — отыграть определённую сумму ставок. Это честно: мы даём бонус, вы играете, потом выводите. Всё видно в приложении.',
+    note: '«Честно» — ключевое слово. Не оправдывайся.'
+  },
+
+  /* === ДОВЕРИЕ === */
+  {
+    cat: 'trust',
+    q: 'А вы не обманываете?',
+    a: 'Нет. Все правила открыты, дилер отвечает на вопросы до игры. Карты раздаются вживую — результат видят все. Ставки и выигрыши записываются автоматически, вы можете проверить историю в приложении. Если что-то не сходится — покажу.',
+    note: 'Спокойно. «Результат видят все» — правда, карты вживую.'
+  },
+  {
+    cat: 'trust',
+    q: 'А откуда я знаю, что вы не подкручиваете?',
+    a: 'Карты раздаются вживую, результат виден за столом. Программа только записывает то, что произошло — ставку и результат. Она не может ничего подкрутить, потому что карты уже разданы.',
+    note: 'Логика: «карты уже разданы» — значит, подкрутить нельзя. Это правда.'
+  },
+  {
+    cat: 'trust',
+    q: 'А можно посмотреть, как вы записываете?',
+    a: 'Программа рабочая, туда только сотрудники заходят. Но свою историю вы можете посмотреть в приложении — там все ваши ставки и выигрыши. Хотите, покажу как?',
+    note: 'Переводи фокус на приложение игрока. Не показывай экран.'
+  },
+  {
+    cat: 'trust',
+    q: 'А если я выиграю много — вы отдадите?',
+    a: 'Да. Выигрыш зачисляется автоматически, выводится через приложение на карту. Минимум для вывода — 100 ₽. Комиссия за вывод — 10% (или 8% в баккаре). Всё прозрачно.',
+    note: 'Спокойно. Не говори «конечно, отдадим» — говори «зачисляется автоматически».'
+  },
+  {
+    cat: 'trust',
+    q: 'А почему вы всё время смотрите в телефон, а не на стол?',
+    a: 'Я смотрю и на стол, и в телефон — отмечаю раздачу. Карты я вижу, результат вижу, а в телефон ввожу, чтобы выигрыш пришёл на счёт. Это как кассир: смотрит на товар и пробивает чек.',
+    note: 'Аналогия с кассиром — снимает подозрение.'
+  },
+
+  /* === ОБЩИЕ === */
+  {
+    cat: 'game',
+    q: 'А можно я сам раздам карты?',
+    a: 'Нет, карты раздаёт только дилер. Это правило стола — так честнее для всех. К картам и фишкам не прикасайтесь.',
+    note: 'Не грубо. «Так честнее для всех» — объясняет причину.'
+  },
+  {
+    cat: 'game',
+    q: 'А можно поменять ставку после раздачи?',
+    a: 'Нет. После команды «ставки закрыты» менять ставку нельзя. Это правило стола — так честнее. Если хотите изменить — скажите до команды.',
+    note: 'Правило из памятки.'
+  },
+  {
+    cat: 'money',
+    q: 'А если я передумал играть — вернут деньги?',
+    a: 'Если вы ещё не начинали — да, депозит вернётся. Если уже играли — возвращается остаток за вычетом сыгранных ставок. Это правило стола.',
+    note: 'Правило из памятки.'
+  },
+  {
+    cat: 'trust',
+    q: 'А можно мне просто посмотреть, не играя?',
+    a: 'Конечно. Сядьте, посмотрите, задайте вопросы — я отвечу. Никто вас не заставляет играть. Когда будете готовы — скажете.',
+    note: 'Это важно. Игрок должен чувствовать, что может уйти в любой момент.'
+  },
+  {
+    cat: 'trust',
+    q: 'А если я заигрался — что делать?',
+    a: 'Скажите мне — я остановлю игру. Вы можете отказаться в любой момент, без объяснения причин. Это нормально — остановиться. Никто вас не осудит.',
+    note: 'Серьёзно. Это про ответственность. Не шути.'
+  }
+];
+
+let faqCurrentCat = 'all';
+
+function renderFaqCategories(){
+  const box = document.getElementById('faqCategories');
+  if(!box) return;
+  box.innerHTML = FAQ_CATEGORIES.map(c => `
+    <button class="faq-cat-btn ${c.key === faqCurrentCat ? 'active' : ''}" onclick="setFaqCategory('${c.key}')">${c.label}</button>
+  `).join('');
+}
+
+function setFaqCategory(key){
+  faqCurrentCat = key;
+  renderFaqCategories();
+  filterFaq();
+}
+
+function filterFaq(){
+  const search = (document.getElementById('faqSearch').value || '').toLowerCase().trim();
+  const list = document.getElementById('faqList');
+  const empty = document.getElementById('faqEmpty');
+
+  let filtered = FAQ_DATA;
+
+  if(faqCurrentCat !== 'all'){
+    filtered = filtered.filter(item => item.cat === faqCurrentCat);
+  }
+
+  if(search){
+    filtered = filtered.filter(item =>
+      item.q.toLowerCase().includes(search) ||
+      item.a.toLowerCase().includes(search)
+    );
+  }
+
+  if(filtered.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = filtered.map((item, idx) => {
+    const realIdx = FAQ_DATA.indexOf(item);
+    return `
+      <div class="faq-item" data-idx="${realIdx}">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>${escapeHtml(item.q)}</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <div class="a-label">Ответ дилера</div>
+            <div class="a-text" id="faqAnswer${realIdx}">${escapeHtml(item.a)}</div>
+            ${item.note ? `<div class="a-note">💡 ${escapeHtml(item.note)}</div>` : ''}
+            <button class="copy-btn" onclick="copyFaqAnswer(${realIdx}, this)">📋 Скопировать ответ</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleFaq(el){
+  const item = el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+function copyFaqAnswer(idx, btn){
+  const text = document.getElementById('faqAnswer' + idx).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '✓ Скопировано';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 Скопировать ответ';
+    }, 2000);
+  }).catch(() => {
+    // Fallback для старых браузеров
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    btn.classList.add('copied');
+    btn.innerHTML = '✓ Скопировано';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 Скопировать ответ';
+    }, 2000);
+  });
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function renderFaq(){
+  renderFaqCategories();
+  filterFaq();
 }
 
 /* --- INIT --- */
