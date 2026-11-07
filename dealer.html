@@ -30,7 +30,7 @@
 
   .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tabs button { flex: 1 0 auto; min-width: 90px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .tabs button { flex: 1 0 auto; min-width: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .tabs button.active { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
   .tab { display: none; } .tab.active { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -51,35 +51,17 @@
   .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
   .hidden { display: none !important; }
 
-  .jackpot-check {
-    display: flex; align-items: center; gap: 12px; cursor: pointer;
-    background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(255,77,77,.06));
-    border: 1px solid rgba(241,196,15,.35); border-radius: 12px;
-    padding: 14px; margin: 6px 0 4px; user-select: none;
-    transition: all .2s;
-  }
+  .jackpot-check { display: flex; align-items: center; gap: 12px; cursor: pointer; background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(255,77,77,.06)); border: 1px solid rgba(241,196,15,.35); border-radius: 12px; padding: 14px; margin: 6px 0 4px; user-select: none; transition: all .2s; }
   .jackpot-check:hover { border-color: rgba(241,196,15,.7); }
   .jackpot-check input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .jackpot-check .box {
-    width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px;
-    border: 2px solid rgba(241,196,15,.5); background: rgba(0,0,0,.3);
-    display: flex; justify-content: center; align-items: center;
-    font-size: 16px; font-weight: 900; color: #000; transition: all .2s;
-  }
-  .jackpot-check input:checked ~ .box {
-    background: #f1c40f; border-color: #f1c40f;
-    box-shadow: 0 0 15px rgba(241,196,15,.6);
-  }
+  .jackpot-check .box { width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px; border: 2px solid rgba(241,196,15,.5); background: rgba(0,0,0,.3); display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 900; color: #000; transition: all .2s; }
+  .jackpot-check input:checked ~ .box { background: #f1c40f; border-color: #f1c40f; box-shadow: 0 0 15px rgba(241,196,15,.6); }
   .jackpot-check input:checked ~ .box::after { content: '✓'; }
   .jackpot-check .txt { font-size: 13px; font-weight: 600; line-height: 1.35; }
   .jackpot-check .txt small { display: block; color: #8fa2b8; font-size: 11px; font-weight: 500; margin-top: 2px; }
   .jackpot-check input:checked ~ .txt { color: #f1c40f; }
 
-  .silence-card {
-    background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.08));
-    border: 1px solid rgba(0,229,255,.35);
-    border-radius: 16px; padding: 18px; margin-bottom: 18px;
-  }
+  .silence-card { background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.08)); border: 1px solid rgba(0,229,255,.35); border-radius: 16px; padding: 18px; margin-bottom: 18px; }
   .silence-card .s-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .silence-card .s-title { font-size: 14px; font-weight: 800; color: #00e5ff; text-transform: uppercase; letter-spacing: .5px; }
   .silence-card .s-percent { font-size: 26px; font-weight: 900; line-height: 1; color: #3fbf7f; }
@@ -128,37 +110,23 @@
   .profile-head .pname { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
   .profile-head .pid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 1px; }
 
-  .rank-badge-custom {
-    display: inline-block; margin-top: 12px; padding: 8px 22px;
-    border-radius: 22px; font-size: 13px; font-weight: 800;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    border: 1.5px solid; backdrop-filter: blur(4px);
-  }
+  .rank-badge-custom { display: inline-block; margin-top: 12px; padding: 8px 22px; border-radius: 22px; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; border: 1.5px solid; backdrop-filter: blur(4px); }
 
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .stat-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px; padding: 16px 12px; text-align: center; }
-  .stat-lbl { font-size: 10px; color: #8fa2b8; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+  .stat-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px 12px; text-align: center; }
+  .stat-lbl { font-size: 10px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
   .stat-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
 
-  .progress-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-  .progress-head { display: flex; justify-content: space-between; align-items: center;
-    font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+  .progress-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
   .progress-pct { color: #00e5ff; font-size: 13px; }
-  .progress-bar-big { height: 12px; background: rgba(255,255,255,.08);
-    border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
-  .progress-bar-big > div { height: 100%; border-radius: 6px; transition: width .6s;
-    box-shadow: 0 0 14px rgba(0,229,255,.5); }
-  .progress-foot { display: flex; justify-content: space-between; font-size: 11px;
-    color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
+  .progress-bar-big { height: 12px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar-big > div { height: 100%; border-radius: 6px; transition: width .6s; box-shadow: 0 0 14px rgba(0,229,255,.5); }
+  .progress-foot { display: flex; justify-content: space-between; font-size: 11px; color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
   .progress-foot b { color: #fff; }
 
-  .info-list { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px; padding: 6px 16px; }
-  .info-line { display: flex; justify-content: space-between; padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; gap: 10px; flex-wrap: wrap; }
+  .info-list { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 6px 16px; }
+  .info-line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; gap: 10px; flex-wrap: wrap; }
   .info-line:last-child { border-bottom: none; }
   .info-line span:first-child { color: #8fa2b8; }
   .info-line b { color: #fff; }
@@ -185,259 +153,107 @@
   .err-modal { border-color: rgba(255,77,77,.4); }
   .ok-modal { border-color: rgba(63,191,127,.4); }
 
-  .player-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(0,229,255,.15); border: 1px solid rgba(0,229,255,.4);
-    color: #00e5ff; padding: 6px 12px; border-radius: 16px;
-    font-size: 12px; font-weight: 700; cursor: pointer;
-    transition: all .2s;
-  }
+  .player-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,229,255,.15); border: 1px solid rgba(0,229,255,.4); color: #00e5ff; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
   .player-chip:hover { background: rgba(0,229,255,.25); }
-  .player-chip .del {
-    color: #ff4d4d; cursor: pointer; font-weight: 900;
-    padding-left: 2px;
-  }
+  .player-chip .del { color: #ff4d4d; cursor: pointer; font-weight: 900; padding-left: 2px; }
   .player-chip .del:hover { color: #ff8a8a; }
   .chips-empty { color: #8fa2b8; font-size: 12px; font-style: italic; padding: 4px 0; }
 
-  .session-counter {
-    display: inline-block; background: rgba(63,191,127,.15); color: #3fbf7f;
-    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
-    margin-left: 6px;
-  }
+  .session-counter { display: inline-block; background: rgba(63,191,127,.15); color: #3fbf7f; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
 
-  /* ============ FAQ ============ */
-  .faq-search-wrap {
-    position: sticky;
-    top: 0;
-    background: rgba(18, 24, 38, 0.98);
-    padding: 10px 0 14px;
-    z-index: 10;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .faq-search {
-    width: 100%;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 12px 16px 12px 40px;
-    font-size: 14px;
-    color: #fff;
-    font-family: inherit;
-    outline: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fa2b8' stroke-width='2'%3e%3ccircle cx='11' cy='11' r='8'/%3e%3cpath d='m21 21-4.35-4.35'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: 12px center;
-    background-size: 18px;
-  }
+  .faq-search-wrap { position: sticky; top: 0; background: rgba(18, 24, 38, 0.98); padding: 10px 0 14px; z-index: 10; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .faq-search { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px 12px 40px; font-size: 14px; color: #fff; font-family: inherit; outline: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fa2b8' stroke-width='2'%3e%3ccircle cx='11' cy='11' r='8'/%3e%3cpath d='m21 21-4.35-4.35'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: 12px center; background-size: 18px; }
   .faq-search:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.2); }
 
-  .faq-categories {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-bottom: 14px;
-    padding-bottom: 4px;
-  }
+  .faq-categories { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; padding-bottom: 4px; }
   .faq-categories::-webkit-scrollbar { display: none; }
-  .faq-cat-btn {
-    flex: 0 0 auto;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #a0aec0;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
+  .faq-cat-btn { flex: 0 0 auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #a0aec0; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.2s; }
   .faq-cat-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .faq-cat-btn.active { background: rgba(0,229,255,0.15); border-color: #00e5ff; color: #00e5ff; }
 
-  .faq-item {
-    background: rgba(0,0,0,0.25);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    margin-bottom: 10px;
-    overflow: hidden;
-    transition: all 0.2s;
-  }
+  .faq-item { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; }
   .faq-item:hover { border-color: rgba(0,229,255,0.3); }
-  .faq-question {
-    padding: 14px 16px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    user-select: none;
-  }
+  .faq-question { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: #fff; user-select: none; }
   .faq-question:hover { color: #00e5ff; }
-  .faq-question .q-icon {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(0,229,255,0.15);
-    color: #00e5ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 900;
-    transition: transform 0.2s;
-  }
+  .faq-question .q-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,229,255,0.15); color: #00e5ff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; transition: transform 0.2s; }
   .faq-item.open .faq-question .q-icon { transform: rotate(45deg); }
   .faq-item.open .faq-question { color: #00e5ff; }
-  .faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
   .faq-item.open .faq-answer { max-height: 800px; }
-  .faq-answer-inner {
-    padding: 0 16px 16px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #d0d5e0;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    padding-top: 12px;
-  }
-  .faq-answer-inner .a-label {
-    font-size: 10px;
-    color: #3fbf7f;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-  .faq-answer-inner .a-text {
-    color: #fff;
-    font-size: 13px;
-    line-height: 1.6;
-    background: rgba(63,191,127,0.06);
-    border-left: 3px solid #3fbf7f;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-  }
-  .faq-answer-inner .a-note {
-    font-size: 11px;
-    color: #8fa2b8;
-    font-style: italic;
-    line-height: 1.5;
-    margin-bottom: 8px;
-  }
-  .copy-btn {
-    background: rgba(0,229,255,0.12);
-    border: 1px solid rgba(0,229,255,0.35);
-    color: #00e5ff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .faq-answer-inner { padding: 0 16px 16px; font-size: 13px; line-height: 1.6; color: #d0d5e0; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 12px; }
+  .faq-answer-inner .a-label { font-size: 10px; color: #3fbf7f; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; margin-bottom: 6px; }
+  .faq-answer-inner .a-text { color: #fff; font-size: 13px; line-height: 1.6; background: rgba(63,191,127,0.06); border-left: 3px solid #3fbf7f; padding: 10px 12px; border-radius: 6px; margin-bottom: 10px; }
+  .faq-answer-inner .a-note { font-size: 11px; color: #8fa2b8; font-style: italic; line-height: 1.5; margin-bottom: 8px; }
+  .copy-btn { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: #00e5ff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
   .copy-btn:hover { background: rgba(0,229,255,0.25); }
   .copy-btn.copied { background: rgba(63,191,127,0.2); border-color: #3fbf7f; color: #3fbf7f; }
-
-  .faq-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: #8fa2b8;
-    font-size: 13px;
-    font-style: italic;
-  }
-
-  .faq-header-note {
-    background: linear-gradient(135deg, rgba(241,196,15,0.10), rgba(255,77,77,0.05));
-    border: 1px solid rgba(241,196,15,0.35);
-    border-left: 4px solid #f1c40f;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    font-size: 12px;
-    color: #f4ecd8;
-    line-height: 1.55;
-  }
+  .faq-empty { text-align: center; padding: 40px 20px; color: #8fa2b8; font-size: 13px; font-style: italic; }
+  .faq-header-note { background: linear-gradient(135deg, rgba(241,196,15,0.10), rgba(255,77,77,0.05)); border: 1px solid rgba(241,196,15,0.35); border-left: 4px solid #f1c40f; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 12px; color: #f4ecd8; line-height: 1.55; }
   .faq-header-note b { color: #f1c40f; font-weight: 800; }
+
+  /* Фишки — сводка */
+  .chips-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .chips-stat {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .chips-stat .lbl {
+    font-size: 10px;
+    color: #8fa2b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chips-stat .val {
+    font-size: 18px;
+    font-weight: 900;
+  }
 
   @media (max-width: 600px) {
     body { padding: 12px; }
     .main-container { padding: 18px 14px; border-radius: 16px; }
     .login-container { padding: 30px 22px; }
-
-    .tabs {
-      flex-direction: row !important;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      gap: 6px;
-      margin-bottom: 16px;
-    }
+    .tabs { flex-direction: row !important; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px; margin-bottom: 16px; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tabs button {
-      flex: 0 0 auto;
-      min-width: 105px;
-      white-space: nowrap;
-      font-size: 12px;
-      padding: 11px 10px;
-    }
-
+    .tabs button { flex: 0 0 auto; min-width: 105px; white-space: nowrap; font-size: 12px; padding: 11px 10px; }
     .topbar { flex-wrap: wrap; gap: 8px; }
     .topbar .name { font-size: 13px; }
-
     h2 { font-size: 17px; }
     .sub { font-size: 12px; margin-bottom: 14px; }
-
     .row { flex-direction: column; gap: 0; }
     .form-group input, .form-group select { font-size: 16px; padding: 13px; }
-
     .silence-card { padding: 16px; }
     .silence-card .s-top { flex-wrap: wrap; }
     .silence-card .s-percent { font-size: 24px; }
     .silence-card .s-desc { font-size: 11px; }
     .silence-card .s-foot { flex-wrap: wrap; font-size: 10px; }
-
     .balance-card { padding: 16px; }
     .balance-card .amount { font-size: 32px; }
-
     .task { padding: 12px; }
     .task .title { font-size: 13px; }
     .task .reward { font-size: 14px; }
     .task .bottom { font-size: 11px; }
     .task .claim-btn { padding: 8px 12px; font-size: 11px; }
-
     .week-badge, .limit-badge { font-size: 10px; padding: 3px 8px; margin-bottom: 10px; }
-
     .withdraw-item { padding: 10px 0; }
     .withdraw-item > div { flex: 1 1 100%; }
     .withdraw-item .status { margin-left: auto; }
-
     .profile-avatar { width: 70px; height: 70px; font-size: 28px; }
     .profile-head .pname { font-size: 20px; }
     .info-line { font-size: 12px; }
-
     .modal-box { padding: 22px 16px; max-width: 100%; }
     .modal-box h3 { font-size: 18px; }
     .modal-box p { font-size: 13px; margin-bottom: 14px; }
     .modal-actions { flex-direction: column; }
     .btn-cancel, .btn-confirm { width: 100%; padding: 13px; font-size: 14px; }
     .withdraw-summary .line { font-size: 12px; }
-
     .faq-question { font-size: 13px; padding: 12px 14px; }
     .faq-answer-inner { font-size: 12px; padding: 0 14px 14px; }
     .faq-answer-inner .a-text { font-size: 12px; padding: 9px 10px; }
@@ -457,6 +273,7 @@
 </head>
 <body>
 
+<!-- ============ ЭКРАН ЛОГИНА ============ -->
 <div id="loginScreen" class="login-container">
   <div class="logo-text">KINGWIN</div>
   <div class="login-subtitle">Рабочая панель</div>
@@ -466,6 +283,7 @@
   <button class="btn-glow" onclick="doLogin()">Войти</button>
 </div>
 
+<!-- ============ ОСНОВНОЙ ЭКРАН ============ -->
 <div id="mainScreen" class="main-container hidden">
   <div class="topbar">
     <div class="name">
@@ -476,16 +294,58 @@
   </div>
 
   <div class="tabs">
-    <button class="active" data-tab="data" onclick="switchTab('data')">Внести раунд</button>
+    <button class="active" data-tab="profile" onclick="switchTab('profile')">👤 Профиль</button>
+    <button data-tab="data" onclick="switchTab('data')">🎲 Внести сессию</button>
     <button data-tab="cash" onclick="switchTab('cash')">💰 Наличные</button>
-    <button data-tab="tasks" onclick="switchTab('tasks')">Задания</button>
-    <button data-tab="balance" onclick="switchTab('balance')">Баланс</button>
-    <button data-tab="profile" onclick="switchTab('profile')">Профиль</button>
-    <button data-tab="faq" onclick="switchTab('faq')">💬 FAQ для игроков</button>
+    <button data-tab="faq" onclick="switchTab('faq')">💬 FAQ</button>
+    <button data-tab="tasks" onclick="switchTab('tasks')">📋 Задания</button>
   </div>
 
-  <!-- ВКЛАДКА: ВНЕСТИ РАУНД -->
-  <div class="tab active" id="tab-data">
+  <!-- ============ ВКЛАДКА 1: ПРОФИЛЬ ============ -->
+  <div class="tab active" id="tab-profile">
+    <h2>Мой профиль</h2>
+    <div class="sub">Баланс, вывод, статистика</div>
+
+    <div id="profileContent">
+      <div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>
+    </div>
+
+    <!-- Блок вывода -->
+    <div style="margin-top:20px;">
+      <h3 style="font-size:16px; margin-bottom:12px;">💸 Вывод средств</h3>
+      <div class="balance-card" style="margin-bottom:14px;">
+        <div class="lbl">Доступно к выводу</div>
+        <div class="amount"><span id="dealerBalance">0</span> ₽</div>
+        <div class="sub">Вывод на карту (комиссия 7%)</div>
+      </div>
+      <button class="btn-submit" onclick="openWithdrawModal()">💳 Запросить вывод на карту</button>
+      <div class="msg" id="msgWithdraw"></div>
+    </div>
+
+    <!-- Бонус за тишину -->
+    <div class="silence-card" id="silenceCard" style="margin-top:20px;">
+      <div class="s-top">
+        <div class="s-title">Бонус за тишину</div>
+        <div class="s-percent" id="silencePercent">10%<small>от сессии</small></div>
+      </div>
+      <div class="s-desc">
+        Если за последние 7 дней никто не узнал о рабочей программе — ваш процент от сессии 10%.
+        Если кто-то узнал — 7%.
+      </div>
+      <div class="s-bar" id="silenceBar"><div id="silenceBarFill" style="width:0%"></div></div>
+      <div class="s-foot">
+        <span id="silenceDays">Осталось дней: —</span>
+        <span class="s-status ok" id="silenceStatus">Всё чисто</span>
+      </div>
+    </div>
+
+    <!-- История выводов -->
+    <h3 style="font-size:16px; margin:24px 0 12px;">📜 История выводов</h3>
+    <div id="withdrawHistory"></div>
+  </div>
+
+  <!-- ============ ВКЛАДКА 2: ВНЕСТИ СЕССИЮ ============ -->
+  <div class="tab" id="tab-data">
     <h2>Новый раунд <span id="roundCounter" class="session-counter" style="display:none">Сегодня: 0</span></h2>
     <div class="sub">Кликните по игроку, заполните ставку и нажмите Enter.</div>
 
@@ -539,113 +399,108 @@
     </div>
     <div class="msg" id="msgData"></div>
 
-    <div style="margin-top:14px;font-size:11px;color:#8fa2b8;text-align:center;line-height:1.6;">
-      <b>Enter</b> — сохранить раунд · <b>🔁</b> — повторить последний<br>
-      Список игроков сохраняется на этом устройстве
+    <!-- 💰 ПОСЛЕДНИЕ ПОСТУПЛЕНИЯ -->
+    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 15px; color: #3fbf7f; margin: 0;">💰 Последние поступления</h3>
+        <button class="btn-submit" style="width: auto; padding: 6px 12px; margin: 0; font-size: 11px; background: rgba(63,191,127,0.15); color: #3fbf7f;" onclick="loadPendingTransfers()">
+          🔄 Обновить
+        </button>
+      </div>
+      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 10px;">
+        Игроки, которые сказали «я перевёл». Проверьте поступление и выдайте фишки.
+      </div>
+      <div id="pendingTransfersList">
+        <div style="text-align: center; padding: 20px; color: #8fa2b8; font-size: 13px;">Загрузка...</div>
+      </div>
     </div>
   </div>
 
-  <!-- ВКЛАДКА: НАЛИЧНЫЕ -->
+  <!-- ============ ВКЛАДКА 3: НАЛИЧНЫЕ / ФИШКИ ============ -->
   <div class="tab" id="tab-cash">
-    <h2>💰 Наличные</h2>
-    <div class="sub">Принимайте наличные от игроков, кладите в сейф и отмечайте здесь. В конце смены сдайте сейф owner'у.</div>
+    <h2>💰 Наличные / Фишки</h2>
+    <div class="sub">Выдавайте фишки после оплаты и принимайте обратно при уходе игрока. Прибыль = выдано − принято.</div>
 
-    <div style="background: linear-gradient(135deg, rgba(241,196,15,.10), rgba(255,77,77,.05)); border: 1px solid rgba(241,196,15,.35); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #f1c40f;">Принять наличные</h3>
+    <!-- Сводка за день -->
+    <div class="chips-summary-grid">
+      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.4);">
+        <div class="lbl">🎰 Выдано</div>
+        <div class="val" style="color: #3fbf7f;" id="chipsTotalIn">0 ₽</div>
+      </div>
+      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(241,196,15,.15), rgba(255,77,77,.08)); border: 1px solid rgba(241,196,15,.4);">
+        <div class="lbl">🔄 Принято</div>
+        <div class="val" style="color: #f1c40f;" id="chipsTotalOut">0 ₽</div>
+      </div>
+      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(63,191,127,.08)); border: 1px solid rgba(0,229,255,.4);">
+        <div class="lbl">💰 Прибыль</div>
+        <div class="val" id="chipsProfit">0 ₽</div>
+      </div>
+    </div>
 
-      <div class="form-group">
-        <label>Ник игрока (карта)</label>
-        <input type="text" id="cashGuestNick" placeholder="Например: KING-0001 или Иван" list="cashPlayersDatalist" autocomplete="off">
-        <datalist id="cashPlayersDatalist"></datalist>
+    <!-- Форма: ВЫДАТЬ ФИШКИ -->
+    <div style="background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.06)); border: 1px solid rgba(0,229,255,.35); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #00e5ff;">🎰 Выдать фишки</h3>
+      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">
+        Игрок перевёл / дал наличные → выдайте фишки.
       </div>
 
       <div class="form-group">
-        <label>Сумма (₽)</label>
-        <input type="number" id="cashSum" placeholder="500" min="1" inputmode="numeric">
+        <label>Ник игрока</label>
+        <input type="text" id="chipsInNick" placeholder="Например: Иван" list="cashPlayersDatalist" autocomplete="off">
       </div>
 
-      <button class="btn-submit" id="btnCashIn" onclick="doCashIn()" style="background: #f1c40f; color: #000;">
-        💰 Принял наличные
+      <div class="form-group">
+        <label>Сумма фишек (₽)</label>
+        <input type="number" id="chipsInSum" placeholder="500" min="1" inputmode="numeric">
+      </div>
+
+      <div class="form-group">
+        <label>Способ оплаты</label>
+        <select id="chipsInMethod">
+          <option value="transfer">💳 Перевод на карту</option>
+          <option value="cash">💵 Наличные</option>
+        </select>
+      </div>
+
+      <button class="btn-submit" id="btnChipsIn" onclick="doChipsIn()" style="background: #00e5ff; color: #000;">
+        🎰 Выдал фишки
       </button>
-      <div class="msg" id="msgCash"></div>
+      <div class="msg" id="msgChipsIn"></div>
     </div>
 
-    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-        <h3 style="font-size: 15px; color: #3fbf7f; margin: 0;">📦 Касса за сегодня</h3>
-        <div style="font-size: 20px; font-weight: 900; color: #3fbf7f;" id="cashTotalToday">0 ₽</div>
+    <!-- Форма: ПРИНЯТЬ ФИШКИ -->
+    <div style="background: linear-gradient(135deg, rgba(241,196,15,.10), rgba(255,77,77,.05)); border: 1px solid rgba(241,196,15,.35); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #f1c40f;">🔄 Принять фишки</h3>
+      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">
+        Игрок уходит → сдаёт фишки обратно. Выдайте ему деньги наличными.
       </div>
-      <div id="cashList" style="font-size: 13px;">
-        <div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет принятых наличных</div>
+
+      <div class="form-group">
+        <label>Ник игрока</label>
+        <input type="text" id="chipsOutNick" placeholder="Например: Иван" list="cashPlayersDatalist" autocomplete="off">
       </div>
+
+      <div class="form-group">
+        <label>Сумма фишек (₽)</label>
+        <input type="number" id="chipsOutSum" placeholder="300" min="1" inputmode="numeric">
+      </div>
+
+      <button class="btn-submit" id="btnChipsOut" onclick="doChipsOut()" style="background: #f1c40f; color: #000;">
+        🔄 Принял фишки
+      </button>
+      <div class="msg" id="msgChipsOut"></div>
     </div>
 
-    <button class="btn-submit" onclick="openCashHandover()" style="background: rgba(255,255,255,0.1); color: #fff;">
-      📤 Сдать сейф owner'у
-    </button>
-
-    <div style="margin-top: 14px; font-size: 11px; color: #8fa2b8; text-align: center; line-height: 1.6;">
-      Наличные зачисляются на счёт игрока автоматически.<br>
-      Сейф сдаётся owner'у в конце смены (нужен пароль owner).
+    <!-- История за сегодня -->
+    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px;">
+      <h3 style="font-size: 15px; color: #fff; margin: 0 0 12px;">📋 История за сегодня</h3>
+      <div id="chipsHistoryList" style="font-size: 13px;">
+        <div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет операций</div>
+      </div>
     </div>
   </div>
 
-  <!-- ВКЛАДКА: ЗАДАНИЯ -->
-  <div class="tab" id="tab-tasks">
-    <h2>Ежедневные задания</h2>
-    <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
-    <div>
-      <span id="weekBadge" class="week-badge">День: —</span>
-      <span id="limitBadge" class="limit-badge">Заработано: 0 / 50 ₽</span>
-    </div>
-    <div id="tasksList"></div>
-    <div class="msg" id="msgTask"></div>
-  </div>
-
-  <!-- ВКЛАДКА: БАЛАНС -->
-  <div class="tab" id="tab-balance">
-    <h2>Мой баланс</h2>
-    <div class="sub">Зарплата + награды за задания</div>
-
-    <div class="silence-card" id="silenceCard">
-      <div class="s-top">
-        <div class="s-title">Бонус за тишину</div>
-        <div class="s-percent" id="silencePercent">10%<small>от сессии</small></div>
-      </div>
-      <div class="s-desc">
-        Если за последние 7 дней никто не узнал о рабочей программе — ваш процент от сессии 10%.
-        Если кто-то узнал — 7%.
-      </div>
-      <div class="s-bar" id="silenceBar"><div id="silenceBarFill" style="width:0%"></div></div>
-      <div class="s-foot">
-        <span id="silenceDays">Осталось дней: —</span>
-        <span class="s-status ok" id="silenceStatus">Всё чисто</span>
-      </div>
-    </div>
-
-    <div class="balance-card">
-      <div class="lbl">Доступно к выводу</div>
-      <div class="amount"><span id="dealerBalance">0</span> ₽</div>
-      <div class="sub">Вывод обрабатывается администратором</div>
-    </div>
-    <button class="btn-submit" onclick="openWithdrawModal()">Запросить вывод</button>
-    <div class="msg" id="msgWithdraw"></div>
-
-    <h2 style="margin-top:24px;font-size:16px">История выводов</h2>
-    <div id="withdrawHistory"></div>
-  </div>
-
-  <!-- ВКЛАДКА: ПРОФИЛЬ -->
-  <div class="tab" id="tab-profile">
-    <h2>Мой профиль</h2>
-    <div class="sub">Ваш статус и рейтинг</div>
-
-    <div id="profileContent">
-      <div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>
-    </div>
-  </div>
-
-  <!-- ВКЛАДКА: FAQ ДЛЯ ИГРОКОВ -->
+  <!-- ============ ВКЛАДКА 4: FAQ ============ -->
   <div class="tab" id="tab-faq">
     <h2>💬 FAQ для игроков</h2>
     <div class="sub">Частые вопросы и готовые ответы. Кликни на вопрос — увидишь ответ.</div>
@@ -653,7 +508,6 @@
     <div class="faq-header-note">
       <b>Важно:</b> нигде не упоминай «панель», «система учёта», «база». Говори:
       «рабочая программа», «отмечаю раздачу», «баланс обновляется автоматически».
-      Если игрок спрашивает про телефон — отвечай уверенно и коротко. Не прячь телефон — это выглядит подозрительно.
     </div>
 
     <div class="faq-search-wrap">
@@ -666,9 +520,21 @@
 
     <div class="faq-empty" id="faqEmpty" style="display:none;">Ничего не найдено. Попробуй другой запрос.</div>
   </div>
+
+  <!-- ============ ВКЛАДКА 5: ЗАДАНИЯ ============ -->
+  <div class="tab" id="tab-tasks">
+    <h2>Ежедневные задания</h2>
+    <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
+    <div>
+      <span id="weekBadge" class="week-badge">День: —</span>
+      <span id="limitBadge" class="limit-badge">Заработано: 0 / 50 ₽</span>
+    </div>
+    <div id="tasksList"></div>
+    <div class="msg" id="msgTask"></div>
+  </div>
 </div>
 
-<!-- Модалка вывода -->
+<!-- ============ МОДАЛКА ВЫВОДА ============ -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <h3>Вывод средств</h3>
@@ -693,7 +559,7 @@
   </div>
 </div>
 
-<!-- Модалка уведомлений -->
+<!-- ============ МОДАЛКА УВЕДОМЛЕНИЙ ============ -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box" id="infoBox">
     <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
@@ -728,11 +594,11 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelector(`.tabs > button[data-tab="${name}"]`).classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
-  if(name === 'tasks') loadTasks();
-  if(name === 'balance') { loadBalance(); loadSilence(); }
-  if(name === 'profile') loadProfile();
+  if(name === 'profile') { loadProfile(); loadBalance(); loadSilence(); }
+  if(name === 'data') loadPendingTransfers();
+  if(name === 'cash') { loadChipsSummary(); updateCashPlayersDatalist(); }
   if(name === 'faq') renderFaq();
-  if(name === 'cash') { loadCashList(); updateCashPlayersDatalist(); }
+  if(name === 'tasks') loadTasks();
 }
 
 function showMsg(id, text, ok){
@@ -766,7 +632,8 @@ async function doLogin(){
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
     renderPlayersChips();
     updateRoundCounter();
-    loadTasks();
+    loadProfile();
+    loadBalance();
     loadSilence();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
   finally { btn.textContent = 'Войти'; btn.disabled = false; }
@@ -835,7 +702,7 @@ function pickPlayer(nick){
   document.getElementById('betAmount').focus();
 }
 
-/* --- СЧЁТЧИК РАУНДОВ ЗА СЕГОДНЯ --- */
+/* --- СЧЁТЧИК РАУНДОВ --- */
 function roundsKey(){ return 'dealer_rounds_' + (currentDealer?.id || '0') + '_' + new Date().toISOString().slice(0,10); }
 function getRoundsToday(){
   try { return parseInt(localStorage.getItem(roundsKey())) || 0; } catch(e) { return 0; }
@@ -1201,115 +1068,182 @@ async function loadProfile(){
   }
 }
 
-/* ============ НАЛИЧНЫЕ ============ */
-async function doCashIn(){
-  const nick = document.getElementById('cashGuestNick').value.trim();
-  const sum = parseFloat(document.getElementById('cashSum').value) || 0;
-
-  if(!nick){ showInfo('Ошибка', 'Введите ник игрока'); return; }
-  if(sum <= 0){ showInfo('Ошибка', 'Введите сумму больше 0'); return; }
-
-  const btn = document.getElementById('btnCashIn');
-  btn.disabled = true; btn.textContent = 'Отправка...';
-
+/* ============ ПОСЛЕДНИЕ ПОСТУПЛЕНИЯ ============ */
+async function loadPendingTransfers() {
   try {
-    const r = await fetch('/api/dealer/cash-in', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum })
-    });
-    const data = await r.json();
-    if(!r.ok){
-      showInfo('Ошибка', data.error || 'Не удалось принять наличные');
-      btn.disabled = false; btn.textContent = '💰 Принял наличные';
-      return;
-    }
-
-    showMsg('msgCash', `✅ Принято ${fmt(sum)} ₽ от игрока ${data.guest}. Зачислено на счёт.`, true);
-    document.getElementById('cashGuestNick').value = '';
-    document.getElementById('cashSum').value = '';
-    loadCashList();
-  } catch(e){
-    showInfo('Ошибка', 'Ошибка соединения');
-  } finally {
-    btn.disabled = false; btn.textContent = '💰 Принял наличные';
-  }
-}
-
-async function loadCashList(){
-  if(!currentDealer) return;
-  try {
-    const r = await fetch('/api/dealer/cash-list?id=' + currentDealer.id);
-    const data = await r.json();
+    const r = await fetch('/api/dealer/pending-transfers');
+    const list = await r.json();
     
-    document.getElementById('cashTotalToday').textContent = fmt(data.total) + ' ₽';
+    const box = document.getElementById('pendingTransfersList');
+    if (!box) return;
     
-    const list = data.list || [];
-    const box = document.getElementById('cashList');
-    
-    if(list.length === 0){
-      box.innerHTML = '<div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет принятых наличных</div>';
+    if (!list || list.length === 0) {
+      box.innerHTML = '<div style="text-align: center; padding: 20px; color: #8fa2b8; font-size: 13px;">Нет новых поступлений</div>';
       return;
     }
     
-    box.innerHTML = list.map(x => {
-      const statusLabel = x.status === 'handed_over' 
-        ? '<span class="status approved">Сдано</span>' 
-        : '<span class="status pending">В сейфе</span>';
+    box.innerHTML = list.map(t => {
+      const time = t.created_at ? new Date(t.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '';
       return `
-        <div class="withdraw-item" style="padding: 8px 0;">
-          <div>
-            <div style="font-weight: 600;">${x.guest_name || '—'}</div>
-            <div style="font-size: 11px; color: #8fa2b8;">${x.created_at ? new Date(x.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
+        <div style="background: linear-gradient(135deg, rgba(63,191,127,0.10), rgba(0,229,255,0.05)); border: 1px solid rgba(63,191,127,0.35); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 14px; font-weight: 800; color: #fff;">${t.nick}</div>
+            <div style="font-size: 11px; color: #8fa2b8; margin-top: 2px;">${t.date} · ${time}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-weight: 900; color: #f1c40f;">${fmt(x.sum)} ₽</span>
-            ${statusLabel}
+            <div style="font-size: 18px; font-weight: 900; color: #3fbf7f;">${fmt(t.sum)} ₽</div>
+            <button class="btn-submit" style="width: auto; padding: 8px 14px; margin: 0; font-size: 12px; background: #3fbf7f; color: #000;" onclick="issueChips(${t.id}, '${t.nick}', ${t.sum})">
+              ✓ Выдать фишки
+            </button>
           </div>
         </div>
       `;
     }).join('');
-  } catch(e){}
+  } catch(e) {
+    console.error(e);
+  }
 }
 
-function openCashHandover(){
-  showPass('Сдать сейф owner\'у', 
-    'Все наличные за сегодня будут отмечены как «сдано». Введите пароль owner:', 
-    async () => {
-      const r = await fetch('/api/dealer/cash-handover', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ dealer_id: currentDealer.id, pass: '56UpahoS' })
-      });
-      const data = await r.json();
-      if(!r.ok){
-        showInfo('Ошибка', data.error || 'Не удалось сдать сейф');
-        return;
-      }
-      showInfo('Готово', 'Сейф сдан owner\'у. Записи отмечены.', 'ok');
-      loadCashList();
+async function issueChips(depositId, nick, sum) {
+  if (!confirm(`Выдать фишки игроку ${nick} на ${fmt(sum)} ₽?\n\nУбедитесь, что деньги реально пришли на карту.`)) return;
+  
+  try {
+    const r = await fetch('/api/dealer/issue-chips', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ deposit_id: depositId, dealer_id: currentDealer?.id })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      showInfo('Ошибка', data.error || 'Не удалось выдать фишки');
+      return;
     }
-  );
+    showInfo('Готово', `Фишки выданы: ${nick} — ${fmt(sum)} ₽.`, 'ok');
+    loadPendingTransfers();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  }
 }
 
-function updateCashPlayersDatalist(){
+/* ============ ФИШКИ (выдать / принять / сводка) ============ */
+async function doChipsIn() {
+  const nick = document.getElementById('chipsInNick').value.trim();
+  const sum = parseFloat(document.getElementById('chipsInSum').value) || 0;
+  const method = document.getElementById('chipsInMethod').value;
+
+  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
+
+  const btn = document.getElementById('btnChipsIn');
+  btn.disabled = true; btn.textContent = 'Отправка...';
+
+  try {
+    const r = await fetch('/api/dealer/chips-issue', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum, method })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      showInfo('Ошибка', data.error || 'Не удалось выдать фишки');
+      btn.disabled = false; btn.textContent = '🎰 Выдал фишки';
+      return;
+    }
+
+    showMsg('msgChipsIn', `✅ Выдано: ${data.guest} — ${fmt(sum)} ₽`, true);
+    document.getElementById('chipsInNick').value = '';
+    document.getElementById('chipsInSum').value = '';
+    loadChipsSummary();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  } finally {
+    btn.disabled = false; btn.textContent = '🎰 Выдал фишки';
+  }
+}
+
+async function doChipsOut() {
+  const nick = document.getElementById('chipsOutNick').value.trim();
+  const sum = parseFloat(document.getElementById('chipsOutSum').value) || 0;
+
+  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
+
+  const btn = document.getElementById('btnChipsOut');
+  btn.disabled = true; btn.textContent = 'Отправка...';
+
+  try {
+    const r = await fetch('/api/dealer/chips-accept', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      showInfo('Ошибка', data.error || 'Не удалось принять фишки');
+      btn.disabled = false; btn.textContent = '🔄 Принял фишки';
+      return;
+    }
+
+    showMsg('msgChipsOut', `✅ Принято: ${data.guest} — ${fmt(sum)} ₽`, true);
+    document.getElementById('chipsOutNick').value = '';
+    document.getElementById('chipsOutSum').value = '';
+    loadChipsSummary();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔄 Принял фишки';
+  }
+}
+
+async function loadChipsSummary() {
+  if (!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/chips-summary?id=' + currentDealer.id);
+    const data = await r.json();
+
+    document.getElementById('chipsTotalIn').textContent = fmt(data.totalIn) + ' ₽';
+    document.getElementById('chipsTotalOut').textContent = fmt(data.totalOut) + ' ₽';
+
+    const profitEl = document.getElementById('chipsProfit');
+    const profit = parseFloat(data.profit) || 0;
+    profitEl.textContent = (profit >= 0 ? '+' : '') + fmt(profit) + ' ₽';
+    profitEl.style.color = profit >= 0 ? '#3fbf7f' : '#ff4d4d';
+
+    const list = data.list || [];
+    const box = document.getElementById('chipsHistoryList');
+
+    if (list.length === 0) {
+      box.innerHTML = '<div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет операций</div>';
+      return;
+    }
+
+    box.innerHTML = list.map(x => {
+      const isIn = x.type === 'in';
+      const methodLabel = isIn ? (x.method === 'cash' ? '💵 Наличные' : '💳 Перевод') : '💵 Возврат';
+      return `
+        <div class="withdraw-item" style="padding: 8px 0;">
+          <div>
+            <div style="font-weight: 600;">
+              ${isIn ? '🎰' : '🔄'} ${x.guest_name || '—'}
+            </div>
+            <div style="font-size: 11px; color: #8fa2b8;">
+              ${methodLabel} · ${x.created_at ? new Date(x.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—'}
+            </div>
+          </div>
+          <div style="font-weight: 900; color: ${isIn ? '#3fbf7f' : '#f1c40f'};">
+            ${isIn ? '+' : '−'}${fmt(x.sum)} ₽
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {}
+}
+
+function updateCashPlayersDatalist() {
   const datalist = document.getElementById('cashPlayersDatalist');
-  if(!datalist) return;
+  if (!datalist) return;
   const players = loadPlayersChips();
   datalist.innerHTML = players.map(n => `<option value="${n}">`).join('');
 }
 
-function showPass(title, text, action){
-  const pass = prompt(text, '');
-  if(pass === null) return;
-  if(pass === '56UpahoS'){
-    action();
-  } else {
-    showInfo('Ошибка', 'Неверный пароль owner');
-  }
-}
-
-/* ============================================================
-   FAQ ДЛЯ ИГРОКОВ
-   ============================================================ */
+/* ============ FAQ ============ */
 const FAQ_CATEGORIES = [
   { key: 'all', label: 'Все' },
   { key: 'reg', label: '📝 Регистрация' },
@@ -1321,45 +1255,40 @@ const FAQ_CATEGORIES = [
 ];
 
 const FAQ_DATA = [
-  { cat: 'reg', q: 'Зачем мне регистрироваться? Я просто хочу поиграть.', a: 'Без карты у вас нет счёта — и выигрыш некуда зачислить. Регистрация занимает 1 минуту: я даю карту с номером и паролем, вы заходите на сайт, вводите номер и пароль — и всё. Ваш счёт готов. Потом все ставки и выигрыши видны в приложении.', note: 'Не говори «так положено». Говори «без карты выигрыш некуда зачислить».' },
-  { cat: 'reg', q: 'А можно без приложения? Я не хочу регистрироваться.', a: 'Понимаю. Но без карты я физически не смогу зачислить ваш выигрыш — его некуда записать. Если выиграете 500 ₽, я не смогу их вам отдать наличными, у нас всё через счёт. Регистрация — 1 минута, зато потом всё автоматически: баланс, история, бонусы.', note: 'Спокойно, без давления. Главный аргумент — «выигрыш некуда зачислить».' },
-  { cat: 'reg', q: 'У меня нет телефона / я не умею пользоваться приложением.', a: 'Не проблема. Я дам вам карту с номером и паролем. Зайти можно с любого устройства — с телефона, с планшета, с компьютера. Если хотите, я помогу зайти прямо сейчас, покажу как. Это правда просто: номер карты и пароль.', note: 'Предложи помощь. Не оставляй игрока одного с проблемой.' },
-  { cat: 'reg', q: 'А если я не хочу, чтобы вы знали, сколько я проиграл?', a: 'Мы не показываем вашу статистику никому. Только вы видите свой счёт и историю. Это ваша личная информация. Дилер видит только то, что нужно для игры — ставку и результат раунда.', note: 'Это правда: дилер видит только ставку и выигрыш за раунд.' },
-  { cat: 'reg', q: 'А сколько стоит регистрация?', a: 'Регистрация бесплатная. Вы платите только за вход в сессию — 15 ₽ (или 20/25/50 ₽ в зависимости от колоды). И за ставки. Сама карта и создание счёта — бесплатно.', note: 'Подчеркни «бесплатно» — это снимает страх «разводят на деньги».' },
-  { cat: 'reg', q: 'А если я потеряю карту?', a: 'Не проблема. Скажите мне — я подскажу, как восстановить. Номер карты и пароль можно записать или сфотографировать. Если карта потерялась — администратор восстановит доступ.', note: 'Не обещай того, чего нет. «Администратор восстановит» — общая формулировка.' },
-  { cat: 'phone', q: 'Что вы там делаете в телефоне?', a: 'Отмечаю раздачу — сколько вы поставили, сколько выиграли. Это для вашего же счёта: чтобы выигрыш сразу пришёл на баланс. Баланс обновляется автоматически, вы видите его в приложении.', note: 'Главный ответ. Уверенно, коротко. Не мямли, не прячь телефон.' },
-  { cat: 'phone', q: 'А зачем в телефоне, а не на бумаге?', a: 'Так удобнее и точнее — вы сразу видите баланс, и ошибок меньше. На бумаге можно потерять запись, а тут всё сохраняется. И выигрыш приходит сразу, не надо ждать.', note: '«Удобнее и точнее» — обыденно, не вызывает вопросов.' },
-  { cat: 'phone', q: 'А можно посмотреть, что у вас на экране?', a: 'Телефон рабочий, туда только сотрудники заходят. Но вы можете посмотреть свою историю в приложении — там все ваши ставки и выигрыши. Хотите, покажу как?', note: 'Не давай телефон. Переводи фокус на приложение игрока.' },
+  { cat: 'reg', q: 'Зачем мне регистрироваться? Я просто хочу поиграть.', a: 'Без карты у вас нет счёта — и выигрыш некуда зачислить. Регистрация занимает 1 минуту: я даю карту с номером и паролем, вы заходите на сайт, вводите номер и пароль — и всё.', note: 'Главный аргумент — «без карты выигрыш некуда зачислить».' },
+  { cat: 'reg', q: 'А можно без приложения? Я не хочу регистрироваться.', a: 'Понимаю. Но без карты я физически не смогу зачислить ваш выигрыш — его некуда записать. Регистрация — 1 минута, зато потом всё автоматически: баланс, история, бонусы.', note: 'Спокойно, без давления.' },
+  { cat: 'reg', q: 'У меня нет телефона / я не умею пользоваться приложением.', a: 'Не проблема. Я дам вам карту с номером и паролем. Зайти можно с любого устройства — с телефона, с планшета, с компьютера. Если хотите, помогу зайти прямо сейчас.', note: 'Предложи помощь.' },
+  { cat: 'reg', q: 'А если я не хочу, чтобы вы знали, сколько я проиграл?', a: 'Мы не показываем вашу статистику никому. Только вы видите свой счёт и историю. Дилер видит только то, что нужно для игры — ставку и результат раунда.', note: 'Это правда.' },
+  { cat: 'reg', q: 'А сколько стоит регистрация?', a: 'Регистрация бесплатная. Вы платите только за вход в сессию — 15 ₽ (или 20/25/50 ₽ в зависимости от колоды). И за ставки. Сама карта — бесплатно.', note: 'Подчеркни «бесплатно».' },
+  { cat: 'reg', q: 'А если я потеряю карту?', a: 'Не проблема. Скажите мне — я подскажу, как восстановить. Номер карты и пароль можно записать. Если карта потерялась — администратор восстановит доступ.', note: 'Не обещай того, чего нет.' },
+  { cat: 'phone', q: 'Что вы там делаете в телефоне?', a: 'Отмечаю раздачу — сколько вы поставили, сколько выиграли. Это для вашего же счёта: чтобы выигрыш сразу пришёл на баланс. Баланс обновляется автоматически.', note: 'Главный ответ. Уверенно, коротко.' },
+  { cat: 'phone', q: 'А зачем в телефоне, а не на бумаге?', a: 'Так удобнее и точнее — вы сразу видите баланс, и ошибок меньше. На бумаге можно потерять запись, а тут всё сохраняется.', note: '«Удобнее и точнее» — обыденно.' },
+  { cat: 'phone', q: 'А можно посмотреть, что у вас на экране?', a: 'Телефон рабочий, туда только сотрудники заходят. Но вы можете посмотреть свою историю в приложении — там все ваши ставки и выигрыши. Хотите, покажу как?', note: 'Не давай телефон.' },
   { cat: 'phone', q: 'А что это за программа у вас?', a: 'Это рабочая программа — отмечаю результаты раздач. Как касса в магазине: пробиваю чек, только вместо чека — ваша ставка.', note: 'Аналогия с кассой — понятна и скучна.' },
-  { cat: 'phone', q: 'А вы не жульничаете через телефон?', a: 'Нет. Я отмечаю только то, что произошло за столом — вашу ставку и результат. Карты раздаются вживую, результат виден всем. Программа нужна, чтобы выигрыш пришёл на счёт, а не чтобы что-то подкрутить.', note: 'Спокойно, без обиды. «Карты раздаются вживую» — правда.' },
-  { cat: 'phone', q: 'А покажите, что вы там вводите?', a: 'Я ввожу вашу ставку и результат раунда — то, что вы сами видели за столом. Если хотите, после игры покажу в приложении, как это выглядит в истории. Там всё видно: ставка, результат, баланс.', note: '«То, что вы сами видели» — правда. Не показывай экран.' },
-  { cat: 'money', q: 'Как пополнить счёт?', a: 'В приложении нажмите «Пополнить» — введёте сумму, и деньги придут на счёт. Минимум 10 ₽. Пополнение без комиссии. Или можно наличными через дилера — я зачислю на счёт сразу.', note: 'Про наличные говори только если сам предлагаешь эту опцию.' },
-  { cat: 'money', q: 'Как вывести выигрыш?', a: 'В приложении нажмите «Вывести» — введёте карту и сумму. Минимум 100 ₽. Комиссия за вывод — 10% в блэкджеке, 8% в баккаре. Выводите 100 ₽ — получаете 90 ₽ (или 92 ₽ в баккаре).', note: 'Сразу говори про комиссию — это честно.' },
-  { cat: 'money', q: 'Почему комиссия за вывод?', a: 'Это комиссия за перевод на карту. Пополнение — бесплатно, а вывод — 10% (или 8% в баккаре). Так устроено во всех онлайн-казино.', note: 'Не оправдывайся. «Так устроено» — нейтрально.' },
-  { cat: 'money', q: 'А когда придёт выигрыш?', a: 'Сразу после раздачи — баланс обновляется автоматически. Вы можете проверить в приложении. Если что-то не сходится — покажу, как посмотреть историю.', note: '«Автоматически» — ключевое слово.' },
-  { cat: 'money', q: 'А можно наличными?', a: 'Да, можно. Дайте мне наличные — я зачислю их на ваш счёт, и вы сможете играть как обычно. Потом выигрыш тоже можно забрать наличными через меня.', note: 'Это новая опция. Если игрок согласен — работаешь через вкладку «Наличные».' },
-  { cat: 'money', q: 'А если я проиграл больше, чем хотел?', a: 'Вы сами решаете, когда остановиться. Если чувствуете, что заигрались — скажите, я остановлю игру. Никто вас не заставляет продолжать. В приложении видно, сколько вы потратили.', note: 'Это важно. Дилер должен уметь остановить игрока.' },
-  { cat: 'game', q: 'Какие правила блэкджека?', a: 'Цель — набрать ближе к 21, чем у дилера, но не больше. Карты 2–10 по номиналу, валет/дама/король = 10, туз = 1 или 11. Блэкджек (туз + 10) платит 3:2. Дилер стоит на 17. Дабл, сплит до 3 рук, сдача разрешена.', note: 'Коротко. Если игрок хочет подробнее — покажи памятку.' },
-  { cat: 'game', q: 'Какие правила баккары?', a: 'Ставите на Игрока, Банк или Ничью. Игрок — 1:1, Банк — 1:1 минус 5%, Ничья — 8:1. Цель — набрать ближе к 9. Десятки и картинки = 0, туз = 1. Дилер раздаёт по правилам, вы только ставите.', note: 'Подчеркни «вы только ставите» — это просто.' },
-  { cat: 'game', q: 'А что такое блэкджек?', a: 'Это туз + карта на 10 очков с первых двух карт. Платит 3:2 — поставили 100 ₽, получили 250 ₽. Если у дилера тоже блэкджек — ничья, ставка возвращается.', note: 'Пример с 100 → 250 помогает понять выгоду.' },
+  { cat: 'phone', q: 'А вы не жульничаете через телефон?', a: 'Нет. Я отмечаю только то, что произошло за столом — вашу ставку и результат. Карты раздаются вживую, результат виден всем.', note: 'Спокойно, без обиды.' },
+  { cat: 'phone', q: 'А покажите, что вы там вводите?', a: 'Я ввожу вашу ставку и результат раунда — то, что вы сами видели за столом. Если хотите, после игры покажу в приложении, как это выглядит в истории.', note: '«То, что вы сами видели» — правда.' },
+  { cat: 'money', q: 'Куда перевести, чтобы играть?', a: 'Есть визитка с номером карты и получателем. Переведите туда — покажите мне телефон с переводом, и я выдам фишки. Всё просто.', note: 'Если есть визитка — дай её.' },
+  { cat: 'money', q: 'Как вывести выигрыш?', a: 'В приложении нажмите «Вывести» — введёте карту и сумму. Минимум 100 ₽. Комиссия за вывод — 10% в блэкджеке, 8% в баккаре.', note: 'Сразу говори про комиссию.' },
+  { cat: 'money', q: 'Почему комиссия за вывод?', a: 'Это комиссия за перевод на карту. Пополнение — бесплатно, а вывод — 10% (или 8% в баккаре). Так устроено во всех онлайн-казино.', note: 'Не оправдывайся.' },
+  { cat: 'money', q: 'А можно наличными?', a: 'Да, можно. Дайте мне наличные — я выдам фишки. Потом выигрыш можно забрать наличными через меня.', note: 'Работаешь через вкладку «Наличные».' },
+  { cat: 'money', q: 'А если я проиграл больше, чем хотел?', a: 'Вы сами решаете, когда остановиться. Если чувствуете, что заигрались — скажите, я остановлю игру. Никто вас не заставляет продолжать.', note: 'Это важно. Дилер должен уметь остановить.' },
+  { cat: 'game', q: 'Какие правила блэкджека?', a: 'Цель — набрать ближе к 21, чем у дилера, но не больше. Карты 2–10 по номиналу, валет/дама/король = 10, туз = 1 или 11. Блэкджек платит 3:2. Дилер стоит на 17. Дабл, сплит до 3 рук, сдача.', note: 'Коротко.' },
+  { cat: 'game', q: 'Какие правила баккары?', a: 'Ставите на Игрока, Банк или Ничью. Игрок — 1:1, Банк — 1:1 минус 5%, Ничья — 8:1. Цель — набрать ближе к 9. Дилер раздаёт по правилам, вы только ставите.', note: 'Подчеркни «вы только ставите».' },
+  { cat: 'game', q: 'А что такое блэкджек?', a: 'Это туз + карта на 10 очков с первых двух карт. Платит 3:2 — поставили 100 ₽, получили 250 ₽. Если у дилера тоже блэкджек — ничья, ставка возвращается.', note: 'Пример с 100 → 250.' },
   { cat: 'game', q: 'А что такое страховка?', a: 'Если у дилера открыт туз, вы можете застраховаться. Если у дилера блэкджек — страховка платит 2:1. Если нет — страховка сгорает. Это дополнительная ставка, необязательная.', note: '«Необязательная» — важно.' },
   { cat: 'game', q: 'Сколько стоит вход за стол?', a: 'Блэкджек: 15 ₽ за 6 колод, 20 ₽ за 4, 25 ₽ за 2, 50 ₽ за 1 колоду. Баккара: 15 ₽. Минимальная ставка — 10 ₽. Вход оплачивается один раз за сессию.', note: 'Точные цифры — из памятки.' },
   { cat: 'game', q: 'А если я вышел и зашёл обратно — платить снова?', a: 'В блэкджеке: если зашли той же колодой — вход не платится. Сменили колоду — платите заново. В баккаре: каждый заход — новый вход.', note: 'Это правило из памятки.' },
-  { cat: 'bonus', q: 'А какие бонусы есть?', a: 'За каждую ставку вы получаете очки. 100 очков = ранг Silver + 50 ₽ в подарок. Плюс каждый день можно забирать ежедневный бонус — 10 → 15 → 20 → ... ₽. Чем больше играете — тем больше подарков.', note: 'Не обещай «много». Скажи конкретно: 100 очков = 50 ₽.' },
-  { cat: 'bonus', q: 'А что такое ежедневный бонус?', a: 'Заходите каждый день в приложение — получаете бонус. Первый день 10 ₽, второй 15 ₽, и так до 40 ₽. Пропустите день — серия сгорит, начнётся с 10 ₽.', note: 'Аналогия с игрой — понятна.' },
-  { cat: 'bonus', q: 'А как получить бонус за ранг?', a: 'Играйте — очки капают автоматически. Когда наберёте нужное количество — ранг повысится, и подарок придёт на бонусный счёт. Чтобы его вывести, нужно отыграть определённое количество ставок. Всё видно в приложении.', note: 'Не вдавайся в вейджер, если не спрашивают.' },
-  { cat: 'bonus', q: 'А что такое джекпот?', a: 'Это общий банк, который растёт с каждой ставкой. Когда дилер отмечает «Джекпот выпал» — банк уходит игроку. Бывает не часто, но сумма большая.', note: 'Коротко. Не обещай, что выпадет именно этому игроку.' },
-  { cat: 'bonus', q: 'А почему бонус нельзя сразу вывести?', a: 'Бонус — это подарок от казино. Чтобы его вывести, нужно немного поиграть — отыграть определённую сумму ставок. Это честно: мы даём бонус, вы играете, потом выводите. Всё видно в приложении.', note: '«Честно» — ключевое слово.' },
-  { cat: 'trust', q: 'А вы не обманываете?', a: 'Нет. Все правила открыты, дилер отвечает на вопросы до игры. Карты раздаются вживую — результат видят все. Ставки и выигрыши записываются автоматически, вы можете проверить историю в приложении. Если что-то не сходится — покажу.', note: 'Спокойно. «Результат видят все» — правда.' },
-  { cat: 'trust', q: 'А откуда я знаю, что вы не подкручиваете?', a: 'Карты раздаются вживую, результат виден за столом. Программа только записывает то, что произошло — ставку и результат. Она не может ничего подкрутить, потому что карты уже разданы.', note: 'Логика: «карты уже разданы» — значит, подкрутить нельзя.' },
-  { cat: 'trust', q: 'А можно посмотреть, как вы записываете?', a: 'Программа рабочая, туда только сотрудники заходят. Но свою историю вы можете посмотреть в приложении — там все ваши ставки и выигрыши. Хотите, покажу как?', note: 'Переводи фокус на приложение игрока.' },
-  { cat: 'trust', q: 'А если я выиграю много — вы отдадите?', a: 'Да. Выигрыш зачисляется автоматически, выводится через приложение на карту. Минимум для вывода — 100 ₽. Комиссия за вывод — 10% (или 8% в баккаре). Всё прозрачно.', note: 'Спокойно. Не говори «конечно, отдадим» — говори «зачисляется автоматически».' },
-  { cat: 'trust', q: 'А почему вы всё время смотрите в телефон, а не на стол?', a: 'Я смотрю и на стол, и в телефон — отмечаю раздачу. Карты я вижу, результат вижу, а в телефон ввожу, чтобы выигрыш пришёл на счёт. Это как кассир: смотрит на товар и пробивает чек.', note: 'Аналогия с кассиром — снимает подозрение.' },
-  { cat: 'game', q: 'А можно я сам раздам карты?', a: 'Нет, карты раздаёт только дилер. Это правило стола — так честнее для всех. К картам и фишкам не прикасайтесь.', note: 'Не грубо. «Так честнее для всех» — объясняет причину.' },
-  { cat: 'game', q: 'А можно поменять ставку после раздачи?', a: 'Нет. После команды «ставки закрыты» менять ставку нельзя. Это правило стола — так честнее. Если хотите изменить — скажите до команды.', note: 'Правило из памятки.' },
-  { cat: 'money', q: 'А если я передумал играть — вернут деньги?', a: 'Если вы ещё не начинали — да, депозит вернётся. Если уже играли — возвращается остаток за вычетом сыгранных ставок. Это правило стола.', note: 'Правило из памятки.' },
-  { cat: 'trust', q: 'А можно мне просто посмотреть, не играя?', a: 'Конечно. Сядьте, посмотрите, задайте вопросы — я отвечу. Никто вас не заставляет играть. Когда будете готовы — скажете.', note: 'Это важно. Игрок должен чувствовать, что может уйти в любой момент.' },
-  { cat: 'trust', q: 'А если я заигрался — что делать?', a: 'Скажите мне — я остановлю игру. Вы можете отказаться в любой момент, без объяснения причин. Это нормально — остановиться. Никто вас не осудит.', note: 'Серьёзно. Это про ответственность. Не шути.' }
+  { cat: 'bonus', q: 'А какие бонусы есть?', a: 'За каждую ставку вы получаете очки. 100 очков = ранг Silver + 50 ₽ в подарок. Плюс каждый день можно забирать ежедневный бонус — 10 → 15 → 20 → ... ₽.', note: 'Не обещай «много».' },
+  { cat: 'bonus', q: 'А что такое ежедневный бонус?', a: 'Заходите каждый день в приложение — получаете бонус. Первый день 10 ₽, второй 15 ₽, и так до 40 ₽. Пропустите день — серия сгорит.', note: 'Аналогия с игрой.' },
+  { cat: 'bonus', q: 'А как получить бонус за ранг?', a: 'Играйте — очки капают автоматически. Когда наберёте нужное количество — ранг повысится, и подарок придёт на бонусный счёт. Чтобы его вывести, нужно отыграть определённое количество ставок.', note: 'Не вдавайся в вейджер.' },
+  { cat: 'bonus', q: 'А что такое джекпот?', a: 'Это общий банк, который растёт с каждой ставкой. Когда дилер отмечает «Джекпот выпал» — банк уходит игроку. Бывает не часто, но сумма большая.', note: 'Коротко.' },
+  { cat: 'bonus', q: 'А почему бонус нельзя сразу вывести?', a: 'Бонус — это подарок от казино. Чтобы его вывести, нужно немного поиграть — отыграть определённую сумму ставок. Это честно: мы даём бонус, вы играете, потом выводите.', note: '«Честно» — ключевое слово.' },
+  { cat: 'trust', q: 'А вы не обманываете?', a: 'Нет. Все правила открыты, дилер отвечает на вопросы до игры. Карты раздаются вживую — результат видят все. Ставки и выигрыши записываются автоматически, вы можете проверить историю в приложении.', note: 'Спокойно.' },
+  { cat: 'trust', q: 'А откуда я знаю, что вы не подкручиваете?', a: 'Карты раздаются вживую, результат виден за столом. Программа только записывает то, что произошло — ставку и результат. Она не может ничего подкрутить, потому что карты уже разданы.', note: 'Логика: «карты уже разданы».' },
+  { cat: 'trust', q: 'А можно посмотреть, как вы записываете?', a: 'Программа рабочая, туда только сотрудники заходят. Но свою историю вы можете посмотреть в приложении — там все ваши ставки и выигрыши.', note: 'Переводи фокус на приложение игрока.' },
+  { cat: 'trust', q: 'А если я выиграю много — вы отдадите?', a: 'Да. Выигрыш зачисляется автоматически, выводится через приложение на карту. Минимум для вывода — 100 ₽. Комиссия за вывод — 10% (или 8% в баккаре).', note: 'Спокойно.' },
+  { cat: 'trust', q: 'А почему вы всё время смотрите в телефон, а не на стол?', a: 'Я смотрю и на стол, и в телефон — отмечаю раздачу. Карты я вижу, результат вижу, а в телефон ввожу, чтобы выигрыш пришёл на счёт. Это как кассир: смотрит на товар и пробивает чек.', note: 'Аналогия с кассиром.' },
+  { cat: 'trust', q: 'А если я заигрался — что делать?', a: 'Скажите мне — я остановлю игру. Вы можете отказаться в любой момент, без объяснения причин. Это нормально — остановиться.', note: 'Серьёзно. Это про ответственность.' }
 ];
 
 let faqCurrentCat = 'all';
@@ -1384,11 +1313,9 @@ function filterFaq(){
   const empty = document.getElementById('faqEmpty');
 
   let filtered = FAQ_DATA;
-
   if(faqCurrentCat !== 'all'){
     filtered = filtered.filter(item => item.cat === faqCurrentCat);
   }
-
   if(search){
     filtered = filtered.filter(item =>
       item.q.toLowerCase().includes(search) ||
@@ -1445,12 +1372,6 @@ function copyFaqAnswer(idx, btn){
     ta.select();
     try { document.execCommand('copy'); } catch(e) {}
     document.body.removeChild(ta);
-    btn.classList.add('copied');
-    btn.innerHTML = '✓ Скопировано';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = '📋 Скопировать ответ';
-    }, 2000);
   });
 }
 
