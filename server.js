@@ -2,6 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const { Server: SocketServer } = require('socket.io');
+const { AccessToken } = require('livekit-server-sdk');
 
 const PORT = process.env.PORT || 3000;
 
@@ -741,6 +743,21 @@ const server = http.createServer(async (req, res) => {
   const method = req.method;
 
   try {
+    /* ========== LIVEKIT TOKEN ========== */
+    if (url === '/api/livekit/token' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const identity = String(u.searchParams.get('identity') || '').trim();
+      const role = String(u.searchParams.get('role') || 'player');
+      if (!identity) return sendJSON(res, 400, { error: 'no identity' });
+      if (!['dealer','player'].includes(role)) return sendJSON(res, 400, { error: 'bad role' });
+      try {
+        const token = await makeLivekitToken(identity, role);
+        return sendJSON(res, 200, { token, url: LIVEKIT_URL });
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
+    }
+
     if(url === '/api/jackpot' && method === 'GET'){
       const jackpot = await getActualJackpot();
       return sendJSON(res, 200, { jackpot });
@@ -2487,11 +2504,337 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+/* ========== ВСТАВЬ СЮДА ЧАСТЬ 2 ========== */
+/* ============================================================
+   LIVEKIT — выдача токенов
+   ============================================================ */
+const LIVEKIT_API_KEY    = process.env.LIVEKIT_API_KEY    || '';
+const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || '';
+const LIVEKIT_URL        = process.env.LIVEKIT_URL        || '';
+
+async function makeLivekitToken(identity, role) {
+  if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET) throw new Error('LiveKit keys not configured');
+  const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, { identity, ttl: '4h' });
+  at.addGrant({
+    roomJoin: true, room: 'kingwin-table-1',
+    canPublish: role === 'dealer', canSubscribe: true, canPublishData: false
+  });
+  return await at.toJwt();
+}
+
+/* ============================================================
+   БЛЭКДЖЕК — LIVE СТОЛ
+   ============================================================ */
+const SEATS = 4;
+const MIN_BET = 10;
+const MAX_BET = 5000;
+const BET_TIME_MS = 15000;
+
+const table = {
+  seats: Array(SEATS).fill(null),
+  dealerCards: [], deck: [],
+  phase: 'waiting', betDeadline: 0, timer: null, roundId: 0
+};
+
+const io = new SocketServer(server, {
+  cors: { origin: process.env.FRONTEND_URL || '*', methods: ['GET','POST'] },
+  transports: ['polling','websocket']
+});
+
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS_LIST = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+
+function newDeck(numDecks = 6) {
+  const deck = [];
+  for (let d = 0; d < numDecks; d++)
+    for (const s of SUITS) for (const r of RANKS_LIST) deck.push({ r, s });
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+function handValue(cards) {
+  let sum = 0, aces = 0;
+  for (const c of cards) {
+    if (c.r === 'A') { aces++; sum += 11; }
+    else if (['J','Q','K'].includes(c.r)) sum += 10;
+    else sum += parseInt(c.r);
+  }
+  while (sum > 21 && aces > 0) { sum -= 10; aces--; }
+  return sum;
+}
+function isBlackjack(cards) { return cards.length === 2 && handValue(cards) === 21; }
+
+function publicState(forSocketId = null) {
+  const hideDealer = ['betting','playing','waiting'].includes(table.phase);
+  const dealerCards = table.dealerCards.map((c, i) =>
+    (hideDealer && i === 1) ? { r:'?', s:'?' } : c);
+  return {
+    phase: table.phase, betDeadline: table.betDeadline, roundId: table.roundId,
+    dealerCards,
+    dealerTotal: hideDealer && table.dealerCards.length > 0
+      ? handValue([table.dealerCards[0]]) : handValue(table.dealerCards),
+    seats: table.seats.map((s, i) => {
+      if (!s) return null;
+      return { idx: i, name: s.name, bet: s.bet, cards: s.cards,
+        total: handValue(s.cards), stood: s.stood, busted: s.busted,
+        doubled: s.doubled, result: s.result || null,
+        isMe: s.socketId === forSocketId };
+    })
+  };
+}
+function broadcastState() {
+  for (const [sid, sock] of io.sockets.sockets) sock.emit('state', publicState(sid));
+}
+function clearTableTimer() {
+  if (table.timer) { clearTimeout(table.timer); table.timer = null; }
+}
+
+async function getGuestBalance(guestId) {
+  const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
+  if (!r.rows.length) return null;
+  const g = r.rows[0];
+  return {
+    bonus: parseFloat(g.bonus_balance) || 0,
+    deposit: parseFloat(g.deposit_balance) || 0,
+    total: (parseFloat(g.bonus_balance) || 0) + (parseFloat(g.deposit_balance) || 0)
+  };
+}
+async function withdrawBet(guestId, amount) {
+  const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
+  if (!r.rows.length) return false;
+  let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
+  let dep = parseFloat(r.rows[0].deposit_balance) || 0;
+  if (bonus + dep < amount) return false;
+  let rem = amount;
+  if (bonus >= rem) { bonus -= rem; rem = 0; }
+  else { rem -= bonus; bonus = 0; dep -= rem; }
+  await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3',
+    [bonus, dep, guestId]);
+  return true;
+}
+async function creditWin(guestId, amount) {
+  if (amount <= 0) return;
+  await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2',
+    [amount, guestId]);
+}
+
+function startBettingPhase() {
+  clearTableTimer();
+  table.phase = 'betting';
+  table.dealerCards = [];
+  table.betDeadline = Date.now() + BET_TIME_MS;
+  for (const s of table.seats) if (s) {
+    s.cards = []; s.stood = false; s.busted = false;
+    s.doubled = false; s.result = null; s.bet = 0;
+  }
+  broadcastState();
+  table.timer = setTimeout(async () => {
+    const active = table.seats.filter(s => s && s.bet > 0);
+    if (active.length === 0) {
+      table.phase = 'waiting'; broadcastState();
+      io.emit('dealerMsg', 'Нет ставок — раунд отменён');
+      return;
+    }
+    await dealRound();
+  }, BET_TIME_MS);
+}
+
+async function dealRound() {
+  clearTableTimer();
+  table.roundId++;
+  table.deck = newDeck(6);
+  table.phase = 'playing';
+  for (let pass = 0; pass < 2; pass++) {
+    for (const s of table.seats) if (s && s.bet > 0) s.cards.push(table.deck.pop());
+    table.dealerCards.push(table.deck.pop());
+  }
+  for (const s of table.seats)
+    if (s && s.bet > 0 && isBlackjack(s.cards)) s.stood = true;
+  broadcastState();
+  checkAllPlayersDone();
+}
+function checkAllPlayersDone() {
+  const active = table.seats.filter(s => s && s.bet > 0);
+  if (active.length > 0 && active.every(s => s.stood || s.busted)) dealerPlay();
+}
+async function dealerPlay() {
+  table.phase = 'dealer'; broadcastState();
+  while (handValue(table.dealerCards) < 17) {
+    await new Promise(r => setTimeout(r, 700));
+    table.dealerCards.push(table.deck.pop());
+    broadcastState();
+  }
+  await settleRound();
+}
+async function settleRound() {
+  table.phase = 'payout';
+  const dv = handValue(table.dealerCards);
+  const dealerBJ = isBlackjack(table.dealerCards);
+  for (const s of table.seats) {
+    if (!s || s.bet <= 0) continue;
+    const pv = handValue(s.cards);
+    const playerBJ = isBlackjack(s.cards);
+    let payout = 0, result = 'lose';
+    if (pv > 21) { result = 'bust'; }
+    else if (playerBJ && !dealerBJ) { result = 'blackjack'; payout = Math.floor(s.bet * 2.5); }
+    else if (dealerBJ && !playerBJ) { result = 'lose'; }
+    else if (playerBJ && dealerBJ) { result = 'push'; payout = s.bet; }
+    else if (dv > 21 || pv > dv) { result = 'win'; payout = s.bet * 2; }
+    else if (pv === dv) { result = 'push'; payout = s.bet; }
+    s.result = result;
+    if (payout > 0 && s.guestId) await creditWin(s.guestId, payout);
+    try {
+      await pool.query(
+        `INSERT INTO sessions (date, nick, decks, dep, out_sum, fee, net, result, dealer)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [todayStr(), s.name, 6, s.bet, payout, 0, s.bet - payout, s.bet - payout, 'live-dealer']
+      );
+    } catch(e) { console.error('session insert:', e.message); }
+    try {
+      const net = s.bet - payout;
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+        [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Live BJ (${s.name})`]);
+    } catch(e) {}
+  }
+  broadcastState();
+  io.emit('roundResult', publicState());
+  table.timer = setTimeout(() => startBettingPhase(), 6000);
+}
+
+io.on('connection', (socket) => {
+  socket.emit('state', publicState(socket.id));
+
+  socket.on('sit', async ({ guestId, name, seat }) => {
+    try {
+      if (seat < 0 || seat >= SEATS) return socket.emit('err', 'Неверное место');
+      if (table.seats[seat]) return socket.emit('err', 'Место занято');
+      if (!['waiting','betting'].includes(table.phase))
+        return socket.emit('err', 'Раунд уже идёт');
+      if (!guestId) return socket.emit('err', 'Войдите в аккаунт');
+      const bal = await getGuestBalance(guestId);
+      if (!bal) return socket.emit('err', 'Гость не найден');
+      if (bal.total <= 0) return socket.emit('err', 'Нет средств');
+      for (let i = 0; i < SEATS; i++)
+        if (table.seats[i] && table.seats[i].socketId === socket.id) table.seats[i] = null;
+      table.seats[seat] = {
+        socketId: socket.id, guestId: String(guestId),
+        name: String(name || 'Гость'),
+        bet: 0, cards: [], stood: false, busted: false,
+        doubled: false, result: null
+      };
+      socket.data.seat = seat;
+      broadcastState();
+      io.emit('dealerMsg', `${name} сел на место ${seat+1}`);
+      if (table.phase === 'waiting') startBettingPhase();
+    } catch(e) { socket.emit('err', e.message); }
+  });
+
+  socket.on('leave', () => {
+    const seat = socket.data.seat;
+    if (seat == null) return;
+    if (['playing','dealer'].includes(table.phase))
+      return socket.emit('err', 'Нельзя встать во время раунда');
+    table.seats[seat] = null;
+    socket.data.seat = null;
+    broadcastState();
+  });
+
+  socket.on('bet', async ({ amount }) => {
+    try {
+      const seat = socket.data.seat;
+      if (seat == null) return socket.emit('err', 'Сначала сядьте');
+      const s = table.seats[seat];
+      if (!s) return socket.emit('err', 'Место не найдено');
+      if (table.phase !== 'betting') return socket.emit('err', 'Сейчас нельзя ставить');
+      const amt = parseInt(amount, 10) || 0;
+      if (amt < MIN_BET || amt > MAX_BET)
+        return socket.emit('err', `Ставка ${MIN_BET}–${MAX_BET}`);
+      const bal = await getGuestBalance(s.guestId);
+      if (!bal || bal.total < amt) return socket.emit('err', 'Недостаточно средств');
+      const ok = await withdrawBet(s.guestId, amt);
+      if (!ok) return socket.emit('err', 'Ошибка списания');
+      s.bet = amt;
+      broadcastState();
+    } catch(e) { socket.emit('err', e.message); }
+  });
+
+  socket.on('hit', () => {
+    const seat = socket.data.seat;
+    if (seat == null) return;
+    const s = table.seats[seat];
+    if (!s || table.phase !== 'playing' || s.stood || s.busted) return;
+    s.cards.push(table.deck.pop());
+    if (handValue(s.cards) > 21) s.busted = true;
+    broadcastState();
+    checkAllPlayersDone();
+  });
+
+  socket.on('stand', () => {
+    const seat = socket.data.seat;
+    if (seat == null) return;
+    const s = table.seats[seat];
+    if (!s || table.phase !== 'playing' || s.stood || s.busted) return;
+    s.stood = true;
+    broadcastState();
+    checkAllPlayersDone();
+  });
+
+  socket.on('double', async () => {
+    const seat = socket.data.seat;
+    if (seat == null) return;
+    const s = table.seats[seat];
+    if (!s || table.phase !== 'playing') return;
+    if (s.cards.length !== 2 || s.stood || s.busted) return;
+    const extra = s.bet;
+    const bal = await getGuestBalance(s.guestId);
+    if (!bal || bal.total < extra) return socket.emit('err', 'Недостаточно для удвоения');
+    const ok = await withdrawBet(s.guestId, extra);
+    if (!ok) return socket.emit('err', 'Ошибка списания');
+    s.bet += extra;
+    s.doubled = true;
+    s.cards.push(table.deck.pop());
+    if (handValue(s.cards) > 21) s.busted = true;
+    else s.stood = true;
+    broadcastState();
+    checkAllPlayersDone();
+  });
+
+  socket.on('dealer:startBetting', () => {
+    if (['playing','dealer'].includes(table.phase))
+      return socket.emit('err', 'Раунд идёт');
+    startBettingPhase();
+  });
+
+  socket.on('dealer:forceDealer', async () => {
+    if (table.phase !== 'playing') return;
+    for (const s of table.seats)
+      if (s && s.bet > 0 && !s.busted) s.stood = true;
+    broadcastState();
+    await dealerPlay();
+  });
+
+  socket.on('disconnect', () => {
+    const seat = socket.data.seat;
+    if (seat != null && table.seats[seat] && table.seats[seat].socketId === socket.id) {
+      if (['waiting','betting'].includes(table.phase)) {
+        table.seats[seat] = null;
+      } else {
+        table.seats[seat].stood = true;
+      }
+      broadcastState();
+    }
+  });
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('  Сервер запущен на порту ' + PORT);
   console.log('  Админ:   /admin.html');
   console.log('  Дилер:   /dealer.html');
+  console.log('  Live:    /livekit.html');
+  console.log('  Игрок:   /player.html');
   console.log('  Джекпот: /jackpot.html');
   console.log('  Crash:   /crash.html');
   console.log('  Кейсы:   /cases.html');
