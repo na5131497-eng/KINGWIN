@@ -477,28 +477,36 @@ async function pollRound() {
 
 function restoreMyBetFromServer(serverBets) {
   if (!playerId || !Array.isArray(serverBets)) return;
-  const myActive = serverBets.filter(b => 
-    b.player_id && 
-    String(b.player_id) === String(playerId) && 
+  const myActive = serverBets.filter(b =>
+    b.player_id &&
+    String(b.player_id) === String(playerId) &&
     !String(b.player_id).startsWith('BOT')
   );
-  if (myActive.length === 0) return;
-  let changed = false;
-  myActive.forEach(b => {
-    if (myBetId === b.id) {
-      if (!!b.cashed_out !== myCashed) {
-        myCashed = !!b.cashed_out;
-        changed = true;
-      }
-      return;
+
+  // Найти «свою» ставку в текущем раунде
+  const mine = myActive.length > 0 ? myActive[myActive.length - 1] : null;
+
+  if (mine) {
+    // Ставка из очереди стала активной — снимаем флаг очереди
+    if (queuedBet && !myBetId) {
+      queuedBet = null;
     }
-    if (!myBetId && !queuedBet) {
-      myBetId = b.id;
-      myCashed = !!b.cashed_out;
-      changed = true;
+    if (myBetId !== mine.id) {
+      myBetId = mine.id;
+      updateBetButtons();
     }
-  });
-  if (changed) updateBetButtons();
+    if (!!mine.cashed_out !== myCashed) {
+      myCashed = !!mine.cashed_out;
+      updateBetButtons();
+    }
+  } else {
+    // В текущем раунде своей ставки нет — обнуляем
+    if (myBetId && myBetId !== 'queued') {
+      myBetId = null;
+      myCashed = false;
+      updateBetButtons();
+    }
+  }
 }
 
 function applyServerState(d) {
@@ -515,16 +523,8 @@ function applyServerState(d) {
     myCashed = false;
     resetLocalCrash();
     loadBalance();
-    setTimeout(() => {
-      if (queuedBet && queuedBet.amount > 0) {
-        const candidates = (round.bets || []).filter(b => String(b.player_id) === String(playerId) && !b.cashed_out);
-        if (candidates.length > 0) {
-          myBetId = candidates[candidates.length - 1].id;
-          queuedBet = null;
-        }
-      }
-      updateBetButtons();
-    }, 800);
+    // Ставку из очереди восстановит restoreMyBetFromServer() ниже,
+    // когда сервер реально её активирует в новом раунде.
   }
   const prevStatus = round.status;
   if (prevStatus === 'crashed' && d.status !== 'crashed') resetLocalCrash();
@@ -750,6 +750,11 @@ function updateBetButtonsLive(mult, effStatus) {
       const val = (amt * mult).toFixed(2);
       const html = `Забрать <div class="subtext">${val} ₽</div>`;
       if (btn.innerHTML !== html) btn.innerHTML = html;
+    } else {
+      // Ставка исчезла из текущего раунда — сбрасываем состояние
+      myBetId = null;
+      myCashed = false;
+      updateBetButtons();
     }
   }
 }
@@ -807,15 +812,36 @@ async function placeBet() {
 
 async function doCashout() {
   if (!myBetId || myCashed || myBetId === 'queued') return;
+
+  // Защита: если ставки реально нет в текущем раунде — не отправляем
+  const amt = getBetAmountById(myBetId, round.bets);
+  if (amt <= 0) {
+    myBetId = null;
+    myCashed = false;
+    updateBetButtons();
+    pollRound();
+    showToast('Ставка не найдена, обновляю...', 'error');
+    return;
+  }
+
   const betId = myBetId; myCashed = true;
   try {
     const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
     const d = await r.json();
-    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed = false; return; }
+    if (!r.ok) {
+      showToast(d.error || 'Ошибка вывода', 'error');
+      myCashed = false;
+      myBetId = null;
+      pollRound();
+      return;
+    }
     playCashoutSound();
     showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
     loadBalance(); pollRound();
-  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed = false; }
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+    myCashed = false;
+  }
 }
 
 function showToast(text, type='success') {
