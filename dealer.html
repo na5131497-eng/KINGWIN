@@ -133,7 +133,7 @@
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
-  .modal-box { background: rgba(18, 24, 38, 0.98); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 380px; text-align: center; margin: auto; }
+  .modal-box { background: rgba(18, 24, 38, 0.98); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 420px; text-align: center; margin: auto; }
   .modal-box h3 { font-size: 20px; margin-bottom: 10px; }
   .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 18px; line-height: 1.5; }
   .modal-box input { width: 100%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; text-align: center; }
@@ -191,30 +191,10 @@
   .faq-header-note { background: linear-gradient(135deg, rgba(241,196,15,0.10), rgba(255,77,77,0.05)); border: 1px solid rgba(241,196,15,0.35); border-left: 4px solid #f1c40f; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 12px; color: #f4ecd8; line-height: 1.55; }
   .faq-header-note b { color: #f1c40f; font-weight: 800; }
 
-  /* Фишки — сводка */
-  .chips-summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .chips-stat {
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-  }
-  .chips-stat .lbl {
-    font-size: 10px;
-    color: #8fa2b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .chips-stat .val {
-    font-size: 18px;
-    font-weight: 900;
-  }
+  .safe-big-card { background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(63,191,127,.08)); border: 1px solid rgba(0,229,255,.4); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
+  .safe-big-card .lbl { font-size: 12px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .safe-big-card .amount { font-size: 42px; font-weight: 900; color: #00e5ff; line-height: 1.2; margin: 8px 0; }
+  .safe-big-card .details { font-size: 13px; color: #d0d5e0; }
 
   @media (max-width: 600px) {
     body { padding: 12px; }
@@ -236,6 +216,7 @@
     .silence-card .s-foot { flex-wrap: wrap; font-size: 10px; }
     .balance-card { padding: 16px; }
     .balance-card .amount { font-size: 32px; }
+    .safe-big-card .amount { font-size: 34px; }
     .task { padding: 12px; }
     .task .title { font-size: 13px; }
     .task .reward { font-size: 14px; }
@@ -268,6 +249,7 @@
     .task .top { gap: 4px; }
     .task .reward { font-size: 13px; }
     .balance-card .amount { font-size: 28px; }
+    .safe-big-card .amount { font-size: 28px; }
   }
 </style>
 </head>
@@ -310,7 +292,6 @@
       <div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>
     </div>
 
-    <!-- Блок вывода -->
     <div style="margin-top:20px;">
       <h3 style="font-size:16px; margin-bottom:12px;">💸 Вывод средств</h3>
       <div class="balance-card" style="margin-bottom:14px;">
@@ -322,7 +303,6 @@
       <div class="msg" id="msgWithdraw"></div>
     </div>
 
-    <!-- Бонус за тишину -->
     <div class="silence-card" id="silenceCard" style="margin-top:20px;">
       <div class="s-top">
         <div class="s-title">Бонус за тишину</div>
@@ -339,9 +319,26 @@
       </div>
     </div>
 
-    <!-- История выводов -->
     <h3 style="font-size:16px; margin:24px 0 12px;">📜 История выводов</h3>
     <div id="withdrawHistory"></div>
+
+    <h3 style="font-size:16px; margin:24px 0 12px;">🔒 Смена пароля</h3>
+    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px;">
+      <div class="form-group">
+        <label>Текущий пароль</label>
+        <input type="password" id="cpOld" placeholder="Введите текущий пароль" autocomplete="current-password">
+      </div>
+      <div class="form-group">
+        <label>Новый пароль</label>
+        <input type="password" id="cpNew" placeholder="Минимум 4 символа" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Повторите новый пароль</label>
+        <input type="password" id="cpNew2" placeholder="Повторите пароль" autocomplete="new-password">
+      </div>
+      <button class="btn-submit" onclick="changeDealerPassword()">🔒 Сменить пароль</button>
+      <div class="msg" id="msgChangePass"></div>
+    </div>
   </div>
 
   <!-- ============ ВКЛАДКА 2: ВНЕСТИ СЕССИЮ ============ -->
@@ -399,7 +396,6 @@
     </div>
     <div class="msg" id="msgData"></div>
 
-    <!-- 💰 ПОСЛЕДНИЕ ПОСТУПЛЕНИЯ -->
     <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <h3 style="font-size: 15px; color: #3fbf7f; margin: 0;">💰 Последние поступления</h3>
@@ -416,85 +412,60 @@
     </div>
   </div>
 
-  <!-- ============ ВКЛАДКА 3: НАЛИЧНЫЕ / ФИШКИ ============ -->
+  <!-- ============ ВКЛАДКА 3: НАЛИЧНЫЕ ============ -->
   <div class="tab" id="tab-cash">
-    <h2>💰 Наличные / Фишки</h2>
-    <div class="sub">Выдавайте фишки после оплаты и принимайте обратно при уходе игрока. Прибыль = выдано − принято.</div>
+    <h2>💰 Наличные / Сейф</h2>
+    <div class="sub">Принимайте наличные от игроков, выдавайте обратно. Всё идёт в сейф.</div>
 
-    <!-- Сводка за день -->
-    <div class="chips-summary-grid">
-      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.4);">
-        <div class="lbl">🎰 Выдано</div>
-        <div class="val" style="color: #3fbf7f;" id="chipsTotalIn">0 ₽</div>
-      </div>
-      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(241,196,15,.15), rgba(255,77,77,.08)); border: 1px solid rgba(241,196,15,.4);">
-        <div class="lbl">🔄 Принято</div>
-        <div class="val" style="color: #f1c40f;" id="chipsTotalOut">0 ₽</div>
-      </div>
-      <div class="chips-stat" style="background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(63,191,127,.08)); border: 1px solid rgba(0,229,255,.4);">
-        <div class="lbl">💰 Прибыль</div>
-        <div class="val" id="chipsProfit">0 ₽</div>
-      </div>
+    <!-- 📦 Сейф -->
+    <div class="safe-big-card">
+      <div class="lbl">📦 В сейфе сейчас</div>
+      <div class="amount" id="safeTotal">0 ₽</div>
+      <div class="details" id="safeDetails">Принято 0 ₽ · Выдано 0 ₽</div>
     </div>
 
-    <!-- Форма: ВЫДАТЬ ФИШКИ -->
-    <div style="background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.06)); border: 1px solid rgba(0,229,255,.35); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #00e5ff;">🎰 Выдать фишки</h3>
-      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">
-        Игрок перевёл / дал наличные → выдайте фишки.
-      </div>
-
+    <!-- Принять наличные -->
+    <div style="background: rgba(63,191,127,.1); border: 1px solid rgba(63,191,127,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #3fbf7f;">💰 Принять наличные</h3>
       <div class="form-group">
         <label>Ник игрока</label>
-        <input type="text" id="chipsInNick" placeholder="Например: Иван" list="cashPlayersDatalist" autocomplete="off">
+        <input type="text" id="cashInNick" placeholder="Иван" list="cashPlayersDatalist" autocomplete="off">
+        <datalist id="cashPlayersDatalist"></datalist>
       </div>
-
       <div class="form-group">
-        <label>Сумма фишек (₽)</label>
-        <input type="number" id="chipsInSum" placeholder="500" min="1" inputmode="numeric">
+        <label>Сумма (₽)</label>
+        <input type="number" id="cashInSum" placeholder="500" min="1" inputmode="numeric">
       </div>
-
-      <div class="form-group">
-        <label>Способ оплаты</label>
-        <select id="chipsInMethod">
-          <option value="transfer">💳 Перевод на карту</option>
-          <option value="cash">💵 Наличные</option>
-        </select>
-      </div>
-
-      <button class="btn-submit" id="btnChipsIn" onclick="doChipsIn()" style="background: #00e5ff; color: #000;">
-        🎰 Выдал фишки
-      </button>
-      <div class="msg" id="msgChipsIn"></div>
+      <button class="btn-submit" id="btnCashIn" onclick="doCashIn()" style="background: #3fbf7f; color: #000;">💰 Принял наличные</button>
+      <div class="msg" id="msgCashIn"></div>
     </div>
 
-    <!-- Форма: ПРИНЯТЬ ФИШКИ -->
-    <div style="background: linear-gradient(135deg, rgba(241,196,15,.10), rgba(255,77,77,.05)); border: 1px solid rgba(241,196,15,.35); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #f1c40f;">🔄 Принять фишки</h3>
-      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">
-        Игрок уходит → сдаёт фишки обратно. Выдайте ему деньги наличными.
-      </div>
-
+    <!-- Выдать наличные -->
+    <div style="background: rgba(255,77,77,.1); border: 1px solid rgba(255,77,77,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #ff6b6b;">💸 Выдать наличные</h3>
+      <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">Игрок сдаёт фишки — выдайте деньги наличными.</div>
       <div class="form-group">
         <label>Ник игрока</label>
-        <input type="text" id="chipsOutNick" placeholder="Например: Иван" list="cashPlayersDatalist" autocomplete="off">
+        <input type="text" id="cashOutNick" placeholder="Иван" list="cashPlayersDatalist" autocomplete="off">
       </div>
-
       <div class="form-group">
-        <label>Сумма фишек (₽)</label>
-        <input type="number" id="chipsOutSum" placeholder="300" min="1" inputmode="numeric">
+        <label>Сумма (₽)</label>
+        <input type="number" id="cashOutSum" placeholder="300" min="1" inputmode="numeric">
       </div>
-
-      <button class="btn-submit" id="btnChipsOut" onclick="doChipsOut()" style="background: #f1c40f; color: #000;">
-        🔄 Принял фишки
-      </button>
-      <div class="msg" id="msgChipsOut"></div>
+      <button class="btn-submit" id="btnCashOut" onclick="doCashOut()" style="background: #ff6b6b; color: #fff;">💸 Выдал наличные</button>
+      <div class="msg" id="msgCashOut"></div>
     </div>
+
+    <!-- Сдать сейф -->
+    <button class="btn-submit" onclick="doCashHandover()" style="background: rgba(255,255,255,0.1); color: #fff;">
+      📤 Сдать сейф owner'у
+    </button>
+    <div class="msg" id="msgCashHandover"></div>
 
     <!-- История за сегодня -->
-    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px;">
+    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; margin-top: 18px;">
       <h3 style="font-size: 15px; color: #fff; margin: 0 0 12px;">📋 История за сегодня</h3>
-      <div id="chipsHistoryList" style="font-size: 13px;">
+      <div id="cashHistoryList" style="font-size: 13px;">
         <div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет операций</div>
       </div>
     </div>
@@ -559,6 +530,40 @@
   </div>
 </div>
 
+<!-- ============ МОДАЛКА ПРЕДУПРЕЖДЕНИЯ (сейф) ============ -->
+<div class="modal-overlay" id="safeWarningModal">
+  <div class="modal-box" style="border-color: #f1c40f;">
+    <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+    <h3 style="color: #f1c40f;">Положите деньги в сейф</h3>
+    <p style="text-align: left;">
+      Вы приняли наличные. <b style="color: #fff;">Обязательно положите эти деньги в сейф.</b>
+      <br><br>
+      Если оставите себе — это будет <b style="color: #ff4d4d;">недочёт выручки</b>.
+      Штраф: <b style="color: #ff4d4d;">до 5-кратного возмещения</b> суммы.
+      <br><br>
+      Нажимая «Далее», вы подтверждаете, что <b style="color: #3fbf7f;">положили деньги в сейф</b>.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSafeWarning()">Отмена</button>
+      <button class="btn-confirm" style="background: #f1c40f; color: #000;" onclick="openPassConfirm()">Далее</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ МОДАЛКА ВВОДА ПАРОЛЯ ============ -->
+<div class="modal-overlay" id="passConfirmModal">
+  <div class="modal-box" style="border-color: #00e5ff;">
+    <h3>Введите свой пароль</h3>
+    <p>Подтвердите действие вводом пароля от аккаунта.</p>
+    <input type="password" id="confirmPassInput" placeholder="Ваш пароль" autocomplete="current-password" onkeypress="if(event.key==='Enter') confirmAction()">
+    <div class="msg err" id="msgConfirmPass" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePassConfirm()">Отмена</button>
+      <button class="btn-confirm" onclick="confirmAction()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ МОДАЛКА УВЕДОМЛЕНИЙ ============ -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box" id="infoBox">
@@ -576,6 +581,7 @@ let currentDealer = null;
 let dealerBalance = 0;
 let tasksState = null;
 const COMMISSION = 0.07;
+let pendingCashAction = null; // { type: 'in'|'out', nick, sum }
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 
@@ -596,7 +602,7 @@ function switchTab(name){
   document.getElementById('tab-' + name).classList.add('active');
   if(name === 'profile') { loadProfile(); loadBalance(); loadSilence(); }
   if(name === 'data') loadPendingTransfers();
-  if(name === 'cash') { loadChipsSummary(); updateCashPlayersDatalist(); }
+  if(name === 'cash') { loadCashSafe(); loadCashHistory(); updateCashPlayersDatalist(); }
   if(name === 'faq') renderFaq();
   if(name === 'tasks') loadTasks();
 }
@@ -1000,6 +1006,33 @@ async function doWithdraw(){
   }
 }
 
+/* --- СМЕНА ПАРОЛЯ ДИЛЕРА --- */
+async function changeDealerPassword(){
+  const oldPass = document.getElementById('cpOld').value;
+  const newPass = document.getElementById('cpNew').value;
+  const newPass2 = document.getElementById('cpNew2').value;
+
+  if(!oldPass){ showMsg('msgChangePass', 'Введите текущий пароль', false); return; }
+  if(!newPass || newPass.length < 4){ showMsg('msgChangePass', 'Новый пароль — минимум 4 символа', false); return; }
+  if(newPass !== newPass2){ showMsg('msgChangePass', 'Пароли не совпадают', false); return; }
+
+  try {
+    const r = await fetch('/api/dealer/change-password', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id, old_pass: oldPass, new_pass: newPass })
+    });
+    const data = await r.json();
+    if(!r.ok){ showMsg('msgChangePass', data.error || 'Ошибка', false); return; }
+
+    showMsg('msgChangePass', '✓ Пароль изменён!', true);
+    document.getElementById('cpOld').value = '';
+    document.getElementById('cpNew').value = '';
+    document.getElementById('cpNew2').value = '';
+  } catch(e){
+    showMsg('msgChangePass', 'Ошибка соединения', false);
+  }
+}
+
 /* --- ПРОФИЛЬ --- */
 async function loadProfile(){
   if(!currentDealer) return;
@@ -1124,116 +1157,156 @@ async function issueChips(depositId, nick, sum) {
   }
 }
 
-/* ============ ФИШКИ (выдать / принять / сводка) ============ */
-async function doChipsIn() {
-  const nick = document.getElementById('chipsInNick').value.trim();
-  const sum = parseFloat(document.getElementById('chipsInSum').value) || 0;
-  const method = document.getElementById('chipsInMethod').value;
-
-  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
-  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
-
-  const btn = document.getElementById('btnChipsIn');
-  btn.disabled = true; btn.textContent = 'Отправка...';
-
-  try {
-    const r = await fetch('/api/dealer/chips-issue', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum, method })
-    });
-    const data = await r.json();
-    if (!r.ok) {
-      showInfo('Ошибка', data.error || 'Не удалось выдать фишки');
-      btn.disabled = false; btn.textContent = '🎰 Выдал фишки';
-      return;
-    }
-
-    showMsg('msgChipsIn', `✅ Выдано: ${data.guest} — ${fmt(sum)} ₽`, true);
-    document.getElementById('chipsInNick').value = '';
-    document.getElementById('chipsInSum').value = '';
-    loadChipsSummary();
-  } catch(e) {
-    showInfo('Ошибка', 'Ошибка соединения');
-  } finally {
-    btn.disabled = false; btn.textContent = '🎰 Выдал фишки';
-  }
-}
-
-async function doChipsOut() {
-  const nick = document.getElementById('chipsOutNick').value.trim();
-  const sum = parseFloat(document.getElementById('chipsOutSum').value) || 0;
-
-  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
-  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
-
-  const btn = document.getElementById('btnChipsOut');
-  btn.disabled = true; btn.textContent = 'Отправка...';
-
-  try {
-    const r = await fetch('/api/dealer/chips-accept', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum })
-    });
-    const data = await r.json();
-    if (!r.ok) {
-      showInfo('Ошибка', data.error || 'Не удалось принять фишки');
-      btn.disabled = false; btn.textContent = '🔄 Принял фишки';
-      return;
-    }
-
-    showMsg('msgChipsOut', `✅ Принято: ${data.guest} — ${fmt(sum)} ₽`, true);
-    document.getElementById('chipsOutNick').value = '';
-    document.getElementById('chipsOutSum').value = '';
-    loadChipsSummary();
-  } catch(e) {
-    showInfo('Ошибка', 'Ошибка соединения');
-  } finally {
-    btn.disabled = false; btn.textContent = '🔄 Принял фишки';
-  }
-}
-
-async function loadChipsSummary() {
+/* ============ СЕЙФ ============ */
+async function loadCashSafe() {
   if (!currentDealer) return;
   try {
-    const r = await fetch('/api/dealer/chips-summary?id=' + currentDealer.id);
+    const r = await fetch('/api/dealer/cash-safe?id=' + currentDealer.id);
     const data = await r.json();
 
-    document.getElementById('chipsTotalIn').textContent = fmt(data.totalIn) + ' ₽';
-    document.getElementById('chipsTotalOut').textContent = fmt(data.totalOut) + ' ₽';
+    document.getElementById('safeTotal').textContent = fmt(data.in_safe) + ' ₽';
+    document.getElementById('safeDetails').textContent =
+      `Принято ${fmt(data.total_in)} ₽ · Выдано ${fmt(data.total_out)} ₽`;
+  } catch(e) {}
+}
 
-    const profitEl = document.getElementById('chipsProfit');
-    const profit = parseFloat(data.profit) || 0;
-    profitEl.textContent = (profit >= 0 ? '+' : '') + fmt(profit) + ' ₽';
-    profitEl.style.color = profit >= 0 ? '#3fbf7f' : '#ff4d4d';
+async function loadCashHistory() {
+  if (!currentDealer) return;
+  try {
+    const r = await fetch('/api/dealer/cash-history?id=' + currentDealer.id);
+    const list = await r.json();
 
-    const list = data.list || [];
-    const box = document.getElementById('chipsHistoryList');
-
-    if (list.length === 0) {
+    const box = document.getElementById('cashHistoryList');
+    if (!list || list.length === 0) {
       box.innerHTML = '<div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет операций</div>';
       return;
     }
 
     box.innerHTML = list.map(x => {
       const isIn = x.type === 'in';
-      const methodLabel = isIn ? (x.method === 'cash' ? '💵 Наличные' : '💳 Перевод') : '💵 Возврат';
       return `
         <div class="withdraw-item" style="padding: 8px 0;">
           <div>
-            <div style="font-weight: 600;">
-              ${isIn ? '🎰' : '🔄'} ${x.guest_name || '—'}
-            </div>
-            <div style="font-size: 11px; color: #8fa2b8;">
-              ${methodLabel} · ${x.created_at ? new Date(x.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—'}
-            </div>
+            <div style="font-weight: 600;">${isIn ? '💰' : '💸'} ${x.guest_name || '—'}</div>
+            <div style="font-size: 11px; color: #8fa2b8;">${x.created_at ? new Date(x.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
           </div>
-          <div style="font-weight: 900; color: ${isIn ? '#3fbf7f' : '#f1c40f'};">
+          <div style="font-weight: 900; color: ${isIn ? '#3fbf7f' : '#ff6b6b'};">
             ${isIn ? '+' : '−'}${fmt(x.sum)} ₽
           </div>
         </div>
       `;
     }).join('');
   } catch(e) {}
+}
+
+/* ============ ПРИНЯТЬ НАЛИЧНЫЕ (с окном и паролем) ============ */
+function doCashIn(){
+  const nick = document.getElementById('cashInNick').value.trim();
+  const sum = parseFloat(document.getElementById('cashInSum').value) || 0;
+  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
+
+  pendingCashAction = { type: 'in', nick, sum };
+  document.getElementById('safeWarningModal').classList.add('show');
+}
+
+/* ============ ВЫДАТЬ НАЛИЧНЫЕ (с окном и паролем) ============ */
+function doCashOut(){
+  const nick = document.getElementById('cashOutNick').value.trim();
+  const sum = parseFloat(document.getElementById('cashOutSum').value) || 0;
+  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if (sum <= 0) { showInfo('Ошибка', 'Введите сумму больше 0'); return; }
+
+  pendingCashAction = { type: 'out', nick, sum };
+  document.getElementById('safeWarningModal').classList.add('show');
+}
+
+function closeSafeWarning(){
+  document.getElementById('safeWarningModal').classList.remove('show');
+  pendingCashAction = null;
+}
+
+function openPassConfirm(){
+  document.getElementById('safeWarningModal').classList.remove('show');
+  if (!pendingCashAction) return;
+  document.getElementById('confirmPassInput').value = '';
+  document.getElementById('msgConfirmPass').style.display = 'none';
+  document.getElementById('passConfirmModal').classList.add('show');
+  setTimeout(() => document.getElementById('confirmPassInput').focus(), 100);
+}
+
+function closePassConfirm(){
+  document.getElementById('passConfirmModal').classList.remove('show');
+  pendingCashAction = null;
+}
+
+async function confirmAction(){
+  if (!pendingCashAction) return;
+
+  const pass = document.getElementById('confirmPassInput').value;
+  if (!pass) {
+    const err = document.getElementById('msgConfirmPass');
+    err.textContent = 'Введите пароль';
+    err.style.display = 'block';
+    return;
+  }
+
+  const { type, nick, sum } = pendingCashAction;
+  const endpoint = type === 'in' ? '/api/dealer/cash-in' : '/api/dealer/cash-out';
+
+  try {
+    const r = await fetch(endpoint, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum, pass })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      const err = document.getElementById('msgConfirmPass');
+      err.textContent = data.error || 'Ошибка';
+      err.style.display = 'block';
+      return;
+    }
+
+    closePassConfirm();
+    showInfo('Готово', 
+      type === 'in' 
+        ? `✅ Принято ${fmt(sum)} ₽ от ${data.guest}. Деньги в сейфе.`
+        : `✅ Выдано ${fmt(sum)} ₽ игроку ${data.guest}. В сейфе минус.`,
+      'ok');
+
+    if (type === 'in') {
+      document.getElementById('cashInNick').value = '';
+      document.getElementById('cashInSum').value = '';
+    } else {
+      document.getElementById('cashOutNick').value = '';
+      document.getElementById('cashOutSum').value = '';
+    }
+
+    loadCashSafe();
+    loadCashHistory();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  }
+}
+
+/* ============ СДАТЬ СЕЙФ ============ */
+async function doCashHandover() {
+  if (!confirm('Сдать сейф owner\'у? Все операции за сегодня будут закрыты.')) return;
+
+  try {
+    const r = await fetch('/api/dealer/cash-handover', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: currentDealer.id })
+    });
+    const data = await r.json();
+    if (!r.ok) { showInfo('Ошибка', data.error || 'Ошибка'); return; }
+
+    showMsg('msgCashHandover', `✅ Сейф сдан. Должно быть в сейфе: ${fmt(data.expected)} ₽`, true);
+    loadCashSafe();
+    loadCashHistory();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  }
 }
 
 function updateCashPlayersDatalist() {
