@@ -256,7 +256,6 @@ const PLAYER_KEY = 'kingwin_guest_id';
 const MAX_BET = 200;
 const MIN_BET = 1;
 const POLL_MS = 300;
-const WAITING_SECONDS = 11;   // ← длительность приёма ставок (было 7)
 
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
@@ -280,10 +279,6 @@ let localCrashed = false;
 let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
-
-// Локальный таймер ожидания на 11 секунд
-let waitingTimer = null;
-let waitingSecondsLeft = 0;
 
 /* ============ ЗВУК ОТСЧЁТА (один длинный файл /countdown.mp3) ============ */
 let countdownAudio = null;
@@ -644,40 +639,14 @@ function applyServerState(d) {
   renderHistory(round.history);
   updateBetButtons();
 
-  // === ЗВУК ОТСЧЁТА ===
+  // === ЗВУК ОТСЧЁТА 10 СЕК (один файл, играет 1 раз) ===
   if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
     lastWaitingRoundId = d.roundId;
     startCountdownSound();
-    startWaitingTimer();   // ← запуск локального таймера на 11 секунд
   }
   if (d.status === 'flying' || d.status === 'crashed') {
     stopCountdownSound();
-    stopWaitingTimer();    // ← остановка таймера при старте полёта
   }
-}
-
-// Локальный таймер ожидания на WAITING_SECONDS секунд
-function startWaitingTimer() {
-  stopWaitingTimer();
-  waitingSecondsLeft = WAITING_SECONDS;
-  multLabelEl.textContent = 'До старта: ' + waitingSecondsLeft + ' сек';
-  waitingTimer = setInterval(() => {
-    waitingSecondsLeft--;
-    if (waitingSecondsLeft <= 0) {
-      stopWaitingTimer();
-      multLabelEl.textContent = 'Готовимся к росту...';
-    } else {
-      multLabelEl.textContent = 'До старта: ' + waitingSecondsLeft + ' сек';
-    }
-  }, 1000);
-}
-
-function stopWaitingTimer() {
-  if (waitingTimer) {
-    clearInterval(waitingTimer);
-    waitingTimer = null;
-  }
-  waitingSecondsLeft = 0;
 }
 
 let prevMult = 1;
@@ -691,14 +660,9 @@ function frame() {
     multValueEl.classList.remove('crashed', 'golden');
     multValueEl.style.opacity = '0.3';
     multValueEl.textContent = '1.00x';
-    if (round.status === 'crashed') {
-      // после краша — показываем обратный отсчёт нового раунда
-    } else if (!round.hasRealBet) {
-      // оставляем надпись из startWaitingTimer, если таймер активен
-      if (!waitingTimer) multLabelEl.textContent = 'Ожидание первой ставки...';
-    } else {
-      if (!waitingTimer) multLabelEl.textContent = 'Готовимся к росту...';
-    }
+    if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...';
+    else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...';
+    else multLabelEl.textContent = 'Готовимся к росту...';
     graphPoints = [];
   } else if (effStatus === 'flying') {
     multValueEl.classList.remove('crashed');
