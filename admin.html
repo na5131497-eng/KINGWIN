@@ -186,7 +186,23 @@
   .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
   .news-edit-row textarea { min-height: 50px; resize: vertical; font-family: inherit; }
 
+  /* ============ БЛОКИ СЕССИЙ ПОД ГРАФИКОМ ============ */
+  .sessions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  .sessions-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 15px; padding: 20px; backdrop-filter: blur(10px); }
+  .sessions-panel h3 { font-size: 16px; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .sessions-panel h3 .badge-count { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: rgba(0,229,255,0.15); color: var(--accent); font-weight: 800; }
+  .sessions-panel.bj h3 { color: #00e5ff; }
+  .sessions-panel.bac h3 { color: #f1c40f; }
+
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .mini-table th { padding: 8px 6px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--line); text-align: left; }
+  .mini-table td { padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 12px; }
+  .mini-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .mini-table .empty-row td { text-align: center; color: var(--muted); font-style: italic; padding: 20px; }
+  .mini-wrap { max-height: 340px; overflow-y: auto; }
+
   @media (max-width: 900px) {
+    .sessions-grid { grid-template-columns: 1fr; }
     .mobile-menu-btn { display: block; }
     aside { position: fixed; top: 0; left: 0; height: 100vh; z-index: 250; transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
     aside.open { transform: translateX(0); }
@@ -274,6 +290,32 @@
     <div class="panel">
       <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+    </div>
+
+    <!-- ============ СЕССИИ БЛЭКДЖЕКА И БАККАРЫ ============ -->
+    <div class="sessions-grid">
+      <div class="sessions-panel bj">
+        <h3>🎲 Сессии Блэкджека <span class="badge-count" id="bjCount">0</span></h3>
+        <div class="mini-wrap">
+          <table class="mini-table">
+            <thead>
+              <tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr>
+            </thead>
+            <tbody id="bjSessionsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sessions-panel bac">
+        <h3>🎴 Сессии Баккары <span class="badge-count" id="bacCount">0</span></h3>
+        <div class="mini-wrap">
+          <table class="mini-table">
+            <thead>
+              <tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr>
+            </thead>
+            <tbody id="bacSessionsBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -819,23 +861,84 @@ function onlineStats(){
   return { income, expense, net: income - expense };
 }
 
+/* ============ ГЛАВНАЯ (с депозитами в доходе) ============ */
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
+
+  // Депозиты (approved) — это ДОХОД казино
   let totalDeposits = 0;
-  db.deposits.forEach(d => { if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0; });
+  db.deposits.forEach(d => {
+    if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0;
+  });
 
   const onlineIncome = on.net;
-  const totalIncome = bj.income + bac.income + onlineIncome;
+  const totalIncome = bj.income + bac.income + onlineIncome + totalDeposits;
 
   document.getElementById('dashCards').innerHTML = `
     <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
     <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
     <div class="card"><div class="label">Доход Crash (онлайн)</div><div class="value accent">${fmt(onlineIncome)} ₽</div></div>
-    <div class="card"><div class="label">Депозиты (не доход)</div><div class="value">${fmt(totalDeposits)} ₽</div></div>
+    <div class="card"><div class="label">Депозиты (доход)</div><div class="value green">${fmt(totalDeposits)} ₽</div></div>
     <div class="card" style="border-color: var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(totalIncome)} ₽</div></div>
   `;
 
   drawChart();
+  renderSessionsUnderChart();
+}
+
+/* ============ СЕССИИ БЛЭКДЖЕКА И БАККАРЫ ПОД ГРАФИКОМ ============ */
+function renderSessionsUnderChart(){
+  // Блэкджек — последние 50
+  const bj = [...db.sessions].sort((a,b) => {
+    const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
+    const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
+    return dbb - da;
+  }).slice(0, 50);
+
+  document.getElementById('bjCount').textContent = db.sessions.length;
+  const bjBody = document.getElementById('bjSessionsBody');
+  if(bj.length === 0){
+    bjBody.innerHTML = '<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>';
+  } else {
+    bjBody.innerHTML = bj.map(s => {
+      const r = sessionNet(s);
+      const time = s.created_at ? new Date(s.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (s.date || '—');
+      const winCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : '');
+      return `<tr>
+        <td>${s.nick || '—'}</td>
+        <td>${fmt(r.dep)} ₽</td>
+        <td class="${winCls}">${fmt(r.net)} ₽</td>
+        <td>${s.dealer || '—'}</td>
+        <td style="color:var(--muted); font-size:11px">${time}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Баккара — последние 50
+  const bac = [...db.baccarat].sort((a,b) => {
+    const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
+    const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
+    return dbb - da;
+  }).slice(0, 50);
+
+  document.getElementById('bacCount').textContent = db.baccarat.length;
+  const bacBody = document.getElementById('bacSessionsBody');
+  if(bac.length === 0){
+    bacBody.innerHTML = '<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>';
+  } else {
+    bacBody.innerHTML = bac.map(b => {
+      const r = bacCalc(b);
+      const time = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (b.date || '—');
+      const winCls = r.payout > 0 ? 'pos' : (r.payout < 0 ? 'neg' : '');
+      return `<tr>
+        <td>${b.player || '—'}</td>
+        <td>${fmt(b.sum)} ₽</td>
+        <td class="${winCls}">${fmt(r.payout)} ₽</td>
+        <td>${b.dealer || '—'}</td>
+        <td style="color:var(--muted); font-size:11px">${time}</td>
+      </tr>`;
+    }).join('');
+  }
 }
 
 function drawChart(){
@@ -853,6 +956,12 @@ function drawChart(){
   db.baccarat.forEach(b=>{ if(!b.date) return; if(!map[b.date]) map[b.date]=0; map[b.date]+=bacCalc(b).casino; });
   db.online.forEach(o=>{ if(!o.date) return; if(!map[o.date]) map[o.date]=0;
     if(o.type === 'доход') map[o.date]+=parseFloat(o.sum)||0; else map[o.date]-=parseFloat(o.sum)||0;
+  });
+  // депозиты тоже в график
+  db.deposits.forEach(d=>{
+    if(d.status !== 'approved' || !d.date) return;
+    if(!map[d.date]) map[d.date]=0;
+    map[d.date]+=parseFloat(d.sum)||0;
   });
 
   const dates = Object.keys(map).sort();
