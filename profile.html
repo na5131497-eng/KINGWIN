@@ -84,22 +84,15 @@
   .sum-minus { color: var(--red); }
   .date-cell { color: var(--text-muted); }
 
-  /* БОНУСЫ — старые стили оставлены, добавлены новые */
-  .bonus-card { background: linear-gradient(135deg, rgba(63,191,127,.1), rgba(0,229,255,.05)); border: 1px solid rgba(63,191,127,.3); border-radius: 12px; padding: 15px; margin-bottom: 10px; }
-  .bonus-card .title { font-size: 14px; font-weight: 800; color: var(--accent-green); margin-bottom: 5px; }
-  .bonus-card .code { font-size: 16px; font-weight: 900; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 8px; display: inline-block; margin-top: 10px; border: 1px dashed var(--accent-green); }
-
-  /* НОВЫЕ СТИЛИ ДЛЯ СПИСКА БОНУСОВ */
+  /* БОНУСЫ — СПИСОК */
   .bonus-list { display: flex; flex-direction: column; gap: 12px; }
-  .bonus-item { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; transition: 0.2s; position: relative; }
+  .bonus-item { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; transition: 0.2s; }
   .bonus-item:hover { border-color: rgba(0,229,255,0.3); }
   .bonus-item.rank-bonus { border-color: rgba(241,196,15,0.4); background: linear-gradient(135deg, rgba(241,196,15,0.06), var(--bg-dark)); }
   .bonus-item.rejected { opacity: 0.5; border-style: dashed; }
-
   .bonus-item-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 22px; flex-shrink: 0; }
   .bonus-item-icon.rank { background: linear-gradient(135deg, #f1c40f, #d4af37); color: #000; box-shadow: 0 0 14px rgba(241,196,15,0.35); }
   .bonus-item-icon.regular { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; box-shadow: 0 0 14px rgba(0,229,255,0.35); }
-
   .bonus-item-body { flex: 1; min-width: 0; }
   .bonus-item-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
   .bonus-item-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
@@ -108,16 +101,18 @@
   .bonus-tag.active { background: rgba(0,255,136,0.12); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.35); }
   .bonus-tag.rejected-tag { background: rgba(139,146,165,0.15); color: var(--text-muted); border: 1px solid rgba(139,146,165,0.35); }
   .bonus-tag.wager { background: rgba(255,77,77,0.12); color: #ff8a8a; border: 1px solid rgba(255,77,77,0.35); }
-
   .bonus-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .bonus-item-sum { font-size: 18px; font-weight: 900; color: var(--gold); white-space: nowrap; }
   .bonus-item-sum.rejected-sum { color: var(--text-muted); text-decoration: line-through; font-size: 15px; }
-
-  .bonus-refuse-btn { background: rgba(255,77,77,0.12); border: 1px solid rgba(255,77,77,0.5); color: #ff8a8a; padding: 7px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+  .bonus-refuse-btn { background: rgba(255,77,77,0.12); border: 1px solid rgba(255,77,77,0.5); color: #ff8a8a; padding: 7px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: inherit; }
   .bonus-refuse-btn:hover { background: rgba(255,77,77,0.25); color: #ff4d4d; }
   .bonus-refuse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
   .bonus-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; background: var(--bg-dark); border: 1px dashed var(--border); border-radius: 12px; }
+
+  /* СТАРАЯ КАРТОЧКА БОНУСА (fallback) */
+  .bonus-card { background: linear-gradient(135deg, rgba(63,191,127,.1), rgba(0,229,255,.05)); border: 1px solid rgba(63,191,127,.3); border-radius: 12px; padding: 15px; margin-bottom: 10px; }
+  .bonus-card .title { font-size: 14px; font-weight: 800; color: var(--accent-green); margin-bottom: 5px; }
+  .bonus-card .code { font-size: 16px; font-weight: 900; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 8px; display: inline-block; margin-top: 10px; border: 1px dashed var(--accent-green); }
 
   /* МОДАЛКИ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
@@ -140,22 +135,18 @@
   .toast.error { border-left-color: var(--red); }
   .toast.success { border-left-color: var(--accent-green); }
 
-  /* ========== АДАПТИВНОСТЬ ========== */
   @media (max-width: 900px) {
     .layout { flex-direction: column; padding: 10px; gap: 10px; margin: 10px auto; }
     .sidebar { width: 100%; }
     .main-content { width: 100%; }
     .user-head { flex-direction: column; text-align: center; }
     .bal-actions { flex-direction: column; }
-
     .history-table th { padding: 12px 10px; font-size: 10px; }
     .history-table td { padding: 12px 10px; font-size: 12px; }
     .type-cell { font-size: 11px; }
     .type-icon { font-size: 14px; }
-
     .tabs-header { padding: 0 10px; }
     .tab-btn { padding: 15px 10px; font-size: 12px; }
-
     .bonus-item { flex-wrap: wrap; padding: 14px; }
     .bonus-item-icon { width: 40px; height: 40px; font-size: 18px; }
     .bonus-item-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
@@ -265,7 +256,7 @@
       </div>
     </div>
 
-    <!-- ВКЛАДКА: ПЛАТЕЖИ (ТОЛЬКО ДЕПОЗИТЫ) -->
+    <!-- ВКЛАДКА: ПЛАТЕЖИ -->
     <div class="tab-content" id="tab-payments">
       <table class="history-table">
         <thead><tr><th>Тип</th><th>Описание</th><th>Сумма</th><th>Дата</th></tr></thead>
@@ -281,7 +272,6 @@
         <div style="text-align:center; padding:30px; color:var(--text-muted);">Загрузка...</div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -302,7 +292,7 @@
 <div class="modal-overlay" id="successWithdrawModal">
   <div class="modal-box" style="border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14);">
     <h2 style="color: var(--accent-green);">Заявка создана!</h2>
-    <p style="font-size: 15px; margin-bottom: 20px;">Заявка на вывод <b id="successWithdrawAmount" style="color: #fff;">0.00</b> ₽ отправлена. Ожидайте зачисления (от 1 минуты до 3 банковских дней).</p>
+    <p style="font-size: 15px; margin-bottom: 20px;">Заявка на вывод <b id="successWithdrawAmount" style="color: #fff;">0.00</b> ₽ отправлена. Ожидайте зачисления.</p>
     <button class="modal-btn green" onclick="closeModal('successWithdrawModal')">Отлично</button>
   </div>
 </div>
@@ -343,16 +333,16 @@ function switchTab(tab) {
   document.getElementById(`tab-${tab}`).classList.add('active');
 }
 
-/* ===== ВЫХОД ИЗ АККАУНТА ===== */
 function doLogout() {
   localStorage.removeItem('kingwin_player_id');
+  localStorage.removeItem('kingwin_guest_id');
   showToast('Вы вышли из аккаунта', 'success');
   setTimeout(() => { window.location.href = '/'; }, 500);
 }
 
 async function loadProfile() {
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id') || localStorage.getItem('kingwin_player_id');
+  const id = urlParams.get('id') || localStorage.getItem('kingwin_player_id') || localStorage.getItem('kingwin_guest_id');
 
   if(!id) { window.location.href = '/'; return; }
 
@@ -361,6 +351,9 @@ async function loadProfile() {
     const data = await res.json();
     if(data.guest) {
       currentPlayer = data.guest;
+      if (Array.isArray(data.bonuses)) currentPlayer.bonuses = data.bonuses;
+      if (data.wagering) currentPlayer.wagering = data.wagering;
+
       userRank = currentPlayer.rank || 'Bronze';
 
       document.getElementById('uiName').textContent = currentPlayer.name;
@@ -373,7 +366,6 @@ async function loadProfile() {
       document.getElementById('uiBonusBalance').textContent = bonus.toFixed(2);
       document.getElementById('uiMaxWithdraw').textContent = dep.toFixed(2);
 
-      // Проверка на ранг для вывода
       const rankIdx = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
       if((rankIdx[userRank] || 1) >= 2) {
         document.getElementById('btnWithdraw').disabled = false;
@@ -383,7 +375,6 @@ async function loadProfile() {
         document.getElementById('btnWithdraw').style.opacity = '0.4';
       }
 
-      // Прогресс ранга
       const points = parseInt(currentPlayer.points) || 0;
       const maxPoints = { 'Bronze': 100, 'Silver': 300, 'Gold': 600, 'Platinum': 1000, 'Diamond': 1500, 'VIP': 1500 };
       const currentMax = maxPoints[userRank] || 100;
@@ -495,86 +486,91 @@ function renderWithdrawals(myW) {
   `;
 }
 
-/* ============ БОНУСЫ (НОВЫЙ РЕНДЕР С ОТКАЗОМ) ============ */
+/* ============ БОНУСЫ ============ */
 function renderBonuses() {
   const block = document.getElementById('uiBonusesList');
-  if (!currentPlayer) {
-    block.innerHTML = `<div class="bonus-empty">Загрузка...</div>`;
-    return;
-  }
+  if (!currentPlayer) { block.innerHTML = '<div class="bonus-empty">Загрузка...</div>'; return; }
 
-  // 1. Бонусы с сервера (если отдаёт массив bonuses)
-  let list = Array.isArray(currentPlayer.bonuses) ? [...currentPlayer.bonuses] : [];
+  const list = Array.isArray(currentPlayer.bonuses) ? currentPlayer.bonuses : [];
 
-  // 2. Fallback: если сервер не отдаёт список, но есть bonus_balance — показываем как «Бонус за повышение ранга»
-  if (!list.length && parseFloat(currentPlayer.bonus_balance) > 0) {
-    list.push({
-      id: 'rank_bonus',
-      type: 'rank',
-      title: 'Бонус за повышение ранга',
-      desc: 'Начислен за достижение ранга ' + (userRank || 'Bronze') + '. Участвует в отыгрыше.',
-      amount: parseFloat(currentPlayer.bonus_balance),
-      can_refuse: true,
-      status: 'active',
-      wager: 'x3'
-    });
-  }
-
-  // 3. Fallback: старые поля bonus_text / bonus_code (как было раньше)
-  if (!list.length && currentPlayer.bonus_text) {
-    block.innerHTML = `
-      <div class="bonus-card">
-        <div class="title">🎁 Ваш бонус</div>
-        <div style="font-size:14px; color:#fff;">${currentPlayer.bonus_text}</div>
-        ${currentPlayer.bonus_code ? `<div class="code">${currentPlayer.bonus_code}</div>` : ''}
-      </div>
-    `;
-    return;
-  }
-
-  if (!list.length) {
-    block.innerHTML = `<div class="bonus-empty">Нет активных бонусов</div>`;
-    return;
-  }
-
-  block.innerHTML = list.map(b => {
-    const rejected = b.status === 'rejected';
-    const isRank = b.type === 'rank';
-    const cardClass = 'bonus-item' + (isRank ? ' rank-bonus' : '') + (rejected ? ' rejected' : '');
-    const iconClass = isRank ? 'rank' : 'regular';
-    const iconEmoji = isRank ? '🏆' : '🎁';
-    const amountClass = rejected ? 'bonus-item-sum rejected-sum' : 'bonus-item-sum';
-
-    const tags = [];
-    if (rejected) {
-      tags.push('<span class="bonus-tag rejected-tag">Отклонён</span>');
-    } else {
-      if (b.wager) tags.push(`<span class="bonus-tag wager">Вейджер ${b.wager}</span>`);
-      if (b.status === 'active') tags.push('<span class="bonus-tag active">Активен</span>');
+  if (list.length === 0) {
+    // fallback: если нет массива bonuses, но есть bonus_balance или bonus_text — показываем
+    const bonusBal = parseFloat(currentPlayer.bonus_balance || 0);
+    if (bonusBal > 0) {
+      block.innerHTML = renderBonusItem({
+        id: 'rank_bonus_' + (currentPlayer.rank || 'Bronze'),
+        type: 'rank',
+        title: 'Бонус за повышение ранга',
+        desc: 'Начислен за достижение ранга ' + (currentPlayer.rank || 'Bronze'),
+        amount: bonusBal,
+        can_refuse: true,
+        status: 'active',
+        wager: null
+      });
+      return;
     }
+    if (currentPlayer.bonus_text) {
+      block.innerHTML = `
+        <div class="bonus-card">
+          <div class="title">🎁 Ваш бонус</div>
+          <div style="font-size:14px; color:#fff;">${currentPlayer.bonus_text}</div>
+          ${currentPlayer.bonus_code ? `<div class="code">${currentPlayer.bonus_code}</div>` : ''}
+        </div>`;
+      return;
+    }
+    block.innerHTML = '<div class="bonus-empty">Нет активных бонусов</div>';
+    return;
+  }
 
-    const refuseBtn = (b.can_refuse && !rejected)
-      ? `<button class="bonus-refuse-btn" onclick="openRefuseBonusModal('${b.id}', ${parseFloat(b.amount)})">Отказаться</button>`
-      : '';
+  block.innerHTML = list.map(b => renderBonusItem(b)).join('');
 
-    return `
-      <div class="${cardClass}">
-        <div class="bonus-item-icon ${iconClass}">${iconEmoji}</div>
-        <div class="bonus-item-body">
-          <div class="bonus-item-title">${b.title || 'Бонус'}</div>
-          <div class="bonus-item-desc">${b.desc || ''}</div>
-          <div class="bonus-item-meta">${tags.join('')}</div>
-        </div>
-        <div class="bonus-item-right">
-          <div class="${amountClass}">${parseFloat(b.amount).toFixed(2)} ₽</div>
-          ${refuseBtn}
-        </div>
+  // навешиваем обработчики
+  block.querySelectorAll('.bonus-refuse-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const bonusId = btn.getAttribute('data-bonus-id');
+      const amount = parseFloat(btn.getAttribute('data-bonus-amount')) || 0;
+      openRefuseBonusModal(bonusId, amount);
+    });
+  });
+}
+
+function renderBonusItem(b) {
+  const rejected = b.status === 'rejected';
+  const isRank = b.type === 'rank';
+  const iconClass = isRank ? 'rank' : 'regular';
+  const iconEmoji = isRank ? '🏆' : '🎁';
+  const itemClass = 'bonus-item' + (isRank ? ' rank-bonus' : '') + (rejected ? ' rejected' : '');
+  const sumClass = rejected ? 'bonus-item-sum rejected-sum' : 'bonus-item-sum';
+
+  const tags = [];
+  if (rejected) tags.push('<span class="bonus-tag rejected-tag">Отклонён</span>');
+  else {
+    if (b.wager) tags.push(`<span class="bonus-tag wager">Вейджер ${b.wager}</span>`);
+    tags.push('<span class="bonus-tag active">Активен</span>');
+  }
+
+  const btn = (b.can_refuse && !rejected && parseFloat(b.amount) > 0)
+    ? `<button class="bonus-refuse-btn" data-bonus-id="${b.id}" data-bonus-amount="${b.amount}">Отказаться</button>`
+    : '';
+
+  return `
+    <div class="${itemClass}">
+      <div class="bonus-item-icon ${iconClass}">${iconEmoji}</div>
+      <div class="bonus-item-body">
+        <div class="bonus-item-title">${b.title || 'Бонус'}</div>
+        <div class="bonus-item-desc">${b.desc || ''}</div>
+        <div class="bonus-item-meta">${tags.join('')}</div>
       </div>
-    `;
-  }).join('');
+      <div class="bonus-item-right">
+        <div class="${sumClass}">${parseFloat(b.amount || 0).toFixed(2)} ₽</div>
+        ${btn}
+      </div>
+    </div>
+  `;
 }
 
 function openRefuseBonusModal(bonusId, amount) {
+  if (!bonusId) { showToast('Ошибка: не выбран бонус', 'error'); return; }
   pendingRefuseBonusId = bonusId;
   document.getElementById('refuseBonusText').textContent =
     `Бонус на ${parseFloat(amount).toFixed(2)} ₽ будет списан с бонусного баланса. Это действие нельзя отменить.`;
@@ -582,7 +578,10 @@ function openRefuseBonusModal(bonusId, amount) {
 }
 
 async function confirmRefuseBonus() {
-  if (!pendingRefuseBonusId || !currentPlayer) return;
+  if (!pendingRefuseBonusId || !currentPlayer) {
+    showToast('Ошибка: не выбран бонус', 'error');
+    return;
+  }
   const bonusId = pendingRefuseBonusId;
   const btn = document.getElementById('refuseBonusConfirmBtn');
   btn.disabled = true;
@@ -597,7 +596,7 @@ async function confirmRefuseBonus() {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      showToast(data.error || 'Не удалось отказаться от бонуса', 'error');
+      showToast(data.error || 'Не удалось отказаться', 'error');
       btn.disabled = false;
       btn.textContent = 'Отказаться';
       return;
@@ -605,11 +604,10 @@ async function confirmRefuseBonus() {
 
     showToast('Бонус отклонён', 'success');
     closeModal('refuseBonusModal');
+    pendingRefuseBonusId = null;
     btn.disabled = false;
     btn.textContent = 'Отказаться';
-    pendingRefuseBonusId = null;
-    // Обновляем профиль — сервер вернёт новый bonus_balance и обновлённый список бонусов
-    loadProfile();
+    await loadProfile();
   } catch(e) {
     showToast('Ошибка соединения', 'error');
     btn.disabled = false;
@@ -622,10 +620,7 @@ async function renderGamesHistory() {
   tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">История ставок загружается с сервера...</td></tr>`;
 }
 
-// ВЫВОД СРЕДСТВ
-function openWithdrawModal() {
-  openModal('withdrawModal');
-}
+function openWithdrawModal() { openModal('withdrawModal'); }
 
 async function doWithdraw() {
   if(!currentPlayer) return;
