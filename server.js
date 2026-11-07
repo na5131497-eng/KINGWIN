@@ -1356,7 +1356,6 @@ const server = http.createServer(async (req, res) => {
         unseen = dRes.rows;
       } catch(e) {}
 
-      // === БОНУСЫ ===
       const bonuses = [];
       const bonusBal = parseFloat(guest.bonus_balance) || 0;
       const wagerReq = parseFloat(guest.wagering_required) || 0;
@@ -1415,7 +1414,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       let refunded = 0;
-      if (bonusId.startsWith('rank_bonus_') || bonusId.startsWith('text_bonus_')) {
+      if (bonusId) {
         refunded = bonusBal;
         await pool.query(`
           UPDATE guests SET
@@ -1427,7 +1426,7 @@ const server = http.createServer(async (req, res) => {
           WHERE id = $1
         `, [id]);
       } else {
-        return sendJSON(res, 400, { error: 'Неизвестный бонус' });
+        return sendJSON(res, 400, { error: 'Нечего отменять' });
       }
 
       return sendJSON(res, 200, { ok: true, refunded });
@@ -1500,28 +1499,30 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    /* ================= ЕЖЕДНЕВНЫЙ БОНУС: ЗАБРАТЬ ================= */
     if (url === '/api/guest/daily-claim' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
-      if(!id) return sendJSON(res, 400, { error: 'no id' });
+      if (!id) return sendJSON(res, 400, { error: 'no id' });
+
       const g = await getGuestById(id);
-      if(!g) return sendJSON(res, 404, { error: 'not found' });
+      if (!g) return sendJSON(res, 404, { error: 'not found' });
 
       const today = todayStr();
       const last = dateStr(g.daily_last_claim);
 
-      if(last === today) {
+      if (last === today) {
         return sendJSON(res, 400, { error: 'Сегодня уже забрали' });
       }
 
       let level = parseInt(g.daily_level) || 0;
       let pending = parseFloat(g.pending_bonus) || 0;
 
-      if(last){
+      if (last) {
         const diff = (new Date(today) - new Date(last)) / 86400000;
-        if(diff > 1){ level = 0; pending = 0; }
+        if (diff > 1) { level = 0; pending = 0; }
       }
-      if(level >= 7) level = 0;
+      if (level >= 7) level = 0;
 
       const reward = DAILY_REWARDS[level] || 0;
       const newLevel = level + 1;
