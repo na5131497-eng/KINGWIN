@@ -1355,7 +1355,82 @@ const server = http.createServer(async (req, res) => {
           [guest.name]);
         unseen = dRes.rows;
       } catch(e) {}
-      return sendJSON(res, 200, { guest, unseen_deposits: unseen });
+
+      // === БОНУСЫ ===
+      const bonuses = [];
+      const bonusBal = parseFloat(guest.bonus_balance) || 0;
+      const wagerReq = parseFloat(guest.wagering_required) || 0;
+      const wagerDone = parseFloat(guest.wagering_done) || 0;
+      const wagerLeft = Math.max(0, wagerReq - wagerDone);
+
+      if (bonusBal > 0) {
+        bonuses.push({
+          id: 'rank_bonus_' + (guest.rank || 'Bronze'),
+          type: 'rank',
+          title: 'Бонус за повышение ранга',
+          desc: 'Начислен за достижение ранга ' + (guest.rank || 'Bronze') +
+                (wagerLeft > 0 ? `. Отыграно ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽.` : '.'),
+          amount: bonusBal,
+          can_refuse: true,
+          status: 'active',
+          wager: wagerReq > 0 ? ('x' + (wagerReq / Math.max(bonusBal, 1)).toFixed(0)) : null
+        });
+      }
+
+      if (bonusBal <= 0 && guest.bonus_text) {
+        bonuses.push({
+          id: 'text_bonus_' + guest.id,
+          type: 'welcome',
+          title: guest.bonus_text.slice(0, 40),
+          desc: guest.bonus_code ? ('Код: ' + guest.bonus_code) : '',
+          amount: 0,
+          can_refuse: false,
+          status: 'active',
+          wager: null
+        });
+      }
+
+      return sendJSON(res, 200, {
+        guest,
+        unseen_deposits: unseen,
+        bonuses,
+        wagering: { required: wagerReq, done: wagerDone, left: wagerLeft }
+      });
+    }
+
+    /* ================= ОТКАЗ ОТ БОНУСА ================= */
+    if (url === '/api/guest/refuse-bonus' && method === 'POST') {
+      const b = await parseBody(req);
+      const id = String(b.id || '').trim();
+      const bonusId = String(b.bonus_id || '').trim();
+      if (!id) return sendJSON(res, 400, { error: 'no id' });
+      if (!bonusId) return sendJSON(res, 400, { error: 'no bonus_id' });
+
+      const g = await getGuestById(id);
+      if (!g) return sendJSON(res, 404, { error: 'Гость не найден' });
+
+      const bonusBal = parseFloat(g.bonus_balance) || 0;
+      if (bonusBal <= 0) {
+        return sendJSON(res, 400, { error: 'Нет активных бонусов' });
+      }
+
+      let refunded = 0;
+      if (bonusId.startsWith('rank_bonus_') || bonusId.startsWith('text_bonus_')) {
+        refunded = bonusBal;
+        await pool.query(`
+          UPDATE guests SET
+            bonus_balance = 0,
+            bonus_text = '',
+            bonus_code = '',
+            wagering_required = 0,
+            wagering_done = 0
+          WHERE id = $1
+        `, [id]);
+      } else {
+        return sendJSON(res, 400, { error: 'Неизвестный бонус' });
+      }
+
+      return sendJSON(res, 200, { ok: true, refunded });
     }
 
     /* ================= СМЕНА ПАРОЛЯ ================= */
