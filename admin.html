@@ -186,7 +186,6 @@
   .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
   .news-edit-row textarea { min-height: 50px; resize: vertical; font-family: inherit; }
 
-  /* ============ СЕССИИ ПОД ГРАФИКОМ ============ */
   .sessions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
   .sessions-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 15px; padding: 20px; backdrop-filter: blur(10px); }
   .sessions-panel h3 { font-size: 16px; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
@@ -201,7 +200,6 @@
   .mini-table .empty-row td { text-align: center; color: var(--muted); font-style: italic; padding: 20px; }
   .mini-wrap { max-height: 340px; overflow-y: auto; }
 
-  /* ============ КАЛЕНДАРЬ ДОХОДОВ ============ */
   .income-calendar {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
@@ -229,11 +227,7 @@
     border-color: #fff;
     box-shadow: 0 0 20px currentColor;
   }
-  .inc-cell.zero {
-    background: rgba(255,255,255,0.05);
-    color: var(--muted);
-    border-color: rgba(255,255,255,0.08);
-  }
+  .inc-cell.zero { background: rgba(255,255,255,0.05); color: var(--muted); border-color: rgba(255,255,255,0.08); }
   .inc-cell.pos-1 { background: rgba(63,191,127,0.20); color: #7de0a8; }
   .inc-cell.pos-2 { background: rgba(63,191,127,0.40); color: #a8f0c4; }
   .inc-cell.pos-3 { background: rgba(63,191,127,0.65); color: #d0ffe0; }
@@ -261,108 +255,29 @@
     line-height: 1.5;
   }
   .inc-tooltip.show { opacity: 1; }
-  .inc-tooltip .tt-date {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .inc-tooltip .tt-total {
-    font-size: 18px;
-    font-weight: 900;
-    margin-bottom: 8px;
-  }
+  .inc-tooltip .tt-date { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .inc-tooltip .tt-total { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
   .inc-tooltip .tt-total.pos { color: var(--green); }
   .inc-tooltip .tt-total.neg { color: var(--red); }
-  .inc-tooltip .tt-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    font-size: 11px;
-    padding: 2px 0;
-  }
+  .inc-tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; padding: 2px 0; }
   .inc-tooltip .tt-row span:first-child { color: var(--muted); }
   .inc-tooltip .tt-row span:last-child { font-weight: 800; }
 
-  .inc-legend {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 14px;
-    flex-wrap: wrap;
-  }
-  .inc-legend .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-    display: inline-block;
-  }
+  .inc-legend { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); margin-top: 14px; flex-wrap: wrap; }
+  .inc-legend .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
   .inc-legend .dot.pos { background: rgba(63,191,127,0.7); }
   .inc-legend .dot.zero { background: rgba(255,255,255,0.1); }
   .inc-legend .dot.neg { background: rgba(255,77,77,0.7); }
 
-  /* Модалка дня */
-  .day-modal-content {
-    text-align: left;
-  }
-  .day-modal-title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 900;
-    margin-bottom: 6px;
-  }
-  .day-modal-sub {
-    text-align: center;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 20px;
-  }
-  .day-modal-total {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 900;
-    margin-bottom: 20px;
-    line-height: 1;
-  }
-  .day-section {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .day-section-title {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .day-section-title .amt {
-    font-size: 14px;
-    font-weight: 900;
-  }
-  .day-list {
-    font-size: 12px;
-    line-height: 1.7;
-    color: #d0d5e0;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .day-list-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    gap: 8px;
-  }
+  .day-modal-content { text-align: left; }
+  .day-modal-title { text-align: center; font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .day-modal-sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .day-modal-total { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 20px; line-height: 1; }
+  .day-section { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .day-section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .day-section-title .amt { font-size: 14px; font-weight: 900; }
+  .day-list { font-size: 12px; line-height: 1.7; color: #d0d5e0; max-height: 200px; overflow-y: auto; }
+  .day-list-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 8px; }
   .day-list-item:last-child { border-bottom: none; }
   .day-list-item .who { color: var(--muted); }
   .day-list-item .val { font-weight: 800; }
@@ -458,7 +373,6 @@
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
     </div>
 
-    <!-- КАЛЕНДАРЬ ДОХОДОВ -->
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
         <div>
@@ -643,8 +557,33 @@
 
   <div class="page" id="page-payouts">
     <h1>Выплаты дилерам</h1>
-    <div class="sub">Начисления, зарплаты, фишки</div>
+    <div class="sub">Начисления, зарплаты, сейфы</div>
     <div class="cards" id="payoutCards"></div>
+
+    <!-- 📦 СЕЙФЫ ДИЛЕРОВ -->
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+        <h3 style="margin:0;">📦 Сейфы дилеров</h3>
+        <button class="ghost small" onclick="loadCashSafeAdmin()">🔄 Обновить</button>
+      </div>
+      <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+        Сколько наличных у дилеров в сейфах. Когда дилер сдаёт — вы пересчитываете и подтверждаете.
+      </div>
+      <div class="wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Дилер</th>
+              <th>В сейфе</th>
+              <th>Сдано (ожидается)</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="safeBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="safeEmpty">Нет данных</div>
+    </div>
 
     <!-- 🎰 ФИШКИ ЗА ДЕНЬ -->
     <div class="panel">
@@ -671,28 +610,6 @@
         </table>
       </div>
       <div class="empty" id="chipsReportEmpty">Нет данных</div>
-    </div>
-
-    <!-- 💰 НАЛИЧНЫЕ У ДИЛЕРОВ -->
-    <div class="panel">
-      <h3>💰 Наличные у дилеров (в сейфах)</h3>
-      <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
-        Сколько наличных дилеры приняли от игроков и держат в сейфе.
-      </div>
-      <div class="wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Дилер</th>
-              <th>Игрок</th>
-              <th>Сумма</th>
-            </tr>
-          </thead>
-          <tbody id="cashListBody"></tbody>
-        </table>
-      </div>
-      <div class="empty" id="cashListEmpty">Нет записей</div>
     </div>
 
     <div class="panel">
@@ -1913,6 +1830,66 @@ function dealerStats(name){
   return { sessions: s.length + b.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
 }
 
+/* ============ СЕЙФЫ ДИЛЕРОВ ============ */
+async function loadCashSafeAdmin() {
+  try {
+    const r = await fetch('/api/admin/cash-safe');
+    const data = await r.json();
+    const body = document.getElementById('safeBody');
+    const empty = document.getElementById('safeEmpty');
+
+    if (!data.dealers || data.dealers.length === 0) {
+      body.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    body.innerHTML = data.dealers.map(d => `
+      <tr>
+        <td><b>${d.dealer_name || '—'}</b></td>
+        <td style="color:var(--accent); font-weight:900;">${fmt(d.open_total)} ₽</td>
+        <td style="color:var(--gold); font-weight:900;">${fmt(d.handed_total)} ₽</td>
+        <td>
+          ${d.handed_cnt > 0
+            ? `<button class="success small" onclick="acceptCash(${d.dealer_id}, ${d.handed_total})">✓ Принять</button>`
+            : '—'}
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+async function acceptCash(dealerId, expectedSum) {
+  const realStr = prompt(`Сколько реально в сейфе? (ожидается ${fmt(expectedSum)} ₽)`, fmt(expectedSum));
+  if (realStr === null) return;
+  const realSum = parseFloat(realStr.replace(/\s/g, '').replace(',', '.')) || 0;
+  if (realSum < 0) return;
+
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+
+  try {
+    const r = await fetch('/api/admin/cash-accept', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: dealerId, real_sum: realSum, pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { showInfo('Ошибка', data.error || 'Ошибка'); return; }
+
+    const diff = data.diff;
+    let msg = `Ожидалось: ${fmt(data.expected)} ₽<br>Реально: ${fmt(data.real_sum)} ₽<br>`;
+    if (Math.abs(diff) < 0.01) msg += '<b style="color:var(--green)">✓ Сошлось!</b>';
+    else if (diff < 0) msg += `<b style="color:var(--red)">⚠ Недостача: ${fmt(Math.abs(diff))} ₽</b>`;
+    else msg += `<b style="color:var(--gold)">⚠ Излишек: ${fmt(diff)} ₽</b>`;
+
+    showInfo('Сейф принят', msg);
+    loadCashSafeAdmin();
+  } catch(e) {
+    showInfo('Ошибка', 'Ошибка соединения');
+  }
+}
+
 /* ============ ОТЧЁТ ПО ФИШКАМ ============ */
 async function loadChipsReport() {
   const dateInput = document.getElementById('chipsDateInput');
@@ -1984,34 +1961,13 @@ function renderPayouts(){
       <td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
   document.getElementById('payoutEmpty').style.display = db.payouts.length ? 'none' : 'block';
 
-  // Наличные у дилеров
-  const cashAll = db.dealerCash || [];
-  const cashBody = document.getElementById('cashListBody');
-  const cashEmpty = document.getElementById('cashListEmpty');
-
-  if (cashBody) {
-    if (cashAll.length === 0) {
-      cashBody.innerHTML = '';
-      if (cashEmpty) cashEmpty.style.display = 'block';
-    } else {
-      if (cashEmpty) cashEmpty.style.display = 'none';
-      cashBody.innerHTML = cashAll.map(x => `
-        <tr>
-          <td>${x.date || '—'}</td>
-          <td>${x.dealer_name || '—'}</td>
-          <td>${x.guest_name || '—'}</td>
-          <td style="font-weight:900; color:var(--gold);">${fmt(x.sum)} ₽</td>
-        </tr>
-      `).join('');
-    }
-  }
-
   // Отчёт по фишкам
   const chipsDateInput = document.getElementById('chipsDateInput');
   if (chipsDateInput && !chipsDateInput.value) {
     chipsDateInput.value = today();
   }
   loadChipsReport();
+  loadCashSafeAdmin();
 }
 
 function openPayoutModal(){
