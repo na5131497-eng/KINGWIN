@@ -11,58 +11,90 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Montserrat',sans-serif;color:var(--text);
     background:radial-gradient(circle at top left,#1a2332,#0a0d14);min-height:100vh;padding:20px}
-  h1{font-size:24px;margin-bottom:6px}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:20px}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;
-    padding:18px;margin-bottom:16px;backdrop-filter:blur(10px)}
-  .panel h3{font-size:15px;margin-bottom:12px;font-weight:600}
+  h1{font-size:22px;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:12px;margin-bottom:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:14px;backdrop-filter:blur(10px)}
+  .panel h3{font-size:14px;margin-bottom:10px;font-weight:600}
   .stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;
-    border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+    border-radius:10px;overflow:hidden;border:1px solid var(--line);max-width:640px;margin:0 auto}
   .stage video{width:100%;height:100%;object-fit:cover;display:block}
-  .stage .badge{position:absolute;top:12px;left:12px;background:rgba(255,77,77,.9);
-    color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;
-    display:none;align-items:center;gap:6px}
+  .stage .badge{position:absolute;top:10px;left:10px;background:rgba(255,77,77,.9);
+    color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;
+    display:none;align-items:center;gap:5px}
   .badge.show{display:flex}
-  .badge .dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  button{background:var(--accent);color:#000;border:none;border-radius:8px;
-    padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;
-    font-family:inherit;transition:.3s}
+  .controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  button{background:var(--accent);color:#000;border:none;border-radius:6px;
+    padding:8px 12px;font-weight:700;font-size:12px;cursor:pointer;
+    font-family:inherit;transition:.2s}
   button:hover{filter:brightness(1.1)}
   button:disabled{opacity:.4;cursor:not-allowed}
   button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
   button.ghost:hover{border-color:var(--accent);color:var(--accent)}
   button.danger{background:var(--red);color:#fff}
   button.green{background:var(--green);color:#000}
-  .status-line{font-size:13px;color:var(--muted);margin-top:12px;
-    padding:10px 14px;background:rgba(0,0,0,.3);border-radius:8px}
+  button.small{padding:5px 9px;font-size:11px}
+  .status-line{font-size:12px;color:var(--muted);margin-top:8px;
+    padding:8px 12px;background:rgba(0,0,0,.3);border-radius:6px}
   .status-line.ok{color:var(--green)}
   .status-line.err{color:var(--red)}
-  .seats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-  .seat{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;
-    padding:10px;text-align:center;font-size:12px;color:var(--muted);min-height:80px}
-  .seat.occupied{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.08)}
-  .seat .name{font-weight:800;font-size:13px;color:var(--text);margin-bottom:4px}
-  .dealer-area{text-align:center;padding:15px;background:rgba(0,0,0,.3);
-    border-radius:10px;margin-top:10px}
-  .dealer-area .total{font-size:22px;font-weight:800;color:var(--gold)}
-  .cards-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0}
-  .card{background:#fff;color:#000;border-radius:6px;padding:8px 10px;
-    font-weight:800;font-size:16px;min-width:42px;text-align:center}
+  .phase{display:inline-block;font-size:11px;font-weight:800;padding:5px 12px;
+    border-radius:8px;background:rgba(0,229,255,.15);color:var(--accent);
+    text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .dealer-area{text-align:center;padding:10px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:10px}
+  .dealer-area .total{font-size:20px;font-weight:800;color:var(--gold)}
+  .cards-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+  .card{background:#fff;color:#000;border-radius:5px;padding:6px 8px;
+    font-weight:800;font-size:14px;min-width:36px;text-align:center}
   .card.hidden{background:linear-gradient(135deg,#1a3a5a,#0a1a2a);color:#00e5ff}
-  .phase{font-size:12px;color:var(--muted);text-transform:uppercase;
-    letter-spacing:1px;margin-top:8px}
-  @media(max-width:600px){
+
+  .seats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .seat-card{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;
+    padding:10px;font-size:12px;color:var(--muted);min-height:140px}
+  .seat-card.occupied{border-color:var(--accent);background:rgba(0,229,255,.06)}
+  .seat-card.wants{border-color:var(--gold);background:rgba(241,196,15,.08);
+    animation:pulseGold 1s infinite}
+  @keyframes pulseGold{0%,100%{box-shadow:0 0 10px rgba(241,196,15,.3);}50%{box-shadow:0 0 20px rgba(241,196,15,.7);}}
+  .seat-card .name{font-weight:800;font-size:13px;color:var(--text);margin-bottom:4px;
+    display:flex;justify-content:space-between;align-items:center;gap:4px}
+  .seat-card .name .idx{font-size:10px;color:var(--muted);font-weight:600}
+  .seat-card .info{font-size:11px;margin-bottom:6px}
+  .seat-card .total{font-size:14px;font-weight:800;color:var(--gold)}
+  .status-badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;
+    border-radius:4px;margin-top:4px}
+  .status-badge.win{background:rgba(63,191,127,.2);color:var(--green)}
+  .status-badge.lose{background:rgba(255,77,77,.2);color:var(--red)}
+  .status-badge.push{background:rgba(241,196,15,.2);color:var(--gold)}
+  .status-badge.stand{background:rgba(255,255,255,.1);color:var(--muted)}
+  .status-badge.wants{background:rgba(241,196,15,.25);color:var(--gold)}
+
+  .card-picker{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;margin:8px 0}
+  .card-btn{background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--text);
+    padding:6px 3px;border-radius:5px;font-size:11px;font-weight:800;cursor:pointer;
+    font-family:inherit;transition:.15s}
+  .card-btn:hover{background:rgba(0,229,255,.15);border-color:var(--accent);color:var(--accent)}
+  .card-btn.red{color:#ff6b6b}
+  .card-btn.red:hover{border-color:#ff6b6b;color:#ff6b6b;background:rgba(255,107,107,.15)}
+
+  .target-selector{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .target-btn{background:transparent;border:1px solid var(--line);color:var(--muted);
+    padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:.2s}
+  .target-btn.active{background:rgba(0,229,255,.15);border-color:var(--accent);color:var(--accent)}
+
+  @media(max-width:700px){
     .seats{grid-template-columns:repeat(2,1fr)}
-    h1{font-size:20px}
+    .card-picker{grid-template-columns:repeat(7,1fr)}
+    h1{font-size:18px}
   }
 </style>
 </head>
 <body>
 
-<h1>Live Стол 1 — дилер</h1>
-<div class="sub">Видео + управление раундом</div>
+<h1>Live Стол — дилер</h1>
+<div class="sub">Вводи карты, которые ты физически положил на стол</div>
 
 <div class="panel">
   <h3>📹 Трансляция</h3>
@@ -79,20 +111,53 @@
 
 <div class="panel">
   <h3>🎲 Раунд</h3>
-  <div class="phase" id="phaseView">—</div>
+  <div>
+    <span class="phase" id="phaseView">Ожидание</span>
+  </div>
   <div class="dealer-area">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">ДИЛЕР</div>
     <div class="cards-row" id="dealerCards"></div>
     <div class="total" id="dealerTotal">—</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:4px;">Дилер</div>
   </div>
   <div class="controls">
-    <button id="btnStartBetting" class="green">▶ Начать приём ставок</button>
-    <button id="btnForceDealer" class="ghost">⏭ Дилер доигрывает</button>
+    <button id="btnStartBetting" class="green">▶ Открыть приём ставок</button>
+    <button id="btnDeal" class="ghost">🃏 Начать раздачу</button>
+    <button id="btnReveal" class="ghost">👁 Открыть 2-ю карту</button>
+    <button id="btnFinish" class="danger">✓ Завершить раунд</button>
+    <button id="btnReset" class="ghost small">↻ Сброс</button>
   </div>
 </div>
 
 <div class="panel">
-  <h3>🪑 Места</h3>
+  <h3>🪑 Места и ввод карт</h3>
+
+  <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">
+    Куда кладём карту:
+  </div>
+  <div class="target-selector" id="targetSelector">
+    <button class="target-btn active" data-target="dealer" onclick="selectTarget('dealer', null)">👤 Дилер</button>
+    <button class="target-btn" data-target="seat" data-seat="0" onclick="selectTarget('seat', 0)">Место 1</button>
+    <button class="target-btn" data-target="seat" data-seat="1" onclick="selectTarget('seat', 1)">Место 2</button>
+    <button class="target-btn" data-target="seat" data-seat="2" onclick="selectTarget('seat', 2)">Место 3</button>
+    <button class="target-btn" data-target="seat" data-seat="3" onclick="selectTarget('seat', 3)">Место 4</button>
+  </div>
+
+  <div style="font-size:12px;color:var(--muted);margin:12px 0 6px;">
+    Какая карта? (нажми, что положил)
+  </div>
+
+  <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">♠ Пики</div>
+  <div class="card-picker" data-suit="♠"></div>
+  <div style="font-size:11px;color:var(--muted);margin:6px 0 4px;">♥ Червы</div>
+  <div class="card-picker" data-suit="♥"></div>
+  <div style="font-size:11px;color:var(--muted);margin:6px 0 4px;">♦ Бубны</div>
+  <div class="card-picker" data-suit="♦"></div>
+  <div style="font-size:11px;color:var(--muted);margin:6px 0 4px;">♣ Трефы</div>
+  <div class="card-picker" data-suit="♣"></div>
+</div>
+
+<div class="panel">
+  <h3>🪑 Игроки</h3>
   <div class="seats" id="seatsView"></div>
 </div>
 
@@ -156,13 +221,42 @@ $('btnStop').onclick = stopBroadcast;
 
 /* ===== Socket.IO ===== */
 const socket = io();
+let selectedTarget = { type: 'dealer', idx: null };
+
+function selectTarget(type, idx){
+  selectedTarget = { type, idx };
+  document.querySelectorAll('.target-btn').forEach(b => {
+    b.classList.toggle('active',
+      b.dataset.target === type && (type === 'dealer' || parseInt(b.dataset.seat) === idx));
+  });
+}
+
+const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+
+document.querySelectorAll('.card-picker').forEach(picker => {
+  const suit = picker.dataset.suit;
+  const isRed = suit === '♥' || suit === '♦';
+  picker.innerHTML = RANKS.map(r =>
+    `<button class="card-btn ${isRed ? 'red' : ''}" data-r="${r}" data-s="${suit}">${r}${suit}</button>`
+  ).join('');
+  picker.querySelectorAll('.card-btn').forEach(btn => {
+    btn.onclick = () => {
+      const card = { r: btn.dataset.r, s: btn.dataset.s };
+      const target = selectedTarget.type === 'dealer'
+        ? { type: 'dealer' }
+        : { type: 'seat', idx: selectedTarget.idx };
+      socket.emit('dealer:addCard', { target, card });
+    };
+  });
+});
 
 const PHASE_LABEL = {
   waiting: 'Ожидание',
   betting: 'Приём ставок',
-  playing: 'Игроки ходят',
+  dealing: 'Раздача',
+  playing: 'Ходы игроков',
   dealer: 'Ход дилера',
-  payout: 'Выплаты'
+  payout: 'Результаты'
 };
 
 function renderCards(cards){
@@ -178,16 +272,22 @@ socket.on('state', (st) => {
   $('dealerTotal').textContent = st.dealerTotal || '—';
 
   $('seatsView').innerHTML = st.seats.map((s, i) => {
-    if (!s) return `<div class="seat"><div class="name">Место ${i+1}</div><div>свободно</div></div>`;
-    const cards = s.cards && s.cards.length
-      ? `<div class="cards-row">${s.cards.map(c => `<div class="card">${c.r}${c.s}</div>`).join('')}</div>`
-      : '';
-    return `<div class="seat occupied">
-      <div class="name">${s.name}</div>
-      ${cards}
-      <div>${s.bet > 0 ? 'ставка ' + s.bet + ' ₽' : 'сидит'}</div>
-      <div style="font-weight:800;">${s.total || ''}${s.busted ? ' BUST' : ''}</div>
-      ${s.result ? `<div style="margin-top:4px;font-size:11px;">${s.result.toUpperCase()}</div>` : ''}
+    if (!s) return `<div class="seat-card"><div class="name">Место ${i+1} <span class="idx">—</span></div><div class="info">свободно</div></div>`;
+    const cls = 'seat-card occupied' + (s.wantsCard ? ' wants' : '');
+    let badge = '';
+    if (s.result) {
+      const map = { win:'ВЫИГРАЛ', lose:'проиграл', push:'ничья', bust:'перебор', blackjack:'BLACKJACK' };
+      const clsMap = { win:'win', lose:'lose', push:'push', bust:'lose', blackjack:'win' };
+      badge = `<span class="status-badge ${clsMap[s.result]}">${map[s.result]}</span>`;
+    } else if (s.busted) badge = `<span class="status-badge lose">BUST</span>`;
+    else if (s.stood) badge = `<span class="status-badge stand">стоит</span>`;
+    else if (s.wantsCard) badge = `<span class="status-badge wants">ждёт карту</span>`;
+    return `<div class="${cls}">
+      <div class="name">${s.name} <span class="idx">№${i+1}</span></div>
+      <div class="cards-row">${renderCards(s.cards)}</div>
+      <div class="info">${s.bet > 0 ? 'ставка ' + s.bet + ' ₽' : 'сидит'}</div>
+      <div class="total">${s.total || '—'}</div>
+      ${badge}
     </div>`;
   }).join('');
 });
@@ -196,7 +296,12 @@ socket.on('err', (msg) => setStatus('Ошибка: ' + msg, 'err'));
 socket.on('dealerMsg', (msg) => console.log('[dealer]', msg));
 
 $('btnStartBetting').onclick = () => socket.emit('dealer:startBetting');
-$('btnForceDealer').onclick = () => socket.emit('dealer:forceDealer');
+$('btnDeal').onclick = () => socket.emit('dealer:deal');
+$('btnReveal').onclick = () => socket.emit('dealer:reveal');
+$('btnFinish').onclick = () => socket.emit('dealer:finish');
+$('btnReset').onclick = () => {
+  if (confirm('Сбросить текущий раунд?')) socket.emit('dealer:resetRound');
+};
 </script>
 </body>
 </html>
