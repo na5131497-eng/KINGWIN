@@ -243,7 +243,6 @@
   .inc-cell.neg-3 { background: rgba(255,77,77,0.65); color: #ffdada; }
   .inc-cell.neg-4 { background: rgba(255,77,77,0.90); color: #0a0d14; }
 
-  /* Тултип */
   .inc-tooltip {
     position: fixed;
     background: rgba(10,13,20,0.98);
@@ -286,7 +285,6 @@
   .inc-tooltip .tt-row span:first-child { color: var(--muted); }
   .inc-tooltip .tt-row span:last-child { font-weight: 800; }
 
-  /* Легенда */
   .inc-legend {
     display: flex;
     align-items: center;
@@ -645,8 +643,58 @@
 
   <div class="page" id="page-payouts">
     <h1>Выплаты дилерам</h1>
-    <div class="sub">Начисления и зарплаты</div>
+    <div class="sub">Начисления, зарплаты, фишки</div>
     <div class="cards" id="payoutCards"></div>
+
+    <!-- 🎰 ФИШКИ ЗА ДЕНЬ -->
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+        <h3 style="margin:0;">🎰 Фишки за день</h3>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="date" id="chipsDateInput" onchange="loadChipsReport()" style="background:rgba(0,0,0,0.3); border:1px solid var(--line); color:#fff; padding:8px 12px; border-radius:8px; font-family:inherit;">
+        </div>
+      </div>
+
+      <div class="cards" id="chipsCards" style="margin-bottom:15px;"></div>
+
+      <div class="wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Дилер</th>
+              <th>Выдано</th>
+              <th>Принято</th>
+              <th>Прибыль</th>
+            </tr>
+          </thead>
+          <tbody id="chipsReportBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="chipsReportEmpty">Нет данных</div>
+    </div>
+
+    <!-- 💰 НАЛИЧНЫЕ У ДИЛЕРОВ -->
+    <div class="panel">
+      <h3>💰 Наличные у дилеров (в сейфах)</h3>
+      <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+        Сколько наличных дилеры приняли от игроков и держат в сейфе.
+      </div>
+      <div class="wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Дилер</th>
+              <th>Игрок</th>
+              <th>Сумма</th>
+            </tr>
+          </thead>
+          <tbody id="cashListBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="cashListEmpty">Нет записей</div>
+    </div>
+
     <div class="panel">
       <h3>Выдать зарплату</h3>
       <div class="row">
@@ -657,12 +705,14 @@
         <button onclick="openPayoutModal()">Выдать</button>
       </div>
     </div>
+
     <div class="panel"><h3>Начислено</h3>
       <div class="wrap"><table><thead><tr>
         <th>#</th><th>Дилер</th><th>Сессий</th><th>Доход</th><th>Начислено</th><th>Выплачено</th><th>Остаток</th>
       </tr></thead><tbody id="accruedBody"></tbody></table></div>
       <div class="empty" id="accruedEmpty">Нет данных</div>
     </div>
+
     <div class="panel"><h3>История выплат</h3>
       <div class="wrap"><table><thead><tr>
         <th>#</th><th>Дата</th><th>Дилер</th><th>Сумма</th><th>Примечание</th><th></th>
@@ -811,7 +861,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: ДОХОД ЗА ДЕНЬ -->
 <div class="modal-backdrop" id="dayIncomeModal">
   <div class="modal" style="max-width: 560px;">
     <button class="ghost" style="position:absolute; top:15px; right:15px; width:auto; padding:4px 12px; font-size:16px;" onclick="closeDayIncomeModal()">✕</button>
@@ -820,7 +869,7 @@
 </div>
 
 <script>
-let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [], dealer_reviews: [], dealer_ratings: [] };
+let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [], dealer_reviews: [], dealer_ratings: [], dealerCash: [] };
 let newsList = [];
 let currentUser = null;
 let currentRole = null;
@@ -879,7 +928,8 @@ async function loadDB(){
     guests: '/api/guests',
     crash_bets: '/api/crash/all-bets',
     dealer_reviews: '/api/dealer-reviews',
-    dealer_ratings: '/api/dealer-ratings'
+    dealer_ratings: '/api/dealer-ratings',
+    dealerCash: '/api/admin/cash-all'
   };
   const results = await Promise.all(
     Object.entries(endpoints).map(async ([key, url]) => {
@@ -1060,7 +1110,6 @@ function onlineStats(){
   return { income, expense, net: income - expense };
 }
 
-/* ============ ГЛАВНАЯ ============ */
 function renderDash(){
   const bj = bjStats(), bac = bacStats(), on = onlineStats();
 
@@ -1085,7 +1134,6 @@ function renderDash(){
   renderSessionsUnderChart();
 }
 
-/* ============ КАЛЕНДАРЬ ДОХОДОВ ============ */
 function renderIncomeCalendar(){
   const days = {};
 
@@ -1193,7 +1241,6 @@ function renderIncomeCalendar(){
   bindCalendarTooltips();
 }
 
-/* ============ ТУЛТИП + КЛИК ============ */
 function bindCalendarTooltips(){
   let tooltip = document.getElementById('incGlobalTooltip');
   if (!tooltip) {
@@ -1241,12 +1288,10 @@ function bindCalendarTooltips(){
   });
 }
 
-/* ============ МОДАЛКА ДОХОДА ЗА ДЕНЬ ============ */
 function openDayIncomeModal(date){
   const [y, m, dd] = date.split('-');
   const dateStr = `${dd}.${m}.${y}`;
 
-  // Собираем все данные за этот день
   const bjSessions = (db.sessions || []).filter(s => s.date === date);
   const bacSessions = (db.baccarat || []).filter(b => b.date === date);
   const crashRounds = (db.online || []).filter(o => o.date === date && (o.note || '').startsWith('Crash Round'));
@@ -1254,7 +1299,6 @@ function openDayIncomeModal(date){
   const wdApproved = (db.withdrawals || []).filter(w => w.date === date && w.status === 'approved');
   const payoutsDay = (db.payouts || []).filter(p => p.date === date);
 
-  // Суммы
   let bjTotal = 0, bacTotal = 0, crashTotal = 0, depTotal = 0, commTotal = 0, salTotal = 0;
   bjSessions.forEach(s => bjTotal += sessionNet(s).income);
   bacSessions.forEach(b => bacTotal += bacCalc(b).casino);
@@ -1271,14 +1315,12 @@ function openDayIncomeModal(date){
 
   const net = (bjTotal + bacTotal + crashTotal + depTotal) - commTotal - salTotal;
 
-  // Строим HTML
   let html = `
     <div class="day-modal-title">${dateStr}</div>
     <div class="day-modal-sub">Отчёт за день</div>
     <div class="day-modal-total ${net >= 0 ? 'pos' : 'neg'}" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'};">${net >= 0 ? '+' : ''}${fmt(net)} ₽</div>
   `;
 
-  // Блэкджек
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1299,7 +1341,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Баккара
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1320,7 +1361,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Crash
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1341,7 +1381,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Депозиты
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1359,7 +1398,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Комиссии
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1381,7 +1419,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Зарплаты
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1399,7 +1436,6 @@ function openDayIncomeModal(date){
     </div>
   `;
 
-  // Итог
   html += `
     <div style="text-align:center; margin-top:20px;">
       <button class="ghost" onclick="closeDayIncomeModal()" style="width:100%;">Закрыть</button>
@@ -1414,7 +1450,6 @@ function closeDayIncomeModal(){
   document.getElementById('dayIncomeModal').classList.remove('show');
 }
 
-/* ============ СЕССИИ ПОД ГРАФИКОМ ============ */
 function renderSessionsUnderChart(){
   const bj = [...db.sessions].sort((a,b) => {
     const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
@@ -1542,7 +1577,6 @@ function drawChart(){
   ctx.shadowBlur = 0;
 }
 
-/* ============ ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений) ============ */
 function renderFinance(){
   document.getElementById('depositsBody').innerHTML = db.deposits.map(d=>`
     <tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td>
@@ -1812,7 +1846,6 @@ async function delNews(id){
   renderNewsAdmin();
 }
 
-/* ================ ОТЗЫВЫ О ДИЛЕРАХ ================ */
 function renderReviews(){
   const reviews = db.dealer_reviews || [];
   const ratings = db.dealer_ratings || [];
@@ -1879,6 +1912,55 @@ function dealerStats(name){
   const paid = db.payouts.filter(p=>p.dealer===name).reduce((a,p)=>a+(parseFloat(p.sum)||0),0);
   return { sessions: s.length + b.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
 }
+
+/* ============ ОТЧЁТ ПО ФИШКАМ ============ */
+async function loadChipsReport() {
+  const dateInput = document.getElementById('chipsDateInput');
+  const date = dateInput.value || today();
+  try {
+    const r = await fetch('/api/admin/chips-summary?date=' + encodeURIComponent(date));
+    const data = await r.json();
+
+    const cards = document.getElementById('chipsCards');
+    if (cards) {
+      cards.innerHTML = `
+        <div class="card"><div class="label">🎰 Выдано</div><div class="value accent">${fmt(data.grandIn)} ₽</div></div>
+        <div class="card"><div class="label">🔄 Принято</div><div class="value" style="color:var(--gold);">${fmt(data.grandOut)} ₽</div></div>
+        <div class="card" style="border-color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">
+          <div class="label">💰 Прибыль</div>
+          <div class="value" style="color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">
+            ${data.grandProfit >= 0 ? '+' : ''}${fmt(data.grandProfit)} ₽
+          </div>
+        </div>
+      `;
+    }
+
+    const body = document.getElementById('chipsReportBody');
+    const empty = document.getElementById('chipsReportEmpty');
+
+    if (!data.dealers || data.dealers.length === 0) {
+      body.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    body.innerHTML = data.dealers.map(d => {
+      const profitColor = d.profit >= 0 ? 'var(--green)' : 'var(--red)';
+      return `
+        <tr>
+          <td><b>${d.dealer_name || '—'}</b></td>
+          <td style="color:var(--green);">${fmt(d.totalIn)} ₽</td>
+          <td style="color:var(--gold);">${fmt(d.totalOut)} ₽</td>
+          <td style="font-weight:900; color:${profitColor};">${d.profit >= 0 ? '+' : ''}${fmt(d.profit)} ₽</td>
+        </tr>
+      `;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+  }
+}
+
 function renderPayouts(){
   const names = dealerNames();
   let tAcc=0, tPaid=0;
@@ -1901,7 +1983,37 @@ function renderPayouts(){
       <td>${fmt(p.sum)} ₽</td><td>${p.note||'—'}</td>
       <td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
   document.getElementById('payoutEmpty').style.display = db.payouts.length ? 'none' : 'block';
+
+  // Наличные у дилеров
+  const cashAll = db.dealerCash || [];
+  const cashBody = document.getElementById('cashListBody');
+  const cashEmpty = document.getElementById('cashListEmpty');
+
+  if (cashBody) {
+    if (cashAll.length === 0) {
+      cashBody.innerHTML = '';
+      if (cashEmpty) cashEmpty.style.display = 'block';
+    } else {
+      if (cashEmpty) cashEmpty.style.display = 'none';
+      cashBody.innerHTML = cashAll.map(x => `
+        <tr>
+          <td>${x.date || '—'}</td>
+          <td>${x.dealer_name || '—'}</td>
+          <td>${x.guest_name || '—'}</td>
+          <td style="font-weight:900; color:var(--gold);">${fmt(x.sum)} ₽</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Отчёт по фишкам
+  const chipsDateInput = document.getElementById('chipsDateInput');
+  if (chipsDateInput && !chipsDateInput.value) {
+    chipsDateInput.value = today();
+  }
+  loadChipsReport();
 }
+
 function openPayoutModal(){
   const dealer = document.getElementById('pay_dealer').value.trim();
   const sum = parseFloat(document.getElementById('pay_sum').value) || 0;
@@ -1988,7 +2100,8 @@ async function tickLive(){
 setInterval(tickLive, 1000);
 
 (async () => {
-  document.getElementById('pay_date').value = today();
+  const payDateEl = document.getElementById('pay_date');
+  if (payDateEl) payDateEl.value = today();
 })();
 </script>
 </body>
