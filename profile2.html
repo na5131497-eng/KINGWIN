@@ -197,69 +197,43 @@
     text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,.3); }
 
-  /* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
   @media (max-width: 600px) {
     body { padding: 14px 10px; }
     .wrap { max-width: 100%; }
-
     .logo { font-size: 24px; letter-spacing: 3px; }
     .logo-sub { font-size: 9px; letter-spacing: 3px; margin-bottom: 16px; }
-
-    .tabs {
-      flex-direction: row !important;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      gap: 5px;
-      padding: 5px;
-      margin-bottom: 12px;
-    }
+    .tabs { flex-direction: row !important; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 5px; padding: 5px; margin-bottom: 12px; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      flex: 0 0 auto;
-      min-width: 90px;
-      font-size: 10px;
-      padding: 10px 8px;
-    }
-
+    .tab { flex: 0 0 auto; min-width: 90px; font-size: 10px; padding: 10px 8px; }
     .card { padding: 18px 14px; border-radius: 16px; }
-
     .top-head .name { font-size: 22px; }
     .top-head .cid { font-size: 11px; }
     .top-head .rank-badge { font-size: 11px; padding: 7px 16px; }
-
     .cats { gap: 8px; margin-bottom: 16px; }
     .cat { padding: 12px 6px; }
     .cat .val { font-size: 18px; }
     .cat .lbl { font-size: 8px; }
     .cat.rank .val { font-size: 12px; }
-
     .info-block { padding: 14px; }
     .info-block .row { font-size: 12px; }
-
     .btn { padding: 13px; font-size: 13px; }
-
     .daily-card { padding: 16px; }
     .daily-days { gap: 4px; }
     .daily-day .num { font-size: 8px; }
     .daily-day .reward { font-size: 10px; }
-
     .withdraw-block { padding: 16px; }
     .withdraw-block .amount { font-size: 28px; }
     .withdraw-block .amount.small { font-size: 24px; }
     .withdraw-block h3 { font-size: 11px; }
     .withdraw-block .cond { font-size: 11px; }
-
     .news-item { padding: 12px; }
     .news-item .title { font-size: 13px; }
     .news-item .body { font-size: 12px; }
-
     .review-block { padding: 16px; }
     .review-block h3 { font-size: 12px; }
     .review-block input, .review-block textarea { font-size: 15px; padding: 12px; }
     .star { font-size: 30px; }
     .stars { gap: 6px; }
-
     .modal-backdrop { padding: 12px; }
     .modal { padding: 28px 18px; border-radius: 20px; max-width: 100%; }
     .modal-logo { font-size: 30px; letter-spacing: 3px; }
@@ -271,18 +245,11 @@
     .modal-btn { padding: 12px 26px; font-size: 13px; width: 100%; }
     .modal-btn.cancel { margin-right: 0; margin-bottom: 8px; }
     .modal-close { font-size: 22px; top: 12px; right: 12px; }
-
-    .modal > div[style*="display:flex"] {
-      flex-direction: column !important;
-    }
-
+    .modal > div[style*="display:flex"] { flex-direction: column !important; }
     .cp-input { font-size: 15px; padding: 12px; }
-
     .login-form input { font-size: 16px; padding: 13px; }
-
     .footer { font-size: 10px; margin-top: 14px; }
   }
-
   @media (max-width: 380px) {
     body { padding: 10px 8px; }
     .tab { min-width: 82px; font-size: 9px; padding: 9px 6px; }
@@ -306,7 +273,6 @@
   <div class="footer">© KINGWIN</div>
 </div>
 
-<!-- МОДАЛКА: повышение ранга -->
 <div class="modal-backdrop" id="rankUpModal">
   <div class="modal rank-up">
     <div class="modal-logo">KINGWIN</div>
@@ -319,7 +285,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: ежедневный бонус получен -->
 <div class="modal-backdrop" id="dailyModal">
   <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.4);">
     <div class="modal-logo">KINGWIN</div>
@@ -332,7 +297,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ПЕРЕВОДА НА КАЗИНО -->
 <div class="modal-backdrop" id="confirmTransferModal">
   <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
     <button class="modal-close" onclick="closeConfirmTransfer()">✕</button>
@@ -348,7 +312,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА УСПЕШНОГО ПЕРЕВОДА -->
 <div class="modal-backdrop" id="successTransferModal">
   <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
     <div class="modal-logo">KINGWIN</div>
@@ -359,7 +322,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ РЕАЛЬНОГО ВЫВОДА -->
 <div class="modal-backdrop" id="confirmRealWithdrawModal">
   <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
     <button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button>
@@ -375,7 +337,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА УСПЕШНОГО РЕАЛЬНОГО ВЫВОДА -->
 <div class="modal-backdrop" id="successRealWithdrawModal">
   <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
     <div class="modal-logo">KINGWIN</div>
@@ -386,7 +347,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА УСПЕШНОЙ ОЦЕНКИ -->
 <div class="modal-backdrop" id="reviewSuccessModal">
   <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
     <div class="modal-logo">KINGWIN</div>
@@ -397,7 +357,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ОШИБКИ ОЦЕНКИ -->
 <div class="modal-backdrop" id="reviewErrorModal">
   <div class="modal" style="border-color:#ff4d4d; box-shadow:0 0 60px rgba(255,77,77,.3);">
     <div class="modal-logo">KINGWIN</div>
@@ -408,7 +367,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА СМЕНЫ ПАРОЛЯ -->
 <div class="modal-backdrop" id="changePassModal">
   <div class="modal" style="border-color:#00e5ff; box-shadow:0 0 60px rgba(0,229,255,.3);">
     <button class="modal-close" onclick="closeChangePassModal()">✕</button>
@@ -416,12 +374,10 @@
     <div class="modal-sub">Security</div>
     <div class="modal-title">Смена пароля</div>
     <div class="modal-text" style="margin-bottom:16px;">Введите текущий и новый пароль.</div>
-
     <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль" autocomplete="current-password">
     <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4 символа)" autocomplete="new-password">
     <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый пароль" autocomplete="new-password">
     <div class="err" id="cpErr" style="display:none;"></div>
-
     <div style="display:flex; gap:10px; justify-content:center; margin-top:6px;">
       <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
       <button class="modal-btn green" onclick="submitChangePass()">Сохранить</button>
@@ -429,7 +385,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА УСПЕХА СМЕНЫ ПАРОЛЯ -->
 <div class="modal-backdrop" id="changePassSuccessModal">
   <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 60px rgba(63,191,127,.3);">
     <div class="modal-logo">KINGWIN</div>
@@ -441,13 +396,6 @@
 </div>
 
 <script>
-/* ============================================================
-   KINGWIN — Profile 2 v6
-   + Новости
-   + Оценка дилера
-   + Смена пароля
-   + Мобильная адаптация
-   ============================================================ */
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
   Silver:   { next: 300,  label: 'Gold',     gift: 50   },
@@ -471,6 +419,14 @@ let selectedStars = 0;
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+/* ===== СОХРАНЕНИЕ ГОСТЯ ДЛЯ player.html ===== */
+function saveGuestToStorage(g){
+  if(!g || !g.id) return;
+  try {
+    localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(g.id), name: String(g.name || '') }));
+  } catch(e) {}
+}
 
 /* ---------------- LOGIN ---------------- */
 function renderLogin(prefillId){
@@ -505,6 +461,7 @@ async function doLogin(){
     if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display='block'; return; }
     session = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
+    saveGuestToStorage(data.guest);
     await loadAll();
     startAutoRefresh();
   } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
@@ -649,10 +606,8 @@ function renderProfile(){
           С кем вы играли? Введите имя дилера, поставьте оценку и оставьте комментарий.
           Одного дилера можно оценить не чаще 1 раза в 24 часа.
         </div>
-
         <label>Имя дилера</label>
         <input type="text" id="reviewDealerName" placeholder="Например: Дилер" maxlength="100">
-
         <label>Оценка</label>
         <div class="stars" id="starsRow">
           <span class="star" data-val="1" onclick="selectStars(1)">★</span>
@@ -661,13 +616,10 @@ function renderProfile(){
           <span class="star" data-val="4" onclick="selectStars(4)">★</span>
           <span class="star" data-val="5" onclick="selectStars(5)">★</span>
         </div>
-
         <label>Комментарий (необязательно)</label>
         <textarea id="reviewComment" placeholder="Что понравилось / не понравилось?" maxlength="1000"></textarea>
-
         <button class="btn green" onclick="submitReview()">Отправить оценку</button>
       </div>
-
       <div class="my-reviews">
         <h4>Ваши прошлые оценки</h4>
         <div id="myReviewsList">
@@ -723,43 +675,32 @@ function renderDailyHtml(){
 async function claimDaily(){
   if(!dailyState || dailyState.claimed_today || claimLock) return;
   claimLock = true;
-
   const box = document.getElementById('dailyMsg');
   const btn = document.getElementById('dailyBtn');
   if(box) box.innerHTML = '';
   if(btn){ btn.disabled = true; btn.textContent = 'Отправка…'; }
-
   try {
     const r = await fetch('/api/guest/daily-claim', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id })
     });
     const data = await r.json();
-
     if(!r.ok){
       if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
-      await loadDaily();
-      renderProfile();
-      return;
+      await loadDaily(); renderProfile(); return;
     }
-
     dailyState.claimed_today = true;
     dailyState.level = data.level;
     dailyState.next_reward = 0;
     dailyState.pending_bonus = data.pending_bonus;
-
     showDailyModal(data.reward, data.level);
     renderProfile();
-
     await Promise.all([loadSummary(), loadDaily()]);
     renderProfile();
   } catch(e){
     if(box) box.innerHTML = `<div class="err">Ошибка соединения</div>`;
-    await loadDaily();
-    renderProfile();
-  } finally {
-    claimLock = false;
-  }
+    await loadDaily(); renderProfile();
+  } finally { claimLock = false; }
 }
 
 function showDailyModal(reward, level){
@@ -843,7 +784,6 @@ function renderWithdrawHtml(){
   `;
 }
 
-// ПЕРЕВОД НА КАЗИНО
 function openConfirmTransfer(amount){
   pendingTransferAmount = amount;
   document.getElementById('transferAmount').textContent = fmt(amount);
@@ -862,10 +802,8 @@ async function executeTransfer(){
     });
     const data = await r.json();
     if(!r.ok){ alert(data.error || 'Ошибка'); return; }
-    
     document.getElementById('successTransferAmount').textContent = fmt(data.amount);
     document.getElementById('successTransferModal').classList.add('show');
-    
     await loadSummary();
     renderProfile();
   } catch(e){ alert('Ошибка соединения'); }
@@ -874,7 +812,6 @@ function closeSuccessTransfer(){
   document.getElementById('successTransferModal').classList.remove('show');
 }
 
-// РЕАЛЬНЫЙ ВЫВОД
 function openConfirmRealWithdraw(amount){
   pendingRealWithdrawAmount = amount;
   document.getElementById('realWithdrawAmount').textContent = fmt(amount);
@@ -893,10 +830,8 @@ async function executeRealWithdraw(){
     });
     const data = await r.json();
     if(!r.ok){ alert(data.error || 'Ошибка'); return; }
-    
     document.getElementById('successRealWithdrawAmount').textContent = fmt(data.withdrawal.sum);
     document.getElementById('successRealWithdrawModal').classList.add('show');
-    
     await loadSummary();
     renderProfile();
   } catch(e){ alert('Ошибка соединения'); }
@@ -936,7 +871,6 @@ function selectStars(val){
     s.classList.toggle('active', v <= val);
   });
 }
-
 function showReviewError(text){
   document.getElementById('reviewErrorText').textContent = text;
   document.getElementById('reviewErrorModal').classList.add('show');
@@ -954,29 +888,20 @@ async function submitReview(){
   const comment = document.getElementById('reviewComment').value.trim();
   if(!dealerName){ showReviewError('Введите имя дилера'); return; }
   if(selectedStars < 1){ showReviewError('Поставьте оценку (1–5 звёзд)'); return; }
-
   try {
     const r = await fetch('/api/dealer-reviews', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        guest_id: session.id,
-        guest_name: session.name,
-        dealer_name: dealerName,
-        stars: selectedStars,
-        comment: comment
+        guest_id: session.id, guest_name: session.name,
+        dealer_name: dealerName, stars: selectedStars, comment: comment
       })
     });
     const data = await r.json();
-    if(!r.ok){
-      showReviewError(data.error || 'Ошибка отправки');
-      return;
-    }
-
+    if(!r.ok){ showReviewError(data.error || 'Ошибка отправки'); return; }
     document.getElementById('reviewDealerName').value = '';
     document.getElementById('reviewComment').value = '';
     selectedStars = 0;
     document.querySelectorAll('#starsRow .star').forEach(s => s.classList.remove('active'));
-
     document.getElementById('reviewSuccessModal').classList.add('show');
     await loadMyReviews();
   } catch(e){ showReviewError('Ошибка соединения'); }
@@ -1003,8 +928,7 @@ async function loadMyReviews(){
         </div>
         ${rv.comment ? `<div class="txt">${esc(rv.comment)}</div>` : ''}
         <div style="font-size:10px; color:#6d819a; margin-top:6px;">${esc(dt)}</div>
-      </div>
-    `;
+      </div>`;
     }).join('');
   } catch(e) {
     box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:10px;">Ошибка загрузки</div>`;
@@ -1033,22 +957,16 @@ async function submitChangePass(){
   const newPass2 = document.getElementById('cpNew2').value;
   const err = document.getElementById('cpErr');
   err.style.display = 'none';
-
   if(!oldPass){ err.textContent = 'Введите текущий пароль'; err.style.display = 'block'; return; }
   if(!newPass || newPass.length < 4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
   if(newPass !== newPass2){ err.textContent = 'Новые пароли не совпадают'; err.style.display = 'block'; return; }
-
   try {
     const r = await fetch('/api/guest/change-password', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id, old_pass: oldPass, new_pass: newPass })
     });
     const data = await r.json();
-    if(!r.ok){
-      err.textContent = data.error || 'Ошибка';
-      err.style.display = 'block';
-      return;
-    }
+    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
     closeChangePassModal();
     document.getElementById('changePassSuccessModal').classList.add('show');
   } catch(e){
@@ -1078,6 +996,7 @@ function doLogout(){
   session = null; summary = null; dailyState = null;
   lastSeenRank = null; claimLock = false;
   localStorage.removeItem('kingwin_guest_id');
+  localStorage.removeItem('kingwin_guest');
   renderLogin('');
 }
 
@@ -1095,6 +1014,7 @@ function doLogout(){
         if(r.ok){
           const data = await r.json();
           session = data.guest;
+          saveGuestToStorage(data.guest);
           await loadAll();
           startAutoRefresh();
         }
