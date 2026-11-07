@@ -63,8 +63,8 @@
   .mult-value.golden { color: var(--gold); text-shadow: 0 5px 30px rgba(255,215,0,0.6); }
   .mult-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; font-weight: 700; min-height: 16px; }
 
-  .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; }
-  .bet-box { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
+  .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; justify-content: center; }
+  .bet-box { width: 100%; max-width: 520px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
   .bet-box.queued { border-color: rgba(0,229,255,0.4); box-shadow: 0 0 18px rgba(0,229,255,0.12); }
   .queue-badge { display: none; position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 10px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 12px rgba(0,229,255,0.5); }
   .bet-box.queued .queue-badge { display: block; }
@@ -123,7 +123,7 @@
     .mult-value { font-size: 52px; }
     .mult-label { font-size: 11px; letter-spacing: 1px; margin-top: 6px; }
     .control-panel { flex-direction: column; padding: 10px; gap: 10px; border-radius: 16px; }
-    .bet-box { padding: 12px; gap: 10px; border-radius: 14px; }
+    .bet-box { padding: 12px; gap: 10px; border-radius: 14px; max-width: none; }
     .sidebar-bets { width: 100%; height: 260px; min-height: 200px; order: 2; flex-shrink: 0; border-radius: 16px; }
     .toast-container { top: 60px; right: 8px; left: 8px; }
     .toast { min-width: 0; width: 100%; transform: translateY(-120%); }
@@ -210,41 +210,20 @@
         <div class="queue-badge">Ставка на след. раунд</div>
         <div class="amount-row">
           <div class="amount-input-wrap">
-            <button id="btnMinus1" onclick="changeAmount(1, -1)">−</button>
+            <button id="btnMinus1" onclick="changeAmount(-1)">−</button>
             <input type="number" id="betAmount1" value="10" min="1" max="200">
-            <button id="btnPlus1" onclick="changeAmount(1, 1)">+</button>
+            <button id="btnPlus1" onclick="changeAmount(1)">+</button>
           </div>
-          <button class="btn-action btn-bet" id="btnBet1" onclick="placeBet(1)">
+          <button class="btn-action btn-bet" id="btnBet1" onclick="placeBet()">
             Ставка
             <div class="subtext" id="subtext1">10 ₽</div>
           </button>
         </div>
         <div class="quick-bets">
-          <button id="quick1_1" onclick="setAmount(1, 10)">10</button>
-          <button id="quick1_2" onclick="setAmount(1, 50)">50</button>
-          <button id="quick1_3" onclick="setAmount(1, 100)">100</button>
-          <button id="quick1_4" onclick="setAmount(1, 200)">200</button>
-        </div>
-      </div>
-
-      <div class="bet-box" id="betBox2">
-        <div class="queue-badge">Ставка на след. раунд</div>
-        <div class="amount-row">
-          <div class="amount-input-wrap">
-            <button id="btnMinus2" onclick="changeAmount(2, -1)">−</button>
-            <input type="number" id="betAmount2" value="10" min="1" max="200">
-            <button id="btnPlus2" onclick="changeAmount(2, 1)">+</button>
-          </div>
-          <button class="btn-action btn-bet" id="btnBet2" onclick="placeBet(2)">
-            Ставка
-            <div class="subtext" id="subtext2">10 ₽</div>
-          </button>
-        </div>
-        <div class="quick-bets">
-          <button id="quick2_1" onclick="setAmount(2, 10)">10</button>
-          <button id="quick2_2" onclick="setAmount(2, 50)">50</button>
-          <button id="quick2_3" onclick="setAmount(2, 100)">100</button>
-          <button id="quick2_4" onclick="setAmount(2, 200)">200</button>
+          <button id="quick1_1" onclick="setAmount(10)">10</button>
+          <button id="quick1_2" onclick="setAmount(50)">50</button>
+          <button id="quick1_3" onclick="setAmount(100)">100</button>
+          <button id="quick1_4" onclick="setAmount(200)">200</button>
         </div>
       </div>
     </div>
@@ -260,10 +239,10 @@ const POLL_MS = 300;
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
 
-let myBetIds = { 1: null, 2: null };
-let myCashed = { 1: false, 2: false };
-let queuedBets = { 1: null, 2: null };
-let lastRoundIdSeen = null;
+// Одна ячейка для ставки
+let myBetId = null;
+let myCashed = false;
+let queuedBet = null;
 
 let round = {
   id: null, status: 'waiting', startTime: 0, crashPoint: 1,
@@ -280,7 +259,7 @@ let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
-/* ============ ЗВУК ОТСЧЁТА (один длинный файл /countdown.mp3) ============ */
+/* ============ ЗВУК ОТСЧЁТА ============ */
 let countdownAudio = null;
 let lastWaitingRoundId = null;
 
@@ -305,9 +284,6 @@ function stopCountdownSound() {
 
 /* ============ ЗВУКИ (Web Audio API) ============ */
 let audioCtx = null;
-let flyOsc = null;
-let flyGain = null;
-let flyActive = false;
 
 function initAudio() {
   if (audioCtx) return;
@@ -316,7 +292,7 @@ function initAudio() {
   } catch(e) { audioCtx = null; }
 }
 
-// 1. Звук ставки — короткий «клик/всплеск»
+// 1. Звук ставки
 function playBetSound() {
   initAudio();
   if (!audioCtx) return;
@@ -335,59 +311,7 @@ function playBetSound() {
   osc.stop(now + 0.15);
 }
 
-// 2. Звук полёта — «космос»: глубокий гул с мерцанием
-function startFlySound() {
-  if (flyActive) return;
-  initAudio();
-  if (!audioCtx) return;
-  flyActive = true;
-  const now = audioCtx.currentTime;
-
-  flyOsc = audioCtx.createOscillator();
-  flyGain = audioCtx.createGain();
-  flyOsc.type = 'sine';
-  flyOsc.frequency.setValueAtTime(80, now);
-
-  const lfo = audioCtx.createOscillator();
-  const lfoGain = audioCtx.createGain();
-  lfo.type = 'sine';
-  lfo.frequency.setValueAtTime(0.8, now);
-  lfoGain.gain.setValueAtTime(6, now);
-  lfo.connect(lfoGain);
-  lfoGain.connect(flyOsc.frequency);
-  lfo.start(now);
-
-  flyGain.gain.setValueAtTime(0.12, now);
-
-  flyOsc.connect(flyGain);
-  flyGain.connect(audioCtx.destination);
-  flyOsc.start(now);
-  flyOsc._lfo = lfo;
-}
-
-function updateFlySound(mult) {
-  if (!flyActive || !flyOsc || !audioCtx) return;
-  const now = audioCtx.currentTime;
-  const freq = Math.min(320, 80 + Math.log(mult) * 60);
-  flyOsc.frequency.setTargetAtTime(freq, now, 0.2);
-  const vol = Math.min(0.22, 0.12 + Math.log(mult) * 0.03);
-  flyGain.gain.setTargetAtTime(vol, now, 0.2);
-}
-
-function stopFlySound() {
-  if (!flyActive) return;
-  flyActive = false;
-  if (flyOsc && flyGain && audioCtx) {
-    const now = audioCtx.currentTime;
-    flyGain.gain.setTargetAtTime(0.0001, now, 0.08);
-    if (flyOsc._lfo) { try { flyOsc._lfo.stop(now + 0.3); } catch(e){} }
-    flyOsc.stop(now + 0.3);
-    flyOsc = null;
-    flyGain = null;
-  }
-}
-
-// 3. Звук краша — «взрыв бомбы»
+// 2. Звук краша
 function playCrashSound() {
   initAudio();
   if (!audioCtx) return;
@@ -441,7 +365,7 @@ function playCrashSound() {
   crack.start(now);
 }
 
-// 4. Звук забрал ставку — приятный «динь»
+// 3. Звук кэшаута
 function playCashoutSound() {
   initAudio();
   if (!audioCtx) return;
@@ -551,7 +475,7 @@ async function pollRound() {
   } catch(e) {}
 }
 
-function restoreMyBetsFromServer(serverBets) {
+function restoreMyBetFromServer(serverBets) {
   if (!playerId || !Array.isArray(serverBets)) return;
   const myActive = serverBets.filter(b => 
     b.player_id && 
@@ -561,22 +485,17 @@ function restoreMyBetsFromServer(serverBets) {
   if (myActive.length === 0) return;
   let changed = false;
   myActive.forEach(b => {
-    const betId = b.id;
-    const existingSlot = [1, 2].find(id => myBetIds[id] === betId);
-    if (existingSlot) {
-      if (!!b.cashed_out !== myCashed[existingSlot]) {
-        myCashed[existingSlot] = !!b.cashed_out;
+    if (myBetId === b.id) {
+      if (!!b.cashed_out !== myCashed) {
+        myCashed = !!b.cashed_out;
         changed = true;
       }
       return;
     }
-    for (const id of [1, 2]) {
-      if (!myBetIds[id] && !queuedBets[id]) {
-        myBetIds[id] = betId;
-        myCashed[id] = !!b.cashed_out;
-        changed = true;
-        break;
-      }
+    if (!myBetId && !queuedBet) {
+      myBetId = b.id;
+      myCashed = !!b.cashed_out;
+      changed = true;
     }
   });
   if (changed) updateBetButtons();
@@ -592,20 +511,18 @@ function applyServerState(d) {
   const roundChanged = round.id !== d.roundId;
 
   if (isNewRound || roundChanged) {
-    myBetIds = { 1: null, 2: null };
-    myCashed = { 1: false, 2: false };
+    myBetId = null;
+    myCashed = false;
     resetLocalCrash();
     loadBalance();
     setTimeout(() => {
-      [1, 2].forEach(id => {
-        if (queuedBets[id] && queuedBets[id].amount > 0) {
-          const candidates = (round.bets || []).filter(b => String(b.player_id) === String(playerId) && !b.cashed_out);
-          if (candidates.length > 0) {
-            myBetIds[id] = candidates[candidates.length - 1].id;
-            queuedBets[id] = null;
-          }
+      if (queuedBet && queuedBet.amount > 0) {
+        const candidates = (round.bets || []).filter(b => String(b.player_id) === String(playerId) && !b.cashed_out);
+        if (candidates.length > 0) {
+          myBetId = candidates[candidates.length - 1].id;
+          queuedBet = null;
         }
-      });
+      }
       updateBetButtons();
     }, 800);
   }
@@ -618,14 +535,7 @@ function applyServerState(d) {
   round.bets = d.bets || []; round.history = d.history || [];
   round.hasRealBet = d.hasRealBet || false;
 
-  restoreMyBetsFromServer(round.bets);
-
-  if (d.status === 'flying' && prevStatus !== 'flying') {
-    startFlySound();
-  }
-  if (prevStatus === 'flying' && d.status !== 'flying') {
-    stopFlySound();
-  }
+  restoreMyBetFromServer(round.bets);
 
   if (d.status === 'crashed' && !localCrashed) {
     localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id;
@@ -639,7 +549,7 @@ function applyServerState(d) {
   renderHistory(round.history);
   updateBetButtons();
 
-  // === ЗВУК ОТСЧЁТА 10 СЕК (один файл, играет 1 раз) ===
+  // === ЗВУК ОТСЧЁТА ===
   if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
     lastWaitingRoundId = d.roundId;
     startCountdownSound();
@@ -668,7 +578,6 @@ function frame() {
     multValueEl.classList.remove('crashed');
     multValueEl.style.opacity = '1';
     multLabelEl.textContent = '';
-    updateFlySound(mult);
     if (mult < 1) multValueEl.textContent = '1.00x';
     if (mult >= 10) multValueEl.classList.add('golden');
     else multValueEl.classList.remove('golden');
@@ -774,102 +683,121 @@ function renderHistory(history) {
 
 function updateBetButtons() {
   const effStatus = localCrashed ? 'crashed' : round.status;
-  [1, 2].forEach(id => {
-    const btn = document.getElementById('btnBet' + id);
-    const box = document.getElementById('betBox' + id);
-    const betId = myBetIds[id];
-    const cashed = myCashed[id];
-    const queued = queuedBets[id] && queuedBets[id].amount > 0;
-    const betAmountInput = document.getElementById('betAmount' + id);
-    const btnMinus = document.getElementById('btnMinus' + id);
-    const btnPlus = document.getElementById('btnPlus' + id);
-    const quickBtns = [document.getElementById('quick' + id + '_1'), document.getElementById('quick' + id + '_2'), document.getElementById('quick' + id + '_3'), document.getElementById('quick' + id + '_4')];
-    const settingsLocked = (betId !== null && betId !== 'queued' && !cashed) || queued;
-    betAmountInput.disabled = settingsLocked;
-    btnMinus.disabled = settingsLocked;
-    btnPlus.disabled = settingsLocked;
-    quickBtns.forEach(b => { if(b) b.disabled = settingsLocked; });
-    if (queued) box.classList.add('queued'); else box.classList.remove('queued');
-    if (queued) {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `В очереди <div class="subtext">${queuedBets[id].amount} ₽</div>`;
-      btn.disabled = false; btn.onclick = () => cancelQueue(id); return;
-    }
-    if (effStatus === 'waiting') {
-      if (betId) {
-        btn.className = 'btn-action btn-cancel';
-        btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
-        btn.disabled = false; btn.onclick = () => placeBet(id);
-      } else {
-        const amt = parseInt(betAmountInput.value) || MIN_BET;
-        btn.className = 'btn-action btn-bet';
-        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
-        btn.disabled = false; btn.onclick = () => placeBet(id);
-      }
-    } else if (effStatus === 'flying') {
-      if (betId && betId !== 'queued' && !cashed) {
-        btn.className = 'btn-action btn-cashout';
-        btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(betId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`;
-        btn.disabled = false; btn.onclick = () => doCashout(id);
-      } else if (cashed) {
-        btn.className = 'btn-action btn-bet';
-        btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
-        btn.disabled = true;
-      } else {
-        const amt = parseInt(betAmountInput.value) || MIN_BET;
-        btn.className = 'btn-action btn-bet';
-        btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`;
-        btn.disabled = false; btn.onclick = () => placeBet(id);
-      }
+  const btn = document.getElementById('btnBet1');
+  const box = document.getElementById('betBox1');
+  const betAmountInput = document.getElementById('betAmount1');
+  const btnMinus = document.getElementById('btnMinus1');
+  const btnPlus = document.getElementById('btnPlus1');
+  const quickBtns = [document.getElementById('quick1_1'), document.getElementById('quick1_2'), document.getElementById('quick1_3'), document.getElementById('quick1_4')];
+  const queued = queuedBet && queuedBet.amount > 0;
+  const settingsLocked = (myBetId !== null && myBetId !== 'queued' && !myCashed) || queued;
+  betAmountInput.disabled = settingsLocked;
+  btnMinus.disabled = settingsLocked;
+  btnPlus.disabled = settingsLocked;
+  quickBtns.forEach(b => { if(b) b.disabled = settingsLocked; });
+  if (queued) box.classList.add('queued'); else box.classList.remove('queued');
+  if (queued) {
+    btn.className = 'btn-action btn-bet';
+    btn.innerHTML = `В очереди <div class="subtext">${queuedBet.amount} ₽</div>`;
+    btn.disabled = false; btn.onclick = () => cancelQueue(); return;
+  }
+  if (effStatus === 'waiting') {
+    if (myBetId) {
+      btn.className = 'btn-action btn-cancel';
+      btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
+      btn.disabled = false; btn.onclick = () => placeBet();
     } else {
-      if (betId && betId !== 'queued' && !cashed) {
-        const amt = getBetAmountById(betId, round.bets);
-        btn.className = 'btn-action btn-bet';
-        btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`;
-        btn.disabled = true;
-      } else {
-        const amt = parseInt(betAmountInput.value) || MIN_BET;
-        btn.className = 'btn-action btn-bet';
-        btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
-        btn.disabled = false; btn.onclick = () => placeBet(id);
-      }
+      const amt = parseInt(betAmountInput.value) || MIN_BET;
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => placeBet();
     }
-  });
+  } else if (effStatus === 'flying') {
+    if (myBetId && myBetId !== 'queued' && !myCashed) {
+      btn.className = 'btn-action btn-cashout';
+      btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(myBetId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => doCashout();
+    } else if (myCashed) {
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
+      btn.disabled = true;
+    } else {
+      const amt = parseInt(betAmountInput.value) || MIN_BET;
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => placeBet();
+    }
+  } else {
+    if (myBetId && myBetId !== 'queued' && !myCashed) {
+      const amt = getBetAmountById(myBetId, round.bets);
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`;
+      btn.disabled = true;
+    } else {
+      const amt = parseInt(betAmountInput.value) || MIN_BET;
+      btn.className = 'btn-action btn-bet';
+      btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
+      btn.disabled = false; btn.onclick = () => placeBet();
+    }
+  }
 }
 
 function updateBetButtonsLive(mult, effStatus) {
-  [1, 2].forEach(id => {
-    if (effStatus === 'flying' && myBetIds[id] && myBetIds[id] !== 'queued' && !myCashed[id]) {
-      const btn = document.getElementById('btnBet' + id);
-      const amt = getBetAmountById(myBetIds[id], round.bets);
-      if (amt > 0) {
-        const val = (amt * mult).toFixed(2);
-        const html = `Забрать <div class="subtext">${val} ₽</div>`;
-        if (btn.innerHTML !== html) btn.innerHTML = html;
-      }
+  if (effStatus === 'flying' && myBetId && myBetId !== 'queued' && !myCashed) {
+    const btn = document.getElementById('btnBet1');
+    const amt = getBetAmountById(myBetId, round.bets);
+    if (amt > 0) {
+      const val = (amt * mult).toFixed(2);
+      const html = `Забрать <div class="subtext">${val} ₽</div>`;
+      if (btn.innerHTML !== html) btn.innerHTML = html;
     }
-  });
+  }
 }
 
 function getBetAmountById(betId, bets) { if (!bets) return 0; const b = bets.find(x => x.id === betId); return b ? parseFloat(b.amount) : 0; }
-function changeAmount(id, diff) { if (myBetIds[id] || queuedBets[id]) return; const input = document.getElementById('betAmount' + id); let val = parseInt(input.value) || MIN_BET; val += diff; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; input.value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
-function setAmount(id, val) { if (myBetIds[id] || queuedBets[id]) return; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; document.getElementById('betAmount' + id).value = val; document.getElementById('subtext' + id).textContent = val + ' ₽'; updateBetButtons(); }
-async function cancelQueue(id) { if (!queuedBets[id]) return; queuedBets[id] = null; showToast('Ставка снята с очереди', 'info'); updateBetButtons(); }
 
-async function placeBet(id) {
-  if (myBetIds[id] && round.status === 'waiting') { showToast('Ставка уже принята', 'error'); return; }
-  if (myBetIds[id] && myBetIds[id] !== 'queued' && round.status === 'flying' && !myCashed[id] && !localCrashed) return doCashout(id);
-  if (queuedBets[id]) return cancelQueue(id);
+function changeAmount(diff) {
+  if (myBetId || queuedBet) return;
+  const input = document.getElementById('betAmount1');
+  let val = parseInt(input.value) || MIN_BET;
+  val += diff;
+  if (val < MIN_BET) val = MIN_BET;
+  if (val > MAX_BET) val = MAX_BET;
+  input.value = val;
+  document.getElementById('subtext1').textContent = val + ' ₽';
+  updateBetButtons();
+}
+
+function setAmount(val) {
+  if (myBetId || queuedBet) return;
+  if (val < MIN_BET) val = MIN_BET;
+  if (val > MAX_BET) val = MAX_BET;
+  document.getElementById('betAmount1').value = val;
+  document.getElementById('subtext1').textContent = val + ' ₽';
+  updateBetButtons();
+}
+
+async function cancelQueue() {
+  if (!queuedBet) return;
+  queuedBet = null;
+  showToast('Ставка снята с очереди', 'info');
+  updateBetButtons();
+}
+
+async function placeBet() {
+  if (myBetId && round.status === 'waiting') { showToast('Ставка уже принята', 'error'); return; }
+  if (myBetId && myBetId !== 'queued' && round.status === 'flying' && !myCashed && !localCrashed) return doCashout();
+  if (queuedBet) return cancelQueue();
   if (!playerId) { showToast('Войдите в аккаунт', 'error'); return; }
-  const amt = parseInt(document.getElementById('betAmount' + id).value) || MIN_BET;
+  const amt = parseInt(document.getElementById('betAmount1').value) || MIN_BET;
   if (amt < MIN_BET || amt > MAX_BET) { showToast(`Ставка от ${MIN_BET} до ${MAX_BET} ₽`, 'error'); return; }
-  const btn = document.getElementById('btnBet' + id); btn.disabled = true;
+  const btn = document.getElementById('btnBet1'); btn.disabled = true;
   try {
     const r = await fetch('/api/crash/bet', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ player_id: playerId, amount: amt }) });
     const d = await r.json();
     if (!r.ok) { showToast(d.error || 'Ошибка ставки', 'error'); btn.disabled = false; updateBetButtons(); return; }
-    if (d.queued) { queuedBets[id] = { amount: amt, roundIdWhenQueued: round.id }; showToast(`Ставка ${amt} ₽ — на следующий раунд`, 'success'); updateBetButtons(); return; }
-    myBetIds[id] = d.bet.id; myCashed[id] = false;
+    if (d.queued) { queuedBet = { amount: amt, roundIdWhenQueued: round.id }; showToast(`Ставка ${amt} ₽ — на следующий раунд`, 'success'); updateBetButtons(); return; }
+    myBetId = d.bet.id; myCashed = false;
     if (d.bet.round_id !== crashedRoundId) resetLocalCrash();
     playBetSound();
     showToast(`Ставка ${amt} ₽ принята`, 'success');
@@ -877,17 +805,17 @@ async function placeBet(id) {
   } catch(e) { showToast('Ошибка соединения', 'error'); btn.disabled = false; updateBetButtons(); }
 }
 
-async function doCashout(id) {
-  if (!myBetIds[id] || myCashed[id] || myBetIds[id] === 'queued') return;
-  const betId = myBetIds[id]; myCashed[id] = true;
+async function doCashout() {
+  if (!myBetId || myCashed || myBetId === 'queued') return;
+  const betId = myBetId; myCashed = true;
   try {
     const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
     const d = await r.json();
-    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed[id] = false; return; }
+    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed = false; return; }
     playCashoutSound();
     showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
     loadBalance(); pollRound();
-  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed[id] = false; }
+  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed = false; }
 }
 
 function showToast(text, type='success') {
