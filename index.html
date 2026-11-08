@@ -21,7 +21,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
   
-  /* ШАПКА */
   .topbar { height: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 30px; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
@@ -72,10 +71,8 @@
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
   .btn-login:hover { border-color: var(--accent); }
 
-  /* ОСНОВНОЙ КОНТЕНТ */
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-  /* БОЛЬШОЙ БАННЕР */
   .hero-banner {
     position: relative;
     width: 100%;
@@ -142,11 +139,9 @@
     box-shadow: 0 0 30px rgba(0,230,118,0.6);
   }
 
-  /* СЕКЦИИ */
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
   .section-title svg { width: 20px; height: 20px; fill: var(--text-muted); }
 
-  /* СЕТКА ИГР */
   .games-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; }
   
   .game-card { 
@@ -162,7 +157,6 @@
     font-size: 18px; z-index: 5;
   }
 
-  /* ЗАГЛУШКА «СКОРО» */
   .game-card.coming-soon {
     opacity: 0.55;
     cursor: not-allowed;
@@ -198,7 +192,6 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* МОДАЛКИ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; overflow-y: auto; }
   .modal-overlay.show { display: flex; }
   .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; margin: auto; }
@@ -209,7 +202,6 @@
   .modal-box input:focus { border-color: var(--accent); }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
   
-  /* ДЕПОЗИТ */
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
   .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
@@ -217,12 +209,10 @@
   .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
   .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; font-family: inherit; }
   
-  .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: left; }
-  .card-info .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
-  .card-info .row:last-child { margin-bottom: 0; }
-  .card-info .row b { color: #fff; font-family: 'Courier New', monospace; font-size: 15px; letter-spacing: 1px; }
+  .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
+  .card-info .note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .card-info .note b { color: #fff; }
 
-  /* ТОСТЫ */
   .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; }
   .toast.show { transform: translateX(0); }
@@ -230,7 +220,6 @@
   .toast.error { border-left-color: var(--red); }
   .toast.info { border-left-color: var(--gold); }
 
-  /* АДАПТИВ */
   @media (max-width: 1200px) {
     .games-grid { grid-template-columns: repeat(5, 1fr); }
   }
@@ -289,7 +278,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> 
         Главная
       </a>
-      <a href="/profile.html" class="nav-item" onclick="return requireLogin(event)">
+      <a href="/profile2.html" class="nav-item" onclick="return requireLogin(event)">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 
         Профиль
       </a>
@@ -310,7 +299,6 @@
 
 <div class="main-content">
   
-  <!-- БОЛЬШОЙ БАННЕР -->
   <div class="hero-banner">
     <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
     <div class="overlay"></div>
@@ -321,14 +309,12 @@
     </div>
   </div>
 
-  <!-- НАШИ ИГРЫ -->
   <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
     Наши игры
   </div>
 
   <div class="games-grid">
-    <!-- Crash (работает) -->
     <a href="/crash.html" class="game-card" id="gameCrash" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash">
@@ -339,7 +325,6 @@
       </div>
     </a>
 
-    <!-- Cases (СКОРО) -->
     <div class="game-card coming-soon" onclick="showComingSoon('Cases')">
       <div class="game-img-wrap">
         <img src="/cases_card.jpg" alt="Cases">
@@ -350,18 +335,16 @@
       </div>
     </div>
 
-    <!-- Miner (СКОРО) -->
-    <div class="game-card coming-soon" onclick="showComingSoon('Miner')">
+    <a href="/miner.html" class="game-card" id="gameMiner" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
         <img src="/miner_card.jpg" alt="Miner">
       </div>
       <div class="game-info">
         <div class="game-title">Miner</div>
-        <div class="game-sub">Скоро</div>
+        <div class="game-sub">Минное поле</div>
       </div>
-    </div>
+    </a>
 
-    <!-- Ladder (СКОРО) -->
     <div class="game-card coming-soon" onclick="showComingSoon('Ladder')">
       <div class="game-img-wrap">
         <img src="/ladder_card.jpg" alt="Ladder">
@@ -372,7 +355,6 @@
       </div>
     </div>
 
-    <!-- Plinko (СКОРО) -->
     <div class="game-card coming-soon" onclick="showComingSoon('Plinko')">
       <div class="game-img-wrap">
         <img src="/plinko_card.jpg" alt="Plinko">
@@ -386,7 +368,6 @@
 
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
@@ -399,7 +380,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ДЕПОЗИТА -->
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
@@ -420,9 +400,10 @@
     </div>
 
     <div class="card-info">
-      <div class="row"><span>Способ:</span> <b>Перевод на карту</b></div>
-      <div class="row"><span>Номер:</span> <b>2200 7009 2389 5931</b></div>
-      <div class="row"><span>Получатель:</span> <b></b></div>
+      <div class="note">
+        После нажатия «Перейти к оплате»<br>
+        <b>свяжитесь с администратором</b> для получения реквизитов.
+      </div>
     </div>
 
     <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="goToPayment()">Перейти к оплате</button>
@@ -457,7 +438,6 @@ function openModal(id) {
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-/* ============ ПРОВЕРКА ЛОГИНА ============ */
 function requireLogin(e) {
   if (!currentPlayer) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -468,18 +448,13 @@ function requireLogin(e) {
 }
 
 function actionRequireLogin(fnName) {
-  if (!currentPlayer) {
-    openModal('loginModal');
-    return;
-  }
-  if (typeof window[fnName] === 'function') {
-    window[fnName]();
-  }
+  if (!currentPlayer) { openModal('loginModal'); return; }
+  if (typeof window[fnName] === 'function') window[fnName]();
 }
 
 function goToProfile() {
   if(!currentPlayer) { openModal('loginModal'); return; }
-  window.location.href = `/profile.html?id=${currentPlayer.id}`;
+  window.location.href = `/profile2.html`;
 }
 
 function openDeposit() {
@@ -489,7 +464,7 @@ function openDeposit() {
   selectDepMethod('bonus');
   
   fetch('/api/deposits').then(r => r.json()).then(deps => {
-    const myDeps = deps.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    const myDeps = deps.filter(d => String(d.nick).toLowerCase() === String(currentPlayer.name).toLowerCase());
     if(myDeps.length > 0) {
       document.getElementById('depBanner').textContent = 'ВВЕДИТЕ ПРОМОКОД';
       document.getElementById('promoCodeInput').style.display = 'block';
@@ -507,27 +482,19 @@ function selectDepMethod(method) {
   selectedDepMethod = method;
   document.getElementById('methodBonus').classList.toggle('active', method === 'bonus');
   document.getElementById('methodNoBonus').classList.toggle('active', method === 'nobonus');
-  
-  if(method === 'nobonus') {
-    document.getElementById('bonusBlock').style.display = 'none';
-  } else {
-    document.getElementById('bonusBlock').style.display = 'block';
-  }
+  document.getElementById('bonusBlock').style.display = (method === 'nobonus') ? 'none' : 'block';
 }
 
 function goToPayment() {
   if(!currentPlayer) { openModal('loginModal'); return; }
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
   if(amount < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
-  
   closeModal('depositModal');
-  
   let url = `/pay.html?amount=${amount}&method=${selectedDepMethod}`;
   if(selectedDepMethod === 'bonus') {
     const promo = document.getElementById('promoCodeInput').value.trim();
     if(promo) url += `&promo=${encodeURIComponent(promo)}`;
   }
-  
   window.location.href = url;
 }
 
@@ -548,6 +515,7 @@ async function doLogin() {
     
     currentPlayer = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
+    localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
     closeModal('loginModal');
     updateUI();
     startBalanceRefresh();
@@ -559,20 +527,11 @@ function updateUI() {
   if(currentPlayer) {
     document.getElementById('userArea').style.display = 'flex';
     document.getElementById('loginArea').style.display = 'none';
-    
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
-
-    // разблокировать только Crash
-    const el = document.getElementById('gameCrash');
-    if(el) el.classList.remove('locked');
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
-
-    // заблокировать Crash
-    const el = document.getElementById('gameCrash');
-    if(el) el.classList.add('locked');
   }
 }
 
@@ -601,7 +560,8 @@ window.onload = () => {
   if(savedId) {
     fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => { 
       if(data.guest) { 
-        currentPlayer = data.guest; 
+        currentPlayer = data.guest;
+        localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
         updateUI(); 
         startBalanceRefresh();
       } 
