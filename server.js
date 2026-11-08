@@ -1528,6 +1528,66 @@ const server = http.createServer(async (req, res) => {
     }
 
     /* ================= СТАТИКА ================= */
+    /* ================= КОЛЕСО ================= */
+    if (url === '/api/wheel/status' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const id = u.searchParams.get('id');
+      if (!id) return sendJSON(res, 400, { error: 'no id' });
+      try {
+        const r = await pool.query(`SELECT wheel_last_spin FROM guests WHERE id=$1`, [id]);
+        if (!r.rows.length) return sendJSON(res, 404, { error: 'not found' });
+        const last = r.rows[0].wheel_last_spin;
+        const lastTime = last ? new Date(last).getTime() : 0;
+        const canSpin = Date.now() - lastTime >= 3600000;
+        return sendJSON(res, 200, { can_spin: canSpin, last_spin: last });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url === '/api/wheel/spin' && method === 'POST') {
+      const b = await parseBody(req);
+      const id = String(b.id || '').trim();
+      if (!id) return sendJSON(res, 400, { error: 'no id' });
+      try {
+        const r = await pool.query(`SELECT wheel_last_spin FROM guests WHERE id=$1`, [id]);
+        if (!r.rows.length) return sendJSON(res, 404, { error: 'not found' });
+        const last = r.rows[0].wheel_last_spin;
+        const lastTime = last ? new Date(last).getTime() : 0;
+        if (Date.now() - lastTime < 3600000) {
+          const left = Math.ceil((3600000 - (Date.now() - lastTime)) / 60000);
+          return sendJSON(res, 400, { error: `Крутить можно раз в час. Осталось ${left} мин.` });
+        }
+        // Шансы: 1₽ — 40%, 2₽ — 25%, 4₽ — 15%, 6₽ — 10%, 10₽ — 10%
+        const roll = Math.random();
+        let prize = 1;
+        if (roll < 0.40) prize = 1;
+        else if (roll < 0.65) prize = 2;
+        else if (roll < 0.80) prize = 4;
+        else if (roll < 0.90) prize = 6;
+        else prize = 10;
+        await pool.query(
+          `UPDATE guests SET bonus_balance = bonus_balance + $1,
+            wagering_required = wagering_required + $2,
+            wheel_last_spin = NOW()
+           WHERE id=$3`,
+          [prize, prize * 5, id]
+        );
+        return sendJSON(res, 200, { ok: true, prize });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    /* ================= ПРОВЕРКА ДИЛЕРА ================= */
+    if (url === '/api/dealer/exists' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const name = String(u.searchParams.get('name') || '').trim();
+      if (!name) return sendJSON(res, 200, { exists: false });
+      try {
+        const r = await pool.query(
+          `SELECT id FROM dealers WHERE LOWER(name)=LOWER($1) LIMIT 1`,
+          [name]
+        );
+        return sendJSON(res, 200, { exists: r.rows.length > 0 });
+      } catch (e) { return sendJSON(res, 200, { exists: false }); }
+    }
     let file = url === '/' ? '/index.html' : url;
     const filePath = path.join(__dirname, file);
     if (!fs.existsSync(filePath)) { res.writeHead(404); res.end('Not found'); return; }
