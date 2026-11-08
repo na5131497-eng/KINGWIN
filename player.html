@@ -12,7 +12,7 @@
   body{font-family:'Montserrat',sans-serif;color:var(--text);
     background:radial-gradient(circle at top left,#1a2332,#0a0d14);min-height:100vh;padding:15px}
   .topbar{display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:12px;gap:10px;flex-wrap:wrap}
+    margin-bottom:12px;gap:10px;flex-wrap:wrap;max-width:900px;margin-left:auto;margin-right:auto}
   .topbar .brand{font-size:18px;font-weight:800;letter-spacing:2px;
     background:linear-gradient(135deg,var(--accent),#0077ff);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -83,6 +83,9 @@
   .result-banner.win{color:var(--green)}
   .result-banner.lose{color:var(--red)}
   .result-banner.push{color:var(--gold)}
+  .waiting-hint{text-align:center;font-size:12px;color:var(--muted);
+    padding:10px;background:rgba(0,0,0,.3);border-radius:8px;margin-top:8px}
+
   @media(max-width:600px){
     h1{font-size:16px}
     .panel{padding:10px}
@@ -144,6 +147,8 @@
       <button id="btnDouble" class="ghost">Удвоить</button>
     </div>
   </div>
+
+  <div id="waitingHint" class="waiting-hint" style="display:none;"></div>
 </div>
 
 <div class="panel">
@@ -203,7 +208,6 @@ async function connectLiveKit(){
 
     await room.connect(data.url, data.token);
 
-    // если дилер уже вещает
     for (const p of room.remoteParticipants.values()){
       for (const pub of p.trackPublications.values()){
         if (pub.track && pub.kind === LivekitClient.Track.Kind.Video && pub.isSubscribed){
@@ -228,6 +232,7 @@ let latestState = null;
 const PHASE_LABEL = {
   waiting: 'Ожидание',
   betting: 'Приём ставок',
+  dealing: 'Раздача',
   playing: 'Игровой раунд',
   dealer: 'Ход дилера',
   payout: 'Результаты'
@@ -244,11 +249,9 @@ function renderAll(st){
   latestState = st;
   $('phaseInfo').textContent = PHASE_LABEL[st.phase] || st.phase;
 
-  // Дилер
   $('dealerCards').innerHTML = renderCards(st.dealerCards);
   $('dealerTotal').textContent = st.dealerTotal || '—';
 
-  // Места
   $('seatsView').innerHTML = st.seats.map((s, i) => {
     if (!s) {
       return `<div class="seat" data-seat="${i}" onclick="sitOn(${i})">
@@ -267,7 +270,6 @@ function renderAll(st){
     </div>`;
   }).join('');
 
-  // Моя панель
   const mySeatData = st.seats.find(s => s && s.isMe);
   if (mySeatData) {
     mySeat = mySeatData.idx;
@@ -299,12 +301,33 @@ function renderAll(st){
     const canBet = st.phase === 'betting' && mySeatData.bet === 0;
     $('betSection').style.display = canBet ? 'block' : 'none';
 
-    // секция действий
-    const canAct = st.phase === 'playing' && mySeatData.bet > 0 &&
-                   !mySeatData.stood && !mySeatData.busted;
+    // секция действий (Ещё/Стоп/Удвоить)
+    const canAct = ['dealing','playing'].includes(st.phase) &&
+                   mySeatData.bet > 0 &&
+                   mySeatData.cards.length >= 2 &&
+                   !mySeatData.stood &&
+                   !mySeatData.busted;
     $('actionSection').style.display = canAct ? 'block' : 'none';
     if (canAct) {
       $('btnDouble').style.display = mySeatData.cards.length === 2 ? 'inline-block' : 'none';
+    }
+
+    // подсказка, чего ждём
+    const hint = $('waitingHint');
+    if (st.phase === 'dealing' && mySeatData.cards.length < 2) {
+      hint.textContent = 'Дилер раздаёт карты...';
+      hint.style.display = 'block';
+    } else if (st.phase === 'dealing' && mySeatData.cards.length >= 2 && !mySeatData.stood && !mySeatData.busted && mySeatData.wantsCard) {
+      hint.textContent = 'Ждём дилера — он даёт вам карту...';
+      hint.style.display = 'block';
+    } else if (st.phase === 'betting' && mySeatData.bet > 0) {
+      hint.textContent = `Ставка ${mySeatData.bet} ₽ принята. Ждём начала раздачи...`;
+      hint.style.display = 'block';
+    } else if (st.phase === 'payout') {
+      hint.textContent = 'Раунд завершён. Через несколько секунд — новый приём ставок.';
+      hint.style.display = 'block';
+    } else {
+      hint.style.display = 'none';
     }
   } else {
     mySeat = null;
@@ -320,6 +343,10 @@ socket.on('err', (msg) => setStatus(msg, 'err'));
 socket.on('roundResult', (st) => {
   renderAll(st);
   setStatus('Раунд завершён', 'ok');
+});
+socket.on('dealerMsg', (msg) => {
+  // можно показать в консоли или в отдельном логе — не обязательно
+  console.log('[dealer]', msg);
 });
 
 /* ===== Действия ===== */
