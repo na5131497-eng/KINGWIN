@@ -25,19 +25,13 @@ const pool = new Pool({
   max: 10
 });
 
-pool.on('error', (err) => {
-  console.error('PG Pool error:', err.message);
-});
+pool.on('error', (err) => console.error('PG Pool error:', err.message));
 
 const POINTS_PER_RUB = 0.2;
-
 const RANKS = {
-  Bronze:   { min: 0,     gift: 0    },
-  Silver:   { min: 100,   gift: 50   },
-  Gold:     { min: 300,   gift: 200  },
-  Platinum: { min: 600,   gift: 500  },
-  Diamond:  { min: 1000,  gift: 1000 },
-  VIP:      { min: 1500,  gift: 3000 }
+  Bronze:   { min: 0, gift: 0 }, Silver: { min: 100, gift: 50 },
+  Gold:     { min: 300, gift: 200 }, Platinum: { min: 600, gift: 500 },
+  Diamond:  { min: 1000, gift: 1000 }, VIP: { min: 1500, gift: 3000 }
 };
 const RANK_ORDER = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
 const RANK_INDEX = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
@@ -52,7 +46,6 @@ function rankByPoints(p){
 }
 
 const DEALER_POINTS_PER_RUB = 0.2;
-
 const DEALER_RANKS = [
   { key: 'Trainee', label: 'Стажёр',    min: 0,    percent: 10, bonus: 0,   color: '#cd7f32' },
   { key: 'Dealer',  label: 'Дилер',     min: 200,  percent: 11, bonus: 0,   color: '#c0c0c0' },
@@ -61,35 +54,24 @@ const DEALER_RANKS = [
   { key: 'Elite',   label: 'Элит',      min: 2000, percent: 14, bonus: 300, color: '#b9f2ff' },
   { key: 'VIP',     label: 'VIP',       min: 3000, percent: 15, bonus: 500, color: '#ffe066' }
 ];
-
 function getDealerRank(points){
   let rank = DEALER_RANKS[0];
-  for (const r of DEALER_RANKS) {
-    if (points >= r.min) rank = r;
-    else break;
-  }
+  for (const r of DEALER_RANKS) { if (points >= r.min) rank = r; else break; }
   return rank;
 }
 
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
-
 function todayStr(){ return new Date().toISOString().slice(0, 10); }
-
 function dateStr(v){
   if(!v) return null;
   if(v instanceof Date){
-    const y = v.getFullYear();
-    const m = String(v.getMonth()+1).padStart(2,'0');
-    const d = String(v.getDate()).padStart(2,'0');
+    const y = v.getFullYear(); const m = String(v.getMonth()+1).padStart(2,'0'); const d = String(v.getDate()).padStart(2,'0');
     return `${y}-${m}-${d}`;
   }
   return String(v).slice(0,10);
 }
 
-const JACKPOT_MAX = 1000;
-const JACKPOT_TICK_MS = 2300;
-const JACKPOT_PER_TICK = 0.064;
-
+const JACKPOT_MAX = 1000, JACKPOT_TICK_MS = 2300, JACKPOT_PER_TICK = 0.064;
 async function getActualJackpot() {
   try {
     const jpRes = await pool.query(`SELECT value FROM settings WHERE key = 'jackpot'`);
@@ -108,115 +90,81 @@ async function getActualJackpot() {
       }
     }
     return currentJP;
-  } catch (e) {
-    console.error('getActualJackpot error:', e.message);
-    return 0;
-  }
+  } catch (e) { console.error('getActualJackpot error:', e.message); return 0; }
 }
 
 const CASES = {
-  'Новичок':  { price: 39.99,  minRank: 0, prizes: [
-    { v: 2, w: 1500 }, { v: 5, w: 2000 }, { v: 10, w: 2500 }, { v: 15, w: 2000 },
-    { v: 25, w: 1000 }, { v: 50, w: 600 }, { v: 75, w: 200 }, { v: 100, w: 100 },
-    { v: 200, w: 50 }, { v: 500, w: 30 }, { v: 750, w: 15 }, { v: 1000, w: 5 }
+  'Новичок': { price: 39.99, minRank: 0, prizes: [
+    { v:2,w:1500 },{ v:5,w:2000 },{ v:10,w:2500 },{ v:15,w:2000 },{ v:25,w:1000 },{ v:50,w:600 },
+    { v:75,w:200 },{ v:100,w:100 },{ v:200,w:50 },{ v:500,w:30 },{ v:750,w:15 },{ v:1000,w:5 }
   ]},
-  'Сильвер':  { price: 199,  minRank: 2, prizes: [
-    { v: 10, w: 1500 }, { v: 20, w: 2000 }, { v: 50, w: 2500 }, { v: 80, w: 2000 },
-    { v: 120, w: 1000 }, { v: 200, w: 600 }, { v: 300, w: 200 }, { v: 500, w: 100 },
-    { v: 1000, w: 50 }, { v: 1500, w: 30 }, { v: 3000, w: 15 }, { v: 5000, w: 5 }
+  'Сильвер': { price: 199, minRank: 2, prizes: [
+    { v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },
+    { v:300,w:200 },{ v:500,w:100 },{ v:1000,w:50 },{ v:1500,w:30 },{ v:3000,w:15 },{ v:5000,w:5 }
   ]},
-  'Голд':     { price: 399,  minRank: 3, prizes: [
-    { v: 20, w: 1500 }, { v: 50, w: 2000 }, { v: 100, w: 2500 }, { v: 150, w: 2000 },
-    { v: 250, w: 1000 }, { v: 400, w: 600 }, { v: 600, w: 200 }, { v: 1000, w: 100 },
-    { v: 2000, w: 50 }, { v: 3000, w: 30 }, { v: 5000, w: 15 }, { v: 10000, w: 5 }
+  'Голд': { price: 399, minRank: 3, prizes: [
+    { v:20,w:1500 },{ v:50,w:2000 },{ v:100,w:2500 },{ v:150,w:2000 },{ v:250,w:1000 },{ v:400,w:600 },
+    { v:600,w:200 },{ v:1000,w:100 },{ v:2000,w:50 },{ v:3000,w:30 },{ v:5000,w:15 },{ v:10000,w:5 }
   ]},
-  'Платина':  { price: 899,  minRank: 4, prizes: [
-    { v: 50, w: 1500 }, { v: 100, w: 2000 }, { v: 200, w: 2500 }, { v: 350, w: 2000 },
-    { v: 500, w: 1000 }, { v: 900, w: 600 }, { v: 1500, w: 200 }, { v: 2500, w: 100 },
-    { v: 4000, w: 50 }, { v: 7500, w: 30 }, { v: 15000, w: 15 }, { v: 30000, w: 5 }
+  'Платина': { price: 899, minRank: 4, prizes: [
+    { v:50,w:1500 },{ v:100,w:2000 },{ v:200,w:2500 },{ v:350,w:2000 },{ v:500,w:1000 },{ v:900,w:600 },
+    { v:1500,w:200 },{ v:2500,w:100 },{ v:4000,w:50 },{ v:7500,w:30 },{ v:15000,w:15 },{ v:30000,w:5 }
   ]},
   'Королевский': { price: 4999, minRank: 6, prizes: [
-    { v: 200, w: 1500 }, { v: 500, w: 2000 }, { v: 1000, w: 2500 }, { v: 2000, w: 2000 },
-    { v: 3500, w: 1000 }, { v: 5000, w: 600 }, { v: 7500, w: 200 }, { v: 15000, w: 100 },
-    { v: 25000, w: 50 }, { v: 50000, w: 30 }, { v: 100000, w: 15 }, { v: 250000, w: 5 }
+    { v:200,w:1500 },{ v:500,w:2000 },{ v:1000,w:2500 },{ v:2000,w:2000 },{ v:3500,w:1000 },{ v:5000,w:600 },
+    { v:7500,w:200 },{ v:15000,w:100 },{ v:25000,w:50 },{ v:50000,w:30 },{ v:100000,w:15 },{ v:250000,w:5 }
   ]}
 };
-
 function pickPrize(prizes) {
   const total = prizes.reduce((a,p) => a + p.w, 0);
   let r = Math.random() * total;
-  for (const p of prizes) {
-    if (r < p.w) return p.v;
-    r -= p.w;
-  }
+  for (const p of prizes) { if (r < p.w) return p.v; r -= p.w; }
   return prizes[prizes.length - 1].v;
 }
 
 const DEALER_TASKS_BJ = [
-  { id: 'bj_hands_10',  title: 'Блэкджек: 10 раздач за день',  goal: 10,  reward: 10, type: 'bj' },
-  { id: 'bj_hands_30',  title: 'Блэкджек: 30 раздач за день',  goal: 30,  reward: 15, type: 'bj' },
-  { id: 'bj_hands_50',  title: 'Блэкджек: 50 раздач за день',  goal: 50,  reward: 25, type: 'bj' }
+  { id: 'bj_hands_10', title: 'Блэкджек: 10 раздач за день', goal: 10, reward: 10, type: 'bj' },
+  { id: 'bj_hands_30', title: 'Блэкджек: 30 раздач за день', goal: 30, reward: 15, type: 'bj' },
+  { id: 'bj_hands_50', title: 'Блэкджек: 50 раздач за день', goal: 50, reward: 25, type: 'bj' }
 ];
 const DEALER_TASKS_BAC = [
-  { id: 'bac_hands_10', title: 'Баккара: 10 раздач за день',   goal: 10,  reward: 10, type: 'bac' },
-  { id: 'bac_hands_30', title: 'Баккара: 30 раздач за день',   goal: 30,  reward: 15, type: 'bac' },
-  { id: 'bac_hands_50', title: 'Баккара: 50 раздач за день',   goal: 50,  reward: 25, type: 'bac' }
+  { id: 'bac_hands_10', title: 'Баккара: 10 раздач за день', goal: 10, reward: 10, type: 'bac' },
+  { id: 'bac_hands_30', title: 'Баккара: 30 раздач за день', goal: 30, reward: 15, type: 'bac' },
+  { id: 'bac_hands_50', title: 'Баккара: 50 раздач за день', goal: 50, reward: 25, type: 'bac' }
 ];
 const DEALER_DAILY_LIMIT = 50;
-
-function getDealerTasksForToday(){
-  const dayNum = new Date().getDate();
-  return (dayNum % 2 === 0) ? DEALER_TASKS_BAC : DEALER_TASKS_BJ;
-}
+function getDealerTasksForToday(){ return (new Date().getDate() % 2 === 0) ? DEALER_TASKS_BAC : DEALER_TASKS_BJ; }
 
 async function getDealerHandsTodayByType(dealerName, type){
   try {
-    if (type === 'bj') {
-      const r = await pool.query(`SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer) = LOWER($1) AND date = $2`, [dealerName, todayStr()]);
-      return r.rows[0]?.c || 0;
-    } else {
-      const r = await pool.query(`SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer) = LOWER($1) AND date = $2`, [dealerName, todayStr()]);
-      return r.rows[0]?.c || 0;
-    }
+    if (type === 'bj') { const r = await pool.query(`SELECT COUNT(*)::int AS c FROM sessions WHERE LOWER(dealer) = LOWER($1) AND date = $2`, [dealerName, todayStr()]); return r.rows[0]?.c || 0; }
+    else { const r = await pool.query(`SELECT COUNT(*)::int AS c FROM baccarat WHERE LOWER(dealer) = LOWER($1) AND date = $2`, [dealerName, todayStr()]); return r.rows[0]?.c || 0; }
   } catch (e) { return 0; }
 }
-
 async function getDealerEarnedToday(dealerId){
-  try {
-    const r = await pool.query(`SELECT COALESCE(SUM(reward), 0)::numeric AS s FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND claimed=TRUE`, [dealerId, todayStr()]);
-    return parseFloat(r.rows[0]?.s) || 0;
-  } catch (e) { return 0; }
+  try { const r = await pool.query(`SELECT COALESCE(SUM(reward), 0)::numeric AS s FROM dealer_tasks WHERE dealer_id=$1 AND date=$2 AND claimed=TRUE`, [dealerId, todayStr()]); return parseFloat(r.rows[0]?.s) || 0; }
+  catch (e) { return 0; }
 }
-
 async function getDealerBalance(dealerId){
-  try {
-    const r = await pool.query(`SELECT balance FROM dealer_balance WHERE dealer_id=$1`, [dealerId]);
-    if (r.rows.length === 0) return 0;
-    return parseFloat(r.rows[0].balance) || 0;
-  } catch (e) { return 0; }
+  try { const r = await pool.query(`SELECT balance FROM dealer_balance WHERE dealer_id=$1`, [dealerId]); if (r.rows.length === 0) return 0; return parseFloat(r.rows[0].balance) || 0; }
+  catch (e) { return 0; }
 }
-
 async function addDealerBalance(dealerId, amount){
-  try {
-    await pool.query(`INSERT INTO dealer_balance (dealer_id, balance) VALUES ($1, $2) ON CONFLICT (dealer_id) DO UPDATE SET balance = dealer_balance.balance + $2`, [dealerId, parseFloat(amount) || 0]);
-    return true;
-  } catch (e) { return false; }
+  try { await pool.query(`INSERT INTO dealer_balance (dealer_id, balance) VALUES ($1, $2) ON CONFLICT (dealer_id) DO UPDATE SET balance = dealer_balance.balance + $2`, [dealerId, parseFloat(amount) || 0]); return true; }
+  catch (e) { return false; }
 }
 
-const CRASH_WAIT_AFTER_FIRST_BET = 11000;
-const CRASH_CRASH_PAUSE = 1500;
-const BOT_COUNT = 11;
-
+const CRASH_WAIT_AFTER_FIRST_BET = 11000, CRASH_CRASH_PAUSE = 1500, BOT_COUNT = 11;
 let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false };
 let crashTimeouts = [];
 let queuedBets = [];
+const minerSessions = {};
 
 function crashClearTimers() {
   crashTimeouts.forEach(t => clearTimeout(t));
   crashTimeouts = [];
   if (crashState.waitTimer) { clearTimeout(crashState.waitTimer); crashState.waitTimer = null; }
 }
-
 function crashGeneratePoint() {
   const r = Math.random();
   if (r < 0.10) return Math.max(1.00, 1 + Math.random() * 0.10);
@@ -237,7 +185,6 @@ function botInit() {
     bots.push({ id, rank, masked: id.slice(0, 4) + '••••' });
   }
 }
-
 async function botPlaceBet(bot) {
   const amount = [10, 20, 25, 50, 100][Math.floor(Math.random() * 5)];
   try {
@@ -245,7 +192,6 @@ async function botPlaceBet(bot) {
     return r.rows[0];
   } catch(e) { return null; }
 }
-
 function scheduleBotCashout(betId, targetMult) {
   const ms = Math.log(targetMult) / Math.log(1.00006);
   if (!isFinite(ms) || ms <= 0) return;
@@ -321,21 +267,15 @@ function scheduleBotsForRound() {
     crashTimeouts.push(setTimeout(async () => {
       if (crashState.status !== 'waiting') return;
       const bet = await botPlaceBet(bot);
-      if (bet) {
-        const target = 1.2 + Math.random() * 3.8;
-        scheduleBotCashout(bet.id, target);
-        tryStartFlightCountdown();
-      }
+      if (bet) { const target = 1.2 + Math.random() * 3.8; scheduleBotCashout(bet.id, target); tryStartFlightCountdown(); }
     }, delay));
   });
 }
-
 function tryStartFlightCountdown() {
   if (crashState.status !== 'waiting') return;
   if (crashState.waitTimer) return;
   crashState.waitTimer = setTimeout(() => { if (crashState.status === 'waiting') crashStartFlight(); }, CRASH_WAIT_AFTER_FIRST_BET);
 }
-
 async function crashStartFlight() {
   try {
     crashState.status = 'flying';
@@ -348,7 +288,6 @@ async function crashStartFlight() {
     crashTimeouts.push(setTimeout(() => crashEndRound(), 1000));
   }
 }
-
 async function crashEndRound() {
   try {
     crashState.status = 'crashed';
@@ -404,7 +343,6 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS dealer_withdrawals (id SERIAL PRIMARY KEY, dealer_id INTEGER, sum NUMERIC DEFAULT 0, status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT NOW());
       CREATE TABLE IF NOT EXISTS cash_safe (id SERIAL PRIMARY KEY, dealer_id INTEGER, dealer_name TEXT, guest_id TEXT, guest_name TEXT, sum NUMERIC DEFAULT 0, type TEXT DEFAULT 'in', status TEXT DEFAULT 'open', date TEXT, handed_at TIMESTAMP, accepted_at TIMESTAMP, real_sum NUMERIC DEFAULT 0, diff NUMERIC DEFAULT 0, created_at TIMESTAMP DEFAULT NOW());
     `);
-
     const cols = [
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS pass TEXT DEFAULT '1234'`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS bonus_balance NUMERIC DEFAULT 0`,
@@ -424,23 +362,19 @@ async function initDB() {
       `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS net NUMERIC DEFAULT 0`
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
-
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
     if(own.rows.length === 0){ await pool.query(`INSERT INTO employees (name, login, pass, role) VALUES ($1,$2,$3,$4)`, ['Владелец', 'Owner', '56UpahoS', 'owner']); }
-
     const dlCount = await pool.query(`SELECT COUNT(*) FROM dealers`);
     if(parseInt(dlCount.rows[0].count,10) === 0){ await pool.query(`INSERT INTO dealers (name, login, pass) VALUES ($1,$2,$3)`, ['Дилер', 'dealer', '56UpahoS']); }
-
     const jpCheck = await pool.query(`SELECT * FROM settings WHERE key IN ('jackpot', 'jackpot_last_tick')`);
     if(!jpCheck.rows.find(r => r.key === 'jackpot')){ await pool.query(`INSERT INTO settings (key, value) VALUES ('jackpot', '0')`); }
     if(!jpCheck.rows.find(r => r.key === 'jackpot_last_tick')){ await pool.query(`INSERT INTO settings (key, value) VALUES ('jackpot_last_tick', $1)`, [Date.now().toString()]); }
     await pool.query(`INSERT INTO settings (key, value) VALUES ('crash_force_next', '') ON CONFLICT (key) DO NOTHING`);
-
     console.log('База готова');
     botInit();
     try {
       const activeRes = await pool.query(`SELECT id FROM crash_rounds WHERE status IN ('waiting', 'flying')`);
-      if (activeRes.rows.length > 0) { await pool.query(`UPDATE crash_rounds SET status='crashed' WHERE status IN ('waiting', 'flying')`); }
+      if (activeRes.rows.length > 0) await pool.query(`UPDATE crash_rounds SET status='crashed' WHERE status IN ('waiting', 'flying')`);
     } catch(e) {}
     crashStartWaiting();
   } catch (e) {
@@ -451,7 +385,6 @@ async function initDB() {
 initDB();
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
-
 function sendJSON(res, code, data) { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); }
 function parseBody(req){ return new Promise((resolve)=>{ let body = ''; req.on('data', chunk => body += chunk); req.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch(e){ resolve({}); } }); }); }
 
@@ -504,8 +437,21 @@ async function addBalanceByNick(nick, amount, isBonus = false){
   return true;
 }
 
+async function creditMinerWin(guestId, amount) {
+  if (amount <= 0) return;
+  const g = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guestId]);
+  if (!g.rows.length) return;
+  const req_ = parseFloat(g.rows[0].wagering_required) || 0;
+  const done = parseFloat(g.rows[0].wagering_done) || 0;
+  if (req_ > 0 && done < req_) await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [amount, guestId]);
+  else await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
+}
+
 async function getGuestById(id){ const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id)]); return r.rows[0] || null; }
 
+/* ============================================================
+   СЕРВЕР
+   ============================================================ */
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
@@ -517,36 +463,24 @@ const server = http.createServer(async (req, res) => {
       const role = String(u.searchParams.get('role') || 'player');
       if (!identity) return sendJSON(res, 400, { error: 'no identity' });
       if (!['dealer','player'].includes(role)) return sendJSON(res, 400, { error: 'bad role' });
-      try {
-        const token = await makeLivekitToken(identity, role);
-        return sendJSON(res, 200, { token, url: LIVEKIT_URL });
-      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+      try { const token = await makeLivekitToken(identity, role); return sendJSON(res, 200, { token, url: LIVEKIT_URL }); }
+      catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    if(url === '/api/jackpot' && method === 'GET'){
-      const jackpot = await getActualJackpot();
-      return sendJSON(res, 200, { jackpot });
-    }
+    if(url === '/api/jackpot' && method === 'GET'){ const jackpot = await getActualJackpot(); return sendJSON(res, 200, { jackpot }); }
 
     if (url === '/api/admin/crash/force-next' && method === 'GET') {
-      try {
-        const r = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`);
-        const val = r.rows.length ? parseFloat(r.rows[0].value) || 0 : 0;
-        return sendJSON(res, 200, { value: val });
-      } catch(e) { return sendJSON(res, 200, { value: 0 }); }
+      try { const r = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`); const val = r.rows.length ? parseFloat(r.rows[0].value) || 0 : 0; return sendJSON(res, 200, { value: val }); }
+      catch(e) { return sendJSON(res, 200, { value: 0 }); }
     }
-
     if (url === '/api/admin/crash/force-next' && method === 'POST') {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
       const val = parseFloat(b.value);
-      if (!isFinite(val) || val < 1.0 || val > 1000) {
-        return sendJSON(res, 400, { error: 'Коэффициент должен быть от 1.00 до 1000' });
-      }
+      if (!isFinite(val) || val < 1.0 || val > 1000) return sendJSON(res, 400, { error: 'Коэффициент должен быть от 1.00 до 1000' });
       await pool.query(`INSERT INTO settings (key, value) VALUES ('crash_force_next', $1) ON CONFLICT (key) DO UPDATE SET value = $1`, [String(val)]);
       return sendJSON(res, 200, { ok: true, value: val });
     }
-
     if (url === '/api/admin/crash/clear-force' && method === 'POST') {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
@@ -573,17 +507,15 @@ const server = http.createServer(async (req, res) => {
       const daysLeft = Math.max(0, 7 - daysPassed);
       return sendJSON(res, 200, { dealer_id: dealerId, week_start: weekStart, days_passed: daysPassed, days_left: daysLeft, incident, percent: incident ? 7 : 10 });
     }
-
     if (url === '/api/dealer/silence/incident' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
       if (!dealerId) return sendJSON(res, 400, { error: 'no dealer id' });
       const sRes = await pool.query('SELECT * FROM dealer_silence WHERE dealer_id=$1', [dealerId]);
-      if (sRes.rows.length === 0) { await pool.query(`INSERT INTO dealer_silence (dealer_id, week_start, incident) VALUES ($1,$2,TRUE)`, [dealerId, Date.now()]); }
-      else { await pool.query(`UPDATE dealer_silence SET incident=TRUE, updated_at=NOW() WHERE dealer_id=$1`, [dealerId]); }
+      if (sRes.rows.length === 0) await pool.query(`INSERT INTO dealer_silence (dealer_id, week_start, incident) VALUES ($1,$2,TRUE)`, [dealerId, Date.now()]);
+      else await pool.query(`UPDATE dealer_silence SET incident=TRUE, updated_at=NOW() WHERE dealer_id=$1`, [dealerId]);
       return sendJSON(res, 200, { ok: true });
     }
-
     if (url === '/api/dealer/tasks' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
@@ -601,14 +533,11 @@ const server = http.createServer(async (req, res) => {
       const earnedToday = await getDealerEarnedToday(dealerId);
       const limitReached = earnedToday >= DEALER_DAILY_LIMIT;
       const tasks = tasksForToday.map(t => {
-        const done = hands >= t.goal;
-        const claimed = claimedSet.has(t.id);
-        const canClaim = done && !claimed && !limitReached;
+        const done = hands >= t.goal; const claimed = claimedSet.has(t.id); const canClaim = done && !claimed && !limitReached;
         return { id: t.id, title: t.title, goal: t.goal, reward: t.reward, progress: Math.min(hands, t.goal), done, claimed, canClaim, type: t.type, blocked: limitReached && !claimed };
       });
       return sendJSON(res, 200, { day, hands, tasks, task_type: taskType, daily_limit: DEALER_DAILY_LIMIT, earned_today: earnedToday, limit_reached: limitReached });
     }
-
     if (url === '/api/dealer/tasks/claim' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -633,7 +562,6 @@ const server = http.createServer(async (req, res) => {
       const newEarned = earnedToday + task.reward;
       return sendJSON(res, 200, { ok: true, reward: task.reward, balance: newBalance, earned_today: newEarned, daily_limit: DEALER_DAILY_LIMIT, limit_reached: newEarned >= DEALER_DAILY_LIMIT });
     }
-
     if (url === '/api/dealer/balance' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
@@ -645,7 +573,6 @@ const server = http.createServer(async (req, res) => {
       try { const wRes = await pool.query(`SELECT id, sum, fee, net, card, status, created_at::date::text AS date FROM dealer_withdrawals WHERE dealer_id=$1 ORDER BY id DESC LIMIT 50`, [dealerId]); withdrawals = wRes.rows; } catch(e) {}
       return sendJSON(res, 200, { dealer: { id: dealerId, name: dRes.rows[0].name, balance }, withdrawals });
     }
-
     if (url === '/api/dealer/withdraw' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.id, 10);
@@ -663,7 +590,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO dealer_withdrawals (dealer_id, sum, status, card, fee, net) VALUES ($1,$2,'pending',$3,$4,$5)`, [dealerId, sum, card, fee, net]);
       return sendJSON(res, 200, { ok: true, sum, fee, net, commission: COMMISSION });
     }
-
     if (url === '/api/dealer/profile' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
@@ -689,7 +615,6 @@ const server = http.createServer(async (req, res) => {
       if (nextRank) { progressPct = Math.min(100, Math.round(((points - currentMin) / (nextRank.min - currentMin)) * 100)); pointsToNext = Math.max(0, nextRank.min - points); nextLabel = `До ${nextRank.label}: ${points} / ${nextRank.min}`; }
       return sendJSON(res, 200, { dealer: { id: dealer.id, name: dealer.name, login: dealer.login, created_at: dealer.created_at, balance, avg_stars: Math.round(avgStars * 100) / 100, reviews_count: reviewsCount, sessions, total_turnover: Math.round(totalTurnover * 100) / 100, points, rank: rank.key, rank_label: rank.label, rank_color: rank.color, rank_percent: rank.percent, rank_bonus: rank.bonus, next_rank_label: nextRank ? nextRank.label : null, next_rank_min: nextRank ? nextRank.min : null, progress_pct: progressPct, points_to_next: pointsToNext, next_label: nextLabel } });
     }
-
     if (url === '/api/dealer/change-password' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -711,7 +636,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    /* ================= СЕЙФ (наличные) ================= */
+    /* ================= СЕЙФ ================= */
     if (url === '/api/dealer/cash-in' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -729,7 +654,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO cash_safe (dealer_id, dealer_name, guest_id, guest_name, sum, type, status, date) VALUES ($1,$2,$3,$4,$5,'in','open',$6)`, [dealerId, dealer.name, guest.id, guest.name, sum, todayStr()]);
       return sendJSON(res, 200, { ok: true, sum, guest: guest.name });
     }
-
     if (url === '/api/dealer/cash-out' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -747,7 +671,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO cash_safe (dealer_id, dealer_name, guest_id, guest_name, sum, type, status, date) VALUES ($1,$2,$3,$4,$5,'out','open',$6)`, [dealerId, dealer.name, guest.id, guest.name, sum, todayStr()]);
       return sendJSON(res, 200, { ok: true, sum, guest: guest.name });
     }
-
     if (url === '/api/dealer/cash-safe' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
@@ -757,17 +680,13 @@ const server = http.createServer(async (req, res) => {
       r.rows.forEach(row => { if (row.type === 'in') { totalIn = parseFloat(row.total) || 0; inCnt = row.cnt || 0; } else { totalOut = parseFloat(row.total) || 0; outCnt = row.cnt || 0; } });
       return sendJSON(res, 200, { total_in: totalIn, total_out: totalOut, in_safe: totalIn - totalOut, in_count: inCnt, out_count: outCnt, date: todayStr() });
     }
-
     if (url === '/api/dealer/cash-history' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const dealerId = parseInt(u.searchParams.get('id'), 10);
       if (!dealerId) return sendJSON(res, 400, { error: 'no dealer_id' });
-      try {
-        const r = await pool.query(`SELECT * FROM cash_safe WHERE dealer_id=$1 AND date=$2 ORDER BY id DESC`, [dealerId, todayStr()]);
-        return sendJSON(res, 200, r.rows);
-      } catch(e) { return sendJSON(res, 200, []); }
+      try { const r = await pool.query(`SELECT * FROM cash_safe WHERE dealer_id=$1 AND date=$2 ORDER BY id DESC`, [dealerId, todayStr()]); return sendJSON(res, 200, r.rows); }
+      catch(e) { return sendJSON(res, 200, []); }
     }
-
     if (url === '/api/dealer/cash-handover' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -779,7 +698,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE cash_safe SET status='handed', handed_at=NOW() WHERE dealer_id=$1 AND date=$2 AND status='open'`, [dealerId, today]);
       return sendJSON(res, 200, { ok: true, expected });
     }
-
     if (url === '/api/admin/cash-safe' && method === 'GET') {
       try {
         const r = await pool.query(`SELECT dealer_id, dealer_name, status, type, SUM(sum)::numeric AS total, COUNT(*)::int AS cnt FROM cash_safe WHERE status IN ('open', 'handed') GROUP BY dealer_id, dealer_name, status, type ORDER BY dealer_name, status`);
@@ -788,13 +706,11 @@ const server = http.createServer(async (req, res) => {
           const key = row.dealer_id + '_' + row.dealer_name;
           if (!dealers[key]) dealers[key] = { dealer_id: row.dealer_id, dealer_name: row.dealer_name, open_in: 0, open_out: 0, open_total: 0, open_cnt: 0, handed_total: 0, handed_cnt: 0 };
           if (row.status === 'open') {
-            if (row.type === 'in') dealers[key].open_in = parseFloat(row.total) || 0;
-            else dealers[key].open_out = parseFloat(row.total) || 0;
+            if (row.type === 'in') dealers[key].open_in = parseFloat(row.total) || 0; else dealers[key].open_out = parseFloat(row.total) || 0;
             dealers[key].open_cnt += row.cnt || 0;
             dealers[key].open_total = dealers[key].open_in - dealers[key].open_out;
           } else if (row.status === 'handed') {
-            if (row.type === 'in') dealers[key].handed_total += parseFloat(row.total) || 0;
-            else dealers[key].handed_total -= parseFloat(row.total) || 0;
+            if (row.type === 'in') dealers[key].handed_total += parseFloat(row.total) || 0; else dealers[key].handed_total -= parseFloat(row.total) || 0;
             dealers[key].handed_cnt += row.cnt || 0;
           }
         });
@@ -802,7 +718,6 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { dealers: arr, total_in_safe: arr.reduce((a, d) => a + d.open_total, 0), total_handed: arr.reduce((a, d) => a + d.handed_total, 0) });
       } catch (e) { return sendJSON(res, 200, { dealers: [], total_in_safe: 0, total_handed: 0 }); }
     }
-
     if (url === '/api/admin/cash-accept' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -818,7 +733,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, expected, real_sum: realSum, diff });
     }
 
-    /* ================= ЗАЯВКИ / ФИШКИ ================= */
+    /* ================= ЗАЯВКИ ================= */
     if (url === '/api/guest/i-transferred' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -830,14 +745,10 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO deposits (date, nick, email, sum, status, seen) VALUES ($1,$2,$3,$4,'pending_transfer',FALSE)`, [todayStr(), g.name, 'перевод на карту (офлайн-стол)', sum]);
       return sendJSON(res, 200, { ok: true, sum });
     }
-
     if (url === '/api/dealer/pending-transfers' && method === 'GET') {
-      try {
-        const r = await pool.query(`SELECT id, date, nick, sum, created_at FROM deposits WHERE status='pending_transfer' ORDER BY id DESC LIMIT 20`);
-        return sendJSON(res, 200, r.rows);
-      } catch(e) { return sendJSON(res, 200, []); }
+      try { const r = await pool.query(`SELECT id, date, nick, sum, created_at FROM deposits WHERE status='pending_transfer' ORDER BY id DESC LIMIT 20`); return sendJSON(res, 200, r.rows); }
+      catch(e) { return sendJSON(res, 200, []); }
     }
-
     if (url === '/api/dealer/issue-chips' && method === 'POST') {
       const b = await parseBody(req);
       const depositId = parseInt(b.deposit_id, 10);
@@ -854,12 +765,9 @@ const server = http.createServer(async (req, res) => {
 
     /* ================= КЕЙСЫ ================= */
     if (url === '/api/cases/last-drops' && method === 'GET') {
-      try {
-        const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`);
-        return sendJSON(res, 200, r.rows);
-      } catch (e) { return sendJSON(res, 200, []); }
+      try { const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`); return sendJSON(res, 200, r.rows); }
+      catch (e) { return sendJSON(res, 200, []); }
     }
-
     if (url === '/api/cases/list' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
@@ -868,7 +776,6 @@ const server = http.createServer(async (req, res) => {
       const list = Object.entries(CASES).map(([name, c]) => ({ name, price: c.price, minRank: c.minRank, available: rankIdx >= c.minRank, prizes: c.prizes.map(p => p.v) }));
       return sendJSON(res, 200, list);
     }
-
     if (url === '/api/cases/open' && method === 'POST') {
       const b = await parseBody(req);
       const { guest_id, case_name } = b;
@@ -900,54 +807,104 @@ const server = http.createServer(async (req, res) => {
       const done = parseFloat(gs.rows[0].wagering_done) || 0;
       return sendJSON(res, 200, { ok: true, prize, new_balance: bonus + dep + prize, case_name, price: c.price, wagering: { required: req_, done, left: Math.max(0, req_ - done) } });
     }
-
     if (url === '/api/cases/history' && method === 'GET') {
-      try {
-        const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='cases' ORDER BY id DESC LIMIT 15`);
-        return sendJSON(res, 200, r.rows);
-      } catch(e) { return sendJSON(res, 200, []); }
+      try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='cases' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
+      catch(e) { return sendJSON(res, 200, []); }
     }
 
-    /* ================= MINER ================= */
-    if (url === '/api/miner/play' && method === 'POST') {
+    /* ================= MINER (серверная логика) ================= */
+    if (url === '/api/miner/start' && method === 'POST') {
       const b = await parseBody(req);
-      const { guest_id, bet, win, multiplier } = b;
-      if (!guest_id) return sendJSON(res, 400, { error: 'no guest_id' });
-      const betAmount = parseFloat(bet) || 0;
-      const winAmount = parseFloat(win) || 0;
-      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guest_id]);
+      const guestId = String(b.guest_id || '').trim();
+      const bet = parseFloat(b.bet) || 0;
+      const MIN_BET_M = 5, MAX_BET_M = 1000;
+      if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+      if (bet < MIN_BET_M || bet > MAX_BET_M) return sendJSON(res, 400, { error: `Ставка ${MIN_BET_M}–${MAX_BET_M} ₽` });
+      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
       if (!g.rows.length) return sendJSON(res, 404, { error: 'Гость не найден' });
       const guest = g.rows[0];
       const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-      if (betAmount > 0 && totalBal < betAmount) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      let newBonus = parseFloat(guest.bonus_balance) || 0;
-      let newDep = parseFloat(guest.deposit_balance) || 0;
-      if (betAmount > 0) {
-        let remaining = betAmount;
-        if (newBonus >= remaining) { newBonus -= remaining; remaining = 0; }
-        else { remaining -= newBonus; newBonus = 0; newDep -= remaining; }
-      }
-      if (winAmount > 0) {
-        const wagerActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0);
-        if (wagerActive) newBonus += winAmount;
-        else newDep += winAmount;
-      }
-      await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [newBonus, newDep, guest.id]);
-      if (winAmount > 0 || multiplier) {
-        const mult = parseFloat(multiplier) || 1;
-        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`, ['miner', guest.name, betAmount || winAmount, mult]);
-      }
-      const net = betAmount - winAmount;
-      if (betAmount > 0 || winAmount > 0) {
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner (${guest.name})`]);
-      }
-      if (betAmount > 0) { try { await accruePointsByNick(guest.name, betAmount, 'miner'); } catch(e){} }
-      const gs = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guest.id]);
-      const req_ = parseFloat(gs.rows[0].wagering_required) || 0;
-      const done = parseFloat(gs.rows[0].wagering_done) || 0;
-      return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep, wagering: { required: req_, done, left: Math.max(0, req_ - done) } });
+      if (totalBal < bet) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      let bonus = parseFloat(guest.bonus_balance) || 0;
+      let dep = parseFloat(guest.deposit_balance) || 0;
+      let rem = bet;
+      if (bonus >= rem) { bonus -= rem; rem = 0; }
+      else { rem -= bonus; bonus = 0; dep -= rem; }
+      await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
+      const SIZE = 5, TOTAL = SIZE * SIZE, MINES = 3;
+      const mines = new Set();
+      while (mines.size < MINES) mines.add(Math.floor(Math.random() * TOTAL));
+      const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      minerSessions[sessionId] = { guestId, bet, mines: [...mines], revealed: [], createdAt: Date.now() };
+      for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
+      return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: SIZE, mines: MINES, revealed: [], multiplier: 1.0, balance: bonus + dep });
     }
-
+    if (url === '/api/miner/open' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const sessionId = String(b.session_id || '').trim();
+      const cell = parseInt(b.cell, 10);
+      const sess = minerSessions[sessionId];
+      if (!sess) return sendJSON(res, 404, { error: 'Сессия не найдена. Начните заново.' });
+      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
+      if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
+      if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
+      if (sess.mines.includes(cell)) {
+        sess.finished = true;
+        try {
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (${guestId})`]);
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, 0]);
+        } catch(e) {}
+        try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
+        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId };
+        delete minerSessions[sessionId];
+        return sendJSON(res, 200, result);
+      }
+      sess.revealed.push(cell);
+      const safeOpened = sess.revealed.length;
+      const multiplier = Math.round( (Math.pow(1.13, safeOpened) - 1) * 100 + 100 ) / 100;
+      const result = { ok: true, mine: false, cell, revealed: sess.revealed, multiplier, bet: sess.bet, potential_win: Math.round(sess.bet * multiplier * 100) / 100 };
+      const safeTotal = 25 - sess.mines.length;
+      if (sess.revealed.length >= safeTotal) {
+        const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
+        sess.finished = true;
+        await creditMinerWin(guestId, winAmount);
+        try {
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+          const net = sess.bet - winAmount;
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+        } catch(e) {}
+        delete minerSessions[sessionId];
+        result.auto_cashout = true;
+        result.win = winAmount;
+        result.mines = sess.mines;
+      }
+      return sendJSON(res, 200, result);
+    }
+    if (url === '/api/miner/cashout' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const sessionId = String(b.session_id || '').trim();
+      const sess = minerSessions[sessionId];
+      if (!sess) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
+      if (sess.revealed.length === 0) return sendJSON(res, 400, { error: 'Откройте хотя бы одну клетку' });
+      const safeOpened = sess.revealed.length;
+      const multiplier = Math.round( (Math.pow(1.13, safeOpened) - 1) * 100 + 100 ) / 100;
+      const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
+      sess.finished = true;
+      await creditMinerWin(guestId, winAmount);
+      try {
+        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+        const net = sess.bet - winAmount;
+        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+      } catch(e) {}
+      const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines };
+      delete minerSessions[sessionId];
+      return sendJSON(res, 200, result);
+    }
     if (url === '/api/miner/history' && method === 'GET') {
       try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='miner' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
       catch(e) { return sendJSON(res, 200, []); }
@@ -967,32 +924,18 @@ const server = http.createServer(async (req, res) => {
       if (betAmount > 0 && totalBal < betAmount) return sendJSON(res, 400, { error: 'Недостаточно средств' });
       let newBonus = parseFloat(guest.bonus_balance) || 0;
       let newDep = parseFloat(guest.deposit_balance) || 0;
-      if (betAmount > 0) {
-        let remaining = betAmount;
-        if (newBonus >= remaining) { newBonus -= remaining; remaining = 0; }
-        else { remaining -= newBonus; newBonus = 0; newDep -= remaining; }
-      }
-      if (winAmount > 0) {
-        const wagerActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0);
-        if (wagerActive) newBonus += winAmount;
-        else newDep += winAmount;
-      }
+      if (betAmount > 0) { let rem = betAmount; if (newBonus >= rem) { newBonus -= rem; rem = 0; } else { rem -= newBonus; newBonus = 0; newDep -= rem; } }
+      if (winAmount > 0) { const wagerActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0); if (wagerActive) newBonus += winAmount; else newDep += winAmount; }
       await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [newBonus, newDep, guest.id]);
-      if (winAmount > 0 || multiplier) {
-        const mult = parseFloat(multiplier) || 1;
-        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`, ['ladder', guest.name, betAmount || winAmount, mult]);
-      }
+      if (winAmount > 0 || multiplier) { const mult = parseFloat(multiplier) || 1; await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`, ['ladder', guest.name, betAmount || winAmount, mult]); }
       const net = betAmount - winAmount;
-      if (betAmount > 0 || winAmount > 0) {
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Ladder (${guest.name})`]);
-      }
+      if (betAmount > 0 || winAmount > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Ladder (${guest.name})`]);
       if (betAmount > 0) { try { await accruePointsByNick(guest.name, betAmount, 'ladder'); } catch(e){} }
       const gs = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guest.id]);
       const req_ = parseFloat(gs.rows[0].wagering_required) || 0;
       const done = parseFloat(gs.rows[0].wagering_done) || 0;
       return sendJSON(res, 200, { ok: true, new_balance: newBonus + newDep, wagering: { required: req_, done, left: Math.max(0, req_ - done) } });
     }
-
     if (url === '/api/ladder/history' && method === 'GET') {
       try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='ladder' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
       catch(e) { return sendJSON(res, 200, []); }
@@ -1001,43 +944,22 @@ const server = http.createServer(async (req, res) => {
     /* ================= CRASH ================= */
     if (url === '/api/crash/current' && method === 'GET') {
       let multiplier = 1;
-      if (crashState.status === 'flying' && crashState.startTime) {
-        const elapsed = Date.now() - crashState.startTime;
-        multiplier = Math.pow(1.00006, elapsed);
-        if (multiplier >= crashState.crashPoint) multiplier = crashState.crashPoint;
-      } else if (crashState.status === 'crashed') {
-        multiplier = crashState.crashPoint;
-      }
+      if (crashState.status === 'flying' && crashState.startTime) { const elapsed = Date.now() - crashState.startTime; multiplier = Math.pow(1.00006, elapsed); if (multiplier >= crashState.crashPoint) multiplier = crashState.crashPoint; }
+      else if (crashState.status === 'crashed') multiplier = crashState.crashPoint;
       let bets = [];
-      if (crashState.roundId) {
-        try {
-          const betsRes = await pool.query(`SELECT id, player_id, player_name, player_rank, amount, cashout_mult, cashed_out FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`, [crashState.roundId]);
-          bets = betsRes.rows;
-        } catch(e) {}
-      }
+      if (crashState.roundId) { try { const betsRes = await pool.query(`SELECT id, player_id, player_name, player_rank, amount, cashout_mult, cashed_out FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`, [crashState.roundId]); bets = betsRes.rows; } catch(e) {} }
       let history = [];
-      try {
-        const histRes = await pool.query(`SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 15`);
-        history = histRes.rows.map(r => parseFloat(r.crash_point));
-      } catch(e) {}
+      try { const histRes = await pool.query(`SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 15`); history = histRes.rows.map(r => parseFloat(r.crash_point)); } catch(e) {}
       return sendJSON(res, 200, { roundId: crashState.roundId, status: crashState.status, startTime: crashState.startTime, crashPoint: crashState.status === 'crashed' ? crashState.crashPoint : null, multiplier, bets, history, hasRealBet: crashState.hasRealBet, queuedCount: queuedBets.length });
     }
-
     if (url === '/api/crash/all-bets' && method === 'GET') {
       try { const r = await pool.query(`SELECT b.*, r.crash_point, r.start_time FROM crash_bets b JOIN crash_rounds r ON b.round_id = r.id ORDER BY b.id DESC LIMIT 200`); return sendJSON(res, 200, r.rows); }
       catch (e) { return sendJSON(res, 200, []); }
     }
-
     if (url === '/api/crash/clear' && method === 'DELETE') {
-      try {
-        await pool.query('DELETE FROM crash_bets');
-        await pool.query('DELETE FROM crash_rounds');
-        await pool.query("DELETE FROM online WHERE note LIKE 'Crash Round%'");
-        queuedBets = [];
-        return sendJSON(res, 200, { ok: true });
-      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+      try { await pool.query('DELETE FROM crash_bets'); await pool.query('DELETE FROM crash_rounds'); await pool.query("DELETE FROM online WHERE note LIKE 'Crash Round%'"); queuedBets = []; return sendJSON(res, 200, { ok: true }); }
+      catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
-
     if (url === '/api/crash/bet' && method === 'POST') {
       const b = await parseBody(req);
       const amt = parseFloat(b.amount) || 0;
@@ -1062,9 +984,8 @@ const server = http.createServer(async (req, res) => {
           if (totalBal < amt) return sendJSON(res, 400, { error: 'Недостаточно средств' });
           let bonus = parseFloat(guest.bonus_balance) || 0;
           let dep = parseFloat(guest.deposit_balance) || 0;
-          let remaining = amt;
-          if (bonus >= remaining) { bonus -= remaining; remaining = 0; }
-          else { remaining -= bonus; bonus = 0; dep -= remaining; }
+          let rem = amt;
+          if (bonus >= rem) { bonus -= rem; rem = 0; } else { rem -= bonus; bonus = 0; dep -= rem; }
           await pool.query(`UPDATE guests SET bonus_balance = $1, deposit_balance = $2 WHERE id=$3`, [bonus, dep, String(b.player_id)]);
           const s = String(guest.id);
           maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••';
@@ -1074,12 +995,9 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [crashState.roundId, b.player_id || null, maskName, playerRank, amt]);
       if (b.player_id) crashState.hasRealBet = true;
       tryStartFlightCountdown();
-      if (b.player_id) {
-        try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]); if (gRes.rows.length > 0) await accruePointsByNick(gRes.rows[0].name, amt, 'crash'); } catch(e){}
-      }
+      if (b.player_id) { try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]); if (gRes.rows.length > 0) await accruePointsByNick(gRes.rows[0].name, amt, 'crash'); } catch(e){} }
       return sendJSON(res, 200, { ok: true, bet: r.rows[0] });
     }
-
     if (url === '/api/crash/cashout' && method === 'POST') {
       const b = await parseBody(req);
       if (crashState.status !== 'flying') return sendJSON(res, 400, { error: 'Не в фазе полёта' });
@@ -1117,10 +1035,8 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/guests/update' && method === 'POST'){
       const g = await parseBody(req);
       if(!g.id) return sendJSON(res, 400, { error: 'no id' });
-      try {
-        await pool.query(`UPDATE guests SET name = $1, rank = $2, pass = $3, bonus_text = $4, bonus_code = $5, bonus_balance = $6 WHERE id = $7`, [g.name, g.rank, g.pass, g.bonus_text, g.bonus_code, g.bonus_balance || 0, g.id]);
-        return sendJSON(res, 200, { ok: true });
-      } catch(e){ return sendJSON(res, 500, { error: e.message }); }
+      try { await pool.query(`UPDATE guests SET name = $1, rank = $2, pass = $3, bonus_text = $4, bonus_code = $5, bonus_balance = $6 WHERE id = $7`, [g.name, g.rank, g.pass, g.bonus_text, g.bonus_code, g.bonus_balance || 0, g.id]); return sendJSON(res, 200, { ok: true }); }
+      catch(e){ return sendJSON(res, 500, { error: e.message }); }
     }
     if(url === '/api/guests/withdraw-deduct' && method === 'POST'){
       const { id, sum } = await parseBody(req);
@@ -1141,7 +1057,6 @@ const server = http.createServer(async (req, res) => {
       try { await pool.query('UPDATE guests SET visits = visits + 1, last_visit = NOW() WHERE id=$1', [g.id]); } catch(e){}
       return sendJSON(res, 200, { ok: true, guest: g });
     }
-
     if(url === '/api/guest/me' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -1156,15 +1071,10 @@ const server = http.createServer(async (req, res) => {
       const wagerReq = parseFloat(guest.wagering_required) || 0;
       const wagerDone = parseFloat(guest.wagering_done) || 0;
       const wagerLeft = Math.max(0, wagerReq - wagerDone);
-      if (bonusBal > 0) {
-        bonuses.push({ id: 'rank_bonus_' + (guest.rank || 'Bronze'), type: 'rank', title: 'Бонус за повышение ранга', desc: 'Начислен за достижение ранга ' + (guest.rank || 'Bronze') + (wagerLeft > 0 ? `. Отыграно ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽.` : '.'), amount: bonusBal, can_refuse: true, status: 'active', wager: wagerReq > 0 ? ('x' + (wagerReq / Math.max(bonusBal, 1)).toFixed(0)) : null });
-      }
-      if (bonusBal <= 0 && guest.bonus_text) {
-        bonuses.push({ id: 'text_bonus_' + guest.id, type: 'welcome', title: guest.bonus_text.slice(0, 40), desc: guest.bonus_code ? ('Код: ' + guest.bonus_code) : '', amount: 0, can_refuse: false, status: 'active', wager: null });
-      }
+      if (bonusBal > 0) bonuses.push({ id: 'rank_bonus_' + (guest.rank || 'Bronze'), type: 'rank', title: 'Бонус за повышение ранга', desc: 'Начислен за достижение ранга ' + (guest.rank || 'Bronze') + (wagerLeft > 0 ? `. Отыграно ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽.` : '.'), amount: bonusBal, can_refuse: true, status: 'active', wager: wagerReq > 0 ? ('x' + (wagerReq / Math.max(bonusBal, 1)).toFixed(0)) : null });
+      if (bonusBal <= 0 && guest.bonus_text) bonuses.push({ id: 'text_bonus_' + guest.id, type: 'welcome', title: guest.bonus_text.slice(0, 40), desc: guest.bonus_code ? ('Код: ' + guest.bonus_code) : '', amount: 0, can_refuse: false, status: 'active', wager: null });
       return sendJSON(res, 200, { guest, unseen_deposits: unseen, bonuses, wagering: { required: wagerReq, done: wagerDone, left: wagerLeft } });
     }
-
     if (url === '/api/guest/refuse-bonus' && method === 'POST') {
       const b = await parseBody(req);
       const id = String(b.id || '').trim();
@@ -1176,7 +1086,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE guests SET bonus_balance = 0, bonus_text = '', bonus_code = '', wagering_required = 0, wagering_done = 0 WHERE id = $1`, [id]);
       return sendJSON(res, 200, { ok: true, refunded: bonusBal });
     }
-
     if (url === '/api/guest/change-password' && method === 'POST') {
       const b = await parseBody(req);
       const id = String(b.id || '').trim();
@@ -1184,8 +1093,7 @@ const server = http.createServer(async (req, res) => {
       const newPass = String(b.new_pass || '').trim();
       if (!id) return sendJSON(res, 400, { error: 'Нет ID карты' });
       if (!oldPass) return sendJSON(res, 400, { error: 'Введите текущий пароль' });
-      if (!newPass) return sendJSON(res, 400, { error: 'Введите новый пароль' });
-      if (newPass.length < 4) return sendJSON(res, 400, { error: 'Новый пароль — минимум 4 символа' });
+      if (!newPass || newPass.length < 4) return sendJSON(res, 400, { error: 'Новый пароль — минимум 4 символа' });
       if (newPass.length > 20) return sendJSON(res, 400, { error: 'Новый пароль — максимум 20 символов' });
       try {
         const gRes = await pool.query('SELECT id, pass FROM guests WHERE id=$1', [id]);
@@ -1210,16 +1118,12 @@ const server = http.createServer(async (req, res) => {
       let level = parseInt(g.daily_level) || 0;
       let pending = parseFloat(g.pending_bonus) || 0;
       let changed = false;
-      if(last && last !== today){
-        const diff = (new Date(today) - new Date(last)) / 86400000;
-        if(diff > 1){ level = 0; pending = 0; changed = true; }
-      }
+      if(last && last !== today){ const diff = (new Date(today) - new Date(last)) / 86400000; if(diff > 1){ level = 0; pending = 0; changed = true; } }
       if(changed) await pool.query(`UPDATE guests SET daily_level=0, pending_bonus=0 WHERE id=$1`, [id]);
       const claimed_today = (last === today);
       const nextReward = claimed_today ? 0 : DAILY_REWARDS[Math.min(level, 6)];
       return sendJSON(res, 200, { level, claimed_today, rewards: DAILY_REWARDS, next_reward: nextReward, pending_bonus: pending });
     }
-
     if (url === '/api/guest/daily-claim' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
@@ -1239,7 +1143,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE guests SET daily_level=$1, daily_last_claim=$2::date, pending_bonus=$3, last_visit=NOW() WHERE id=$4`, [newLevel, today, newPending, id]);
       return sendJSON(res, 200, { reward, level: newLevel, pending_bonus: newPending });
     }
-
     if (url === '/api/guest/summary' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
@@ -1252,7 +1155,6 @@ const server = http.createServer(async (req, res) => {
       const nextMin = nextRank ? RANKS[nextRank].min : null;
       return sendJSON(res, 200, { id: g.id, name: g.name, rank: g.rank, points, bonus_balance: parseFloat(g.bonus_balance)||0, deposit_balance: parseFloat(g.deposit_balance)||0, pending_bonus: parseFloat(g.pending_bonus)||0, wagering_required: parseFloat(g.wagering_required)||0, wagering_done: parseFloat(g.wagering_done)||0, next_rank: nextRank, next_min: nextMin, bonus_text: g.bonus_text || '', bonus_code: g.bonus_code || '', min_rank_silver: RANKS.Silver.min });
     }
-
     if (url === '/api/guest/withdraw-to-casino' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
@@ -1267,7 +1169,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE guests SET deposit_balance = deposit_balance + pending_bonus, pending_bonus = 0 WHERE id=$1`, [id]);
       return sendJSON(res, 200, { ok: true, amount: pending });
     }
-
     if (url === '/api/guest/withdraw-real' && method === 'POST') {
       const b = await parseBody(req);
       const id = b.id;
@@ -1285,7 +1186,6 @@ const server = http.createServer(async (req, res) => {
       const w = await pool.query(`INSERT INTO withdrawals (date,nick,email,sum,fee,net,status) VALUES ($1,$2,$3,$4,$5,$6,'pending') RETURNING *`, [todayStr(), g.name, '', amount, 0, amount]);
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
-
     if(url === '/api/guest/withdraw' && method === 'POST'){
       const { id, sum } = await parseBody(req);
       if(!id) return sendJSON(res, 400, { error: 'no id' });
@@ -1301,9 +1201,8 @@ const server = http.createServer(async (req, res) => {
       if (amt > balance) return sendJSON(res, 400, { error: 'Недостаточно средств' });
       let bonus = parseFloat(g.bonus_balance) || 0;
       let dep = parseFloat(g.deposit_balance) || 0;
-      let remaining = amt;
-      if (bonus >= remaining) { bonus -= remaining; remaining = 0; }
-      else { remaining -= bonus; bonus = 0; dep -= remaining; }
+      let rem = amt;
+      if (bonus >= rem) { bonus -= rem; rem = 0; } else { rem -= bonus; bonus = 0; dep -= rem; }
       await pool.query('UPDATE guests SET bonus_balance = $1, deposit_balance = $2 WHERE id=$3', [bonus, dep, id]);
       const w = await pool.query(`INSERT INTO withdrawals (date, nick, email, sum, fee, net, status) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`, [todayStr(), g.name, '', amt, 0, amt, 'pending']);
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
@@ -1322,7 +1221,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, session: r.rows[0], jackpot: currentJP, accrued });
     }
     if(url.startsWith('/api/sessions/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM sessions WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if (url === '/api/sessions/round' && method === 'POST') {
       const b = await parseBody(req);
       const dealer = b.dealer || '';
@@ -1358,9 +1256,7 @@ const server = http.createServer(async (req, res) => {
         if (jackpotWon > 0) {
           try {
             const gRes = await pool.query(`SELECT id FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [nick]);
-            if (gRes.rows.length > 0) {
-              await pool.query(`UPDATE guests SET pending_bonus = pending_bonus + $1, wagering_required = wagering_required + $2 WHERE id = $3`, [jackpotWon, jackpotWon * 3, gRes.rows[0].id]);
-            }
+            if (gRes.rows.length > 0) await pool.query(`UPDATE guests SET pending_bonus = pending_bonus + $1, wagering_required = wagering_required + $2 WHERE id = $3`, [jackpotWon, jackpotWon * 3, gRes.rows[0].id]);
           } catch(e) { console.error('jackpot accrue error:', e.message); }
         }
       } else {
@@ -1405,9 +1301,7 @@ const server = http.createServer(async (req, res) => {
           const isFirstDeposit = (prevApproved.rows[0]?.c || 0) === 0;
           if (isFirstDeposit && sum >= 200) {
             const gRes = await pool.query(`SELECT id FROM guests WHERE LOWER(name)=LOWER($1) LIMIT 1`, [dep.nick]);
-            if (gRes.rows.length > 0) {
-              await pool.query(`UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_required = wagering_required + $2 WHERE id = $3`, [100, 2000, gRes.rows[0].id]);
-            }
+            if (gRes.rows.length > 0) await pool.query(`UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_required = wagering_required + $2 WHERE id = $3`, [100, 2000, gRes.rows[0].id]);
           }
         } catch(e) { console.error('bonus accrue error:', e.message); }
         await pool.query(`UPDATE deposits SET seen = FALSE WHERE id=$1`, [id]);
@@ -1439,15 +1333,13 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/payouts/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM payouts WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    /* ================= ИГРОКИ ================= */
+    /* ================= ИГРОКИ / ИГРЫ / АУДИТ / СОТРУДНИКИ ================= */
     if(url === '/api/players' && method === 'GET'){ const r = await pool.query('SELECT * FROM players ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/players' && method === 'POST'){
       const p = await parseBody(req);
       const r = await pool.query(`INSERT INTO players (nick,vip,blocked) VALUES ($1,$2,$3) ON CONFLICT (nick) DO UPDATE SET vip=EXCLUDED.vip, blocked=EXCLUDED.blocked RETURNING *`, [p.nick,p.vip||false,p.blocked||false]);
       return sendJSON(res, 200, { ok: true, player: r.rows[0] });
     }
-
-    /* ================= ИГРЫ ================= */
     if(url === '/api/games' && method === 'GET'){ const r = await pool.query('SELECT * FROM games ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/games' && method === 'POST'){
       const g = await parseBody(req);
@@ -1456,8 +1348,6 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/games/') && method === 'PUT'){ const id = url.split('/')[3]; const g = await parseBody(req); await pool.query('UPDATE games SET active=$1 WHERE id=$2', [g.active, id]); return sendJSON(res, 200, { ok: true }); }
     if(url.startsWith('/api/games/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM games WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= АУДИТ ================= */
     if(url === '/api/audit' && method === 'GET'){ const r = await pool.query('SELECT * FROM audit ORDER BY id DESC LIMIT 500'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/audit' && method === 'POST'){
       const a = await parseBody(req);
@@ -1465,30 +1355,20 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, audit: r.rows[0] });
     }
     if(url === '/api/audit' && method === 'DELETE'){ await pool.query('DELETE FROM audit'); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= СОТРУДНИКИ ================= */
     if(url === '/api/employees' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,role FROM employees ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/employees' && method === 'POST'){
       const e = await parseBody(req);
-      try {
-        const r = await pool.query(`INSERT INTO employees (name,login,pass,role) VALUES ($1,$2,$3,$4) RETURNING id,name,login,role`, [e.name,e.login,e.pass,e.role]);
-        return sendJSON(res, 200, { ok: true, employee: r.rows[0] });
-      } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
+      try { const r = await pool.query(`INSERT INTO employees (name,login,pass,role) VALUES ($1,$2,$3,$4) RETURNING id,name,login,role`, [e.name,e.login,e.pass,e.role]); return sendJSON(res, 200, { ok: true, employee: r.rows[0] }); }
+      catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
     if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= ДИЛЕРЫ ================= */
     if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/dealers' && method === 'POST'){
       const d = await parseBody(req);
-      try {
-        const r = await pool.query(`INSERT INTO dealers (name,login,pass) VALUES ($1,$2,$3) RETURNING id,name,login`, [d.name,d.login,d.pass]);
-        return sendJSON(res, 200, { ok: true, dealer: r.rows[0] });
-      } catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
+      try { const r = await pool.query(`INSERT INTO dealers (name,login,pass) VALUES ($1,$2,$3) RETURNING id,name,login`, [d.name,d.login,d.pass]); return sendJSON(res, 200, { ok: true, dealer: r.rows[0] }); }
+      catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= ОНЛАЙН ================= */
     if(url === '/api/online' && method === 'GET'){ const r = await pool.query('SELECT * FROM online ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/online' && method === 'POST'){
       const o = await parseBody(req);
@@ -1517,7 +1397,7 @@ const server = http.createServer(async (req, res) => {
       catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    /* ================= ОЦЕНКИ ДИЛЕРОВ ================= */
+    /* ================= ОТЗЫВЫ ================= */
     if (url === '/api/dealer-reviews' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
@@ -1552,36 +1432,27 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
     if (url === '/api/dealer-ratings' && method === 'GET') {
-      try {
-        const r = await pool.query(`SELECT LOWER(dealer_name) AS dealer, COUNT(*)::int AS reviews_count, ROUND(AVG(stars)::numeric, 2) AS avg_stars, SUM(stars)::int AS sum_stars FROM dealer_reviews GROUP BY LOWER(dealer_name) ORDER BY avg_stars DESC NULLS LAST`);
-        return sendJSON(res, 200, r.rows);
-      } catch (e) { return sendJSON(res, 200, []); }
+      try { const r = await pool.query(`SELECT LOWER(dealer_name) AS dealer, COUNT(*)::int AS reviews_count, ROUND(AVG(stars)::numeric, 2) AS avg_stars, SUM(stars)::int AS sum_stars FROM dealer_reviews GROUP BY LOWER(dealer_name) ORDER BY avg_stars DESC NULLS LAST`); return sendJSON(res, 200, r.rows); }
+      catch (e) { return sendJSON(res, 200, []); }
     }
     if (url.startsWith('/api/dealer-reviews/') && method === 'DELETE') { const id = url.split('/')[3]; try { await pool.query('DELETE FROM dealer_reviews WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); } catch (e) { return sendJSON(res, 500, { error: e.message }); } }
 
-    /* ================= ГЕНЕРАЦИЯ КАРТ ПАЧКОЙ ================= */
+    /* ================= ГЕНЕРАЦИЯ КАРТ ================= */
     if (url === '/api/admin/guests/generate' && method === 'POST') {
       const b = await parseBody(req);
       const count = Math.min(500, Math.max(1, parseInt(b.count, 10) || 10));
       const prefix = String(b.prefix || 'KING').toUpperCase().replace(/[^A-Z0-9]/g, '');
       const created = [];
       let startNum = 1;
-      try {
-        const r = await pool.query(`SELECT id FROM guests WHERE id LIKE $1 ORDER BY id DESC LIMIT 1`, [prefix + '-%']);
-        if (r.rows.length > 0) { const m = r.rows[0].id.match(/-(\d+)$/); if (m) startNum = parseInt(m[1], 10) + 1; }
-      } catch(e) {}
+      try { const r = await pool.query(`SELECT id FROM guests WHERE id LIKE $1 ORDER BY id DESC LIMIT 1`, [prefix + '-%']); if (r.rows.length > 0) { const m = r.rows[0].id.match(/-(\d+)$/); if (m) startNum = parseInt(m[1], 10) + 1; } } catch(e) {}
       for (let i = 0; i < count; i++) {
         const num = String(startNum + i).padStart(4, '0');
         const cardId = `${prefix}-${num}`;
         const pass = String(Math.floor(1000 + Math.random() * 9000));
-        try {
-          const r = await pool.query(`INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [cardId, `Гость ${num}`, 'Bronze', 0, 0, '', '', pass]);
-          created.push(r.rows[0]);
-        } catch(e) {}
+        try { const r = await pool.query(`INSERT INTO guests (id, name, rank, points, visits, bonus_text, bonus_code, pass) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [cardId, `Гость ${num}`, 'Bronze', 0, 0, '', '', pass]); created.push(r.rows[0]); } catch(e) {}
       }
       return sendJSON(res, 200, { ok: true, count: created.length, cards: created });
     }
-
     if (url === '/api/admin/guests/list-for-print' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const prefix = u.searchParams.get('prefix') || '';
@@ -1622,9 +1493,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-/* ============================================================
-   LIVEKIT
-   ============================================================ */
+/* ============ LIVEKIT + БЛЭКДЖЕК ============ */
 const LIVEKIT_API_KEY    = process.env.LIVEKIT_API_KEY    || '';
 const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || '';
 const LIVEKIT_URL        = process.env.LIVEKIT_URL        || '';
@@ -1636,35 +1505,13 @@ async function makeLivekitToken(identity, role) {
   return await at.toJwt();
 }
 
-/* ============================================================
-   БЛЭКДЖЕК — LIVE СТОЛ
-   ============================================================ */
-const SEATS = 4;
-const MIN_BET = 10;
-const MAX_BET = 5000;
-
-const table = {
-  seats: Array(SEATS).fill(null),
-  dealerCards: [],
-  dealerHidden: true,
-  phase: 'waiting',
-  betDeadline: 0,
-  timer: null,
-  roundId: 0
-};
-
-const io = new SocketServer(server, {
-  cors: { origin: process.env.FRONTEND_URL || '*', methods: ['GET','POST'] },
-  transports: ['polling','websocket']
-});
+const SEATS = 4, MIN_BET = 10, MAX_BET = 5000;
+const table = { seats: Array(SEATS).fill(null), dealerCards: [], dealerHidden: true, phase: 'waiting', betDeadline: 0, timer: null, roundId: 0 };
+const io = new SocketServer(server, { cors: { origin: process.env.FRONTEND_URL || '*', methods: ['GET','POST'] }, transports: ['polling','websocket'] });
 
 function handValue(cards) {
   let sum = 0, aces = 0;
-  for (const c of cards) {
-    if (c.r === 'A') { aces++; sum += 11; }
-    else if (['J','Q','K'].includes(c.r)) sum += 10;
-    else sum += parseInt(c.r);
-  }
+  for (const c of cards) { if (c.r === 'A') { aces++; sum += 11; } else if (['J','Q','K'].includes(c.r)) sum += 10; else sum += parseInt(c.r); }
   while (sum > 21 && aces > 0) { sum -= 10; aces--; }
   return sum;
 }
@@ -1673,20 +1520,9 @@ function isBlackjack(cards) { return cards.length === 2 && handValue(cards) === 
 function publicState(forSocketId = null) {
   const hideDealer = table.phase !== 'payout' && table.phase !== 'dealer';
   const dealerCards = table.dealerCards.map((c, i) => (hideDealer && i === 1) ? { r:'?', s:'?' } : c);
-  return {
-    phase: table.phase, betDeadline: table.betDeadline, roundId: table.roundId,
-    dealerCards,
-    dealerTotal: hideDealer && table.dealerCards.length > 0 ? handValue([table.dealerCards[0]]) : handValue(table.dealerCards),
-    seats: table.seats.map((s, i) => {
-      if (!s) return null;
-      return { idx: i, name: s.name, bet: s.bet, cards: s.cards, total: handValue(s.cards), stood: s.stood, busted: s.busted, doubled: s.doubled, wantsCard: s.wantsCard || false, result: s.result || null, isMe: s.socketId === forSocketId };
-    })
-  };
+  return { phase: table.phase, betDeadline: table.betDeadline, roundId: table.roundId, dealerCards, dealerTotal: hideDealer && table.dealerCards.length > 0 ? handValue([table.dealerCards[0]]) : handValue(table.dealerCards), seats: table.seats.map((s, i) => { if (!s) return null; return { idx: i, name: s.name, bet: s.bet, cards: s.cards, total: handValue(s.cards), stood: s.stood, busted: s.busted, doubled: s.doubled, wantsCard: s.wantsCard || false, result: s.result || null, isMe: s.socketId === forSocketId }; }) };
 }
-
-function broadcastState() {
-  for (const [sid, sock] of io.sockets.sockets) sock.emit('state', publicState(sid));
-}
+function broadcastState() { for (const [sid, sock] of io.sockets.sockets) sock.emit('state', publicState(sid)); }
 function clearTableTimer() { if (table.timer) { clearTimeout(table.timer); table.timer = null; } }
 
 async function getGuestBalance(guestId) {
@@ -1702,8 +1538,7 @@ async function withdrawBet(guestId, amount) {
   let dep = parseFloat(r.rows[0].deposit_balance) || 0;
   if (bonus + dep < amount) return false;
   let rem = amount;
-  if (bonus >= rem) { bonus -= rem; rem = 0; }
-  else { rem -= bonus; bonus = 0; dep -= rem; }
+  if (bonus >= rem) { bonus -= rem; rem = 0; } else { rem -= bonus; bonus = 0; dep -= rem; }
   await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
   return true;
 }
@@ -1716,7 +1551,6 @@ async function creditWin(guestId, amount) {
   if (req_ > 0 && done < req_) await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [amount, guestId]);
   else await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
 }
-
 function dealerStartBetting() {
   clearTableTimer();
   table.phase = 'betting';
@@ -1736,7 +1570,6 @@ function dealerStartBetting() {
     }
   }, 30000);
 }
-
 function dealerAddCardToSeat(seatIdx, card) {
   const s = table.seats[seatIdx];
   if (!s) return;
@@ -1749,7 +1582,6 @@ function dealerAddCardToSeat(seatIdx, card) {
 }
 function dealerAddCardToSelf(card) { table.dealerCards.push(card); broadcastState(); }
 function dealerRevealCard() { table.dealerHidden = false; table.phase = 'dealer'; broadcastState(); io.emit('dealerMsg', 'Вторая карта дилера открыта'); }
-
 async function checkAllPlayersDone() {
   if (table.phase !== 'dealing' && table.phase !== 'playing') return;
   const active = table.seats.filter(s => s && s.bet > 0);
@@ -1758,7 +1590,6 @@ async function checkAllPlayersDone() {
   if (!active.every(s => s.stood || s.busted)) return;
   io.emit('dealerMsg', 'Все игроки закончили. Откройте 2-ю карту дилера и нажмите «Завершить раунд».');
 }
-
 async function dealerFinishRound() {
   table.dealerHidden = false;
   table.phase = 'payout';
@@ -1769,35 +1600,34 @@ async function dealerFinishRound() {
     const pv = handValue(s.cards);
     const playerBJ = isBlackjack(s.cards);
     let payout = 0, result = 'lose';
-    if (pv > 21) { result = 'bust'; }
+    if (pv > 21) result = 'bust';
     else if (playerBJ && !dealerBJ) { result = 'blackjack'; payout = Math.floor(s.bet * 2.5); }
-    else if (dealerBJ && !playerBJ) { result = 'lose'; }
+    else if (dealerBJ && !playerBJ) result = 'lose';
     else if (playerBJ && dealerBJ) { result = 'push'; payout = s.bet; }
     else if (dv > 21 || pv > dv) { result = 'win'; payout = s.bet * 2; }
     else if (pv === dv) { result = 'push'; payout = s.bet; }
     s.result = result;
     if (payout > 0 && s.guestId) await creditWin(s.guestId, payout);
-    try { await pool.query(`INSERT INTO sessions (date, nick, decks, dep, out_sum, fee, net, result, dealer) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, [todayStr(), s.name, 6, s.bet, payout, 0, s.bet - payout, s.bet - payout, 'live-dealer']); } catch(e) { console.error('session insert:', e.message); }
+    try { await pool.query(`INSERT INTO sessions (date, nick, decks, dep, out_sum, fee, net, result, dealer) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, [todayStr(), s.name, 6, s.bet, payout, 0, s.bet - payout, s.bet - payout, 'live-dealer']); } catch(e) {}
     try { const net = s.bet - payout; await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Live BJ (${s.name})`]); } catch(e) {}
   }
   broadcastState();
   io.emit('roundResult', publicState());
   io.emit('dealerMsg', 'Раунд завершён. Через 8 секунд — новый приём ставок.');
-  table.timer = setTimeout(() => { dealerStartBetting(); }, 8000);
+  table.timer = setTimeout(() => dealerStartBetting(), 8000);
 }
 
 io.on('connection', (socket) => {
   socket.emit('state', publicState(socket.id));
-
   socket.on('sit', async ({ guestId, name, seat }) => {
     try {
       if (seat < 0 || seat >= SEATS) return socket.emit('err', 'Неверное место');
       if (table.seats[seat]) return socket.emit('err', 'Место занято');
-      if (!['waiting','betting'].includes(table.phase)) return socket.emit('err', 'Раунд уже идёт, подождите');
+      if (!['waiting','betting'].includes(table.phase)) return socket.emit('err', 'Раунд уже идёт');
       if (!guestId) return socket.emit('err', 'Войдите в аккаунт');
       const bal = await getGuestBalance(guestId);
       if (!bal) return socket.emit('err', 'Гость не найден');
-      if (bal.total <= 0) return socket.emit('err', 'Нет средств на балансе');
+      if (bal.total <= 0) return socket.emit('err', 'Нет средств');
       for (let i = 0; i < SEATS; i++) if (table.seats[i] && table.seats[i].socketId === socket.id) table.seats[i] = null;
       table.seats[seat] = { socketId: socket.id, guestId: String(guestId), name: String(name || 'Гость'), bet: 0, cards: [], stood: false, busted: false, doubled: false, result: null, wantsCard: false };
       socket.data.seat = seat;
@@ -1806,23 +1636,18 @@ io.on('connection', (socket) => {
       if (table.phase === 'waiting') dealerStartBetting();
     } catch(e) { socket.emit('err', e.message); }
   });
-
   socket.on('leave', () => {
     const seat = socket.data.seat;
     if (seat == null) return;
-    if (['dealing','playing','dealer','payout'].includes(table.phase)) return socket.emit('err', 'Нельзя встать во время раунда');
-    table.seats[seat] = null;
-    socket.data.seat = null;
-    broadcastState();
+    if (['dealing','playing','dealer','payout'].includes(table.phase)) return socket.emit('err', 'Нельзя встать');
+    table.seats[seat] = null; socket.data.seat = null; broadcastState();
   });
-
   socket.on('bet', async ({ amount }) => {
     try {
       const seat = socket.data.seat;
       if (seat == null) return socket.emit('err', 'Сначала сядьте');
       const s = table.seats[seat];
-      if (!s) return socket.emit('err', 'Место не найдено');
-      if (table.phase !== 'betting') return socket.emit('err', 'Сейчас нельзя ставить');
+      if (!s || table.phase !== 'betting') return socket.emit('err', 'Сейчас нельзя ставить');
       const amt = parseInt(amount, 10) || 0;
       if (amt < MIN_BET || amt > MAX_BET) return socket.emit('err', `Ставка ${MIN_BET}–${MAX_BET}`);
       const bal = await getGuestBalance(s.guestId);
@@ -1834,66 +1659,44 @@ io.on('connection', (socket) => {
       io.emit('dealerMsg', `${s.name} поставил ${amt} ₽`);
     } catch(e) { socket.emit('err', e.message); }
   });
-
   socket.on('hit', () => {
     const seat = socket.data.seat;
     if (seat == null) return;
     const s = table.seats[seat];
-    if (!s) return;
-    if (!['dealing','playing'].includes(table.phase)) return;
-    if (s.stood || s.busted) return;
+    if (!s || !['dealing','playing'].includes(table.phase) || s.stood || s.busted) return;
     s.wantsCard = true;
     broadcastState();
     io.emit('dealerMsg', `${s.name} просит карту`);
   });
-
   socket.on('stand', () => {
     const seat = socket.data.seat;
     if (seat == null) return;
     const s = table.seats[seat];
-    if (!s) return;
-    if (!['dealing','playing'].includes(table.phase)) return;
-    if (s.stood || s.busted) return;
-    s.stood = true;
-    s.wantsCard = false;
-    broadcastState();
+    if (!s || !['dealing','playing'].includes(table.phase) || s.stood || s.busted) return;
+    s.stood = true; s.wantsCard = false; broadcastState();
     io.emit('dealerMsg', `${s.name} сказал «Стоп»`);
     checkAllPlayersDone();
   });
-
   socket.on('double', async () => {
     const seat = socket.data.seat;
     if (seat == null) return;
     const s = table.seats[seat];
-    if (!s) return;
-    if (!['dealing','playing'].includes(table.phase)) return;
-    if (s.cards.length !== 2 || s.stood || s.busted) return;
-    const extra = s.bet;
+    if (!s || !['dealing','playing'].includes(table.phase) || s.cards.length !== 2 || s.stood || s.busted) return;
     const bal = await getGuestBalance(s.guestId);
-    if (!bal || bal.total < extra) return socket.emit('err', 'Недостаточно для удвоения');
-    const ok = await withdrawBet(s.guestId, extra);
-    if (!ok) return socket.emit('err', 'Ошибка списания');
-    s.bet += extra;
-    s.doubled = true;
-    s.wantsCard = true;
+    if (!bal || bal.total < s.bet) return socket.emit('err', 'Недостаточно для удвоения');
+    const ok = await withdrawBet(s.guestId, s.bet);
+    if (!ok) return socket.emit('err', 'Ошибка');
+    s.bet += s.bet; s.doubled = true; s.wantsCard = true;
     broadcastState();
-    io.emit('dealerMsg', `${s.name} удвоил (ставка ${s.bet} ₽) — дайте ему 1 карту`);
+    io.emit('dealerMsg', `${s.name} удвоил — дайте 1 карту`);
   });
-
-  socket.on('dealer:startBetting', () => {
-    if (['dealing','playing','dealer','payout'].includes(table.phase)) return socket.emit('err', 'Раунд уже идёт');
-    dealerStartBetting();
-  });
-
+  socket.on('dealer:startBetting', () => { if (['dealing','playing','dealer','payout'].includes(table.phase)) return socket.emit('err', 'Раунд идёт'); dealerStartBetting(); });
   socket.on('dealer:deal', () => {
     if (table.phase !== 'betting' && table.phase !== 'waiting') return;
     const active = table.seats.filter(s => s && s.bet > 0);
     if (active.length === 0) return socket.emit('err', 'Нет ставок');
-    table.phase = 'dealing';
-    broadcastState();
-    io.emit('dealerMsg', 'Раздавайте: по 2 карты каждому и 2 себе');
+    table.phase = 'dealing'; broadcastState(); io.emit('dealerMsg', 'Раздавайте');
   });
-
   socket.on('dealer:addCard', ({ target, card }) => {
     if (!card || !card.r || !card.s) return socket.emit('err', 'Неверная карта');
     const allowedR = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -1907,21 +1710,14 @@ io.on('connection', (socket) => {
       if (s && s.doubled && s.cards.length >= 3 && !s.busted) { s.stood = true; broadcastState(); }
       return;
     }
-    socket.emit('err', 'target не указан');
   });
-
-  socket.on('dealer:reveal', () => { dealerRevealCard(); });
+  socket.on('dealer:reveal', () => dealerRevealCard());
   socket.on('dealer:finish', async () => { if (table.phase === 'payout') return; await dealerFinishRound(); });
   socket.on('dealer:resetRound', () => {
-    clearTableTimer();
-    table.phase = 'waiting';
-    table.dealerCards = [];
-    table.dealerHidden = true;
+    clearTableTimer(); table.phase = 'waiting'; table.dealerCards = []; table.dealerHidden = true;
     for (const s of table.seats) if (s) { s.cards = []; s.stood = false; s.busted = false; s.doubled = false; s.result = null; s.bet = 0; s.wantsCard = false; }
-    broadcastState();
-    io.emit('dealerMsg', 'Раунд сброшен');
+    broadcastState(); io.emit('dealerMsg', 'Раунд сброшен');
   });
-
   socket.on('disconnect', () => {
     const seat = socket.data.seat;
     if (seat != null && table.seats[seat] && table.seats[seat].socketId === socket.id) {
@@ -1936,13 +1732,11 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('  Сервер запущен на порту ' + PORT);
   console.log('  Админ:   /admin.html');
-  console.log('  Дилер:   /dealer.html');
   console.log('  Live:    /livekit.html');
   console.log('  Игрок:   /player.html');
   console.log('  Профиль: /profile2.html');
-  console.log('  Джекпот: /jackpot.html');
   console.log('  Crash:   /crash.html');
-  console.log('  Кейсы:   /cases.html');
   console.log('  Miner:   /miner.html');
+  console.log('  Кейсы:   /cases.html');
   console.log('');
 });
