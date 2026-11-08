@@ -329,7 +329,7 @@
       На поле <b>5 × 5</b> спрятаны мины. Ваша задача — открывать безопасные ячейки с коронами 👑 и не попасть на мину 💥.
     </div>
     <ul class="modal-list">
-      <li>Выберите <b>ставку</b> (от 5 ₽) и <b>количество мин</b> (от 1 до 24).</li>
+      <li>Выберите <b>ставку</b> (от 5 ₽) и <b>количество мин</b> (от 3 до 24).</li>
       <li>Чем больше мин — тем выше <span class="gold">множитель</span>.</li>
       <li><span class="gold">Корона 👑</span> = безопасно. <span class="red">Разбитая корона 💥</span> = взрыв, ставка сгорает.</li>
       <li>Нажмите <span class="green">«Забрать выигрыш»</span>, чтобы забрать текущую сумму.</li>
@@ -499,7 +499,7 @@ function changeBet(dir) {
 }
 function changeMines(dir) {
   if (sessionId) return;
-  currentMines = Math.max(1, Math.min(24, currentMines + dir));
+  currentMines = Math.max(3, Math.min(24, currentMines + dir));
   $('minesVal').textContent = currentMines;
 }
 
