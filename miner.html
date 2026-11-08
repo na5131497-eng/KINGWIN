@@ -98,7 +98,7 @@
 
   .grid-wrap{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
-    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4), 0 0 30px rgba(0,229,255,.05);
+    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);
     position:relative;backdrop-filter: blur(10px);
   }
   .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;aspect-ratio:1;width:100%}
@@ -108,31 +108,20 @@
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;transition:.15s;user-select:none;
     aspect-ratio:1;font-weight:900;position:relative;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
   }
-  .cell:hover:not(.disabled){
-    background:linear-gradient(145deg, rgba(0,229,255,.25), rgba(0,119,255,.12));
-    border-color:var(--accent);
-    box-shadow: 0 0 14px rgba(0,229,255,.4), inset 0 1px 0 rgba(255,255,255,.1);
-  }
+  .cell:hover:not(.disabled){ border-color:var(--accent); }
   .cell:active:not(.disabled){ transform:scale(.94); }
 
   .icon-crown{width:55%;height:55%;position:relative;display:flex;align-items:center;justify-content:center}
-  .icon-crown svg{width:100%;height:100%;filter: drop-shadow(0 0 6px rgba(241,196,15,.9)) drop-shadow(0 0 12px rgba(241,196,15,.5));animation: crownGlow 1.5s ease-in-out infinite;}
-  @keyframes crownGlow{0%,100%{filter: drop-shadow(0 0 6px rgba(241,196,15,.9)) drop-shadow(0 0 12px rgba(241,196,15,.5));}50%{filter: drop-shadow(0 0 10px rgba(241,196,15,1)) drop-shadow(0 0 22px rgba(241,196,15,.8));}}
-
+  .icon-crown svg{width:100%;height:100%;filter: drop-shadow(0 0 6px rgba(241,196,15,.6));}
   .icon-broken-crown{width:55%;height:55%;position:relative;display:flex;align-items:center;justify-content:center}
-  .icon-broken-crown svg{width:100%;height:100%;filter: drop-shadow(0 0 6px rgba(255,77,77,.9)) drop-shadow(0 0 12px rgba(255,77,77,.5));animation: brokenPulse .8s ease-in-out infinite;}
-  @keyframes brokenPulse{0%,100%{filter: drop-shadow(0 0 6px rgba(255,77,77,.9)) drop-shadow(0 0 12px rgba(255,77,77,.5));transform:scale(1);}50%{filter: drop-shadow(0 0 12px rgba(255,77,77,1)) drop-shadow(0 0 24px rgba(255,77,77,.7));transform:scale(1.08);}}
+  .icon-broken-crown svg{width:100%;height:100%;filter: drop-shadow(0 0 6px rgba(255,77,77,.6));}
 
   .cell.safe{cursor:default}
-  .cell.mine{background: radial-gradient(circle, rgba(255,77,77,.35), rgba(255,77,77,.15));border-color:var(--red);animation: shake .4s;}
+  .cell.mine{background: radial-gradient(circle, rgba(255,77,77,.35), rgba(255,77,77,.15));border-color:var(--red);}
   .cell.disabled{cursor:not-allowed;opacity:.85}
   .cell.revealed-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);opacity:.55}
-  .cell.revealed-mine .icon-broken-crown svg{animation:none;opacity:.6}
   .cell.revealed-safe{background:rgba(241,196,15,.08);border-color:rgba(241,196,15,.25);opacity:.55}
-  .cell.revealed-safe .icon-crown svg{animation:none;opacity:.5}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
   .bet-panel{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
@@ -156,99 +145,34 @@
   .bet-input::-webkit-outer-spin-button,.bet-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .bet-input[type=number]{-moz-appearance:textfield}
 
-  /* ===== АНИМИРОВАННЫЕ КНОПКИ ===== */
+  /* ===== КНОПКИ ===== */
   .btn-main{
     width:100%;border:none;border-radius:12px;padding:16px;
     font-size:15px;font-weight:900;text-transform:uppercase;
     letter-spacing:1px;cursor:pointer;font-family:inherit;
     transition:.2s;min-height:54px;display:flex;
     align-items:center;justify-content:center;
-    position:relative;overflow:hidden;
   }
-
-  /* Кнопка «Поставить» — синий неон, пульсирует */
   .btn-play{
     background:linear-gradient(135deg, #00e5ff 0%, #0097ff 100%);
     color:#000;
-    box-shadow:
-      0 0 20px rgba(0,229,255,.6),
-      0 0 40px rgba(0,229,255,.3),
-      inset 0 1px 0 rgba(255,255,255,.3);
-    animation: playPulse 2s ease-in-out infinite;
+    box-shadow: 0 4px 14px rgba(0,229,255,.3);
   }
-  .btn-play::before{
-    content:'';
-    position:absolute;inset:0;
-    background:linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
-    transform:translateX(-100%);
-    animation: playShine 3s ease-in-out infinite;
-  }
-  .btn-play:hover{filter:brightness(1.1);box-shadow: 0 0 30px rgba(0,229,255,.8), 0 0 60px rgba(0,229,255,.5);}
+  .btn-play:hover{box-shadow: 0 6px 20px rgba(0,229,255,.5);}
   .btn-play:active{transform:scale(.98);}
-
-  @keyframes playPulse{
-    0%,100%{
-      box-shadow: 0 0 20px rgba(0,229,255,.6), 0 0 40px rgba(0,229,255,.3), inset 0 1px 0 rgba(255,255,255,.3);
-      transform: scale(1);
-    }
-    50%{
-      box-shadow: 0 0 35px rgba(0,229,255,.9), 0 0 70px rgba(0,229,255,.5), inset 0 1px 0 rgba(255,255,255,.4);
-      transform: scale(1.02);
-    }
-  }
-  @keyframes playShine{
-    0%{ transform: translateX(-100%); }
-    50%,100%{ transform: translateX(100%); }
-  }
-
-  /* Кнопка «Забрать X ₽» — золото/зелень, с крупной суммой */
   .btn-cashout{
     background:linear-gradient(135deg, #00e676 0%, #00b85c 100%);
     color:#000;
-    box-shadow:
-      0 0 20px rgba(0,230,118,.6),
-      0 0 40px rgba(0,230,118,.3),
-      inset 0 1px 0 rgba(255,255,255,.3);
-    animation: cashoutPulse 1.6s ease-in-out infinite;
-    padding:14px 16px;
+    box-shadow: 0 4px 14px rgba(0,230,118,.3);
+    padding:12px 16px;
     flex-direction:column;
     gap:2px;
   }
-  .btn-cashout::before{
-    content:'';
-    position:absolute;inset:0;
-    background:linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
-    transform:translateX(-100%);
-    animation: playShine 2.4s ease-in-out infinite;
-  }
-  .btn-cashout:hover{filter:brightness(1.1);box-shadow: 0 0 30px rgba(0,230,118,.8), 0 0 60px rgba(0,230,118,.5);}
+  .btn-cashout:hover{box-shadow: 0 6px 20px rgba(0,230,118,.5);}
   .btn-cashout:active{transform:scale(.98);}
-  .btn-cashout:disabled{
-    opacity:.4;cursor:not-allowed;
-    animation:none;box-shadow:none;
-  }
-  .btn-cashout:disabled::before{display:none;}
-
-  .btn-cashout .cashout-label{
-    font-size:11px;font-weight:800;
-    text-transform:uppercase;letter-spacing:1px;
-    opacity:.85;
-  }
-  .btn-cashout .cashout-amount{
-    font-size:22px;font-weight:900;line-height:1.1;
-    letter-spacing:.5px;
-  }
-
-  @keyframes cashoutPulse{
-    0%,100%{
-      box-shadow: 0 0 20px rgba(0,230,118,.6), 0 0 40px rgba(0,230,118,.3), inset 0 1px 0 rgba(255,255,255,.3);
-      transform: scale(1);
-    }
-    50%{
-      box-shadow: 0 0 35px rgba(0,230,118,.9), 0 0 70px rgba(0,230,118,.6), inset 0 1px 0 rgba(255,255,255,.4);
-      transform: scale(1.02);
-    }
-  }
+  .btn-cashout:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+  .btn-cashout .cashout-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85}
+  .btn-cashout .cashout-amount{font-size:22px;font-weight:900;line-height:1.1;letter-spacing:.5px}
 
   .status{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:16px;line-height:1.4}
   .status.err{color:var(--red)}
@@ -256,8 +180,7 @@
 
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:1000;padding: calc(16px + var(--safe-top)) 16px calc(16px + var(--safe-bottom))}
   .modal.show{display:flex}
-  .modal-box{background:linear-gradient(135deg,#111625,#0b0e14);border:2px solid var(--accent);border-radius:20px;padding:28px 24px;max-width:420px;width:100%;text-align:left;box-shadow:0 0 60px rgba(0,229,255,.3);animation:up .3s;max-height:calc(100dvh - 32px);overflow-y:auto}
-  @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+  .modal-box{background:linear-gradient(135deg,#111625,#0b0e14);border:1px solid var(--accent);border-radius:20px;padding:28px 24px;max-width:420px;width:100%;text-align:left;max-height:calc(100dvh - 32px);overflow-y:auto}
   .modal-title{font-size:22px;font-weight:900;margin-bottom:16px;text-align:center;background:linear-gradient(135deg,var(--accent),#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .modal-text{font-size:13px;color:#d0d5e0;line-height:1.7;margin-bottom:10px}
   .modal-text b{color:#fff}
@@ -296,7 +219,7 @@
     .bet-btn { width: 42px; height: 42px; font-size: 20px; }
     .bet-input { padding: 12px 10px; font-size: 16px; min-height: 44px; }
     .btn-main { padding: 14px; font-size: 14px; min-height: 50px; }
-    .btn-cashout { padding: 12px 14px; }
+    .btn-cashout { padding: 11px 14px; }
     .btn-cashout .cashout-amount { font-size: 20px; }
     .status { font-size: 11px; }
     .modal-box { padding: 22px 18px; border-radius: 16px; }
@@ -347,7 +270,6 @@
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- Панель ставок -->
   <div class="bet-panel" id="betPanel">
     <div class="stats-row">
       <div class="stat">
@@ -376,7 +298,6 @@
     <div class="status" id="status">Выберите ставку и начните</div>
   </div>
 
-  <!-- Панель игры -->
   <div class="bet-panel" id="playPanel" style="display:none">
     <div class="stats-row">
       <div class="stat">
@@ -409,14 +330,12 @@
     </div>
     <ul class="modal-list">
       <li>Выберите <b>ставку</b> (от 5 ₽) и <b>количество мин</b> (от 1 до 24).</li>
-      <li>Чем больше мин — тем выше <span class="gold">множитель</span> за каждую безопасную ячейку.</li>
-      <li><span class="gold">Корона 👑</span> = безопасно, множитель растёт. <span class="red">Разбитая корона 💥</span> = взрыв, ставка сгорает.</li>
-      <li>Нажмите <span class="green">«Забрать выигрыш»</span>, чтобы забрать текущую сумму. На кнопке видно, сколько можно забрать.</li>
+      <li>Чем больше мин — тем выше <span class="gold">множитель</span>.</li>
+      <li><span class="gold">Корона 👑</span> = безопасно. <span class="red">Разбитая корона 💥</span> = взрыв, ставка сгорает.</li>
+      <li>Нажмите <span class="green">«Забрать выигрыш»</span>, чтобы забрать текущую сумму.</li>
       <li>Если открыть <b>все</b> безопасные ячейки — выигрыш зачисляется автоматически.</li>
     </ul>
-    <div class="modal-text">
-      <b>Совет:</b> начните с 3–5 мин и небольшой ставки. Чем больше мин, тем выше риск и награда.
-    </div>
+    <div class="modal-text"><b>Совет:</b> начните с 3–5 мин и небольшой ставки.</div>
     <button class="modal-btn" onclick="closeHelp()">Понятно</button>
   </div>
 </div>
@@ -424,32 +343,22 @@
 <script>
 const $ = id => document.getElementById(id);
 const TOTAL = 25;
-
-let me = null;
-let balance = 0;
-let currentBet = 10;
-let currentMines = 3;
-let sessionId = null;
-let cells = [];
-let mult = 1.0;
-let busy = false;
+let me = null, balance = 0, currentBet = 10, currentMines = 3;
+let sessionId = null, cells = [], mult = 1.0, busy = false;
 
 function initBackgroundCrowns() {
   const container = $('bgCrowns');
   const total = 8;
   const crownSvg = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgCrownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#bgCrownGrad)"/><rect x="8" y="46" width="48" height="4" fill="#b8860b"/></svg>`;
   const brokenCrownSvg = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgBrokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#bgBrokenGrad)"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#bgBrokenGrad)" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5"/></svg>`;
-
   for (let i = 0; i < total; i++) {
     const isBroken = Math.random() < 0.4;
     const el = document.createElement('div');
     el.className = 'floating-crown' + (isBroken ? ' broken' : '');
     el.innerHTML = isBroken ? brokenCrownSvg : crownSvg;
     const size = 30 + Math.random() * 40;
-    el.style.width = size + 'px';
-    el.style.height = size + 'px';
-    el.style.left = (Math.random() * 90) + '%';
-    el.style.top = (Math.random() * 90) + '%';
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    el.style.left = (Math.random() * 90) + '%'; el.style.top = (Math.random() * 90) + '%';
     el.style.animationDuration = (15 + Math.random() * 20) + 's';
     el.style.animationDelay = (-Math.random() * 20) + 's';
     container.appendChild(el);
@@ -467,7 +376,7 @@ function playCrownSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
   [1046.50, 1318.51, 1567.98].forEach((f, i) => {
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(f, now + i * 0.03);
     gain.gain.setValueAtTime(0, now + i * 0.03);
@@ -480,7 +389,7 @@ function playCrownSound() {
 function playExplosionSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
-  const osc = ctx.createOscillator(); const oscGain = ctx.createGain();
+  const osc = ctx.createOscillator(), oscGain = ctx.createGain();
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(90, now);
   osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
@@ -507,7 +416,7 @@ function playWinSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
   [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(f, now + i * 0.06);
     gain.gain.setValueAtTime(0, now + i * 0.06);
@@ -561,12 +470,10 @@ function setStatus(text, cls, el = 'status') {
 }
 
 function renderGrid() {
-  const grid = $('grid');
-  grid.innerHTML = '';
+  const grid = $('grid'); grid.innerHTML = '';
   for (let i = 0; i < TOTAL; i++) {
     const c = cells[i] || { open: false, mine: false, disabled: false, revealed: false };
-    const div = document.createElement('div');
-    div.className = 'cell';
+    const div = document.createElement('div'); div.className = 'cell';
     if (c.open) {
       if (c.mine) { div.classList.add('mine'); div.appendChild(makeBrokenCrown()); }
       else { div.classList.add('safe'); div.appendChild(makeCrown()); }
@@ -582,16 +489,13 @@ function renderGrid() {
   }
 }
 
-function resetCells() {
-  cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false, revealed: false }));
-}
+function resetCells() { cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false, revealed: false })); }
 
 function changeBet(dir) {
   if (sessionId) return;
   let v = parseInt($('betInput').value, 10) || 10;
   v = Math.max(5, v + dir * 5);
-  $('betInput').value = v;
-  currentBet = v;
+  $('betInput').value = v; currentBet = v;
 }
 function changeMines(dir) {
   if (sessionId) return;
@@ -605,10 +509,8 @@ async function startGame() {
   currentBet = parseInt($('betInput').value, 10) || 10;
   if (currentBet < 5) { setStatus('Мин. ставка 5 ₽', 'err'); return; }
   if (balance < currentBet) { setStatus('Недостаточно средств', 'err'); return; }
-
   getAudioCtx();
-  busy = true;
-  setStatus('Запуск...');
+  busy = true; setStatus('Запуск...');
   try {
     const r = await fetch('/api/miner/start', {
       method: 'POST', headers: {'Content-Type':'application/json'},
@@ -616,18 +518,12 @@ async function startGame() {
     });
     const d = await r.json();
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err'); busy = false; return; }
-
-    sessionId = d.session_id;
-    resetCells();
-    mult = 1.0;
-    $('multView').textContent = 'x1.00';
-    $('multView2').textContent = 'x1.00';
-    $('openedView').textContent = '0';
-    $('betView2').textContent = fmt(currentBet) + ' ₽';
+    sessionId = d.session_id; resetCells(); mult = 1.0;
+    $('multView').textContent = 'x1.00'; $('multView2').textContent = 'x1.00';
+    $('openedView').textContent = '0'; $('betView2').textContent = fmt(currentBet) + ' ₽';
     $('cashoutAmount').textContent = '0 ₽';
     renderGrid();
-    $('betPanel').style.display = 'none';
-    $('playPanel').style.display = 'block';
+    $('betPanel').style.display = 'none'; $('playPanel').style.display = 'block';
     $('btnCashout').disabled = true;
     setStatus('Открывайте ячейки. Осторожно: ' + currentMines + ' мин', 'ok', 'playStatus');
     await refreshBalance();
@@ -654,20 +550,14 @@ async function openCell(i) {
     });
     const d = await r.json();
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
-
     if (d.mine) {
       playExplosionSound();
       cells[i] = { open: true, mine: true, disabled: true };
-      renderGrid();
-      sessionId = null;
-      revealAll(d.mines || []);
+      renderGrid(); sessionId = null; revealAll(d.mines || []);
       setStatus('💥 Взрыв! Ставка потеряна.', 'err', 'playStatus');
       await refreshBalance();
-      setTimeout(() => endRoundUI(), 2000);
-      busy = false;
-      return;
+      setTimeout(() => endRoundUI(), 2000); busy = false; return;
     }
-
     playCrownSound();
     cells[i] = { open: true, mine: false, disabled: true };
     (d.revealed || []).forEach(idx => { if (!cells[idx].open) cells[idx] = { open: true, mine: false, disabled: true }; });
@@ -676,17 +566,12 @@ async function openCell(i) {
     $('multView2').textContent = 'x' + mult.toFixed(2);
     $('openedView').textContent = String(d.revealed.length);
     $('cashoutAmount').textContent = fmt(potential) + ' ₽';
-    renderGrid();
-    $('btnCashout').disabled = false;
+    renderGrid(); $('btnCashout').disabled = false;
     setStatus(`Потенциал: ${fmt(potential)} ₽`, 'ok', 'playStatus');
-
     if (d.auto_cashout) {
-      sessionId = null;
-      revealAll(d.mines || []);
-      playWinSound();
-      setStatus(`👑 Все безопасные открыты! Забрано ${fmt(d.win)} ₽`, 'ok', 'playStatus');
-      await refreshBalance();
-      setTimeout(() => endRoundUI(), 2000);
+      sessionId = null; revealAll(d.mines || []); playWinSound();
+      setStatus(`👑 Все открыты! Забрано ${fmt(d.win)} ₽`, 'ok', 'playStatus');
+      await refreshBalance(); setTimeout(() => endRoundUI(), 2000);
     }
   } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
@@ -702,29 +587,18 @@ async function cashout() {
     });
     const d = await r.json();
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
-
-    playWinSound();
-    sessionId = null;
-    revealAll(d.mines || []);
+    playWinSound(); sessionId = null; revealAll(d.mines || []);
     setStatus(`👑 Забрано ${fmt(d.win)} ₽`, 'ok', 'playStatus');
-    await refreshBalance();
-    setTimeout(() => endRoundUI(), 2000);
+    await refreshBalance(); setTimeout(() => endRoundUI(), 2000);
   } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
 }
 
 function endRoundUI() {
-  $('betPanel').style.display = 'block';
-  $('playPanel').style.display = 'none';
-  mult = 1.0;
-  $('multView').textContent = 'x1.00';
-  $('multView2').textContent = 'x1.00';
-  $('openedView').textContent = '0';
-  $('betView2').textContent = '0 ₽';
-  $('cashoutAmount').textContent = '0 ₽';
-  resetCells();
-  renderGrid();
-  setStatus('Выберите ставку и начните');
+  $('betPanel').style.display = 'block'; $('playPanel').style.display = 'none';
+  mult = 1.0; $('multView').textContent = 'x1.00'; $('multView2').textContent = 'x1.00';
+  $('openedView').textContent = '0'; $('betView2').textContent = '0 ₽'; $('cashoutAmount').textContent = '0 ₽';
+  resetCells(); renderGrid(); setStatus('Выберите ставку и начните');
 }
 
 function openHelp() { $('helpModal').classList.add('show'); }
