@@ -6,320 +6,189 @@
 <title>KINGWIN — Админ-панель</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0d14;
-    --panel: rgba(18, 24, 38, 0.85);
-    --line: rgba(255, 255, 255, 0.05);
-    --text: #ffffff;
-    --muted: #a0aec0;
-    --accent: #00e5ff;
-    --green: #3fbf7f;
-    --red: #ff4d4d;
-    --amber: #f1c40f;
-    --gold: #d4af37;
+  :root{--bg:#0a0d14;--panel:rgba(18,24,38,.85);--line:rgba(255,255,255,.05);--text:#fff;--muted:#a0aec0;--accent:#00e5ff;--green:#3fbf7f;--red:#ff4d4d;--amber:#f1c40f;--gold:#d4af37}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Montserrat',sans-serif;background:radial-gradient(circle at top left,#1a2332,#0a0d14);color:var(--text);display:flex;min-height:100vh}
+  aside{width:240px;background:rgba(18,24,38,.95);border-right:1px solid var(--line);padding:25px 15px;flex-shrink:0;transition:transform .3s ease}
+  .brand{padding:0 10px 25px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .brand .name{font-size:22px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .brand .sub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+  .nav{display:flex;flex-direction:column;gap:6px}
+  .nav button{background:transparent;border:1px solid transparent;color:var(--muted);text-align:left;padding:12px 15px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.3s;font-family:inherit}
+  .nav button:hover{background:rgba(255,255,255,.05);color:var(--text)}
+  .nav button.active{background:rgba(0,229,255,.1);border-color:var(--accent);color:var(--accent)}
+  .user-box{padding:12px;margin-top:30px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--muted)}
+  .user-box b{color:var(--text);display:block;margin-bottom:4px;font-size:14px}
+  .logout-btn{width:100%;margin-top:10px;background:transparent;border:1px solid var(--line);color:var(--muted);padding:8px;border-radius:6px;font-size:12px;cursor:pointer;text-transform:uppercase;transition:.3s;font-family:inherit}
+  .logout-btn:hover{border-color:var(--red);color:var(--red)}
+  main{flex:1;padding:30px 40px;overflow-y:auto;max-height:100vh;min-width:0}
+  .page{display:none}
+  .page.active{display:block;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  h1{font-size:28px;font-weight:700;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:25px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;backdrop-filter:blur(10px)}
+  .card .label{font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+  .card .value{font-size:26px;font-weight:700}
+  .card .value.green{color:var(--green)}
+  .card .value.red{color:var(--red)}
+  .card .value.accent{color:var(--accent)}
+  .card .value.gold{color:var(--gold)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:25px;margin-bottom:20px;backdrop-filter:blur(10px)}
+  .panel h3{font-size:18px;margin-bottom:20px;font-weight:600;color:var(--text)}
+  .chart-wrap{position:relative;height:300px;width:100%}
+  canvas{width:100%;height:100%;display:block}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .pos{color:var(--green);font-weight:600}
+  .neg{color:var(--red);font-weight:600}
+  .wrap{overflow-x:auto;max-height:55vh;overflow-y:auto}
+  .empty{color:var(--muted);text-align:center;padding:30px;font-style:italic}
+  button{background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;transition:.3s;font-family:inherit}
+  button:hover{filter:brightness(1.1);box-shadow:0 0 15px rgba(0,229,255,.3)}
+  button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  button.ghost:hover{border-color:var(--accent);color:var(--accent);box-shadow:none}
+  button.danger{background:var(--red);color:#fff}
+  button.danger:hover{box-shadow:0 0 15px rgba(255,77,77,.4)}
+  button.success{background:var(--green);color:#000}
+  button.gold{background:var(--gold);color:#000}
+  button.small{padding:6px 12px;font-size:12px}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+  label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase}
+  input,select{background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  .status{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase}
+  .status.pending{background:rgba(241,196,15,.15);color:var(--amber)}
+  .status.approved{background:rgba(63,191,127,.15);color:var(--green)}
+  .status.rejected{background:rgba(255,77,77,.15);color:var(--red)}
+  .status.hold{background:rgba(255,255,255,.1);color:var(--muted)}
+  .rank-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+  .rank-pill.Bronze{background:rgba(205,127,50,.25);color:#e8a76a;border:1px solid #cd7f32}
+  .rank-pill.Silver{background:rgba(192,192,192,.2);color:#d9d9d9;border:1px solid #c0c0c0}
+  .rank-pill.Gold{background:rgba(241,196,15,.2);color:#f1c40f;border:1px solid #f1c40f}
+  .rank-pill.Platinum{background:rgba(229,228,226,.2);color:#e5e4e2;border:1px solid #e5e4e2}
+  .rank-pill.Diamond{background:rgba(185,242,255,.18);color:#b9f2ff;border:1px solid #b9f2ff}
+  .rank-pill.VIP{background:rgba(212,175,55,.25);color:#ffe066;border:1px solid #d4af37;box-shadow:0 0 8px rgba(212,175,55,.5)}
+  .star-line{color:#f1c40f;font-size:15px;letter-spacing:2px}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+  .modal-backdrop.show{display:flex}
+  .modal{background:rgba(18,24,38,.95);border:1px solid var(--accent);border-radius:16px;padding:30px;max-width:480px;width:100%;text-align:center;box-shadow:0 0 30px rgba(0,229,255,.15);max-height:92vh;overflow-y:auto}
+  .modal h2{font-size:22px;margin-bottom:15px}
+  .modal p{color:var(--muted);font-size:14px;margin-bottom:25px;line-height:1.5}
+  .modal .btn-row{display:flex;gap:12px}
+  .modal .btn-row button{flex:1}
+  .modal .modal-input{background:rgba(0,0,0,.5);border:1px solid var(--line);color:#fff;border-radius:8px;padding:12px;font-size:16px;width:100%;margin-bottom:15px;text-align:center;font-family:inherit}
+  .modal .modal-input:focus{outline:none;border-color:var(--accent)}
+  .modal .err{color:var(--red);font-size:13px;min-height:18px;margin-bottom:10px}
+  .modal .form-row{display:flex;flex-direction:column;gap:10px;text-align:left;margin-bottom:15px}
+  .modal .form-row label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .modal .form-row input,.modal .form-row select{width:100%}
+  .login-screen{position:fixed;inset:0;background:radial-gradient(circle at top left,#1a2332,#0a0d14);display:flex;align-items:center;justify-content:center;z-index:2000;padding:20px}
+  .login-screen.hidden{display:none}
+  .login-box{background:rgba(18,24,38,.85);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 25px 50px -12px rgba(0,0,0,.5);text-align:center}
+  .login-box .logo{font-size:32px;font-weight:800;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+  .login-box .subtitle{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:35px;text-transform:uppercase;letter-spacing:1px}
+  .login-box label{text-align:left;margin-bottom:8px}
+  .login-box input{width:100%;background:transparent;border:none;border-bottom:2px solid rgba(255,255,255,.2);color:#fff;font-size:16px;padding:10px 0;margin-bottom:25px;border-radius:0}
+  .login-box input:focus{border-bottom-color:var(--accent)}
+  .login-box button{width:100%;padding:15px;font-size:16px}
+  .login-err{color:var(--red);font-size:13px;height:18px;font-weight:600;margin-bottom:10px}
+  .mobile-menu-btn{display:none;position:fixed;top:15px;left:15px;z-index:300;background:rgba(0,229,255,.1);border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:10px 15px;font-size:16px;cursor:pointer;font-weight:700;backdrop-filter:blur(5px)}
+  .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:240;backdrop-filter:blur(2px)}
+  .news-edit-row{display:flex;gap:8px;align-items:flex-start;padding:10px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:8px}
+  .news-edit-row .col{flex:1;display:flex;flex-direction:column;gap:6px}
+  .news-edit-row input,.news-edit-row textarea{width:100%;font-size:13px;padding:8px}
+  .news-edit-row textarea{min-height:50px;resize:vertical;font-family:inherit}
+  .sessions-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+  .sessions-panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;backdrop-filter:blur(10px)}
+  .sessions-panel h3{font-size:16px;margin-bottom:15px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .sessions-panel h3 .badge-count{font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(0,229,255,.15);color:var(--accent);font-weight:800}
+  .sessions-panel.bj h3{color:#00e5ff}
+  .sessions-panel.bac h3{color:#f1c40f}
+  .mini-table{width:100%;border-collapse:collapse;font-size:12px}
+  .mini-table th{padding:8px 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line);text-align:left}
+  .mini-table td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.02);font-size:12px}
+  .mini-table tr:hover td{background:rgba(255,255,255,.02)}
+  .mini-table .empty-row td{text-align:center;color:var(--muted);font-style:italic;padding:20px}
+  .mini-wrap{max-height:340px;overflow-y:auto}
+  .income-calendar{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:5px;margin-top:10px}
+  .inc-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;cursor:pointer;transition:.2s;position:relative;border:1px solid transparent;color:rgba(255,255,255,.85);font-family:'Montserrat',sans-serif}
+  .inc-cell:hover{transform:scale(1.15);z-index:10;border-color:#fff;box-shadow:0 0 20px currentColor}
+  .inc-cell.zero{background:rgba(255,255,255,.05);color:var(--muted);border-color:rgba(255,255,255,.08)}
+  .inc-cell.pos-1{background:rgba(63,191,127,.2);color:#7de0a8}
+  .inc-cell.pos-2{background:rgba(63,191,127,.4);color:#a8f0c4}
+  .inc-cell.pos-3{background:rgba(63,191,127,.65);color:#d0ffe0}
+  .inc-cell.pos-4{background:rgba(63,191,127,.9);color:#0a0d14}
+  .inc-cell.neg-1{background:rgba(255,77,77,.2);color:#ff9b9b}
+  .inc-cell.neg-2{background:rgba(255,77,77,.4);color:#ffb8b8}
+  .inc-cell.neg-3{background:rgba(255,77,77,.65);color:#ffdada}
+  .inc-cell.neg-4{background:rgba(255,77,77,.9);color:#0a0d14}
+  .inc-tooltip{position:fixed;background:rgba(10,13,20,.98);border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:12px;font-weight:600;color:#fff;pointer-events:none;z-index:5000;opacity:0;transition:opacity .15s;box-shadow:0 10px 30px rgba(0,0,0,.8);white-space:nowrap;line-height:1.5}
+  .inc-tooltip.show{opacity:1}
+  .inc-tooltip .tt-date{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .inc-tooltip .tt-total{font-size:18px;font-weight:900;margin-bottom:8px}
+  .inc-tooltip .tt-total.pos{color:var(--green)}
+  .inc-tooltip .tt-total.neg{color:var(--red)}
+  .inc-tooltip .tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;padding:2px 0}
+  .inc-tooltip .tt-row span:first-child{color:var(--muted)}
+  .inc-tooltip .tt-row span:last-child{font-weight:800}
+  .inc-legend{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:14px;flex-wrap:wrap}
+  .inc-legend .dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .inc-legend .dot.pos{background:rgba(63,191,127,.7)}
+  .inc-legend .dot.zero{background:rgba(255,255,255,.1)}
+  .inc-legend .dot.neg{background:rgba(255,77,77,.7)}
+  .day-modal-content{text-align:left}
+  .day-modal-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:6px}
+  .day-modal-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:20px}
+  .day-modal-total{text-align:center;font-size:32px;font-weight:900;margin-bottom:20px;line-height:1}
+  .day-section{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  .day-section-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .day-section-title .amt{font-size:14px;font-weight:900}
+  .day-list{font-size:12px;line-height:1.7;color:#d0d5e0;max-height:200px;overflow-y:auto}
+  .day-list-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);gap:8px}
+  .day-list-item:last-child{border-bottom:none}
+  .day-list-item .who{color:var(--muted)}
+  .day-list-item .val{font-weight:800}
+  .crash-force-block{background:rgba(0,0,0,.3);border:1px solid var(--gold);border-radius:12px;padding:20px;margin-bottom:20px}
+  .crash-force-block h3{color:var(--gold);font-size:16px;margin-bottom:10px}
+  .crash-force-block .hint{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+  .crash-force-block .hint code{background:rgba(0,229,255,.15);color:var(--accent);padding:1px 6px;border-radius:4px;font-family:'Courier New',monospace}
+  .crash-force-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .crash-force-row label{flex:1;min-width:140px}
+  .crash-force-row input{width:100%}
+  .crash-force-status{margin-top:12px;font-size:13px;color:var(--muted);min-height:20px}
+  @media (max-width:900px){
+    .sessions-grid{grid-template-columns:1fr}
+    .mobile-menu-btn{display:block}
+    aside{position:fixed;top:0;left:0;height:100vh;z-index:250;transform:translateX(-100%);box-shadow:10px 0 30px rgba(0,0,0,.5)}
+    aside.open{transform:translateX(0)}
+    .mobile-overlay.show{display:block}
+    main{padding:70px 15px 20px}
+    h1{font-size:22px}
+    .sub{font-size:13px;margin-bottom:20px}
+    .cards{grid-template-columns:1fr 1fr;gap:10px}
+    .card{padding:15px}
+    .card .value{font-size:20px}
+    .card .label{font-size:11px}
+    .panel{padding:15px}
+    .panel h3{font-size:16px;margin-bottom:15px}
+    .chart-wrap{height:220px}
+    .row{gap:10px}
+    label{font-size:11px;width:100%}
+    label input,label select{width:100%}
+    .row button{width:100%}
+    .modal{padding:20px}
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: radial-gradient(circle at top left, #1a2332, #0a0d14);
-    color: var(--text);
-    display: flex;
-    min-height: 100vh;
-  }
-
-  aside {
-    width: 240px;
-    background: rgba(18, 24, 38, 0.95);
-    border-right: 1px solid var(--line);
-    padding: 25px 15px;
-    flex-shrink: 0;
-    transition: transform 0.3s ease;
-  }
-  .brand { padding: 0 10px 25px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
-  .brand .name {
-    font-size: 22px; font-weight: 800; letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--accent), #0077ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .brand .sub { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-  .nav { display: flex; flex-direction: column; gap: 6px; }
-  .nav button {
-    background: transparent; border: 1px solid transparent; color: var(--muted);
-    text-align: left; padding: 12px 15px; border-radius: 10px; font-size: 14px;
-    font-weight: 600; cursor: pointer; transition: 0.3s; font-family: inherit;
-  }
-  .nav button:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-  .nav button.active { background: rgba(0, 229, 255, 0.1); border-color: var(--accent); color: var(--accent); }
-
-  .user-box {
-    padding: 12px; margin-top: 30px; background: rgba(0,0,0,0.3);
-    border: 1px solid var(--line); border-radius: 10px; font-size: 12px; color: var(--muted);
-  }
-  .user-box b { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
-  .logout-btn {
-    width: 100%; margin-top: 10px; background: transparent; border: 1px solid var(--line);
-    color: var(--muted); padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer;
-    text-transform: uppercase; transition: 0.3s; font-family: inherit;
-  }
-  .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-  main { flex: 1; padding: 30px 40px; overflow-y: auto; max-height: 100vh; min-width: 0; }
-  .page { display: none; }
-  .page.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
-  .sub { color: var(--muted); font-size: 14px; margin-bottom: 25px; }
-
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-  .card {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
-    padding: 20px; backdrop-filter: blur(10px);
-  }
-  .card .label { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .card .value { font-size: 26px; font-weight: 700; }
-  .card .value.green { color: var(--green); }
-  .card .value.red { color: var(--red); }
-  .card .value.accent { color: var(--accent); }
-  .card .value.gold { color: var(--gold); }
-
-  .panel {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
-    padding: 25px; margin-bottom: 20px; backdrop-filter: blur(10px);
-  }
-  .panel h3 { font-size: 18px; margin-bottom: 20px; font-weight: 600; color: var(--text); }
-
-  .chart-wrap { position: relative; height: 300px; width: 100%; }
-  canvas { width: 100%; height: 100%; display: block; }
-  .legend { display: flex; gap: 20px; font-size: 13px; color: var(--muted); margin-top: 15px; flex-wrap: wrap; }
-  .legend span { display: flex; align-items: center; gap: 8px; }
-  .legend .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
-  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  .pos { color: var(--green); font-weight: 600; }
-  .neg { color: var(--red); font-weight: 600; }
-  .wrap { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
-  .empty { color: var(--muted); text-align: center; padding: 30px; font-style: italic; }
-
-  button {
-    background: var(--accent); color: #000; border: none; border-radius: 8px;
-    padding: 10px 18px; font-weight: 700; font-size: 13px; cursor: pointer;
-    transition: 0.3s; font-family: inherit;
-  }
-  button:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-  button.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
-  button.ghost:hover { border-color: var(--accent); color: var(--accent); box-shadow: none; }
-  button.danger { background: var(--red); color: #fff; }
-  button.danger:hover { box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
-  button.success { background: var(--green); color: #000; }
-  button.gold { background: var(--gold); color: #000; }
-  button.small { padding: 6px 12px; font-size: 12px; }
-
-  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-  label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-  input, select { background: rgba(0,0,0,0.3); border: 1px solid var(--line); color: var(--text);
-    border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; }
-  input:focus, select:focus { outline: none; border-color: var(--accent); }
-
-  .status { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .status.pending { background: rgba(241, 196, 15, 0.15); color: var(--amber); }
-  .status.approved { background: rgba(63, 191, 127, 0.15); color: var(--green); }
-  .status.rejected { background: rgba(255, 77, 77, 0.15); color: var(--red); }
-  .status.hold { background: rgba(255, 255, 255, 0.1); color: var(--muted); }
-
-  .rank-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-  .rank-pill.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border: 1px solid #cd7f32; }
-  .rank-pill.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border: 1px solid #c0c0c0; }
-  .rank-pill.Gold     { background: rgba(241,196,15,.2); color: #f1c40f; border: 1px solid #f1c40f; }
-  .rank-pill.Platinum { background: rgba(229,228,226,.2); color: #e5e4e2; border: 1px solid #e5e4e2; }
-  .rank-pill.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border: 1px solid #b9f2ff; }
-  .rank-pill.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border: 1px solid #d4af37; box-shadow: 0 0 8px rgba(212,175,55,.5); }
-
-  .streak-badge { display: inline-block; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: 800;
-    background: rgba(255,138,138,.15); color: #ff8a8a; }
-  .streak-badge.hot { background: rgba(241,196,15,.2); color: #f1c40f; }
-  .streak-badge.max { background: rgba(212,175,55,.25); color: #ffe066; box-shadow: 0 0 8px rgba(212,175,55,.4); }
-  .dot-yes { color: var(--green); font-weight: 800; }
-  .dot-no  { color: var(--muted); }
-
-  .star-line { color: #f1c40f; font-size: 15px; letter-spacing: 2px; }
-
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-    display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-  .modal-backdrop.show { display: flex; }
-  .modal { background: rgba(18, 24, 38, 0.95); border: 1px solid var(--accent); border-radius: 16px;
-    padding: 30px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
-    max-height: 92vh; overflow-y: auto; }
-  .modal h2 { font-size: 22px; margin-bottom: 15px; }
-  .modal p { color: var(--muted); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
-  .modal .btn-row { display: flex; gap: 12px; }
-  .modal .btn-row button { flex: 1; }
-  .modal .modal-input { background: rgba(0,0,0,0.5); border: 1px solid var(--line); color: #fff;
-    border-radius: 8px; padding: 12px; font-size: 16px; width: 100%; margin-bottom: 15px; text-align: center; font-family: inherit; }
-  .modal .modal-input:focus { outline: none; border-color: var(--accent); }
-  .modal .err { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 10px; }
-  .modal .form-row { display: flex; flex-direction: column; gap: 10px; text-align: left; margin-bottom: 15px; }
-  .modal .form-row label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .modal .form-row input, .modal .form-row select { width: 100%; }
-
-  .login-screen { position: fixed; inset: 0; background: radial-gradient(circle at top left, #1a2332, #0a0d14);
-    display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-  .login-screen.hidden { display: none; }
-  .login-box { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid var(--line);
-    border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
-  .login-box .logo { font-size: 32px; font-weight: 800; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-  .login-box .subtitle { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 35px; text-transform: uppercase; letter-spacing: 1px; }
-  .login-box label { text-align: left; margin-bottom: 8px; }
-  .login-box input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; padding: 10px 0; margin-bottom: 25px; border-radius: 0; }
-  .login-box input:focus { border-bottom-color: var(--accent); }
-  .login-box button { width: 100%; padding: 15px; font-size: 16px; }
-  .login-err { color: var(--red); font-size: 13px; height: 18px; font-weight: 600; margin-bottom: 10px; }
-
-  .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 300; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 10px 15px; font-size: 16px; cursor: pointer; font-weight: 700; backdrop-filter: blur(5px); }
-  .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 240; backdrop-filter: blur(2px); }
-
-  .news-edit-row { display: flex; gap: 8px; align-items: flex-start; padding: 10px; background: rgba(0,0,0,.3); border-radius: 10px; margin-bottom: 8px; }
-  .news-edit-row .col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-  .news-edit-row input, .news-edit-row textarea { width: 100%; font-size: 13px; padding: 8px; }
-  .news-edit-row textarea { min-height: 50px; resize: vertical; font-family: inherit; }
-
-  .sessions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-  .sessions-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 15px; padding: 20px; backdrop-filter: blur(10px); }
-  .sessions-panel h3 { font-size: 16px; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-  .sessions-panel h3 .badge-count { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: rgba(0,229,255,0.15); color: var(--accent); font-weight: 800; }
-  .sessions-panel.bj h3 { color: #00e5ff; }
-  .sessions-panel.bac h3 { color: #f1c40f; }
-
-  .mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .mini-table th { padding: 8px 6px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--line); text-align: left; }
-  .mini-table td { padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 12px; }
-  .mini-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .mini-table .empty-row td { text-align: center; color: var(--muted); font-style: italic; padding: 20px; }
-  .mini-wrap { max-height: 340px; overflow-y: auto; }
-
-  .income-calendar {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
-    gap: 5px;
-    margin-top: 10px;
-  }
-  .inc-cell {
-    aspect-ratio: 1;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: 0.2s;
-    position: relative;
-    border: 1px solid transparent;
-    color: rgba(255,255,255,0.85);
-    font-family: 'Montserrat', sans-serif;
-  }
-  .inc-cell:hover {
-    transform: scale(1.15);
-    z-index: 10;
-    border-color: #fff;
-    box-shadow: 0 0 20px currentColor;
-  }
-  .inc-cell.zero { background: rgba(255,255,255,0.05); color: var(--muted); border-color: rgba(255,255,255,0.08); }
-  .inc-cell.pos-1 { background: rgba(63,191,127,0.20); color: #7de0a8; }
-  .inc-cell.pos-2 { background: rgba(63,191,127,0.40); color: #a8f0c4; }
-  .inc-cell.pos-3 { background: rgba(63,191,127,0.65); color: #d0ffe0; }
-  .inc-cell.pos-4 { background: rgba(63,191,127,0.90); color: #0a0d14; }
-  .inc-cell.neg-1 { background: rgba(255,77,77,0.20); color: #ff9b9b; }
-  .inc-cell.neg-2 { background: rgba(255,77,77,0.40); color: #ffb8b8; }
-  .inc-cell.neg-3 { background: rgba(255,77,77,0.65); color: #ffdada; }
-  .inc-cell.neg-4 { background: rgba(255,77,77,0.90); color: #0a0d14; }
-
-  .inc-tooltip {
-    position: fixed;
-    background: rgba(10,13,20,0.98);
-    border: 1px solid var(--accent);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
-    pointer-events: none;
-    z-index: 5000;
-    opacity: 0;
-    transition: opacity 0.15s;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    white-space: nowrap;
-    line-height: 1.5;
-  }
-  .inc-tooltip.show { opacity: 1; }
-  .inc-tooltip .tt-date { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .inc-tooltip .tt-total { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
-  .inc-tooltip .tt-total.pos { color: var(--green); }
-  .inc-tooltip .tt-total.neg { color: var(--red); }
-  .inc-tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; padding: 2px 0; }
-  .inc-tooltip .tt-row span:first-child { color: var(--muted); }
-  .inc-tooltip .tt-row span:last-child { font-weight: 800; }
-
-  .inc-legend { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); margin-top: 14px; flex-wrap: wrap; }
-  .inc-legend .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-  .inc-legend .dot.pos { background: rgba(63,191,127,0.7); }
-  .inc-legend .dot.zero { background: rgba(255,255,255,0.1); }
-  .inc-legend .dot.neg { background: rgba(255,77,77,0.7); }
-
-  .day-modal-content { text-align: left; }
-  .day-modal-title { text-align: center; font-size: 22px; font-weight: 900; margin-bottom: 6px; }
-  .day-modal-sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-  .day-modal-total { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 20px; line-height: 1; }
-  .day-section { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-  .day-section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .day-section-title .amt { font-size: 14px; font-weight: 900; }
-  .day-list { font-size: 12px; line-height: 1.7; color: #d0d5e0; max-height: 200px; overflow-y: auto; }
-  .day-list-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 8px; }
-  .day-list-item:last-child { border-bottom: none; }
-  .day-list-item .who { color: var(--muted); }
-  .day-list-item .val { font-weight: 800; }
-
-  .crash-force-block { background: rgba(0,0,0,0.3); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .crash-force-block h3 { color: var(--gold); font-size: 16px; margin-bottom: 10px; }
-  .crash-force-block .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-  .crash-force-block .hint code { background: rgba(0,229,255,0.15); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; }
-  .crash-force-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-  .crash-force-row label { flex: 1; min-width: 140px; }
-  .crash-force-row input { width: 100%; }
-  .crash-force-status { margin-top: 12px; font-size: 13px; color: var(--muted); min-height: 20px; }
-
-  @media (max-width: 900px) {
-    .sessions-grid { grid-template-columns: 1fr; }
-    .mobile-menu-btn { display: block; }
-    aside { position: fixed; top: 0; left: 0; height: 100vh; z-index: 250; transform: translateX(-100%); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-    aside.open { transform: translateX(0); }
-    .mobile-overlay.show { display: block; }
-    main { padding: 70px 15px 20px; }
-    h1 { font-size: 22px; }
-    .sub { font-size: 13px; margin-bottom: 20px; }
-    .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card { padding: 15px; }
-    .card .value { font-size: 20px; }
-    .card .label { font-size: 11px; }
-    .panel { padding: 15px; }
-    .panel h3 { font-size: 16px; margin-bottom: 15px; }
-    .chart-wrap { height: 220px; }
-    .row { gap: 10px; }
-    label { font-size: 11px; width: 100%; }
-    label input, label select { width: 100%; }
-    .row button { width: 100%; }
-    .modal { padding: 20px; }
-  }
-  @media (max-width: 480px) {
-    .cards { grid-template-columns: 1fr; }
-    .chart-wrap { height: 180px; }
-    .card .value { font-size: 18px; }
-    h1 { font-size: 20px; }
-    .panel { padding: 12px; }
-    th, td { padding: 8px 5px; }
+  @media (max-width:480px){
+    .cards{grid-template-columns:1fr}
+    .chart-wrap{height:180px}
+    .card .value{font-size:18px}
+    h1{font-size:20px}
+    .panel{padding:12px}
+    th,td{padding:8px 5px}
   }
 </style>
 </head>
@@ -364,54 +233,41 @@
     <button class="logout-btn" onclick="openLogoutModal()">Выйти</button>
   </div>
 </aside>
+
 <main>
   <div class="page active" id="page-dash">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-      <div>
-        <h1>Общая статистика</h1>
-        <div class="sub">Доходы казино</div>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><h1>Общая статистика</h1><div class="sub">Доходы казино</div></div>
       <button class="danger" onclick="openClearModal()">Очистить всё</button>
     </div>
-
     <div class="cards" id="dashCards"></div>
-
     <div class="panel">
       <h3>Общий график доходов</h3>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
     </div>
-
     <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px">
         <div>
-          <h3 style="margin:0;">📅 Доход за всё время</h3>
-          <div style="font-size:12px; color:var(--muted); margin-top:4px;">
-            Наведи на квадрат — увидишь сумму. Кликни — откроется подробный отчёт за день.
-          </div>
+          <h3 style="margin:0">📅 Доход за всё время</h3>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Наведи на квадрат — увидишь сумму. Кликни — откроется подробный отчёт за день.</div>
         </div>
-        <div id="incSummaryBadge" style="font-size:26px; font-weight:900; line-height:1;"></div>
+        <div id="incSummaryBadge" style="font-size:26px;font-weight:900;line-height:1"></div>
       </div>
-
       <div class="income-calendar" id="incomeCalendar"></div>
-
       <div class="inc-legend">
         <span class="dot pos"></span> Плюс
         <span class="dot zero"></span> Ноль
         <span class="dot neg"></span> Минус
-        <span style="margin-left:auto; color:var(--muted);">Всего дней: <b id="incDaysCount" style="color:#fff;">0</b></span>
+        <span style="margin-left:auto;color:var(--muted)">Всего дней: <b id="incDaysCount" style="color:#fff">0</b></span>
       </div>
-
       <div class="empty" id="incomeCalendarEmpty">Пока нет данных</div>
     </div>
-
     <div class="sessions-grid">
       <div class="sessions-panel bj">
         <h3>🎲 Сессии Блэкджека <span class="badge-count" id="bjCount">0</span></h3>
         <div class="mini-wrap">
           <table class="mini-table">
-            <thead>
-              <tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr>
-            </thead>
+            <thead><tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr></thead>
             <tbody id="bjSessionsBody"></tbody>
           </table>
         </div>
@@ -420,9 +276,7 @@
         <h3>🎴 Сессии Баккары <span class="badge-count" id="bacCount">0</span></h3>
         <div class="mini-wrap">
           <table class="mini-table">
-            <thead>
-              <tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr>
-            </thead>
+            <thead><tr><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Дилер</th><th>Время</th></tr></thead>
             <tbody id="bacSessionsBody"></tbody>
           </table>
         </div>
@@ -434,15 +288,11 @@
     <h1>Депозиты и выводы</h1>
     <div class="sub">Заявки от игроков и гостей</div>
     <div class="panel"><h3>Депозиты</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>Дата</th><th>Игрок</th><th>Сумма</th><th>Статус</th><th>Действия</th>
-      </tr></thead><tbody id="depositsBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>Дата</th><th>Игрок</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
       <div class="empty" id="depositsEmpty">Нет заявок</div>
     </div>
     <div class="panel"><h3>Выводы</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>Дата</th><th>Игрок</th><th>Сумма</th><th>Комиссия</th><th>На руки</th><th>Статус</th><th>Действия</th>
-      </tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>Дата</th><th>Игрок</th><th>Сумма</th><th>Комиссия</th><th>На руки</th><th>Статус</th><th>Действия</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
       <div class="empty" id="withdrawalsEmpty">Нет заявок</div>
     </div>
   </div>
@@ -452,22 +302,16 @@
     <div class="sub">Сводная статистика по игрокам</div>
     <div class="cards" id="playerCards"></div>
     <div class="panel">
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Ник</th><th>Блэкджек</th><th>Баккара</th><th>Общий</th><th>VIP</th><th>Действия</th>
-      </tr></thead><tbody id="playersBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Ник</th><th>Блэкджек</th><th>Баккара</th><th>Общий</th><th>VIP</th><th>Действия</th></tr></thead><tbody id="playersBody"></tbody></table></div>
       <div class="empty" id="playersEmpty">Нет игроков</div>
     </div>
   </div>
 
   <div class="page" id="page-guests">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-      <div>
-        <h1>Гости (Профиль 2)</h1>
-        <div class="sub">База постоянных гостей и клубных карт</div>
-      </div>
-      <button onclick="window.open('/cards_print.html', '_blank')" class="success">🖨 Печать всех карт</button>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><h1>Гости (Профиль 2)</h1><div class="sub">База постоянных гостей и клубных карт</div></div>
+      <button onclick="window.open('/cards_print.html','_blank')" class="success">🖨 Печать всех карт</button>
     </div>
-
     <div class="panel">
       <h3>Добавить гостя</h3>
       <div class="row">
@@ -486,12 +330,10 @@
         <button onclick="addGuest()">Добавить</button>
       </div>
     </div>
-
     <div class="panel">
       <h3>Список гостей</h3>
       <div class="wrap"><table><thead><tr>
-        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th>
-        <th>Депозит</th><th>Бонусы</th><th>🔥 Streak</th><th>Последний вход</th><th>Крутил</th><th>Действия</th>
+        <th>Номер карты</th><th>Имя</th><th>Ранг</th><th>Баллы</th><th>Визиты</th><th>Депозит</th><th>Бонусы</th><th>🔥 Streak</th><th>Последний вход</th><th>Крутил</th><th>Действия</th>
       </tr></thead><tbody id="guestsBody"></tbody></table></div>
       <div class="empty" id="guestsEmpty">Нет гостей</div>
     </div>
@@ -500,10 +342,9 @@
   <div class="page" id="page-news">
     <h1>📰 Новости и акции</h1>
     <div class="sub">Отображаются в профиле гостя</div>
-
     <div class="panel">
       <h3>Добавить новость</h3>
-      <div class="news-edit-row" style="background:rgba(0,229,255,.05);">
+      <div class="news-edit-row" style="background:rgba(0,229,255,.05)">
         <div class="col">
           <input type="text" id="n_title" placeholder="Заголовок (например: ×2 баллы в пятницу)">
           <textarea id="n_body" placeholder="Текст новости..."></textarea>
@@ -512,7 +353,6 @@
         <button class="success" onclick="addNews()">Добавить</button>
       </div>
     </div>
-
     <div class="panel">
       <h3>Опубликованные</h3>
       <div id="newsList"></div>
@@ -523,58 +363,41 @@
   <div class="page" id="page-reviews">
     <h1>⭐ Отзывы о дилерах</h1>
     <div class="sub">Оценки от гостей — рейтинг, комментарии</div>
-
     <div class="cards" id="reviewCards"></div>
-
     <div class="panel">
       <h3>Рейтинг дилеров</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Дилер</th><th>Средний рейтинг</th><th>Отзывов</th>
-      </tr></thead><tbody id="ratingsBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Дилер</th><th>Средний рейтинг</th><th>Отзывов</th></tr></thead><tbody id="ratingsBody"></tbody></table></div>
       <div class="empty" id="ratingsEmpty">Пока нет оценок</div>
     </div>
-
     <div class="panel">
       <h3>Все отзывы</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>Дата</th><th>Гость</th><th>Дилер</th><th>Оценка</th><th>Комментарий</th><th></th>
-      </tr></thead><tbody id="reviewsBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>Дата</th><th>Гость</th><th>Дилер</th><th>Оценка</th><th>Комментарий</th><th></th></tr></thead><tbody id="reviewsBody"></tbody></table></div>
       <div class="empty" id="reviewsEmpty">Пока нет отзывов</div>
     </div>
   </div>
 
   <div class="page" id="page-online">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-      <div>
-        <h1>Онлайн-казино (Crash)</h1>
-        <div class="sub">История успешных выводов и ставок в раундах</div>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><h1>Онлайн-казино (Crash)</h1><div class="sub">История успешных выводов и ставок в раундах</div></div>
       <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
     </div>
-
     <div class="cards" id="onlineCards"></div>
-
     <div class="crash-force-block">
       <h3>🎯 Контроль следующего краша</h3>
       <div class="hint">
-        Введи коэффициент — <b>следующий раунд</b> крашнется именно на нём. После этого значение автоматически сбросится.
-        <br>Например: <code>1.5</code> — краш на x1.5, <code>10</code> — на x10. Диапазон: 1.00 – 1000.
+        Введи коэффициент — <b>следующий раунд</b> крашнется именно на нём. После этого значение автоматически сбросится.<br>
+        Например: <code>1.5</code> — краш на x1.5, <code>10</code> — на x10. Диапазон: 1.00 – 1000.
       </div>
       <div class="crash-force-row">
-        <label>Следующий краш (x)
-          <input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="например, 2.5">
-        </label>
+        <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="например, 2.5"></label>
         <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
         <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
       </div>
       <div class="crash-force-status" id="crashForceStatus"></div>
     </div>
-
     <div class="panel">
       <h3>Успешные выводы (Кэшауты)</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>Дата</th><th>Игрок</th><th>Ставка</th><th>Кэф вывода</th><th>Сумма к выплате</th><th>Раунд</th>
-      </tr></thead><tbody id="onlineBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>Дата</th><th>Игрок</th><th>Ставка</th><th>Кэф вывода</th><th>Сумма к выплате</th><th>Раунд</th></tr></thead><tbody id="onlineBody"></tbody></table></div>
       <div class="empty" id="onlineEmpty">Пока нет кэшаутов</div>
     </div>
   </div>
@@ -583,57 +406,26 @@
     <h1>Выплаты дилерам</h1>
     <div class="sub">Начисления, зарплаты, сейфы</div>
     <div class="cards" id="payoutCards"></div>
-
     <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-        <h3 style="margin:0;">📦 Сейфы дилеров</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px">
+        <h3 style="margin:0">📦 Сейфы дилеров</h3>
         <button class="ghost small" onclick="loadCashSafeAdmin()">🔄 Обновить</button>
       </div>
-      <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
-        Сколько наличных у дилеров в сейфах. Когда дилер сдаёт — вы пересчитываете и подтверждаете.
-      </div>
-      <div class="wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Дилер</th>
-              <th>В сейфе</th>
-              <th>Сдано (ожидается)</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody id="safeBody"></tbody>
-        </table>
-      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Сколько наличных у дилеров в сейфах. Когда дилер сдаёт — вы пересчитываете и подтверждаете.</div>
+      <div class="wrap"><table><thead><tr><th>Дилер</th><th>В сейфе</th><th>Сдано (ожидается)</th><th>Действия</th></tr></thead><tbody id="safeBody"></tbody></table></div>
       <div class="empty" id="safeEmpty">Нет данных</div>
     </div>
-
     <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-        <h3 style="margin:0;">🎰 Фишки за день</h3>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input type="date" id="chipsDateInput" onchange="loadChipsReport()" style="background:rgba(0,0,0,0.3); border:1px solid var(--line); color:#fff; padding:8px 12px; border-radius:8px; font-family:inherit;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px">
+        <h3 style="margin:0">🎰 Фишки за день</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="chipsDateInput" onchange="loadChipsReport()" style="background:rgba(0,0,0,.3);border:1px solid var(--line);color:#fff;padding:8px 12px;border-radius:8px;font-family:inherit">
         </div>
       </div>
-
-      <div class="cards" id="chipsCards" style="margin-bottom:15px;"></div>
-
-      <div class="wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Дилер</th>
-              <th>Выдано</th>
-              <th>Принято</th>
-              <th>Прибыль</th>
-            </tr>
-          </thead>
-          <tbody id="chipsReportBody"></tbody>
-        </table>
-      </div>
+      <div class="cards" id="chipsCards" style="margin-bottom:15px"></div>
+      <div class="wrap"><table><thead><tr><th>Дилер</th><th>Выдано</th><th>Принято</th><th>Прибыль</th></tr></thead><tbody id="chipsReportBody"></tbody></table></div>
       <div class="empty" id="chipsReportEmpty">Нет данных</div>
     </div>
-
     <div class="panel">
       <h3>Выдать зарплату</h3>
       <div class="row">
@@ -644,18 +436,12 @@
         <button onclick="openPayoutModal()">Выдать</button>
       </div>
     </div>
-
     <div class="panel"><h3>Начислено</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Дилер</th><th>Сессий</th><th>Доход</th><th>Начислено</th><th>Выплачено</th><th>Остаток</th>
-      </tr></thead><tbody id="accruedBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Дилер</th><th>Сессий</th><th>Доход</th><th>Начислено</th><th>Выплачено</th><th>Остаток</th></tr></thead><tbody id="accruedBody"></tbody></table></div>
       <div class="empty" id="accruedEmpty">Нет данных</div>
     </div>
-
     <div class="panel"><h3>История выплат</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Дата</th><th>Дилер</th><th>Сумма</th><th>Примечание</th><th></th>
-      </tr></thead><tbody id="payoutBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Дата</th><th>Дилер</th><th>Сумма</th><th>Примечание</th><th></th></tr></thead><tbody id="payoutBody"></tbody></table></div>
       <div class="empty" id="payoutEmpty">Нет выплат</div>
     </div>
   </div>
@@ -664,12 +450,8 @@
     <h1>История действий</h1>
     <div class="sub">Лог всех операций в системе</div>
     <div class="panel">
-      <div class="row" style="margin-bottom:15px">
-        <button class="ghost" onclick="clearHistory()">Очистить историю</button>
-      </div>
-      <div class="wrap"><table><thead><tr>
-        <th>Время</th><th>Кто</th><th>Действие</th><th>Детали</th>
-      </tr></thead><tbody id="historyBody"></tbody></table></div>
+      <div class="row" style="margin-bottom:15px"><button class="ghost" onclick="clearHistory()">Очистить историю</button></div>
+      <div class="wrap"><table><thead><tr><th>Время</th><th>Кто</th><th>Действие</th><th>Детали</th></tr></thead><tbody id="historyBody"></tbody></table></div>
       <div class="empty" id="historyEmpty">Нет записей</div>
     </div>
   </div>
@@ -678,9 +460,7 @@
     <h1>Роли</h1>
     <div class="sub">Управление доступами</div>
     <div class="panel"><h3>Сотрудники</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Имя</th><th>Логин</th><th>Роль</th><th>Действия</th>
-      </tr></thead><tbody id="rolesBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Имя</th><th>Логин</th><th>Роль</th><th>Действия</th></tr></thead><tbody id="rolesBody"></tbody></table></div>
       <div class="empty" id="rolesEmpty">Нет сотрудников</div>
     </div>
     <div class="panel"><h3>Добавить сотрудника</h3>
@@ -688,17 +468,12 @@
         <label>Имя<input type="text" id="r_name" placeholder="Иван"></label>
         <label>Логин<input type="text" id="r_login" placeholder="ivan"></label>
         <label>Пароль<input type="text" id="r_pass" placeholder="пароль"></label>
-        <label>Роль<select id="r_role">
-          <option value="admin">Админ</option>
-          <option value="cashier">Кассир</option>
-        </select></label>
+        <label>Роль<select id="r_role"><option value="admin">Админ</option><option value="cashier">Кассир</option></select></label>
         <button onclick="addEmployee()">Добавить</button>
       </div>
     </div>
     <div class="panel"><h3>Дилеры (доступ к dealer.html)</h3>
-      <div class="wrap"><table><thead><tr>
-        <th>#</th><th>Имя</th><th>Логин</th><th>Действия</th>
-      </tr></thead><tbody id="dealersBody"></tbody></table></div>
+      <div class="wrap"><table><thead><tr><th>#</th><th>Имя</th><th>Логин</th><th>Действия</th></tr></thead><tbody id="dealersBody"></tbody></table></div>
       <div class="empty" id="dealersEmpty">Нет дилеров</div>
     </div>
     <div class="panel"><h3>Добавить дилера</h3>
@@ -711,7 +486,6 @@
     </div>
   </div>
 </main>
-
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal">
     <h2 id="confirmTitle">Подтверждение</h2>
@@ -806,6 +580,7 @@
     <div class="day-modal-content" id="dayIncomeContent"></div>
   </div>
 </div>
+
 <script>
 let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [], dealer_reviews: [], dealer_ratings: [], dealerCash: [] };
 let newsList = [];
@@ -826,29 +601,20 @@ function toggleMenu() {
 }
 
 async function apiGet(url){
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return [];
-    return await r.json();
-  } catch(e) { return []; }
+  try { const r = await fetch(url); if (!r.ok) return []; return await r.json(); }
+  catch(e) { return []; }
 }
 async function apiPost(url, data){
-  try {
-    const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    return await r.json();
-  } catch(e) { return { error: e.message }; }
+  try { const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }); return await r.json(); }
+  catch(e) { return { error: e.message }; }
 }
 async function apiPut(url, data){
-  try {
-    const r = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    return await r.json();
-  } catch(e) { return { error: e.message }; }
+  try { const r = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }); return await r.json(); }
+  catch(e) { return { error: e.message }; }
 }
 async function apiDelete(url){
-  try {
-    const r = await fetch(url, { method:'DELETE' });
-    return await r.json();
-  } catch(e) { return { error: e.message }; }
+  try { const r = await fetch(url, { method:'DELETE' }); return await r.json(); }
+  catch(e) { return { error: e.message }; }
 }
 
 async function loadDB(){
@@ -911,10 +677,7 @@ async function doLogin(){
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   try {
-    const r = await fetch('/api/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ login, pass, type: 'admin' })
-    });
+    const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ login, pass, type: 'admin' }) });
     const data = await r.json();
     if(!r.ok){ err.textContent = data.error || 'Ошибка'; return; }
     currentUser = data.employee.name;
@@ -957,7 +720,6 @@ async function confirmClearAll(){
   await apiDelete('/api/audit');
   for(const g of db.guests) await apiPost('/api/guests/delete', { id: g.id });
   await apiDelete('/api/crash/clear');
-
   closeClearAllModal();
   await loadDB();
   renderAll();
@@ -1043,6 +805,9 @@ function bacStats(){
 function onlineStats(){
   let income = 0, expense = 0;
   db.online.forEach(o=>{
+    const note = (o.note || '').toLowerCase();
+    // бонусы за ранг / подарки / daily — не доход
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
     if(o.type === 'доход') income += parseFloat(o.sum) || 0;
     else expense += parseFloat(o.sum) || 0;
   });
@@ -1058,13 +823,13 @@ function renderDash(){
   });
 
   const onlineIncome = on.net;
-  const totalIncome = bj.income + bac.income + onlineIncome + totalDeposits;
+  const totalIncome = bj.income + bac.income + onlineIncome;
 
   document.getElementById('dashCards').innerHTML = `
     <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
     <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
     <div class="card"><div class="label">Доход Crash (онлайн)</div><div class="value accent">${fmt(onlineIncome)} ₽</div></div>
-    <div class="card"><div class="label">Депозиты (доход)</div><div class="value green">${fmt(totalDeposits)} ₽</div></div>
+    <div class="card"><div class="label">Депозиты (оборот)</div><div class="value" style="color:var(--muted)">${fmt(totalDeposits)} ₽</div></div>
     <div class="card" style="border-color: var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(totalIncome)} ₽</div></div>
   `;
 
@@ -1075,33 +840,20 @@ function renderDash(){
 
 function renderIncomeCalendar(){
   const days = {};
-
   function ensureDay(date) {
     if (!days[date]) days[date] = { bj: 0, bac: 0, crash: 0, dep: 0, commission: 0, salaries: 0 };
     return days[date];
   }
-
-  (db.sessions || []).forEach(s => {
-    if (!s.date) return;
-    ensureDay(s.date).bj += sessionNet(s).income;
-  });
-
-  (db.baccarat || []).forEach(b => {
-    if (!b.date) return;
-    ensureDay(b.date).bac += bacCalc(b).casino;
-  });
-
+  (db.sessions || []).forEach(s => { if (!s.date) return; ensureDay(s.date).bj += sessionNet(s).income; });
+  (db.baccarat || []).forEach(b => { if (!b.date) return; ensureDay(b.date).bac += bacCalc(b).casino; });
   (db.online || []).forEach(o => {
     if (!o.date) return;
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
     const inc = o.type === 'доход' ? (parseFloat(o.sum) || 0) : -(parseFloat(o.sum) || 0);
     ensureDay(o.date).crash += inc;
   });
-
-  (db.deposits || []).forEach(d => {
-    if (!d.date) return;
-    if (d.status === 'approved') ensureDay(d.date).dep += parseFloat(d.sum) || 0;
-  });
-
+  (db.deposits || []).forEach(d => { if (!d.date) return; if (d.status === 'approved') ensureDay(d.date).dep += parseFloat(d.sum) || 0; });
   (db.withdrawals || []).forEach(w => {
     if (!w.date) return;
     if (w.status === 'approved') {
@@ -1110,11 +862,7 @@ function renderIncomeCalendar(){
       ensureDay(w.date).commission += fee;
     }
   });
-
-  (db.payouts || []).forEach(p => {
-    if (!p.date) return;
-    ensureDay(p.date).salaries += parseFloat(p.sum) || 0;
-  });
+  (db.payouts || []).forEach(p => { if (!p.date) return; ensureDay(p.date).salaries += parseFloat(p.sum) || 0; });
 
   const calendar = document.getElementById('incomeCalendar');
   const empty = document.getElementById('incomeCalendarEmpty');
@@ -1122,7 +870,6 @@ function renderIncomeCalendar(){
   const daysCount = document.getElementById('incDaysCount');
 
   const allDates = Object.keys(days).sort();
-
   if (allDates.length === 0) {
     calendar.innerHTML = '';
     if (empty) empty.style.display = 'block';
@@ -1135,7 +882,7 @@ function renderIncomeCalendar(){
   let grandTotal = 0;
   allDates.forEach(d => {
     const g = days[d];
-    grandTotal += (g.bj + g.bac + g.crash + g.dep) - g.commission - g.salaries;
+    grandTotal += (g.bj + g.bac + g.crash) - g.commission - g.salaries;
   });
 
   if (summaryBadge) {
@@ -1146,7 +893,7 @@ function renderIncomeCalendar(){
 
   const dayValues = allDates.map(date => {
     const g = days[date];
-    return (g.bj + g.bac + g.crash + g.dep) - g.commission - g.salaries;
+    return (g.bj + g.bac + g.crash) - g.commission - g.salaries;
   });
 
   const maxAbs = Math.max(...dayValues.map(Math.abs), 1);
@@ -1154,7 +901,6 @@ function renderIncomeCalendar(){
   calendar.innerHTML = allDates.map((date, i) => {
     const net = dayValues[i];
     const [y, m, dd] = date.split('-');
-
     let cls = 'zero';
     if (net !== 0) {
       const ratio = Math.abs(net) / maxAbs;
@@ -1165,7 +911,6 @@ function renderIncomeCalendar(){
       else level = 4;
       cls = (net > 0 ? 'pos-' : 'neg-') + level;
     }
-
     return `<div class="inc-cell ${cls}" 
                  data-date="${date}"
                  data-bj="${days[date].bj.toFixed(2)}"
@@ -1188,25 +933,22 @@ function bindCalendarTooltips(){
     tooltip.className = 'inc-tooltip';
     document.body.appendChild(tooltip);
   }
-
   document.querySelectorAll('.inc-cell').forEach(cell => {
     cell.addEventListener('mouseenter', () => {
       const date = cell.dataset.date;
       const net = parseFloat(cell.dataset.net) || 0;
       const [y, m, dd] = date.split('-');
-
       tooltip.innerHTML = `
         <div class="tt-date">${dd}.${m}.${y}</div>
         <div class="tt-total ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '+' : ''}${fmt(net)} ₽</div>
         <div class="tt-row"><span>Блэкджек</span><span class="${parseFloat(cell.dataset.bj) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.bj) >= 0 ? '+' : ''}${fmt(cell.dataset.bj)} ₽</span></div>
         <div class="tt-row"><span>Баккара</span><span class="${parseFloat(cell.dataset.bac) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.bac) >= 0 ? '+' : ''}${fmt(cell.dataset.bac)} ₽</span></div>
         <div class="tt-row"><span>Crash</span><span class="${parseFloat(cell.dataset.crash) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.crash) >= 0 ? '+' : ''}${fmt(cell.dataset.crash)} ₽</span></div>
-        <div class="tt-row"><span>Депозиты</span><span class="pos">+${fmt(cell.dataset.dep)} ₽</span></div>
+        <div class="tt-row"><span>Депозиты (оборот)</span><span style="color:var(--muted)">${fmt(cell.dataset.dep)} ₽</span></div>
         <div class="tt-row"><span>Комиссии 7%</span><span class="neg">−${fmt(cell.dataset.comm)} ₽</span></div>
         <div class="tt-row"><span>Зарплаты</span><span class="neg">−${fmt(cell.dataset.sal)} ₽</span></div>
       `;
       tooltip.classList.add('show');
-
       const rect = cell.getBoundingClientRect();
       let left = rect.left + rect.width / 2 - 100;
       let top = rect.top - tooltip.offsetHeight - 10;
@@ -1216,21 +958,14 @@ function bindCalendarTooltips(){
       tooltip.style.left = left + 'px';
       tooltip.style.top = top + 'px';
     });
-
-    cell.addEventListener('mouseleave', () => {
-      tooltip.classList.remove('show');
-    });
-
-    cell.addEventListener('click', () => {
-      openDayIncomeModal(cell.dataset.date);
-    });
+    cell.addEventListener('mouseleave', () => { tooltip.classList.remove('show'); });
+    cell.addEventListener('click', () => { openDayIncomeModal(cell.dataset.date); });
   });
 }
 
 function openDayIncomeModal(date){
   const [y, m, dd] = date.split('-');
   const dateStr = `${dd}.${m}.${y}`;
-
   const bjSessions = (db.sessions || []).filter(s => s.date === date);
   const bacSessions = (db.baccarat || []).filter(b => b.date === date);
   const crashRounds = (db.online || []).filter(o => o.date === date && (o.note || '').startsWith('Crash Round'));
@@ -1252,14 +987,13 @@ function openDayIncomeModal(date){
   });
   payoutsDay.forEach(p => salTotal += parseFloat(p.sum) || 0);
 
-  const net = (bjTotal + bacTotal + crashTotal + depTotal) - commTotal - salTotal;
+  const net = (bjTotal + bacTotal + crashTotal) - commTotal - salTotal;
 
   let html = `
     <div class="day-modal-title">${dateStr}</div>
     <div class="day-modal-sub">Отчёт за день</div>
     <div class="day-modal-total ${net >= 0 ? 'pos' : 'neg'}" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'};">${net >= 0 ? '+' : ''}${fmt(net)} ₽</div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1279,7 +1013,6 @@ function openDayIncomeModal(date){
       </div>
     </div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1299,7 +1032,6 @@ function openDayIncomeModal(date){
       </div>
     </div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1319,24 +1051,22 @@ function openDayIncomeModal(date){
       </div>
     </div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
-        <span>💰 Депозиты (${depApproved.length})</span>
-        <span class="amt pos">+${fmt(depTotal)} ₽</span>
+        <span>💰 Депозиты (${depApproved.length}) — оборот</span>
+        <span class="amt" style="color:var(--muted)">${fmt(depTotal)} ₽</span>
       </div>
       <div class="day-list">
         ${depApproved.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет депозитов</div>' :
           depApproved.map(d => `<div class="day-list-item">
             <span class="who">${d.nick || '—'}</span>
-            <span class="val pos">+${fmt(d.sum)} ₽</span>
+            <span class="val" style="color:var(--muted)">${fmt(d.sum)} ₽</span>
           </div>`).join('')
         }
       </div>
     </div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1357,7 +1087,6 @@ function openDayIncomeModal(date){
       </div>
     </div>
   `;
-
   html += `
     <div class="day-section">
       <div class="day-section-title">
@@ -1374,20 +1103,12 @@ function openDayIncomeModal(date){
       </div>
     </div>
   `;
-
-  html += `
-    <div style="text-align:center; margin-top:20px;">
-      <button class="ghost" onclick="closeDayIncomeModal()" style="width:100%;">Закрыть</button>
-    </div>
-  `;
-
+  html += `<div style="text-align:center;margin-top:20px"><button class="ghost" onclick="closeDayIncomeModal()" style="width:100%">Закрыть</button></div>`;
   document.getElementById('dayIncomeContent').innerHTML = html;
   document.getElementById('dayIncomeModal').classList.add('show');
 }
 
-function closeDayIncomeModal(){
-  document.getElementById('dayIncomeModal').classList.remove('show');
-}
+function closeDayIncomeModal(){ document.getElementById('dayIncomeModal').classList.remove('show'); }
 
 function renderSessionsUnderChart(){
   const bj = [...db.sessions].sort((a,b) => {
@@ -1395,7 +1116,6 @@ function renderSessionsUnderChart(){
     const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
     return dbb - da;
   }).slice(0, 50);
-
   document.getElementById('bjCount').textContent = db.sessions.length;
   const bjBody = document.getElementById('bjSessionsBody');
   if(bj.length === 0){
@@ -1405,22 +1125,14 @@ function renderSessionsUnderChart(){
       const r = sessionNet(s);
       const time = s.created_at ? new Date(s.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (s.date || '—');
       const winCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : '');
-      return `<tr>
-        <td>${s.nick || '—'}</td>
-        <td>${fmt(r.dep)} ₽</td>
-        <td class="${winCls}">${fmt(r.net)} ₽</td>
-        <td>${s.dealer || '—'}</td>
-        <td style="color:var(--muted); font-size:11px">${time}</td>
-      </tr>`;
+      return `<tr><td>${s.nick || '—'}</td><td>${fmt(r.dep)} ₽</td><td class="${winCls}">${fmt(r.net)} ₽</td><td>${s.dealer || '—'}</td><td style="color:var(--muted);font-size:11px">${time}</td></tr>`;
     }).join('');
   }
-
   const bac = [...db.baccarat].sort((a,b) => {
     const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
     const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
     return dbb - da;
   }).slice(0, 50);
-
   document.getElementById('bacCount').textContent = db.baccarat.length;
   const bacBody = document.getElementById('bacSessionsBody');
   if(bac.length === 0){
@@ -1430,13 +1142,7 @@ function renderSessionsUnderChart(){
       const r = bacCalc(b);
       const time = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (b.date || '—');
       const winCls = r.payout > 0 ? 'pos' : (r.payout < 0 ? 'neg' : '');
-      return `<tr>
-        <td>${b.player || '—'}</td>
-        <td>${fmt(b.sum)} ₽</td>
-        <td class="${winCls}">${fmt(r.payout)} ₽</td>
-        <td>${b.dealer || '—'}</td>
-        <td style="color:var(--muted); font-size:11px">${time}</td>
-      </tr>`;
+      return `<tr><td>${b.player || '—'}</td><td>${fmt(b.sum)} ₽</td><td class="${winCls}">${fmt(r.payout)} ₽</td><td>${b.dealer || '—'}</td><td style="color:var(--muted);font-size:11px">${time}</td></tr>`;
     }).join('');
   }
 }
@@ -1450,28 +1156,23 @@ function drawChart(){
   canvas.width = W * dpr; canvas.height = H * dpr;
   const ctx = canvas.getContext('2d');
   ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
-
   const map = {};
   db.sessions.forEach(s=>{ if(!s.date) return; if(!map[s.date]) map[s.date]=0; map[s.date]+=sessionNet(s).income; });
   db.baccarat.forEach(b=>{ if(!b.date) return; if(!map[b.date]) map[b.date]=0; map[b.date]+=bacCalc(b).casino; });
-  db.online.forEach(o=>{ if(!o.date) return; if(!map[o.date]) map[o.date]=0;
+  db.online.forEach(o=>{
+    if(!o.date) return;
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
+    if(!map[o.date]) map[o.date]=0;
     if(o.type === 'доход') map[o.date]+=parseFloat(o.sum)||0; else map[o.date]-=parseFloat(o.sum)||0;
   });
-  db.deposits.forEach(d=>{
-    if(d.status !== 'approved' || !d.date) return;
-    if(!map[d.date]) map[d.date]=0;
-    map[d.date]+=parseFloat(d.sum)||0;
-  });
-
   const dates = Object.keys(map).sort();
   if(!dates.length){
     ctx.fillStyle = '#a0aec0'; ctx.font = '14px Montserrat';
     ctx.textAlign = 'center'; ctx.fillText('Нет данных для графика', W/2, H/2); return;
   }
-
   let runningTotal = 0;
   const values = dates.map(d => { runningTotal += map[d]; return runningTotal; });
-
   const padL = 60, padR = 20, padT = 20, padB = 40;
   const plotW = W - padL - padR, plotH = H - padT - padB;
   const maxVal = Math.max(1, ...values);
@@ -1479,7 +1180,6 @@ function drawChart(){
   const range = maxVal - minVal || 1;
   const y = v => padT + plotH - ((v - minVal) / range) * plotH;
   const x = i => padL + (dates.length === 1 ? plotW/2 : (i/(dates.length-1))*plotW);
-
   ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'right';
   for(let i=0; i<=4; i++){
@@ -1488,7 +1188,6 @@ function drawChart(){
     ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W-padR, yy); ctx.stroke();
     ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4);
   }
-
   ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'center';
   const step = Math.ceil(dates.length / 7);
   dates.forEach((d,i)=>{
@@ -1497,7 +1196,6 @@ function drawChart(){
       ctx.fillText(dd+'.'+mm, x(i), H-15);
     }
   });
-
   ctx.beginPath();
   ctx.strokeStyle = '#00e5ff';
   ctx.lineWidth = 3;
@@ -1507,7 +1205,6 @@ function drawChart(){
   values.forEach((v, i) => { const xx = x(i), yy = y(v); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); });
   ctx.stroke();
   ctx.shadowBlur = 0;
-
   const lastX = x(values.length - 1);
   const lastY = y(values[values.length - 1]);
   ctx.beginPath(); ctx.fillStyle = '#00e5ff'; ctx.arc(lastX, lastY, 5, 0, Math.PI * 2); ctx.fill();
@@ -1520,21 +1217,13 @@ function renderFinance(){
   document.getElementById('depositsBody').innerHTML = db.deposits.map(d=>`
     <tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td>
       <td>${fmt(d.sum)} ₽</td><td><span class="status ${d.status}">${d.status}</span></td>
-      <td>${d.status==='pending' ? `<button class="success small" onclick="depAction(${d.id},'approved')">Зачислить</button>
-        <button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>` :
-        `<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
+      <td>${d.status==='pending' ? `<button class="success small" onclick="depAction(${d.id},'approved')">Зачислить</button><button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>` : `<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
   document.getElementById('depositsEmpty').style.display = db.deposits.length ? 'none' : 'block';
-
   document.getElementById('withdrawalsBody').innerHTML = db.withdrawals.map(w=>`
     <tr><td>${w.date}</td><td>${w.nick}<br><span style="font-size:11px;color:#a0aec0">${w.email||''}</span></td>
       <td>${fmt(w.sum)} ₽</td><td>${fmt(w.fee)} ₽</td><td>${fmt(w.net)} ₽</td>
       <td><span class="status ${w.status}">${w.status}</span></td>
-      <td>${w.status==='pending' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button>
-        <button class="ghost small" onclick="wdAction(${w.id},'hold')">Отложить</button>
-        <button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` :
-        w.status==='hold' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button>
-        <button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` :
-        `<button class="ghost small" onclick="delWithdrawal(${w.id})">Удалить</button>`}</td></tr>`).join('');
+      <td>${w.status==='pending' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="ghost small" onclick="wdAction(${w.id},'hold')">Отложить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` : w.status==='hold' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` : `<button class="ghost small" onclick="delWithdrawal(${w.id})">Удалить</button>`}</td></tr>`).join('');
   document.getElementById('withdrawalsEmpty').style.display = db.withdrawals.length ? 'none' : 'block';
 }
 async function depAction(id, status){ await apiPut('/api/deposits/'+id, {status}); await audit('deposit_'+status, '#'+id); await loadDB(); renderFinance(); }
@@ -1572,13 +1261,11 @@ function renderOnline() {
   const cashouts = db.crash_bets.filter(b => b.cashed_out);
   const totalBets = db.crash_bets.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
   const totalPayouts = cashouts.reduce((a, b) => a + (parseFloat(b.amount) * parseFloat(b.cashout_mult) || 0), 0);
-
   document.getElementById('onlineCards').innerHTML = `
     <div class="card"><div class="label">Всего ставок в Crash</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
     <div class="card"><div class="label">Выигрыши (Кэшауты)</div><div class="value red">${fmt(totalPayouts)} ₽</div></div>
     <div class="card"><div class="label">Прибыль казино</div><div class="value green">${fmt(totalBets - totalPayouts)} ₽</div></div>
   `;
-
   document.getElementById('onlineBody').innerHTML = cashouts.map(b => {
     const dateStr = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU') : '—';
     return `<tr>
@@ -1590,11 +1277,9 @@ function renderOnline() {
         <td>#${b.round_id}</td>
       </tr>`;
   }).join('');
-
   document.getElementById('onlineEmpty').style.display = cashouts.length ? 'none' : 'block';
 }
 
-/* ========== КОНТРОЛЬ КРАША ========== */
 async function loadCrashForceStatus() {
   try {
     const r = await fetch('/api/admin/crash/force-next');
@@ -1612,10 +1297,7 @@ async function loadCrashForceStatus() {
 
 async function setCrashForce() {
   const val = parseFloat(document.getElementById('crashForceInput').value);
-  if (!isFinite(val) || val < 1 || val > 1000) {
-    alert('Введите число от 1.00 до 1000');
-    return;
-  }
+  if (!isFinite(val) || val < 1 || val > 1000) { alert('Введите число от 1.00 до 1000'); return; }
   const pass = prompt('Пароль owner:');
   if (pass === null) return;
   try {
@@ -1682,8 +1364,7 @@ async function loadGuests(){
 }
 
 function printOneGuest(id){
-  const base = localStorage.getItem('kingwin_base_url')
-    || (location.protocol.startsWith('http') ? location.origin : 'http://192.168.0.11:3000');
+  const base = localStorage.getItem('kingwin_base_url') || (location.protocol.startsWith('http') ? location.origin : 'http://192.168.0.11:3000');
   window.open(base + '/cards_print.html?id=' + encodeURIComponent(id), '_blank');
 }
 
@@ -1697,9 +1378,7 @@ function withdrawGuest(id){
   if(amt <= 0) return;
   if(amt > balance){ showInfo('Ошибка', 'Недостаточно средств'); return; }
   showPass('Вывод средств', `Вывести <b>${fmt(amt)} ₽</b> гостю <b>${g.name}</b>?<br>Пароль владельца:`, async ()=>{
-    await apiPost('/api/withdrawals', {
-      date: today(), nick: g.name, email: '', sum: amt, fee: 0, net: amt, status: 'approved'
-    });
+    await apiPost('/api/withdrawals', { date: today(), nick: g.name, email: '', sum: amt, fee: 0, net: amt, status: 'approved' });
     await apiPost('/api/guests/withdraw-deduct', { id: g.id, sum: amt });
     await audit('guest_withdraw', `${g.name}: ${amt} ₽`);
     await loadDB(); loadGuests();
@@ -1833,32 +1512,21 @@ async function delNews(id){
 function renderReviews(){
   const reviews = db.dealer_reviews || [];
   const ratings = db.dealer_ratings || [];
-
   const totalReviews = reviews.length;
-  const avgAll = totalReviews
-    ? (reviews.reduce((a, r) => a + (parseInt(r.stars) || 0), 0) / totalReviews)
-    : 0;
+  const avgAll = totalReviews ? (reviews.reduce((a, r) => a + (parseInt(r.stars) || 0), 0) / totalReviews) : 0;
   const uniqueDealers = ratings.length;
-
   document.getElementById('reviewCards').innerHTML = `
     <div class="card"><div class="label">Всего отзывов</div><div class="value accent">${totalReviews}</div></div>
     <div class="card"><div class="label">Средний рейтинг</div><div class="value gold">${avgAll.toFixed(2)} ⭐</div></div>
     <div class="card"><div class="label">Дилеров с оценками</div><div class="value green">${uniqueDealers}</div></div>
   `;
-
   document.getElementById('ratingsBody').innerHTML = ratings.map((r, i) => {
     const avg = parseFloat(r.avg_stars) || 0;
     const full = Math.round(avg);
     const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
-    return `<tr>
-      <td>${i+1}</td>
-      <td style="text-transform:capitalize;">${r.dealer}</td>
-      <td><span class="star-line">${stars}</span> <b>${avg.toFixed(2)}</b></td>
-      <td>${r.reviews_count}</td>
-    </tr>`;
+    return `<tr><td>${i+1}</td><td style="text-transform:capitalize;">${r.dealer}</td><td><span class="star-line">${stars}</span> <b>${avg.toFixed(2)}</b></td><td>${r.reviews_count}</td></tr>`;
   }).join('');
   document.getElementById('ratingsEmpty').style.display = ratings.length ? 'none' : 'block';
-
   document.getElementById('reviewsBody').innerHTML = reviews.map(rv => {
     const stars = '★'.repeat(parseInt(rv.stars) || 0) + '☆'.repeat(5 - (parseInt(rv.stars) || 0));
     const date = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date || '—');
@@ -1903,22 +1571,14 @@ async function loadCashSafeAdmin() {
     const data = await r.json();
     const body = document.getElementById('safeBody');
     const empty = document.getElementById('safeEmpty');
-    if (!data.dealers || data.dealers.length === 0) {
-      body.innerHTML = '';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
+    if (!data.dealers || data.dealers.length === 0) { body.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     body.innerHTML = data.dealers.map(d => `
       <tr>
         <td><b>${d.dealer_name || '—'}</b></td>
         <td style="color:var(--accent); font-weight:900;">${fmt(d.open_total)} ₽</td>
         <td style="color:var(--gold); font-weight:900;">${fmt(d.handed_total)} ₽</td>
-        <td>
-          ${d.handed_cnt > 0
-            ? `<button class="success small" onclick="acceptCash(${d.dealer_id}, ${d.handed_total})">✓ Принять</button>`
-            : '—'}
-        </td>
+        <td>${d.handed_cnt > 0 ? `<button class="success small" onclick="acceptCash(${d.dealer_id}, ${d.handed_total})">✓ Принять</button>` : '—'}</td>
       </tr>
     `).join('');
   } catch(e) {}
@@ -1945,9 +1605,7 @@ async function acceptCash(dealerId, expectedSum) {
     else msg += `<b style="color:var(--gold)">⚠ Излишек: ${fmt(diff)} ₽</b>`;
     showInfo('Сейф принят', msg);
     loadCashSafeAdmin();
-  } catch(e) {
-    showInfo('Ошибка', 'Ошибка соединения');
-  }
+  } catch(e) { showInfo('Ошибка', 'Ошибка соединения'); }
 }
 
 async function loadChipsReport() {
@@ -1963,30 +1621,17 @@ async function loadChipsReport() {
         <div class="card"><div class="label">🔄 Принято</div><div class="value" style="color:var(--gold);">${fmt(data.grandOut)} ₽</div></div>
         <div class="card" style="border-color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">
           <div class="label">💰 Прибыль</div>
-          <div class="value" style="color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">
-            ${data.grandProfit >= 0 ? '+' : ''}${fmt(data.grandProfit)} ₽
-          </div>
+          <div class="value" style="color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">${data.grandProfit >= 0 ? '+' : ''}${fmt(data.grandProfit)} ₽</div>
         </div>
       `;
     }
     const body = document.getElementById('chipsReportBody');
     const empty = document.getElementById('chipsReportEmpty');
-    if (!data.dealers || data.dealers.length === 0) {
-      body.innerHTML = '';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
+    if (!data.dealers || data.dealers.length === 0) { body.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     body.innerHTML = data.dealers.map(d => {
       const profitColor = d.profit >= 0 ? 'var(--green)' : 'var(--red)';
-      return `
-        <tr>
-          <td><b>${d.dealer_name || '—'}</b></td>
-          <td style="color:var(--green);">${fmt(d.totalIn)} ₽</td>
-          <td style="color:var(--gold);">${fmt(d.totalOut)} ₽</td>
-          <td style="font-weight:900; color:${profitColor};">${d.profit >= 0 ? '+' : ''}${fmt(d.profit)} ₽</td>
-        </tr>
-      `;
+      return `<tr><td><b>${d.dealer_name || '—'}</b></td><td style="color:var(--green);">${fmt(d.totalIn)} ₽</td><td style="color:var(--gold);">${fmt(d.totalOut)} ₽</td><td style="font-weight:900; color:${profitColor};">${d.profit >= 0 ? '+' : ''}${fmt(d.profit)} ₽</td></tr>`;
     }).join('');
   } catch(e) { console.error(e); }
 }
@@ -1997,10 +1642,7 @@ function renderPayouts(){
   document.getElementById('accruedBody').innerHTML = names.map((n,i)=>{
     const s = dealerStats(n);
     tAcc += s.accrued; tPaid += s.paid;
-    return `<tr><td>${i+1}</td><td>${n}</td><td>${s.sessions}</td>
-      <td>${fmt(s.income)} ₽</td><td class="pos">${fmt(s.accrued)} ₽</td>
-      <td>${fmt(s.paid)} ₽</td>
-      <td class="${s.remaining>0?'red':'green'}">${fmt(s.remaining)} ₽</td></tr>`;
+    return `<tr><td>${i+1}</td><td>${n}</td><td>${s.sessions}</td><td>${fmt(s.income)} ₽</td><td class="pos">${fmt(s.accrued)} ₽</td><td>${fmt(s.paid)} ₽</td><td class="${s.remaining>0?'red':'green'}">${fmt(s.remaining)} ₽</td></tr>`;
   }).join('');
   document.getElementById('accruedEmpty').style.display = names.length ? 'none' : 'block';
   document.getElementById('payoutCards').innerHTML = `
@@ -2008,16 +1650,10 @@ function renderPayouts(){
     <div class="card"><div class="label">Начислено</div><div class="value accent">${fmt(tAcc)} ₽</div></div>
     <div class="card"><div class="label">Выплачено</div><div class="value green">${fmt(tPaid)} ₽</div></div>
     <div class="card"><div class="label">Остаток</div><div class="value ${(tAcc-tPaid)>0?'red':'green'}">${fmt(tAcc-tPaid)} ₽</div></div>`;
-  document.getElementById('payoutBody').innerHTML = db.payouts.map(p=>`
-    <tr><td>${p.id}</td><td>${p.date}</td><td>${p.dealer}</td>
-      <td>${fmt(p.sum)} ₽</td><td>${p.note||'—'}</td>
-      <td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
+  document.getElementById('payoutBody').innerHTML = db.payouts.map(p=>`<tr><td>${p.id}</td><td>${p.date}</td><td>${p.dealer}</td><td>${fmt(p.sum)} ₽</td><td>${p.note||'—'}</td><td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
   document.getElementById('payoutEmpty').style.display = db.payouts.length ? 'none' : 'block';
-
   const chipsDateInput = document.getElementById('chipsDateInput');
-  if (chipsDateInput && !chipsDateInput.value) {
-    chipsDateInput.value = today();
-  }
+  if (chipsDateInput && !chipsDateInput.value) chipsDateInput.value = today();
   loadChipsReport();
   loadCashSafeAdmin();
 }
@@ -2039,8 +1675,7 @@ function openPayoutModal(){
 async function delPayout(id){ await apiDelete('/api/payouts/'+id); await loadDB(); renderPayouts(); }
 
 function renderHistory(){
-  document.getElementById('historyBody').innerHTML = db.audit.map(a=>`
-    <tr><td>${a.time}</td><td>${a.user_name}</td><td>${a.action}</td><td>${a.details}</td></tr>`).join('');
+  document.getElementById('historyBody').innerHTML = db.audit.map(a=>`<tr><td>${a.time}</td><td>${a.user_name}</td><td>${a.action}</td><td>${a.details}</td></tr>`).join('');
   document.getElementById('historyEmpty').style.display = db.audit.length ? 'none' : 'block';
 }
 async function clearHistory(){ await apiDelete('/api/audit'); await loadDB(); renderHistory(); }
