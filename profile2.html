@@ -15,8 +15,6 @@
     padding: 24px 16px;
     position: relative;
   }
-
-  /* ===== ФОН: ЛЕТАЮЩИЕ КОРОНЫ ===== */
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .floating-crown { position: absolute; opacity: 0.1; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.25)); }
   .floating-crown.broken { opacity: 0.08; filter: drop-shadow(0 0 6px rgba(255,77,77,.25)); }
@@ -30,50 +28,24 @@
   .modal-backdrop { z-index: 9999 !important; }
 
   .wrap { width: 100%; max-width: 480px; }
-
-  /* ===== ШАПКА ===== */
   .logo {
     text-align: center; font-size: 26px; font-weight: 900; letter-spacing: 3px;
     background: linear-gradient(135deg, #00e5ff, #0077ff);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 4px;
   }
-  .logo-sub {
-    text-align: center; font-size: 10px; letter-spacing: 3px;
-    color: #8fa2b8; text-transform: uppercase; margin-bottom: 20px;
-  }
+  .logo-sub { text-align: center; font-size: 10px; letter-spacing: 3px; color: #8fa2b8; text-transform: uppercase; margin-bottom: 20px; }
 
-  /* ===== БАЗОВАЯ КАРТОЧКА ===== */
-  .card {
-    background: rgba(18,24,38,.9);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 20px;
-    padding: 22px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 15px 40px rgba(0,0,0,.4);
-    margin-bottom: 14px;
-  }
+  .card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06); border-radius: 20px; padding: 22px; backdrop-filter: blur(10px); box-shadow: 0 15px 40px rgba(0,0,0,.4); margin-bottom: 14px; }
 
-  /* ===== БЛОК ПРОФИЛЯ ===== */
-  .profile-head {
-    text-align: center;
-    margin-bottom: 18px;
-  }
+  .profile-head { text-align: center; margin-bottom: 20px; }
   .profile-name {
-    font-size: 26px; font-weight: 900; letter-spacing: .5px;
+    font-size: 28px; font-weight: 900; letter-spacing: .5px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .profile-id {
-    font-size: 12px; color: #8fa2b8;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px; margin-top: 4px;
-  }
-  .rank-badge {
-    display: inline-block; margin-top: 10px;
-    font-size: 11px; font-weight: 800;
-    letter-spacing: 1px; text-transform: uppercase;
-    padding: 7px 18px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.3);
-  }
+  .profile-id { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 2px; margin-top: 4px; }
+  .rank-badge { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 7px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,.3); }
   .rank-badge.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border-color: #cd7f32; }
   .rank-badge.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border-color: #c0c0c0; }
   .rank-badge.Gold     { background: rgba(241,196,15,.2); color: #f1c40f; border-color: #f1c40f; }
@@ -81,390 +53,113 @@
   .rank-badge.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border-color: #b9f2ff; }
   .rank-badge.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border-color: #d4af37; box-shadow: 0 0 12px rgba(212,175,55,.6); }
 
-  /* ===== БАЛАНС ===== */
-  .balance-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    margin-bottom: 16px;
-  }
-  .balance-item {
-    background: rgba(0,0,0,.35);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px;
-    padding: 14px 10px;
-    text-align: center;
-  }
-  .balance-item .lbl {
-    font-size: 9px; color: #8fa2b8;
-    text-transform: uppercase; letter-spacing: 1px;
-    font-weight: 700; margin-bottom: 6px;
-  }
-  .balance-item .val {
-    font-size: 22px; font-weight: 900;
-  }
+  .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .balance-item { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .balance-item .lbl { font-size: 9px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+  .balance-item .val { font-size: 22px; font-weight: 900; }
   .balance-item.real .val { color: #3fbf7f; }
   .balance-item.bonus .val { color: #00e5ff; }
 
-  /* ===== ПРОГРЕСС ===== */
   .progress-wrap { margin-top: 4px; }
-  .progress-lbl {
-    font-size: 11px; color: #8fa2b8;
-    margin-bottom: 6px; display: flex; justify-content: space-between;
-  }
-  .progress {
-    height: 10px; background: rgba(255,255,255,.08);
-    border-radius: 6px; overflow: hidden;
-  }
-  .progress > div {
-    height: 100%;
-    background: linear-gradient(90deg, #3fbf7f, #00e5ff);
-    border-radius: 6px;
-    transition: width .6s cubic-bezier(.4,0,.2,1);
-  }
+  .progress-lbl { font-size: 11px; color: #8fa2b8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress { height: 10px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; }
+  .progress > div { height: 100%; background: linear-gradient(90deg, #3fbf7f, #00e5ff); border-radius: 6px; transition: width .6s cubic-bezier(.4,0,.2,1); }
 
-  /* ===== ТАБЫ ===== */
-  .tabs {
-    display: flex; gap: 4px;
-    background: rgba(18,24,38,.9);
-    border: 1px solid rgba(255,255,255,.06);
-    padding: 5px; border-radius: 12px;
-    margin-bottom: 14px;
-    overflow-x: auto; scrollbar-width: none;
-  }
+  .tabs { display: flex; gap: 4px; background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06); padding: 5px; border-radius: 12px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    flex: 1; min-width: 70px;
-    padding: 10px 6px; text-align: center;
-    border-radius: 8px;
-    font-size: 10px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .5px;
-    cursor: pointer; color: #8fa2b8;
-    transition: .2s; user-select: none; white-space: nowrap;
-  }
-  .tab.active {
-    background: rgba(0,229,255,.15);
-    color: #00e5ff;
-  }
+  .tab { flex: 1; min-width: 70px; padding: 10px 6px; text-align: center; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; cursor: pointer; color: #8fa2b8; transition: .2s; user-select: none; white-space: nowrap; }
+  .tab.active { background: rgba(0,229,255,.15); color: #00e5ff; }
 
   .page { display: none; }
   .page.active { display: block; animation: fadeIn .25s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* ===== БЛОКИ ===== */
-  .section-title {
-    font-size: 12px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: #8fa2b8; margin-bottom: 10px;
-  }
-
-  .info-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-  .info-block .t {
-    font-size: 10px; color: #8fa2b8;
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 8px; font-weight: 700;
-  }
-  .info-block .row {
-    display: flex; justify-content: space-between;
-    font-size: 13px; padding: 4px 0;
-  }
-  .info-block .row b { color: #fff; }
-
-  /* ===== КНОПКИ ===== */
-  .btn {
-    width: 100%;
-    background: #00e5ff; color: #000;
-    border: none; border-radius: 10px;
-    padding: 13px;
-    font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    transition: .2s; margin-top: 4px;
-  }
+  .btn { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px; padding: 13px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: .2s; margin-top: 4px; }
   .btn:hover { box-shadow: 0 0 16px rgba(0,229,255,.4); }
-  .btn.ghost {
-    background: transparent; color: #a0aec0;
-    border: 1px solid rgba(255,255,255,.12);
-  }
+  .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.12); }
   .btn.ghost:hover { border-color: #00e5ff; color: #00e5ff; }
   .btn.green { background: #3fbf7f; color: #000; }
   .btn:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
-  /* ===== ДЕЙЛИ ===== */
-  .daily-card {
-    background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(63,191,127,.04));
-    border: 1px solid rgba(0,229,255,.2);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 14px;
-  }
-  .daily-title {
-    font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: #00e5ff; margin-bottom: 6px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .daily-card { background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(63,191,127,.04)); border: 1px solid rgba(0,229,255,.2); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  .daily-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #00e5ff; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
   .daily-title .streak { font-size: 11px; color: #3fbf7f; }
-  .daily-sub {
-    font-size: 11px; color: #8fa2b8;
-    margin-bottom: 14px; line-height: 1.5;
-  }
-  .daily-days {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-    gap: 5px; margin-bottom: 14px;
-  }
-  .daily-day {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.06);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    font-size: 9px; color: #8fa2b8;
-    font-weight: 700; position: relative;
-  }
+  .daily-sub { font-size: 11px; color: #8fa2b8; margin-bottom: 14px; line-height: 1.5; }
+  .daily-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 14px; }
+  .daily-day { aspect-ratio: 1; border-radius: 8px; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; color: #8fa2b8; font-weight: 700; position: relative; }
   .daily-day .num { font-size: 8px; opacity: .6; }
   .daily-day .reward { font-size: 10px; font-weight: 900; margin-top: 2px; }
-  .daily-day.done {
-    background: rgba(63,191,127,.18);
-    border-color: #3fbf7f; color: #3fbf7f;
-  }
-  .daily-day.done::after {
-    content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px;
-  }
-  .daily-day.today {
-    background: rgba(0,229,255,.15);
-    border-color: #00e5ff; color: #00e5ff;
-  }
+  .daily-day.done { background: rgba(63,191,127,.18); border-color: #3fbf7f; color: #3fbf7f; }
+  .daily-day.done::after { content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px; }
+  .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff; }
 
-  /* ===== ВЫВОД ===== */
-  .withdraw-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 12px;
-  }
-  .withdraw-block h3 {
-    font-size: 11px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: #00e5ff; margin-bottom: 10px;
-  }
-  .withdraw-block .amount {
-    font-size: 30px; font-weight: 900;
-    color: #3fbf7f; margin: 4px 0 14px;
-  }
+  .wheel-card { background: linear-gradient(135deg, rgba(241,196,15,.06), rgba(230,126,34,.04)); border: 1px solid rgba(241,196,15,.25); border-radius: 16px; padding: 18px; margin-bottom: 14px; text-align: center; }
+  .wheel-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f1c40f; margin-bottom: 10px; }
+  .wheel-container { position: relative; width: 220px; height: 220px; margin: 10px auto 14px; }
+  .wheel-svg { width: 100%; height: 100%; transition: transform 4s cubic-bezier(.2,.8,.3,1); }
+  .wheel-arrow { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #f1c40f; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); z-index: 3; }
+  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #f1c40f, #e67e22); border: 3px solid #111625; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 2; box-shadow: 0 0 20px rgba(241,196,15,.5); }
+  .wheel-timer { font-size: 12px; color: #8fa2b8; margin-bottom: 10px; }
+
+  .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+  .withdraw-block h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #00e5ff; margin-bottom: 10px; }
+  .withdraw-block .amount { font-size: 30px; font-weight: 900; color: #3fbf7f; margin: 4px 0 14px; }
   .withdraw-block .amount.small { color: #00e5ff; }
-  .withdraw-block .cond {
-    font-size: 12px; color: #a0aec0;
-    line-height: 1.8; margin-bottom: 12px;
-  }
-  .withdraw-block .cond .row {
-    display: flex; justify-content: space-between; margin-bottom: 4px;
-  }
+  .withdraw-block .cond { font-size: 12px; color: #a0aec0; line-height: 1.8; margin-bottom: 12px; }
+  .withdraw-block .cond .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
   .withdraw-block .cond .ok { color: #3fbf7f; font-weight: 700; }
   .withdraw-block .cond .bad { color: #ff8a8a; font-weight: 700; }
 
-  /* ===== НОВОСТИ ===== */
-  .news-item {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 10px;
-  }
-  .news-item .title {
-    font-size: 14px; font-weight: 800;
-    color: #00e5ff; margin-bottom: 6px;
-  }
-  .news-item .body {
-    font-size: 13px; color: #fff;
-    line-height: 1.5; margin-bottom: 6px;
-    white-space: pre-wrap;
-  }
-  .news-item .date { font-size: 11px; color: #8fa2b8; }
+  .news-item { background: linear-gradient(135deg, rgba(0,229,255,.05), rgba(0,119,255,.02)); border: 1px solid rgba(0,229,255,.15); border-radius: 14px; padding: 16px; margin-bottom: 10px; position: relative; overflow: hidden; }
+  .news-item::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(180deg, #00e5ff, #0077ff); }
+  .news-item .title { font-size: 14px; font-weight: 800; color: #00e5ff; margin-bottom: 8px; padding-left: 8px; }
+  .news-item .body { font-size: 13px; color: #d0d5e0; line-height: 1.6; margin-bottom: 8px; padding-left: 8px; white-space: pre-wrap; }
+  .news-item .date { font-size: 11px; color: #8fa2b8; padding-left: 8px; }
 
-  /* ===== ОТЗЫВЫ ===== */
-  .review-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 12px;
-  }
-  .review-block h3 {
-    font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: #00e5ff; margin-bottom: 12px;
-  }
-  .review-block label {
-    display: block; font-size: 10px; color: #8fa2b8;
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 6px; font-weight: 700;
-  }
-  .review-block input, .review-block textarea {
-    width: 100%;
-    background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 14px; color: #fff;
-    font-family: inherit;
-    margin-bottom: 12px; outline: none;
-  }
-  .review-block input:focus, .review-block textarea:focus {
-    border-color: #00e5ff;
-  }
+  .review-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+  .review-block h3 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #00e5ff; margin-bottom: 12px; }
+  .review-block label { display: block; font-size: 10px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
+  .review-block input, .review-block textarea { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; font-size: 14px; color: #fff; font-family: inherit; margin-bottom: 12px; outline: none; }
+  .review-block input:focus, .review-block textarea:focus { border-color: #00e5ff; }
   .review-block textarea { min-height: 70px; resize: vertical; }
-
-  .stars {
-    display: flex; gap: 8px;
-    margin-bottom: 12px; justify-content: center;
-  }
-  .star {
-    font-size: 32px; cursor: pointer;
-    color: rgba(255,255,255,.15); transition: .2s;
-    user-select: none; line-height: 1;
-  }
+  .stars { display: flex; gap: 8px; margin-bottom: 12px; justify-content: center; }
+  .star { font-size: 32px; cursor: pointer; color: rgba(255,255,255,.15); transition: .2s; user-select: none; line-height: 1; }
   .star.active { color: #f1c40f; }
   .star:hover { transform: scale(1.15); }
-
   .my-reviews { margin-top: 18px; }
-  .my-reviews h4 {
-    font-size: 11px; color: #8fa2b8;
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 10px; font-weight: 700;
-  }
-  .my-review-item {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 10px;
-    padding: 12px; margin-bottom: 8px;
-    font-size: 13px;
-  }
-  .my-review-item .head {
-    display: flex; justify-content: space-between;
-    margin-bottom: 4px;
-  }
+  .my-reviews h4 { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
+  .my-review-item { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+  .my-review-item .head { display: flex; justify-content: space-between; margin-bottom: 4px; }
   .my-review-item .dname { font-weight: 800; color: #00e5ff; }
   .my-review-item .stars-line { color: #f1c40f; font-size: 13px; }
-  .my-review-item .txt {
-    color: #a0aec0; font-size: 12px;
-    line-height: 1.5; margin-top: 4px;
-  }
+  .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; }
 
-  /* ===== МОДАЛКИ ===== */
-  .modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.85);
-    backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center;
-    z-index: 9999; padding: 16px; overflow-y: auto;
-  }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; overflow-y: auto; }
   .modal-backdrop.show { display: flex; }
-  .modal {
-    background: linear-gradient(135deg, #111625, #0a0d14);
-    border: 2px solid #00e5ff;
-    border-radius: 22px;
-    padding: 28px 22px;
-    max-width: 380px; width: 100%;
-    text-align: center;
-    box-shadow: 0 0 50px rgba(0,229,255,.3);
-    position: relative; overflow: hidden; margin: auto;
-  }
+  .modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid #00e5ff; border-radius: 22px; padding: 28px 22px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(0,229,255,.3); position: relative; overflow: hidden; margin: auto; }
   .modal.rank-up { border-color: #f1c40f; box-shadow: 0 0 50px rgba(241,196,15,.4); }
-  .modal-logo {
-    font-size: 30px; font-weight: 900; letter-spacing: 3px;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-  }
-  .modal-sub {
-    font-size: 9px; color: #8fa2b8;
-    letter-spacing: 2px; text-transform: uppercase;
-    margin-bottom: 18px;
-  }
+  .modal-logo { font-size: 30px; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .modal-sub { font-size: 9px; color: #8fa2b8; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; }
   .modal-title { font-size: 20px; font-weight: 900; margin-bottom: 10px; }
   .modal-title span { color: #3fbf7f; }
   .modal.rank-up .modal-title span { color: #f1c40f; }
-  .modal-text {
-    font-size: 13px; color: #a0aec0;
-    line-height: 1.6; margin-bottom: 8px;
-  }
-  .modal-amount {
-    font-size: 32px; font-weight: 900;
-    color: #00e5ff; margin: 12px 0;
-  }
+  .modal-text { font-size: 13px; color: #a0aec0; line-height: 1.6; margin-bottom: 8px; }
+  .modal-amount { font-size: 32px; font-weight: 900; color: #00e5ff; margin: 12px 0; }
   .modal.rank-up .modal-amount { color: #f1c40f; }
-  .modal-hint {
-    font-size: 11px; color: #8fa2b8;
-    line-height: 1.6; margin-bottom: 16px;
-  }
-  .modal-btn {
-    background: #00e5ff; color: #000;
-    border: none; border-radius: 10px;
-    padding: 12px 30px;
-    font-size: 13px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    transition: .2s;
-  }
+  .modal-hint { font-size: 11px; color: #8fa2b8; line-height: 1.6; margin-bottom: 16px; }
+  .modal-btn { background: #00e5ff; color: #000; border: none; border-radius: 10px; padding: 12px 30px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: .2s; }
   .modal-btn:hover { filter: brightness(1.1); }
   .modal.rank-up .modal-btn { background: #f1c40f; }
-  .modal-close {
-    position: absolute; top: 12px; right: 12px;
-    background: none; border: none; color: #8fa2b8;
-    font-size: 22px; cursor: pointer;
-  }
+  .modal-close { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #8fa2b8; font-size: 22px; cursor: pointer; }
   .modal-close:hover { color: #fff; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
   .modal-btn.green { background: #3fbf7f; color: #000; }
-
-  /* ===== ЛОГИН ===== */
-  .login-form label {
-    display: block; font-size: 11px; color: #8fa2b8;
-    text-transform: uppercase; letter-spacing: 1px;
-    margin: 12px 0 6px; font-weight: 600;
-  }
-  .login-form input {
-    width: 100%;
-    background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 10px;
-    padding: 13px;
-    font-size: 15px; color: #fff;
-    font-family: inherit;
-  }
+  .login-form label { display: block; font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; font-weight: 600; }
+  .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 13px; font-size: 15px; color: #fff; font-family: inherit; }
   .login-form input:focus { outline: none; border-color: #00e5ff; }
-
-  .err {
-    background: rgba(255,77,77,.12);
-    border: 1px solid rgba(255,77,77,.4);
-    color: #ff8a8a;
-    border-radius: 10px;
-    padding: 12px; text-align: center;
-    font-weight: 600; margin: 10px 0;
-    font-size: 13px;
-  }
-
-  .footer {
-    text-align: center; font-size: 10px;
-    color: #6d819a; margin-top: 16px;
-  }
-
-  .cp-input {
-    width: 100%;
-    background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 10px;
-    padding: 12px; color: #fff;
-    font-size: 14px; margin-bottom: 10px;
-    text-align: center; font-family: inherit;
-  }
+  .err { background: rgba(255,77,77,.12); border: 1px solid rgba(255,77,77,.4); color: #ff8a8a; border-radius: 10px; padding: 12px; text-align: center; font-weight: 600; margin: 10px 0; font-size: 13px; }
+  .footer { text-align: center; font-size: 10px; color: #6d819a; margin-top: 16px; }
+  .cp-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; color: #fff; font-size: 14px; margin-bottom: 10px; text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: #00e5ff; }
 
   @media (max-width: 600px) {
@@ -473,7 +168,7 @@
     .logo { font-size: 22px; }
     .logo-sub { font-size: 9px; margin-bottom: 14px; }
     .card { padding: 16px 14px; border-radius: 16px; }
-    .profile-name { font-size: 22px; }
+    .profile-name { font-size: 24px; }
     .profile-id { font-size: 11px; }
     .rank-badge { font-size: 10px; padding: 6px 14px; }
     .balance-item .val { font-size: 18px; }
@@ -492,6 +187,7 @@
     .withdraw-block .amount { font-size: 26px; }
     .review-block { padding: 14px; }
     .star { font-size: 28px; }
+    .wheel-container { width: 180px; height: 180px; }
   }
 </style>
 </head>
@@ -506,40 +202,49 @@
   <div class="footer">© KINGWIN</div>
 </div>
 
-<!-- МОДАЛКА: повышение ранга -->
+<!-- МОДАЛКИ -->
 <div class="modal-backdrop" id="rankUpModal">
   <div class="modal rank-up">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Rank Up</div>
     <div class="modal-title">Ранг повышен! <span>🎉</span></div>
-    <div class="modal-text" id="rankUpText">Поздравляем с достижением ранга Silver!</div>
-    <div class="modal-amount" id="rankUpAmount">+50 ₽</div>
-    <div class="modal-hint" id="rankUpHint">Подарок зачислен в бонусный баланс. Отыграйте его в разделе «Бонусы».</div>
+    <div class="modal-text" id="rankUpText">Поздравляем!</div>
+    <div class="modal-amount" id="rankUpAmount">+0 ₽</div>
+    <div class="modal-hint">Подарок зачислен в бонусный баланс.</div>
     <button class="modal-btn" onclick="closeRankUpModal()">Отлично</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: ежедневный бонус -->
 <div class="modal-backdrop" id="dailyModal">
-  <div class="modal" style="border-color:#3fbf7f; box-shadow:0 0 50px rgba(63,191,127,.3);">
+  <div class="modal" style="border-color:#3fbf7f;">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Daily Bonus</div>
     <div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div>
-    <div class="modal-text" id="dailyModalText">Ваш ежедневный бонус:</div>
+    <div class="modal-text" id="dailyModalText">Ваш бонус:</div>
     <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div>
-    <div class="modal-hint" id="dailyModalHint">Streak: 1 день. Завтра снова заходите!</div>
+    <div class="modal-hint" id="dailyModalHint">Streak: 1 день</div>
     <button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: перевод на казино -->
+<div class="modal-backdrop" id="wheelModal">
+  <div class="modal" style="border-color:#f1c40f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Lucky Wheel</div>
+    <div class="modal-title">Выигрыш <span style="color:#f1c40f;" id="wheelPrize">0</span> ₽</div>
+    <div class="modal-text">Зачислено на бонусный баланс.</div>
+    <div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div>
+    <button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="confirmTransferModal">
   <div class="modal" style="border-color:#3fbf7f;">
     <button class="modal-close" onclick="closeConfirmTransfer()">✕</button>
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Transfer</div>
     <div class="modal-title">Перевод на казино</div>
-    <div class="modal-text">Перевести <b id="transferAmount" style="color: #fff;">0</b> ₽ на баланс онлайн-казино?</div>
+    <div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div>
     <div class="modal-hint">Средства сразу поступят на игровой счёт.</div>
     <div style="display:flex; gap:8px; justify-content:center;">
       <button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button>
@@ -548,26 +253,24 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: успешный перевод -->
 <div class="modal-backdrop" id="successTransferModal">
   <div class="modal" style="border-color:#3fbf7f;">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Success</div>
     <div class="modal-title">Успешно!</div>
-    <div class="modal-text">Переведено <b id="successTransferAmount" style="color: #fff;">0</b> ₽ на баланс казино.</div>
+    <div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div>
     <button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: подтверждение вывода -->
 <div class="modal-backdrop" id="confirmRealWithdrawModal">
   <div class="modal">
     <button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button>
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Withdraw</div>
     <div class="modal-title">Заявка на вывод</div>
-    <div class="modal-text">Вывести <b id="realWithdrawAmount" style="color: #fff;">0</b> ₽?</div>
-    <div class="modal-hint">Заявка уходит администратору на проверку.</div>
+    <div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div>
+    <div class="modal-hint">Заявка уходит администратору.</div>
     <div style="display:flex; gap:8px; justify-content:center;">
       <button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button>
       <button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button>
@@ -575,50 +278,45 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: успешный вывод -->
 <div class="modal-backdrop" id="successRealWithdrawModal">
   <div class="modal">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Success</div>
     <div class="modal-title">Заявка создана!</div>
-    <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color: #fff;">0</b> ₽ отправлена администратору.</div>
+    <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div>
     <button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: оценка отправлена -->
 <div class="modal-backdrop" id="reviewSuccessModal">
   <div class="modal" style="border-color:#3fbf7f;">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Thanks</div>
     <div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div>
-    <div class="modal-text">Ваша оценка дилера отправлена.</div>
+    <div class="modal-text">Ваша оценка отправлена.</div>
     <button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: ошибка оценки -->
 <div class="modal-backdrop" id="reviewErrorModal">
   <div class="modal" style="border-color:#ff4d4d;">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Notice</div>
-    <div class="modal-title" style="color:#ff8a8a;">Не получилось</div>
+    <div class="modal-title" style="color:#ff8a8a;">Ошибка</div>
     <div class="modal-text" id="reviewErrorText">Ошибка</div>
     <button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button>
   </div>
 </div>
 
-<!-- МОДАЛКА: смена пароля -->
 <div class="modal-backdrop" id="changePassModal">
   <div class="modal">
     <button class="modal-close" onclick="closeChangePassModal()">✕</button>
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Security</div>
     <div class="modal-title">Смена пароля</div>
-    <div class="modal-text" style="margin-bottom:14px;">Введите текущий и новый пароль.</div>
-    <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль" autocomplete="current-password">
-    <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4 символа)" autocomplete="new-password">
-    <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый пароль" autocomplete="new-password">
+    <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль">
+    <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)">
+    <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый">
     <div class="err" id="cpErr" style="display:none;"></div>
     <div style="display:flex; gap:8px; justify-content:center; margin-top:6px;">
       <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
@@ -627,13 +325,12 @@
   </div>
 </div>
 
-<!-- МОДАЛКА: пароль изменён -->
 <div class="modal-backdrop" id="changePassSuccessModal">
   <div class="modal" style="border-color:#3fbf7f;">
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Success</div>
     <div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div>
-    <div class="modal-text">Используйте новый пароль при следующем входе.</div>
+    <div class="modal-text">Используйте новый пароль.</div>
     <button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button>
   </div>
 </div>
@@ -648,29 +345,33 @@ const RANKS_INFO = {
   VIP:      { next: null, label: null,       gift: 3000 }
 };
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
+const WHEEL_PRIZES = [1, 2, 4, 6, 10];
+const WHEEL_COLORS = ['#00e5ff', '#3fbf7f', '#f1c40f', '#ff9b9b', '#ff4d4d'];
 
-let session = null;
-let summary = null;
-let dailyState = null;
+let session = null, summary = null, dailyState = null;
 let currentTab = 'profile';
-let lastSeenRank = null;
-let refreshTimer = null;
-let claimLock = false;
-let pendingTransferAmount = 0;
-let pendingRealWithdrawAmount = 0;
-let selectedStars = 0;
+let lastSeenRank = null, refreshTimer = null, claimLock = false;
+let selectedStars = 0, wheelSpinning = false, wheelRotation = 0;
+let wheelState = { can_spin: false, last_spin: null };
 
-/* ===== ИНИЦИАЛИЗАЦИЯ ФОНА С КОРОНАМИ ===== */
+function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+function saveGuestToStorage(g){
+  if(!g || !g.id) return;
+  try { localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(g.id), name: String(g.name || '') })); } catch(e) {}
+}
+
 (function initBackgroundCrowns() {
   const c = document.getElementById('bgCrowns');
   if (!c) return;
-  const crownSvg = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgCrownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#bgCrownGrad)"/><rect x="8" y="46" width="48" height="4" fill="#b8860b"/></svg>`;
-  const brokenSvg = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgBrokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#bgBrokenGrad)"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#bgBrokenGrad)" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5"/></svg>`;
+  const gold = `<svg viewBox="0 0 64 64"><defs><linearGradient id="bgCG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset=".5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#bgCG)"/><rect x="8" y="46" width="48" height="4" fill="#b8860b"/></svg>`;
+  const brk = `<svg viewBox="0 0 64 64"><defs><linearGradient id="bgCB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#bgCB)"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#bgCB)" opacity=".7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5"/></svg>`;
   for (let i = 0; i < 10; i++) {
     const isBroken = Math.random() < 0.4;
     const el = document.createElement('div');
     el.className = 'floating-crown' + (isBroken ? ' broken' : '');
-    el.innerHTML = isBroken ? brokenSvg : crownSvg;
+    el.innerHTML = isBroken ? brk : gold;
     const size = 30 + Math.random() * 50;
     el.style.width = size + 'px';
     el.style.height = size + 'px';
@@ -681,16 +382,6 @@ let selectedStars = 0;
     c.appendChild(el);
   }
 })();
-
-function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
-
-function saveGuestToStorage(g){
-  if(!g || !g.id) return;
-  try {
-    localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(g.id), name: String(g.name || '') }));
-  } catch(e) {}
-}
 
 function renderLogin(prefillId){
   document.getElementById('content').innerHTML = `
@@ -774,16 +465,14 @@ function renderProfile(){
   const info = RANKS_INFO[g.rank] || RANKS_INFO.Bronze;
   const points = g.points || 0;
   const nextMin = g.next_min;
-  let progress = 0;
-  let progressLabel = '';
+  let progress = 0, progressLabel = '';
   const RANK_MIN = { Bronze:0, Silver:100, Gold:300, Platinum:600, Diamond:1000, VIP:1500 };
   if(info.next && nextMin !== null){
     const cur = RANK_MIN[g.rank] || 0;
     progress = Math.min(100, Math.round(((points - cur) / (nextMin - cur)) * 100));
     progressLabel = `${points} / ${nextMin}`;
   } else {
-    progress = 100;
-    progressLabel = 'Максимум';
+    progress = 100; progressLabel = 'Максимум';
   }
 
   const tabs = `
@@ -822,47 +511,28 @@ function renderProfile(){
           </div>
           <div class="progress"><div style="width:${progress}%"></div></div>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="section-title">Отыгрыш</div>
-        <div class="info-block">
-          <div class="row"><span>Отыграно</span><b>${fmt(g.wagering_done)} / ${fmt(g.wagering_required)} ₽</b></div>
-          <div class="row"><span>Накоплено (daily)</span><b style="color:#00e5ff">${fmt(g.pending_bonus)} ₽</b></div>
+        <div style="margin-top:16px">
+          <button class="btn ghost" onclick="openChangePassModal()">Сменить пароль</button>
+          <button class="btn ghost" onclick="doLogout()" style="margin-top:8px; color:#ff8a8a; border-color:rgba(255,138,138,.3)">Выйти</button>
         </div>
-
-        <div class="section-title">Безопасность</div>
-        <button class="btn ghost" onclick="openChangePassModal()">Сменить пароль</button>
-        <button class="btn ghost" onclick="doLogout()" style="margin-top:8px; color:#ff8a8a; border-color:rgba(255,138,138,.3)">Выйти</button>
       </div>
     </div>`;
 
   let bonusPage = `
     <div class="page ${currentTab==='bonus'?'active':''}">
       ${renderDailyHtml()}
+      ${renderWheelHtml()}
     </div>`;
 
-  let withdrawPage = `
-    <div class="page ${currentTab==='withdraw'?'active':''}">
-      ${renderWithdrawHtml()}
-    </div>`;
-
-  let newsPage = `
-    <div class="page ${currentTab==='news'?'active':''}">
-      <div class="card">
-        <div class="section-title">📰 Новости</div>
-        <div id="newsContainer">
-          <div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Загрузка...</div>
-        </div>
-      </div>
-    </div>`;
-
+  let withdrawPage = `<div class="page ${currentTab==='withdraw'?'active':''}">${renderWithdrawHtml()}</div>`;
+  let newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div class="section-title" style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Загрузка...</div></div></div></div>`;
   let reviewPage = `
     <div class="page ${currentTab==='review'?'active':''}">
       <div class="review-block">
         <h3>⭐ Оцените дилера</h3>
         <label>Имя дилера</label>
-        <input type="text" id="reviewDealerName" placeholder="Например: Дилер" maxlength="100">
+        <input type="text" id="reviewDealerName" placeholder="Введите имя дилера" maxlength="100">
         <label>Оценка</label>
         <div class="stars" id="starsRow">
           <span class="star" data-val="1" onclick="selectStars(1)">★</span>
@@ -877,9 +547,7 @@ function renderProfile(){
       </div>
       <div class="my-reviews">
         <h4>Ваши прошлые оценки</h4>
-        <div id="myReviewsList">
-          <div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Загрузка...</div>
-        </div>
+        <div id="myReviewsList"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Загрузка...</div></div>
       </div>
     </div>`;
 
@@ -887,6 +555,7 @@ function renderProfile(){
 
   if(currentTab === 'news') loadNews();
   if(currentTab === 'review') loadMyReviews();
+  if(currentTab === 'bonus') checkWheelStatus();
 }
 
 function renderDailyHtml(){
@@ -897,32 +566,126 @@ function renderDailyHtml(){
   const claimed = dailyState.claimed_today;
   const rewards = DAILY_REWARDS;
   const todayIdx = claimed ? Math.max(0, Math.min(6, level - 1)) : Math.min(6, level);
-
   let daysHtml = '';
   for(let i=0; i<7; i++){
     let cls = 'daily-day';
     if(i < level) cls += ' done';
     else if(i === todayIdx && !claimed) cls += ' today';
-    daysHtml += `<div class="${cls}">
-      <div class="num">Д${i+1}</div>
-      <div class="reward">${fmt(rewards[i] || 0)}</div>
-    </div>`;
+    daysHtml += `<div class="${cls}"><div class="num">Д${i+1}</div><div class="reward">${fmt(rewards[i] || 0)}</div></div>`;
   }
-
   const nextReward = claimed ? 0 : (rewards[todayIdx] || 0);
   const btnText = claimed ? '✓ Получено сегодня' : `Забрать ${fmt(nextReward)} ₽`;
-
   return `<div class="daily-card">
-    <div class="daily-title">
-      <span>🔥 Ежедневный бонус</span>
-      <span class="streak">${level}/7</span>
-    </div>
-    <div class="daily-sub">Заходи каждый день — награда растёт: 10 → 15 → 20 → 25 → 30 → 35 → 40 ₽. Пропустишь — серия сгорит.</div>
+    <div class="daily-title"><span>🔥 Ежедневный бонус</span><span class="streak">${level}/7</span></div>
+    <div class="daily-sub">Заходи каждый день — награда растёт: 10 → 15 → 20 → 25 → 30 → 35 → 40 ₽.</div>
     <div class="daily-days">${daysHtml}</div>
     <div id="dailyMsg"></div>
     <button class="btn ${claimed?'ghost':'green'}" id="dailyBtn" ${claimed?'disabled':''} onclick="claimDaily()">${btnText}</button>
   </div>`;
 }
+
+function renderWheelHtml(){
+  const segments = WHEEL_PRIZES.length;
+  const angleStep = 360 / segments;
+  let segmentsSvg = '';
+  for (let i = 0; i < segments; i++) {
+    const startAngle = i * angleStep - 90;
+    const endAngle = (i + 1) * angleStep - 90;
+    const startRad = startAngle * Math.PI / 180;
+    const endRad = endAngle * Math.PI / 180;
+    const r = 100;
+    const x1 = 110 + r * Math.cos(startRad);
+    const y1 = 110 + r * Math.sin(startRad);
+    const x2 = 110 + r * Math.cos(endRad);
+    const y2 = 110 + r * Math.sin(endRad);
+    const largeArc = angleStep > 180 ? 1 : 0;
+    segmentsSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z" fill="${WHEEL_COLORS[i]}" stroke="#111625" stroke-width="2"/>`;
+    const midAngle = (startAngle + endAngle) / 2;
+    const midRad = midAngle * Math.PI / 180;
+    const tx = 110 + 65 * Math.cos(midRad);
+    const ty = 110 + 65 * Math.sin(midRad);
+    segmentsSvg += `<text x="${tx}" y="${ty}" font-size="16" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" transform="rotate(${midAngle + 90}, ${tx}, ${ty})">${WHEEL_PRIZES[i]}₽</text>`;
+  }
+
+  return `<div class="wheel-card">
+    <div class="wheel-title">🎡 Колесо Фортуны</div>
+    <div class="wheel-container">
+      <div class="wheel-arrow"></div>
+      <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220" style="transform: rotate(${wheelRotation}deg)">
+        ${segmentsSvg}
+      </svg>
+      <div class="wheel-center">🎰</div>
+    </div>
+    <div class="wheel-timer" id="wheelTimer">Загрузка…</div>
+    <button class="btn" id="wheelBtn" onclick="spinWheel()" style="background:#f1c40f;" disabled>Крутить</button>
+  </div>`;
+}
+
+async function checkWheelStatus() {
+  if (!session) return;
+  try {
+    const r = await fetch('/api/wheel/status?id=' + encodeURIComponent(session.id));
+    const data = await r.json();
+    wheelState = data;
+    const timerEl = document.getElementById('wheelTimer');
+    const btn = document.getElementById('wheelBtn');
+    if (!timerEl || !btn) return;
+    if (data.can_spin) {
+      timerEl.textContent = 'Можно крутить!';
+      timerEl.style.color = '#3fbf7f';
+      btn.disabled = false;
+    } else if (data.last_spin) {
+      const lastTime = new Date(data.last_spin).getTime();
+      const left = 3600000 - (Date.now() - lastTime);
+      const min = Math.ceil(left / 60000);
+      timerEl.textContent = `Доступно через ${min} мин.`;
+      timerEl.style.color = '#8fa2b8';
+      btn.disabled = true;
+    }
+  } catch(e) {}
+}
+
+async function spinWheel() {
+  if (wheelSpinning || !wheelState.can_spin || !session) return;
+  wheelSpinning = true;
+  const btn = document.getElementById('wheelBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/wheel/spin', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id: session.id })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      alert(data.error || 'Ошибка');
+      wheelSpinning = false;
+      if (btn) btn.disabled = false;
+      return;
+    }
+    const prizeIdx = WHEEL_PRIZES.indexOf(data.prize);
+    const angleStep = 360 / WHEEL_PRIZES.length;
+    const targetAngle = 360 * 5 + (360 - (prizeIdx * angleStep + angleStep / 2));
+    wheelRotation += targetAngle;
+    const svg = document.getElementById('wheelSvg');
+    if (svg) svg.style.transform = `rotate(${wheelRotation}deg)`;
+
+    setTimeout(async () => {
+      document.getElementById('wheelPrize').textContent = data.prize;
+      document.getElementById('wheelModal').classList.add('show');
+      wheelState.can_spin = false;
+      wheelState.last_spin = new Date().toISOString();
+      wheelSpinning = false;
+      await loadSummary();
+      checkWheelStatus();
+    }, 4100);
+  } catch(e) {
+    alert('Ошибка соединения');
+    wheelSpinning = false;
+    if (btn) btn.disabled = false;
+  }
+}
+function closeWheelModal(){ document.getElementById('wheelModal').classList.remove('show'); }
 
 async function claimDaily(){
   if(!dailyState || dailyState.claimed_today || claimLock) return;
@@ -943,7 +706,6 @@ async function claimDaily(){
     }
     dailyState.claimed_today = true;
     dailyState.level = data.level;
-    dailyState.next_reward = 0;
     dailyState.pending_bonus = data.pending_bonus;
     showDailyModal(data.reward, data.level);
     renderProfile();
@@ -957,8 +719,8 @@ async function claimDaily(){
 
 function showDailyModal(reward, level){
   document.getElementById('dailyModalAmount').textContent = '+' + fmt(reward) + ' ₽';
-  document.getElementById('dailyModalText').textContent = `День ${level} пройден! Ваш бонус:`;
-  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${plural(level, 'день','дня','дней')}. Завтра снова заходите!`;
+  document.getElementById('dailyModalText').textContent = `День ${level} пройден! Бонус:`;
+  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${plural(level, 'день','дня','дней')}.`;
   document.getElementById('dailyModal').classList.add('show');
 }
 function closeDailyModal(){ document.getElementById('dailyModal').classList.remove('show'); }
@@ -983,10 +745,11 @@ function renderWithdrawHtml(){
 
   return `
     <div class="withdraw-block">
-      <h3>💰 На казино</h3>
+      <h3>💰 На казино (онлайн)</h3>
       <div class="amount small">${fmt(pending)} ₽</div>
       <div class="cond">
-        <div class="row"><span>Отыгрыш</span>
+        <div class="row"><span>Сыграть в любом режиме Kingwin</span><span class="ok">✓</span></div>
+        <div class="row"><span>Отыгрыш бонуса</span>
           ${wageringOk ? '<span class="ok">✓ выполнен</span>' : `<span class="bad">осталось ${fmt(wageringLeft)}</span>`}
         </div>
       </div>
@@ -1000,7 +763,7 @@ function renderWithdrawHtml(){
         <div class="row"><span>Ранг Silver или выше</span>
           ${rankOk ? '<span class="ok">✓</span>' : '<span class="bad">не выполнен</span>'}
         </div>
-        <div class="row"><span>Отыгрыш</span>
+        <div class="row"><span>Отыгрыш бонусов ×5</span>
           ${wageringOk ? '<span class="ok">✓</span>' : `<span class="bad">${fmt(wageringLeft)}</span>`}
         </div>
       </div>
@@ -1010,7 +773,6 @@ function renderWithdrawHtml(){
 }
 
 function openConfirmTransfer(amount){
-  pendingTransferAmount = amount;
   document.getElementById('transferAmount').textContent = fmt(amount);
   document.getElementById('confirmTransferModal').classList.add('show');
 }
@@ -1033,7 +795,6 @@ async function executeTransfer(){
 function closeSuccessTransfer(){ document.getElementById('successTransferModal').classList.remove('show'); }
 
 function openConfirmRealWithdraw(amount){
-  pendingRealWithdrawAmount = amount;
   document.getElementById('realWithdrawAmount').textContent = fmt(amount);
   document.getElementById('confirmRealWithdrawModal').classList.add('show');
 }
@@ -1096,7 +857,14 @@ async function submitReview(){
   const dealerName = document.getElementById('reviewDealerName').value.trim();
   const comment = document.getElementById('reviewComment').value.trim();
   if(!dealerName){ showReviewError('Введите имя дилера'); return; }
-  if(selectedStars < 1){ showReviewError('Поставьте оценку (1–5 звёзд)'); return; }
+  if(selectedStars < 1){ showReviewError('Поставьте оценку'); return; }
+
+  try {
+    const check = await fetch('/api/dealer/exists?name=' + encodeURIComponent(dealerName));
+    const checkData = await check.json();
+    if(!checkData.exists){ showReviewError('Дилер с таким именем не найден'); return; }
+  } catch(e) { showReviewError('Ошибка проверки дилера'); return; }
+
   try {
     const r = await fetch('/api/dealer-reviews', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1185,9 +953,8 @@ function switchTab(tab){
 }
 
 function showRankUpModal(rank, gift){
-  document.getElementById('rankUpText').innerHTML = `Поздравляем с достижением ранга <b>${rank}</b>!`;
+  document.getElementById('rankUpText').innerHTML = `Поздравляем с рангом <b>${rank}</b>!`;
   document.getElementById('rankUpAmount').textContent = '+' + fmt(gift) + ' ₽';
-  document.getElementById('rankUpHint').innerHTML = `Подарок зачислен в бонусный баланс.`;
   document.getElementById('rankUpModal').classList.add('show');
 }
 function closeRankUpModal(){ document.getElementById('rankUpModal').classList.remove('show'); }
