@@ -30,13 +30,11 @@
     min-height:100vh;display:flex;justify-content:center;padding:14px;
     position:relative;overflow-x:hidden;
   }
-  /* Космические звёзды на фоне */
   body::before, body::after {
     content:'';
     position:absolute;
     width:2px;height:2px;border-radius:50%;
-    background:#fff;
-    opacity:.35;
+    background:#fff;opacity:.35;
     box-shadow:
       120px 80px 0 -0.5px rgba(255,255,255,.6),
       280px 30px 0 0 rgba(0,229,255,.4),
@@ -45,9 +43,7 @@
       460px 380px 0 -0.5px #fff,
       180px 500px 0 0 rgba(255,255,255,.4),
       380px 250px 0 0 rgba(0,229,255,.5);
-    top:0;left:0;
-    pointer-events:none;
-    z-index:0;
+    top:0;left:0;pointer-events:none;z-index:0;
     animation: starTwinkle 4s ease-in-out infinite;
   }
   body::after{
@@ -59,25 +55,26 @@
       30px 180px 0 -0.5px rgba(0,229,255,.4);
     animation-delay: 2s;
   }
-  @keyframes starTwinkle{
-    0%,100%{ opacity:.3; }
-    50%{ opacity:.8; }
-  }
+  @keyframes starTwinkle{0%,100%{opacity:.3}50%{opacity:.8}}
   .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
 
-  .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0;gap:8px}
   .logo{
     font-size:22px;font-weight:900;letter-spacing:2px;
     background:linear-gradient(135deg,var(--accent),#0077ff);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    cursor:pointer;flex-shrink:0;
   }
-  .balance-box{
-    display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  .top-actions{display:flex;align-items:center;gap:8px}
+  .btn-help{
+    background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);
+    color:var(--accent);padding:8px 12px;border-radius:10px;
+    font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;
+    white-space:nowrap;
   }
-  .balance-label{
-    font-size:9px;color:var(--muted);text-transform:uppercase;
-    letter-spacing:1px;font-weight:800;padding-right:4px;
-  }
+  .btn-help:hover{background:rgba(0,229,255,.2)}
+  .balance-box{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .balance-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:800;padding-right:4px}
   .balance{
     background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.35);
     color:var(--green);padding:7px 14px;border-radius:10px;
@@ -88,21 +85,15 @@
   .grid-wrap{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
     padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4), 0 0 30px rgba(0,229,255,.05);
-    position:relative;
-    backdrop-filter: blur(10px);
+    position:relative;backdrop-filter: blur(10px);
   }
-  .grid{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
-    aspect-ratio:1;width:100%;
-  }
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;aspect-ratio:1;width:100%}
   .cell{
     background:linear-gradient(145deg, rgba(0,229,255,.14), rgba(0,119,255,.06));
-    border:1px solid rgba(0,229,255,.28);
-    border-radius:12px;
+    border:1px solid rgba(0,229,255,.28);border-radius:12px;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;transition:.15s;user-select:none;
-    aspect-ratio:1;font-weight:900;
-    position:relative;
+    aspect-ratio:1;font-weight:900;position:relative;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
   }
   .cell:hover:not(.disabled){
@@ -112,82 +103,36 @@
   }
   .cell:active:not(.disabled){ transform:scale(.94); }
 
-  /* ========== ИКОНКИ АЛМАЗА И МИНЫ ========== */
-  .icon-diamond{
-    width:50%;height:50%;
-    position:relative;
-    transform: rotate(45deg);
-    background: linear-gradient(135deg, #d4fcff 0%, #00e5ff 35%, #0077ff 100%);
-    border:2px solid #d4fcff;
-    border-radius:4px;
-    box-shadow:
-      0 0 12px rgba(0,229,255,.9),
-      0 0 24px rgba(0,229,255,.5),
-      inset 0 0 8px rgba(255,255,255,.7);
-    animation: diamondShine 1.5s ease-in-out infinite;
-  }
-  .icon-diamond::before{
-    content:'';
-    position:absolute;
-    top:10%;left:10%;
-    width:35%;height:35%;
-    background:linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,0));
-    border-radius:50%;
-    filter: blur(1px);
-  }
-  @keyframes diamondShine{
-    0%,100%{ box-shadow: 0 0 12px rgba(0,229,255,.9), 0 0 24px rgba(0,229,255,.5), inset 0 0 8px rgba(255,255,255,.7); }
-    50%{ box-shadow: 0 0 20px rgba(0,229,255,1), 0 0 40px rgba(0,229,255,.7), inset 0 0 12px rgba(255,255,255,.95); }
-  }
-
-  .icon-mine{
+  /* ========== ИКОНКА КОРОНЫ (безопасно) ========== */
+  .icon-crown{
     width:55%;height:55%;
-    border-radius:50%;
-    background: radial-gradient(circle at 30% 30%, #ff9b9b 0%, #ff4d4d 40%, #8b0000 100%);
-    border:2px solid #ff8a8a;
-    box-shadow:
-      0 0 12px rgba(255,77,77,.9),
-      0 0 24px rgba(255,77,77,.5),
-      inset 0 0 8px rgba(0,0,0,.5);
     position:relative;
-    animation: minePulse .8s ease-in-out infinite;
+    display:flex;align-items:center;justify-content:center;
   }
-  .icon-mine::before{
-    content:'';
-    position:absolute;
-    top:15%;left:20%;
-    width:25%;height:25%;
-    background:rgba(255,255,255,.7);
-    border-radius:50%;
-    filter: blur(0.5px);
+  .icon-crown svg{
+    width:100%;height:100%;
+    filter: drop-shadow(0 0 6px rgba(241,196,15,.9)) drop-shadow(0 0 12px rgba(241,196,15,.5));
+    animation: crownGlow 1.5s ease-in-out infinite;
   }
-  .icon-mine::after{
-    content:'';
-    position:absolute;
-    inset:-4px;
-    border-radius:50%;
-    border:1px dashed rgba(255,77,77,.6);
-    animation: mineSpin 3s linear infinite;
-  }
-  @keyframes minePulse{
-    0%,100%{ transform: scale(1); box-shadow: 0 0 12px rgba(255,77,77,.9), 0 0 24px rgba(255,77,77,.5), inset 0 0 8px rgba(0,0,0,.5); }
-    50%{ transform: scale(1.08); box-shadow: 0 0 20px rgba(255,77,77,1), 0 0 40px rgba(255,77,77,.7), inset 0 0 10px rgba(0,0,0,.6); }
-  }
-  @keyframes mineSpin{
-    from{ transform: rotate(0deg); }
-    to{ transform: rotate(360deg); }
+  @keyframes crownGlow{
+    0%,100%{ filter: drop-shadow(0 0 6px rgba(241,196,15,.9)) drop-shadow(0 0 12px rgba(241,196,15,.5)); }
+    50%{ filter: drop-shadow(0 0 10px rgba(241,196,15,1)) drop-shadow(0 0 22px rgba(241,196,15,.8)); }
   }
 
-  /* Взорванная мина — больше и ярче */
-  .cell.mine .icon-mine{
-    width:65%;height:65%;
-    background: radial-gradient(circle at 30% 30%, #fff 0%, #ff4d4d 30%, #8b0000 100%);
-    animation: explosion .5s ease-out;
+  /* ========== ИКОНКА РАЗБИТОЙ КОРОНЫ (мина) ========== */
+  .icon-broken-crown{
+    width:55%;height:55%;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
   }
-  @keyframes explosion{
-    0%{ transform: scale(1); filter: brightness(1); }
-    40%{ transform: scale(1.4); filter: brightness(2); }
-    100%{ transform: scale(1.1); filter: brightness(1.3); }
+  .icon-broken-crown svg{
+    width:100%;height:100%;
+    filter: drop-shadow(0 0 6px rgba(255,77,77,.9)) drop-shadow(0 0 12px rgba(255,77,77,.5));
+    animation: brokenPulse .8s ease-in-out infinite;
+  }
+  @keyframes brokenPulse{
+    0%,100%{ filter: drop-shadow(0 0 6px rgba(255,77,77,.9)) drop-shadow(0 0 12px rgba(255,77,77,.5)); transform:scale(1); }
+    50%{ filter: drop-shadow(0 0 12px rgba(255,77,77,1)) drop-shadow(0 0 24px rgba(255,77,77,.7)); transform:scale(1.08); }
   }
 
   .cell.safe{ cursor:default; }
@@ -202,19 +147,13 @@
     border-color:rgba(255,77,77,.4);
     opacity:.55;
   }
-  .cell.revealed-mine .icon-mine{
-    opacity:.6;
-    animation:none;
-  }
+  .cell.revealed-mine .icon-broken-crown svg{ animation:none; opacity:.6; }
   .cell.revealed-safe{
-    background:rgba(0,230,118,.08);
-    border-color:rgba(0,230,118,.25);
+    background:rgba(241,196,15,.08);
+    border-color:rgba(241,196,15,.25);
     opacity:.55;
   }
-  .cell.revealed-safe .icon-diamond{
-    opacity:.5;
-    animation:none;
-  }
+  .cell.revealed-safe .icon-crown svg{ animation:none; opacity:.5; }
   @keyframes shake{
     0%,100%{ transform: translateX(0); }
     25%{ transform: translateX(-5px); }
@@ -223,14 +162,12 @@
 
   .bet-panel{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
-    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);
-    backdrop-filter: blur(10px);
+    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);backdrop-filter: blur(10px);
   }
 
   .stats-row{
     display:flex;justify-content:space-between;align-items:center;
-    padding:8px 4px;margin-bottom:10px;
-    border-bottom:1px solid var(--border);
+    padding:8px 4px;margin-bottom:10px;border-bottom:1px solid var(--border);
   }
   .stat{ text-align:left; }
   .stat-lbl{ font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700; }
@@ -248,9 +185,7 @@
   .mines-btn:hover{color:var(--accent)}
   .mines-val{font-size:15px;font-weight:900;min-width:20px;text-align:center}
 
-  .bet-input-row{
-    display:flex;align-items:center;gap:8px;margin-bottom:10px;
-  }
+  .bet-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
   .bet-btn{
     width:44px;height:44px;border-radius:10px;border:1px solid var(--border);
     background:rgba(0,0,0,.3);color:#fff;font-size:20px;font-weight:900;
@@ -278,6 +213,7 @@
   .status.err{color:var(--red)}
   .status.ok{color:var(--green)}
 
+  /* ===== Модалка «Как играть» ===== */
   .modal{
     position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
     display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;
@@ -285,22 +221,28 @@
   .modal.show{display:flex}
   .modal-box{
     background:linear-gradient(135deg,#111625,#0b0e14);
-    border:2px solid var(--accent);border-radius:20px;padding:30px 24px;
-    max-width:340px;width:100%;text-align:center;
+    border:2px solid var(--accent);border-radius:20px;padding:28px 24px;
+    max-width:420px;width:100%;text-align:left;
     box-shadow:0 0 60px rgba(0,229,255,.3);animation:up .3s;
+    max-height:90vh;overflow-y:auto;
   }
   @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
-  .modal-box.win{border-color:var(--green);box-shadow:0 0 60px rgba(0,230,118,.4)}
-  .modal-box.lose{border-color:var(--red);box-shadow:0 0 60px rgba(255,77,77,.4)}
-  .modal-title{font-size:24px;font-weight:900;margin-bottom:8px}
-  .modal-title.win{color:var(--green)}
-  .modal-title.lose{color:var(--red)}
-  .modal-amount{font-size:40px;font-weight:900;color:var(--gold);margin:16px 0;text-shadow:0 0 20px rgba(241,196,15,.5)}
-  .modal-text{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:20px}
+  .modal-title{font-size:22px;font-weight:900;margin-bottom:16px;text-align:center;
+    background:linear-gradient(135deg,var(--accent),#0077ff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .modal-text{font-size:13px;color:#d0d5e0;line-height:1.7;margin-bottom:10px}
+  .modal-text b{color:#fff}
+  .modal-text .gold{color:var(--gold);font-weight:800}
+  .modal-text .red{color:var(--red);font-weight:800}
+  .modal-text .green{color:var(--green);font-weight:800}
+  .modal-list{margin:10px 0 16px 20px;font-size:13px;line-height:1.8;color:#d0d5e0}
+  .modal-list li{margin-bottom:6px}
   .modal-btn{
     background:var(--accent);color:#000;border:none;border-radius:10px;
     padding:14px 30px;font-size:14px;font-weight:900;cursor:pointer;
     font-family:inherit;text-transform:uppercase;letter-spacing:1px;width:100%;
+    margin-top:8px;
   }
 
   @media(max-width:400px){
@@ -309,6 +251,9 @@
     .bet-btn{width:38px;height:38px;font-size:18px}
     .stat-val{font-size:14px}
     .mines-selector{padding:5px 8px}
+    .logo{font-size:18px}
+    .btn-help{font-size:11px;padding:6px 10px}
+    .balance{padding:6px 10px;font-size:12px}
   }
 </style>
 </head>
@@ -316,10 +261,13 @@
 <div class="wrap">
 
   <div class="topbar">
-    <div class="logo">MINER</div>
-    <div class="balance-box">
-      <div class="balance-label">Баланс</div>
-      <div class="balance" id="balanceView">— ₽</div>
+    <div class="logo">KINGWIN</div>
+    <div class="top-actions">
+      <button class="btn-help" onclick="openHelp()">Как играть?</button>
+      <div class="balance-box">
+        <div class="balance-label">Баланс</div>
+        <div class="balance" id="balanceView">— ₽</div>
+      </div>
     </div>
   </div>
 
@@ -370,12 +318,24 @@
 
 </div>
 
-<div class="modal" id="resultModal">
-  <div class="modal-box" id="modalBox">
-    <div class="modal-title" id="modalTitle">Результат</div>
-    <div class="modal-amount" id="modalAmount">+0 ₽</div>
-    <div class="modal-text" id="modalText"></div>
-    <button class="modal-btn" onclick="closeModal()">ОК</button>
+<!-- Модалка «Как играть» -->
+<div class="modal" id="helpModal">
+  <div class="modal-box">
+    <div class="modal-title">🎮 Как играть в KINGWIN Miner</div>
+    <div class="modal-text">
+      На поле <b>5 × 5</b> спрятаны мины. Ваша задача — открывать безопасные ячейки с коронами 👑 и не попасть на мину 💥.
+    </div>
+    <ul class="modal-list">
+      <li>Выберите <b>ставку</b> (от 5 ₽) и <b>количество мин</b> (от 1 до 24) с помощью кнопок <b>‹ ›</b>.</li>
+      <li>Чем больше мин — тем выше <span class="gold">множитель</span> за каждую безопасную ячейку.</li>
+      <li>Открывайте ячейки: <span class="gold">корона 👑</span> = безопасно, множитель растёт. <span class="red">Разбитая корона 💥</span> = взрыв, ставка сгорает.</li>
+      <li>В любой момент нажмите <span class="green">«Забрать выигрыш»</span>, чтобы забрать текущую ставку × множитель.</li>
+      <li>Если открыть <b>все</b> безопасные ячейки — выигрыш зачисляется автоматически.</li>
+    </ul>
+    <div class="modal-text">
+      <b>Совет:</b> начните с 3–5 мин и небольшой ставки, чтобы привыкнуть к полю. Чем больше мин, тем выше риск и награда.
+    </div>
+    <button class="modal-btn" onclick="closeHelp()">Понятно</button>
   </div>
 </div>
 
@@ -392,26 +352,21 @@ let cells = [];
 let mult = 1.0;
 let busy = false;
 
-/* ============ ЗВУКИ (Web Audio API, без файлов) ============ */
+/* ============ ЗВУКИ (Web Audio API) ============ */
 let audioCtx = null;
 function getAudioCtx() {
   if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {}
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
 
-function playDiamondSound() {
+function playCrownSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
-
-  // Кристальный звон: три ноты (E6, G#6, B6) с лёгким расстроем
-  const freqs = [1318.51, 1661.22, 1975.53];
+  // Золотой звон — три ноты (C6, E6, G6) с лёгким расстроем
+  const freqs = [1046.50, 1318.51, 1567.98];
   freqs.forEach((f, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -419,31 +374,17 @@ function playDiamondSound() {
     osc.frequency.setValueAtTime(f, now + i * 0.03);
     osc.frequency.exponentialRampToValueAtTime(f * 1.002, now + 0.4);
     gain.gain.setValueAtTime(0, now + i * 0.03);
-    gain.gain.linearRampToValueAtTime(0.12, now + i * 0.03 + 0.01);
+    gain.gain.linearRampToValueAtTime(0.1, now + i * 0.03 + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.5);
     osc.connect(gain).connect(ctx.destination);
     osc.start(now + i * 0.03);
     osc.stop(now + i * 0.03 + 0.55);
   });
-
-  // Лёгкий "blip" сверху
-  const blip = ctx.createOscillator();
-  const blipGain = ctx.createGain();
-  blip.type = 'triangle';
-  blip.frequency.setValueAtTime(2637.02, now);
-  blip.frequency.exponentialRampToValueAtTime(3520.00, now + 0.1);
-  blipGain.gain.setValueAtTime(0.05, now);
-  blipGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-  blip.connect(blipGain).connect(ctx.destination);
-  blip.start(now);
-  blip.stop(now + 0.2);
 }
 
-function playMineSound() {
+function playExplosionSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
-
-  // Низкий гул + шум взрыва
   const osc = ctx.createOscillator();
   const oscGain = ctx.createGain();
   osc.type = 'sawtooth';
@@ -455,13 +396,10 @@ function playMineSound() {
   osc.start(now);
   osc.stop(now + 0.7);
 
-  // Шум (взрыв)
   const bufferSize = ctx.sampleRate * 0.4;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
-  }
+  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
   const noise = ctx.createBufferSource();
   noise.buffer = buffer;
   const noiseGain = ctx.createGain();
@@ -479,7 +417,6 @@ function playMineSound() {
 function playWinSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   const now = ctx.currentTime;
-  // Мажорный аккорд (C-E-G-C)
   const freqs = [523.25, 659.25, 783.99, 1046.50];
   freqs.forEach((f, i) => {
     const osc = ctx.createOscillator();
@@ -493,6 +430,61 @@ function playWinSound() {
     osc.start(now + i * 0.06);
     osc.stop(now + i * 0.06 + 0.6);
   });
+}
+
+/* ============ ИКОНКИ ============ */
+function makeCrown() {
+  const d = document.createElement('div');
+  d.className = 'icon-crown';
+  d.innerHTML = `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff8b0"/>
+          <stop offset="0.5" stop-color="#f1c40f"/>
+          <stop offset="1" stop-color="#b8860b"/>
+        </linearGradient>
+      </defs>
+      <path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" 
+            fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/>
+      <circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/>
+      <circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/>
+      <rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/>
+    </svg>
+  `;
+  return d;
+}
+
+function makeBrokenCrown() {
+  const d = document.createElement('div');
+  d.className = 'icon-broken-crown';
+  d.innerHTML = `
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ff9b9b"/>
+          <stop offset="0.5" stop-color="#ff4d4d"/>
+          <stop offset="1" stop-color="#8b0000"/>
+        </linearGradient>
+      </defs>
+      <!-- Левая половина короны -->
+      <path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" 
+            fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Правая половина (сломанная, сдвинута) -->
+      <path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" 
+            fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/>
+      <!-- Трещина -->
+      <path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+      <!-- Осколки -->
+      <circle cx="30" cy="20" r="1.5" fill="#ff9b9b"/>
+      <circle cx="38" cy="26" r="1.5" fill="#ff9b9b"/>
+      <circle cx="42" cy="18" r="1.5" fill="#ff9b9b"/>
+      <!-- Искры -->
+      <path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  `;
+  return d;
 }
 
 /* ============ ОСНОВНОЙ КОД ============ */
@@ -525,17 +517,6 @@ function setStatus(text, cls, el = 'status') {
   e.className = 'status' + (cls ? ' ' + cls : '');
 }
 
-function makeDiamond() {
-  const d = document.createElement('div');
-  d.className = 'icon-diamond';
-  return d;
-}
-function makeMine() {
-  const m = document.createElement('div');
-  m.className = 'icon-mine';
-  return m;
-}
-
 function renderGrid() {
   const grid = $('grid');
   grid.innerHTML = '';
@@ -545,12 +526,12 @@ function renderGrid() {
     div.className = 'cell';
 
     if (c.open) {
-      if (c.mine) { div.classList.add('mine'); div.appendChild(makeMine()); }
-      else { div.classList.add('safe'); div.appendChild(makeDiamond()); }
+      if (c.mine) { div.classList.add('mine'); div.appendChild(makeBrokenCrown()); }
+      else { div.classList.add('safe'); div.appendChild(makeCrown()); }
       div.classList.add('disabled');
     } else if (c.revealed) {
-      if (c.mine) { div.classList.add('revealed-mine'); div.appendChild(makeMine()); }
-      else { div.classList.add('revealed-safe'); div.appendChild(makeDiamond()); }
+      if (c.mine) { div.classList.add('revealed-mine'); div.appendChild(makeBrokenCrown()); }
+      else { div.classList.add('revealed-safe'); div.appendChild(makeCrown()); }
       div.classList.add('disabled');
     }
     if (c.disabled) div.classList.add('disabled');
@@ -583,8 +564,7 @@ async function startGame() {
   if (currentBet < 5) { setStatus('Мин. ставка 5 ₽', 'err'); return; }
   if (balance < currentBet) { setStatus('Недостаточно средств', 'err'); return; }
 
-  // Разблокируем аудио на клик (браузер требует жест)
-  getAudioCtx();
+  getAudioCtx(); // разблокировка звука на клик
 
   busy = true;
   setStatus('Запуск...');
@@ -606,7 +586,7 @@ async function startGame() {
     $('betPanel').style.display = 'none';
     $('playPanel').style.display = 'block';
     $('btnCashout').disabled = true;
-    setStatus('Открывайте клетки. Осторожно: ' + currentMines + ' мин', 'ok', 'playStatus');
+    setStatus('Открывайте ячейки. Осторожно: ' + currentMines + ' мин', 'ok', 'playStatus');
     await refreshBalance();
   } catch(e) { setStatus('Ошибка соединения', 'err'); }
   busy = false;
@@ -615,11 +595,8 @@ async function startGame() {
 function revealAll(mines) {
   for (let i = 0; i < TOTAL; i++) {
     if (cells[i].open) continue;
-    if (mines.includes(i)) {
-      cells[i] = { open: false, mine: true, disabled: true, revealed: true };
-    } else {
-      cells[i] = { open: false, mine: false, disabled: true, revealed: true };
-    }
+    if (mines.includes(i)) cells[i] = { open: false, mine: true, disabled: true, revealed: true };
+    else cells[i] = { open: false, mine: false, disabled: true, revealed: true };
   }
   renderGrid();
 }
@@ -636,20 +613,19 @@ async function openCell(i) {
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
 
     if (d.mine) {
-      playMineSound();
+      playExplosionSound();
       cells[i] = { open: true, mine: true, disabled: true };
       renderGrid();
       sessionId = null;
       revealAll(d.mines || []);
-      showResult('lose', 0, 'Вы попали на мину. Ставка потеряна.');
+      setStatus('💥 Взрыв! Вы попали на разбитую корону. Ставка потеряна.', 'err', 'playStatus');
       await refreshBalance();
-      setTimeout(() => endRoundUI(), 1200);
+      setTimeout(() => endRoundUI(), 2000);
       busy = false;
       return;
     }
 
-    // безопасная
-    playDiamondSound();
+    playCrownSound();
     cells[i] = { open: true, mine: false, disabled: true };
     (d.revealed || []).forEach(idx => { if (!cells[idx].open) cells[idx] = { open: true, mine: false, disabled: true }; });
     mult = parseFloat(d.multiplier) || mult;
@@ -664,9 +640,9 @@ async function openCell(i) {
       sessionId = null;
       revealAll(d.mines || []);
       playWinSound();
-      showResult('win', d.win, `Все безопасные клетки открыты! Множитель x${mult.toFixed(2)}`);
+      setStatus(`👑 Все безопасные ячейки открыты! Забрано ${fmt(d.win)} ₽ (x${mult.toFixed(2)})`, 'ok', 'playStatus');
       await refreshBalance();
-      setTimeout(() => endRoundUI(), 1200);
+      setTimeout(() => endRoundUI(), 2000);
     }
   } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
@@ -686,9 +662,9 @@ async function cashout() {
     playWinSound();
     sessionId = null;
     revealAll(d.mines || []);
-    showResult('win', d.win, `Забрано с множителем x${d.multiplier.toFixed(2)}`);
+    setStatus(`👑 Забрано ${fmt(d.win)} ₽ (x${d.multiplier.toFixed(2)})`, 'ok', 'playStatus');
     await refreshBalance();
-    setTimeout(() => endRoundUI(), 1200);
+    setTimeout(() => endRoundUI(), 2000);
   } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
 }
@@ -705,27 +681,11 @@ function endRoundUI() {
   setStatus('Выберите ставку и начните');
 }
 
-function showResult(type, amount, text) {
-  const box = $('modalBox');
-  const title = $('modalTitle');
-  const amt = $('modalAmount');
-  const txt = $('modalText');
-  box.className = 'modal-box ' + type;
-  title.className = 'modal-title ' + type;
-  if (type === 'win') {
-    title.textContent = 'Победа!';
-    amt.textContent = '+' + fmt(amount) + ' ₽';
-    amt.style.color = 'var(--green)';
-  } else {
-    title.textContent = 'Проигрыш';
-    amt.textContent = '−' + fmt(currentBet) + ' ₽';
-    amt.style.color = 'var(--red)';
-  }
-  txt.textContent = text || '';
-  $('resultModal').classList.add('show');
-}
-function closeModal() { $('resultModal').classList.remove('show'); }
+/* ============ КАК ИГРАТЬ ============ */
+function openHelp() { $('helpModal').classList.add('show'); }
+function closeHelp() { $('helpModal').classList.remove('show'); }
 
+/* ============ ИНИЦИАЛИЗАЦИЯ ============ */
 me = loadMe();
 resetCells();
 renderGrid();
