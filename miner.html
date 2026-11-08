@@ -7,17 +7,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0e14; --panel:rgba(21,25,34,.95); --card:#1a1f2b;
-    --text:#fff; --muted:#8b92a5; --accent:#00e5ff;
-    --green:#00e676; --red:#ff4d4d; --gold:#f1c40f; --border:rgba(255,255,255,.06);
+    --bg:#0b0e14;
+    --panel:rgba(21,25,34,.95);
+    --card:#1a1f2b;
+    --text:#fff;
+    --muted:#8b92a5;
+    --accent:#00e5ff;
+    --green:#00e676;
+    --red:#ff4d4d;
+    --gold:#f1c40f;
+    --border:rgba(255,255,255,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{
     font-family:'Montserrat',sans-serif;color:var(--text);
-    background:radial-gradient(circle at top,#1a2332,#0b0e14);
+    background-color:#070a10;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(0,229,255,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(0,119,255,0.10) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(0,229,255,0.03) 0%, transparent 70%),
+      radial-gradient(circle at top,#1a2332,#070a10 80%);
     min-height:100vh;display:flex;justify-content:center;padding:14px;
+    position:relative;overflow-x:hidden;
   }
-  .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px}
+  /* Космические звёзды на фоне */
+  body::before, body::after {
+    content:'';
+    position:absolute;
+    width:2px;height:2px;border-radius:50%;
+    background:#fff;
+    opacity:.35;
+    box-shadow:
+      120px 80px 0 -0.5px rgba(255,255,255,.6),
+      280px 30px 0 0 rgba(0,229,255,.4),
+      400px 150px 0 -0.5px #fff,
+      50px 300px 0 0 rgba(0,229,255,.3),
+      460px 380px 0 -0.5px #fff,
+      180px 500px 0 0 rgba(255,255,255,.4),
+      380px 250px 0 0 rgba(0,229,255,.5);
+    top:0;left:0;
+    pointer-events:none;
+    z-index:0;
+    animation: starTwinkle 4s ease-in-out infinite;
+  }
+  body::after{
+    box-shadow:
+      200px 100px 0 0 rgba(255,255,255,.3),
+      350px 320px 0 -0.5px #fff,
+      100px 450px 0 0 rgba(0,229,255,.3),
+      450px 60px 0 0 rgba(255,255,255,.5),
+      30px 180px 0 -0.5px rgba(0,229,255,.4);
+    animation-delay: 2s;
+  }
+  @keyframes starTwinkle{
+    0%,100%{ opacity:.3; }
+    50%{ opacity:.8; }
+  }
+  .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
 
   .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
   .logo{
@@ -25,47 +71,160 @@
     background:linear-gradient(135deg,var(--accent),#0077ff);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   }
+  .balance-box{
+    display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  }
+  .balance-label{
+    font-size:9px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:1px;font-weight:800;padding-right:4px;
+  }
   .balance{
     background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.35);
-    color:var(--green);padding:8px 14px;border-radius:10px;
+    color:var(--green);padding:7px 14px;border-radius:10px;
     font-weight:900;font-size:13px;white-space:nowrap;
+    box-shadow: 0 0 12px rgba(0,230,118,0.15);
   }
 
   .grid-wrap{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
-    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative;
+    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4), 0 0 30px rgba(0,229,255,.05);
+    position:relative;
+    backdrop-filter: blur(10px);
   }
   .grid{
     display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
     aspect-ratio:1;width:100%;
   }
   .cell{
-    background:rgba(0,229,255,.10);
-    border:1px solid rgba(0,229,255,.25);
+    background:linear-gradient(145deg, rgba(0,229,255,.14), rgba(0,119,255,.06));
+    border:1px solid rgba(0,229,255,.28);
     border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    font-size:24px;cursor:pointer;transition:.15s;user-select:none;
+    cursor:pointer;transition:.15s;user-select:none;
     aspect-ratio:1;font-weight:900;
     position:relative;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
   }
-  .cell:hover:not(.disabled){ background:rgba(0,229,255,.20); border-color:var(--accent); }
+  .cell:hover:not(.disabled){
+    background:linear-gradient(145deg, rgba(0,229,255,.25), rgba(0,119,255,.12));
+    border-color:var(--accent);
+    box-shadow: 0 0 14px rgba(0,229,255,.4), inset 0 1px 0 rgba(255,255,255,.1);
+  }
   .cell:active:not(.disabled){ transform:scale(.94); }
-  .cell.safe{
-    background:rgba(0,230,118,.18);border-color:var(--green);color:var(--green);cursor:default;
+
+  /* ========== ИКОНКИ АЛМАЗА И МИНЫ ========== */
+  .icon-diamond{
+    width:50%;height:50%;
+    position:relative;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #d4fcff 0%, #00e5ff 35%, #0077ff 100%);
+    border:2px solid #d4fcff;
+    border-radius:4px;
+    box-shadow:
+      0 0 12px rgba(0,229,255,.9),
+      0 0 24px rgba(0,229,255,.5),
+      inset 0 0 8px rgba(255,255,255,.7);
+    animation: diamondShine 1.5s ease-in-out infinite;
   }
+  .icon-diamond::before{
+    content:'';
+    position:absolute;
+    top:10%;left:10%;
+    width:35%;height:35%;
+    background:linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,0));
+    border-radius:50%;
+    filter: blur(1px);
+  }
+  @keyframes diamondShine{
+    0%,100%{ box-shadow: 0 0 12px rgba(0,229,255,.9), 0 0 24px rgba(0,229,255,.5), inset 0 0 8px rgba(255,255,255,.7); }
+    50%{ box-shadow: 0 0 20px rgba(0,229,255,1), 0 0 40px rgba(0,229,255,.7), inset 0 0 12px rgba(255,255,255,.95); }
+  }
+
+  .icon-mine{
+    width:55%;height:55%;
+    border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, #ff9b9b 0%, #ff4d4d 40%, #8b0000 100%);
+    border:2px solid #ff8a8a;
+    box-shadow:
+      0 0 12px rgba(255,77,77,.9),
+      0 0 24px rgba(255,77,77,.5),
+      inset 0 0 8px rgba(0,0,0,.5);
+    position:relative;
+    animation: minePulse .8s ease-in-out infinite;
+  }
+  .icon-mine::before{
+    content:'';
+    position:absolute;
+    top:15%;left:20%;
+    width:25%;height:25%;
+    background:rgba(255,255,255,.7);
+    border-radius:50%;
+    filter: blur(0.5px);
+  }
+  .icon-mine::after{
+    content:'';
+    position:absolute;
+    inset:-4px;
+    border-radius:50%;
+    border:1px dashed rgba(255,77,77,.6);
+    animation: mineSpin 3s linear infinite;
+  }
+  @keyframes minePulse{
+    0%,100%{ transform: scale(1); box-shadow: 0 0 12px rgba(255,77,77,.9), 0 0 24px rgba(255,77,77,.5), inset 0 0 8px rgba(0,0,0,.5); }
+    50%{ transform: scale(1.08); box-shadow: 0 0 20px rgba(255,77,77,1), 0 0 40px rgba(255,77,77,.7), inset 0 0 10px rgba(0,0,0,.6); }
+  }
+  @keyframes mineSpin{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+  }
+
+  /* Взорванная мина — больше и ярче */
+  .cell.mine .icon-mine{
+    width:65%;height:65%;
+    background: radial-gradient(circle at 30% 30%, #fff 0%, #ff4d4d 30%, #8b0000 100%);
+    animation: explosion .5s ease-out;
+  }
+  @keyframes explosion{
+    0%{ transform: scale(1); filter: brightness(1); }
+    40%{ transform: scale(1.4); filter: brightness(2); }
+    100%{ transform: scale(1.1); filter: brightness(1.3); }
+  }
+
+  .cell.safe{ cursor:default; }
   .cell.mine{
-    background:rgba(255,77,77,.25);border-color:var(--red);color:var(--red);
-    animation:shake .3s;
+    background: radial-gradient(circle, rgba(255,77,77,.35), rgba(255,77,77,.15));
+    border-color:var(--red);
+    animation: shake .4s;
   }
   .cell.disabled{cursor:not-allowed;opacity:.85}
-  .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);color:var(--red);opacity:.6}
-  .cell.revealed-mine{background:rgba(255,77,77,.35);border-color:var(--red);color:var(--red)}
-  .cell.revealed-safe{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.3);color:var(--green);opacity:.7}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .cell.revealed-mine{
+    background:rgba(255,77,77,.15);
+    border-color:rgba(255,77,77,.4);
+    opacity:.55;
+  }
+  .cell.revealed-mine .icon-mine{
+    opacity:.6;
+    animation:none;
+  }
+  .cell.revealed-safe{
+    background:rgba(0,230,118,.08);
+    border-color:rgba(0,230,118,.25);
+    opacity:.55;
+  }
+  .cell.revealed-safe .icon-diamond{
+    opacity:.5;
+    animation:none;
+  }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0); }
+    25%{ transform: translateX(-5px); }
+    75%{ transform: translateX(5px); }
+  }
 
   .bet-panel{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
     padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);
+    backdrop-filter: blur(10px);
   }
 
   .stats-row{
@@ -75,11 +234,12 @@
   }
   .stat{ text-align:left; }
   .stat-lbl{ font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700; }
-  .stat-val{ font-size:16px;font-weight:900;color:var(--green);margin-top:2px; }
+  .stat-val{ font-size:16px;font-weight:900;color:var(--gold);margin-top:2px; }
 
   .mines-selector{
     display:flex;align-items:center;gap:10px;
     background:rgba(0,0,0,.3);border-radius:10px;padding:6px 10px;
+    border:1px solid var(--border);
   }
   .mines-btn{
     background:transparent;border:none;color:var(--muted);font-size:20px;
@@ -145,7 +305,6 @@
 
   @media(max-width:400px){
     .grid{gap:6px}
-    .cell{font-size:18px;border-radius:9px}
     .grid-wrap,.bet-panel{padding:10px;border-radius:16px}
     .bet-btn{width:38px;height:38px;font-size:18px}
     .stat-val{font-size:14px}
@@ -158,7 +317,10 @@
 
   <div class="topbar">
     <div class="logo">MINER</div>
-    <div class="balance" id="balanceView">— ₽</div>
+    <div class="balance-box">
+      <div class="balance-label">Баланс</div>
+      <div class="balance" id="balanceView">— ₽</div>
+    </div>
   </div>
 
   <div class="grid-wrap">
@@ -192,6 +354,16 @@
   </div>
 
   <div class="bet-panel" id="playPanel" style="display:none">
+    <div class="stats-row" style="border:none;padding:0;margin-bottom:10px">
+      <div class="stat">
+        <div class="stat-lbl">Открыто</div>
+        <div class="stat-val" id="openedView" style="color:var(--accent)">0</div>
+      </div>
+      <div class="stat" style="text-align:right">
+        <div class="stat-lbl">Потенциал</div>
+        <div class="stat-val" id="potentialView" style="color:var(--gold)">0 ₽</div>
+      </div>
+    </div>
     <button class="btn-main gold" id="btnCashout" onclick="cashout()">Забрать выигрыш</button>
     <div class="status" id="playStatus"></div>
   </div>
@@ -220,6 +392,110 @@ let cells = [];
 let mult = 1.0;
 let busy = false;
 
+/* ============ ЗВУКИ (Web Audio API, без файлов) ============ */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playDiamondSound() {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+
+  // Кристальный звон: три ноты (E6, G#6, B6) с лёгким расстроем
+  const freqs = [1318.51, 1661.22, 1975.53];
+  freqs.forEach((f, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f, now + i * 0.03);
+    osc.frequency.exponentialRampToValueAtTime(f * 1.002, now + 0.4);
+    gain.gain.setValueAtTime(0, now + i * 0.03);
+    gain.gain.linearRampToValueAtTime(0.12, now + i * 0.03 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now + i * 0.03);
+    osc.stop(now + i * 0.03 + 0.55);
+  });
+
+  // Лёгкий "blip" сверху
+  const blip = ctx.createOscillator();
+  const blipGain = ctx.createGain();
+  blip.type = 'triangle';
+  blip.frequency.setValueAtTime(2637.02, now);
+  blip.frequency.exponentialRampToValueAtTime(3520.00, now + 0.1);
+  blipGain.gain.setValueAtTime(0.05, now);
+  blipGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+  blip.connect(blipGain).connect(ctx.destination);
+  blip.start(now);
+  blip.stop(now + 0.2);
+}
+
+function playMineSound() {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+
+  // Низкий гул + шум взрыва
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(90, now);
+  osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+  oscGain.gain.setValueAtTime(0.25, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+  osc.connect(oscGain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.7);
+
+  // Шум (взрыв)
+  const bufferSize = ctx.sampleRate * 0.4;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.4, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.setValueAtTime(800, now);
+  noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+  noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+  noise.start(now);
+  noise.stop(now + 0.4);
+}
+
+function playWinSound() {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+  // Мажорный аккорд (C-E-G-C)
+  const freqs = [523.25, 659.25, 783.99, 1046.50];
+  freqs.forEach((f, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(f, now + i * 0.06);
+    gain.gain.setValueAtTime(0, now + i * 0.06);
+    gain.gain.linearRampToValueAtTime(0.12, now + i * 0.06 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.6);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now + i * 0.06);
+    osc.stop(now + i * 0.06 + 0.6);
+  });
+}
+
+/* ============ ОСНОВНОЙ КОД ============ */
 function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
 
 function loadMe() {
@@ -249,6 +525,17 @@ function setStatus(text, cls, el = 'status') {
   e.className = 'status' + (cls ? ' ' + cls : '');
 }
 
+function makeDiamond() {
+  const d = document.createElement('div');
+  d.className = 'icon-diamond';
+  return d;
+}
+function makeMine() {
+  const m = document.createElement('div');
+  m.className = 'icon-mine';
+  return m;
+}
+
 function renderGrid() {
   const grid = $('grid');
   grid.innerHTML = '';
@@ -258,13 +545,12 @@ function renderGrid() {
     div.className = 'cell';
 
     if (c.open) {
-      if (c.mine) { div.classList.add('mine'); div.textContent = '💣'; }
-      else { div.classList.add('safe'); div.textContent = '💎'; }
+      if (c.mine) { div.classList.add('mine'); div.appendChild(makeMine()); }
+      else { div.classList.add('safe'); div.appendChild(makeDiamond()); }
       div.classList.add('disabled');
     } else if (c.revealed) {
-      // вскрытая ячейка после проигрыша/забора — показываем, где мины, где алмазы
-      if (c.mine) { div.classList.add('revealed-mine'); div.textContent = '💣'; }
-      else { div.classList.add('revealed-safe'); div.textContent = '💎'; }
+      if (c.mine) { div.classList.add('revealed-mine'); div.appendChild(makeMine()); }
+      else { div.classList.add('revealed-safe'); div.appendChild(makeDiamond()); }
       div.classList.add('disabled');
     }
     if (c.disabled) div.classList.add('disabled');
@@ -297,6 +583,9 @@ async function startGame() {
   if (currentBet < 5) { setStatus('Мин. ставка 5 ₽', 'err'); return; }
   if (balance < currentBet) { setStatus('Недостаточно средств', 'err'); return; }
 
+  // Разблокируем аудио на клик (браузер требует жест)
+  getAudioCtx();
+
   busy = true;
   setStatus('Запуск...');
   try {
@@ -311,6 +600,8 @@ async function startGame() {
     resetCells();
     mult = 1.0;
     $('multView').textContent = 'x1.00';
+    $('openedView').textContent = '0';
+    $('potentialView').textContent = '0 ₽';
     renderGrid();
     $('betPanel').style.display = 'none';
     $('playPanel').style.display = 'block';
@@ -321,9 +612,7 @@ async function startGame() {
   busy = false;
 }
 
-function revealAll(mines, keepOpen = []) {
-  // Вскрываем все ячейки: мины → revealed-mine, безопасные → revealed-safe
-  // Уже открытые игроком — оставляем как safe/mine
+function revealAll(mines) {
   for (let i = 0; i < TOTAL; i++) {
     if (cells[i].open) continue;
     if (mines.includes(i)) {
@@ -347,22 +636,26 @@ async function openCell(i) {
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
 
     if (d.mine) {
-      // Проиграл — открываем взорванную, затем вскрываем всё поле
+      playMineSound();
       cells[i] = { open: true, mine: true, disabled: true };
       renderGrid();
       sessionId = null;
       revealAll(d.mines || []);
       showResult('lose', 0, 'Вы попали на мину. Ставка потеряна.');
       await refreshBalance();
-      setTimeout(() => endRoundUI(), 1200); // даём посмотреть на поле
+      setTimeout(() => endRoundUI(), 1200);
       busy = false;
       return;
     }
 
+    // безопасная
+    playDiamondSound();
     cells[i] = { open: true, mine: false, disabled: true };
     (d.revealed || []).forEach(idx => { if (!cells[idx].open) cells[idx] = { open: true, mine: false, disabled: true }; });
     mult = parseFloat(d.multiplier) || mult;
     $('multView').textContent = 'x' + mult.toFixed(2);
+    $('openedView').textContent = String(d.revealed.length);
+    $('potentialView').textContent = fmt(d.potential_win) + ' ₽';
     renderGrid();
     $('btnCashout').disabled = false;
     setStatus(`Открыто: ${d.revealed.length}. Потенциал: ${fmt(d.potential_win)} ₽`, 'ok', 'playStatus');
@@ -370,6 +663,7 @@ async function openCell(i) {
     if (d.auto_cashout) {
       sessionId = null;
       revealAll(d.mines || []);
+      playWinSound();
       showResult('win', d.win, `Все безопасные клетки открыты! Множитель x${mult.toFixed(2)}`);
       await refreshBalance();
       setTimeout(() => endRoundUI(), 1200);
@@ -389,6 +683,7 @@ async function cashout() {
     const d = await r.json();
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
 
+    playWinSound();
     sessionId = null;
     revealAll(d.mines || []);
     showResult('win', d.win, `Забрано с множителем x${d.multiplier.toFixed(2)}`);
@@ -403,6 +698,8 @@ function endRoundUI() {
   $('playPanel').style.display = 'none';
   mult = 1.0;
   $('multView').textContent = 'x1.00';
+  $('openedView').textContent = '0';
+  $('potentialView').textContent = '0 ₽';
   resetCells();
   renderGrid();
   setStatus('Выберите ставку и начните');
