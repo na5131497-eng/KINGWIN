@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Miner</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0e14;
@@ -26,7 +26,6 @@
   }
   .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px}
 
-  /* Шапка */
   .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
   .logo{
     font-size:22px;font-weight:900;letter-spacing:2px;
@@ -39,7 +38,6 @@
     font-weight:900;font-size:13px;white-space:nowrap;
   }
 
-  /* Сетка */
   .grid-wrap{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
     padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative;
@@ -70,7 +68,6 @@
   .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);color:var(--red)}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-  /* Панель ставки */
   .bet-panel{
     background:var(--panel);border:1px solid var(--border);border-radius:20px;
     padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);
@@ -127,7 +124,6 @@
   .status.err{color:var(--red)}
   .status.ok{color:var(--green)}
 
-  /* Модалка результата */
   .modal{
     position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
     display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;
@@ -194,7 +190,7 @@
 
     <div class="bet-input-row">
       <button class="bet-btn" onclick="changeBet(-1)">−</button>
-      <input type="number" id="betInput" class="bet-input" value="10" min="5" max="1000">
+      <input type="number" id="betInput" class="bet-input" value="10" min="5">
       <button class="bet-btn" onclick="changeBet(1)">+</button>
     </div>
 
@@ -271,7 +267,6 @@ function setStatus(text, cls) {
   el.className = 'status' + (cls ? ' ' + cls : '');
 }
 
-/* ---------- Минное поле ---------- */
 function renderGrid() {
   const grid = $('grid');
   grid.innerHTML = '';
@@ -298,29 +293,33 @@ function resetCells() {
   cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false }));
 }
 
-/* ---------- Ставка / Мины ---------- */
 function changeBet(dir) {
   if (sessionId) return;
   let v = parseInt($('betInput').value, 10) || 10;
-  v = Math.max(5, Math.min(1000, v + dir * 5));
+  v = Math.max(5, v + dir * 5);
   $('betInput').value = v;
   currentBet = v;
   updateMaxWin();
 }
 function changeMines(dir) {
   if (sessionId) return;
-  currentMines = Math.max(1, Math.min(15, currentMines + dir));
+  currentMines = Math.max(1, Math.min(24, currentMines + dir));
   $('minesVal').textContent = currentMines;
   updateMaxWin();
 }
 function updateMaxWin() {
-  // условный «макс. выигрыш» = bet × 5 при 3 минах (для отображения)
-  const fakeMult = Math.pow(1.13, TOTAL - currentMines);
+  // Приблизительный «макс. выигрыш» = ставка × макс. множитель при данных минах
+  // (открытие всех безопасных ячеек)
+  const safeTotal = 25 - currentMines;
+  let surviveProb = 1;
+  for (let i = 0; i < safeTotal; i++) {
+    surviveProb *= (safeTotal - i) / (25 - i);
+  }
+  const fakeMult = surviveProb > 0 ? (1 / surviveProb) * 0.99 : 0;
   const mw = Math.round(currentBet * fakeMult * 100) / 100;
   $('maxWinView').textContent = fmt(mw) + ' ₽';
 }
 
-/* ---------- Старт ---------- */
 async function startGame() {
   if (busy) return;
   if (!me) { setStatus('Войдите как гость (profile2.html)', 'err'); return; }
@@ -353,7 +352,6 @@ async function startGame() {
   busy = false;
 }
 
-/* ---------- Открыть клетку ---------- */
 async function openCell(i) {
   if (busy || !sessionId || cells[i].open) return;
   busy = true;
@@ -396,7 +394,6 @@ async function openCell(i) {
   busy = false;
 }
 
-/* ---------- Забрать ---------- */
 async function cashout() {
   if (busy || !sessionId) return;
   busy = true;
@@ -437,7 +434,6 @@ function endRoundUI() {
   renderGrid();
 }
 
-/* ---------- Модалка ---------- */
 function showResult(type, amount, text) {
   const box = $('modalBox');
   const title = $('modalTitle');
@@ -459,7 +455,6 @@ function showResult(type, amount, text) {
 }
 function closeModal() { $('resultModal').classList.remove('show'); }
 
-/* ---------- Init ---------- */
 me = loadMe();
 resetCells();
 renderGrid();
