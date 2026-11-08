@@ -41,7 +41,6 @@
     overflow-x: hidden;
   }
 
-  /* Фон с коронами */
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .floating-crown { position: absolute; opacity: 0.1; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.25)); will-change: transform; }
   .floating-crown.broken { opacity: 0.08; filter: drop-shadow(0 0 6px rgba(255,77,77,.25)); }
@@ -101,7 +100,6 @@
   .progress { height: 10px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; }
   .progress > div { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 6px; transition: width .6s cubic-bezier(.4,0,.2,1); }
 
-  /* Табы — горизонтальная лента */
   .tabs {
     display: flex; gap: 4px;
     background: rgba(18,24,38,.9);
@@ -173,7 +171,6 @@
   .daily-day.done::after { content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px; }
   .daily-day.today { background: rgba(0,229,255,.15); border-color: var(--accent); color: var(--accent); }
 
-  /* Колесо */
   .wheel-card {
     background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(0,119,255,.02));
     border: 1px solid rgba(0,229,255,.25);
@@ -297,7 +294,7 @@
     border: 1px solid rgba(255,255,255,.1);
     border-radius: 10px;
     padding: 12px;
-    font-size: 16px; /* предотвращает зум на iOS */
+    font-size: 16px;
     color: #fff; font-family: inherit; margin-bottom: 12px; outline: none;
   }
   .review-block input:focus, .review-block textarea:focus { border-color: var(--accent); }
@@ -318,7 +315,6 @@
   .my-review-item .stars-line { color: var(--gold); font-size: 13px; }
   .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; word-break: break-word; }
 
-  /* Модалки */
   .modal-backdrop {
     position: fixed; inset: 0;
     background: rgba(0,0,0,.85);
@@ -374,19 +370,16 @@
   .cp-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; color: #fff; font-size: 16px; margin-bottom: 10px; text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: var(--accent); }
 
-  /* Кнопки в модалках на узких экранах */
   @media (max-width: 380px) {
     .modal-btn { width: 100%; margin: 0 0 8px 0 !important; }
     .modal-btn.cancel { margin-right: 0 !important; }
     .modal { border-radius: 16px; }
     .daily-day .num { font-size: 7px; }
   }
-
   @media (max-width: 340px) {
     .balance-grid { grid-template-columns: 1fr; }
     .tab { min-width: 64px; font-size: 9px; padding: 10px 6px; }
   }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
@@ -562,7 +555,6 @@ function saveGuestToStorage(g){
   try { localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(g.id), name: String(g.name || '') })); } catch(e) {}
 }
 
-/* На мобильных уменьшаем количество корон для производительности */
 (function initBackgroundCrowns() {
   const c = document.getElementById('bgCrowns');
   if (!c) return;
@@ -660,6 +652,27 @@ function startAutoRefresh(){
     await Promise.all([loadSummary(), loadDaily()]);
     renderProfile();
   }, 15000);
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  renderProfile();
+}
+
+function doLogout(){
+  if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
+  session = null; summary = null; dailyState = null; lastSeenRank = null;
+  try { localStorage.removeItem('kingwin_guest_id'); } catch(e) {}
+  renderLogin('');
+}
+
+function showRankUpModal(rank, gift){
+  document.getElementById('rankUpText').textContent = `Вы достигли ранга ${rank}!`;
+  document.getElementById('rankUpAmount').textContent = '+' + fmt(gift) + ' ₽';
+  document.getElementById('rankUpModal').classList.add('show');
+}
+function closeRankUpModal(){
+  document.getElementById('rankUpModal').classList.remove('show');
 }
 
 function renderProfile(){
@@ -1153,11 +1166,44 @@ async function submitChangePass(){
   err.style.display = 'none';
   if(!oldPass){ err.textContent = 'Введите текущий пароль'; err.style.display = 'block'; return; }
   if(!newPass || newPass.length < 4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
-  if(newPass !== newPass2){
-    err.textContent = 'Пароли не совпадают'; err.style.display = 'block'; return;
+  if(newPass !== newPass2){ err.textContent = 'Пароли не совпадают'; err.style.display = 'block'; return; }
+
+  try {
+    const r = await fetch('/api/guest/change-password', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: session.id, old_pass: oldPass, new_pass: newPass })
+    });
+    const data = await r.json();
+    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
+    closeChangePassModal();
+    document.getElementById('changePassSuccessModal').classList.add('show');
+  } catch(e){
+    err.textContent = 'Ошибка соединения'; err.style.display = 'block';
   }
-  // ... остальная логика смены пароля без изменений
 }
+
+/* ===== АВТОЗАПУСК ===== */
+(async function boot(){
+  let savedId = null, savedName = '';
+  try {
+    savedId = localStorage.getItem('kingwin_guest_id');
+    const raw = localStorage.getItem('kingwin_guest');
+    if(raw){ const g = JSON.parse(raw); if(g && g.name) savedName = g.name; }
+  } catch(e) {}
+
+  if(!savedId){ renderLogin(''); return; }
+
+  try {
+    const r = await fetch('/api/guest/summary?id=' + encodeURIComponent(savedId));
+    if(!r.ok){ renderLogin(savedId); return; }
+    const s = await r.json();
+    session = { id: savedId, name: s.name || savedName || '' };
+    await loadAll();
+    startAutoRefresh();
+  } catch(e){
+    renderLogin(savedId);
+  }
+})();
 </script>
 </body>
 </html>
