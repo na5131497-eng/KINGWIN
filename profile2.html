@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d14">
 <title>KINGWIN — Профиль гостя</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -12,11 +13,13 @@
     background: radial-gradient(circle at top, #1a2332, #0a0d14);
     color: #fff; min-height: 100vh;
     display: flex; justify-content: center;
-    padding: 24px 16px;
+    padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
     position: relative;
+    -webkit-tap-highlight-color: transparent;
   }
+
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .floating-crown { position: absolute; opacity: 0.1; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.25)); }
+  .floating-crown { position: absolute; opacity: 0.1; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.25)); will-change: transform; }
   .floating-crown.broken { opacity: 0.08; filter: drop-shadow(0 0 6px rgba(255,77,77,.25)); }
   .floating-crown svg { width: 100%; height: 100%; display: block; }
   @keyframes floatCrown {
@@ -93,13 +96,96 @@
   .daily-day.done::after { content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px; }
   .daily-day.today { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff; }
 
-  .wheel-card { background: linear-gradient(135deg, rgba(241,196,15,.06), rgba(230,126,34,.04)); border: 1px solid rgba(241,196,15,.25); border-radius: 16px; padding: 18px; margin-bottom: 14px; text-align: center; }
-  .wheel-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f1c40f; margin-bottom: 10px; }
-  .wheel-container { position: relative; width: 220px; height: 220px; margin: 10px auto 14px; }
-  .wheel-svg { width: 100%; height: 100%; transition: transform 4s cubic-bezier(.2,.8,.3,1); }
-  .wheel-arrow { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #f1c40f; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); z-index: 3; }
-  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #f1c40f, #e67e22); border: 3px solid #111625; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 2; box-shadow: 0 0 20px rgba(241,196,15,.5); }
-  .wheel-timer { font-size: 12px; color: #8fa2b8; margin-bottom: 10px; }
+  /* ===== КОЛЕСО В СТИЛЕ ПРОЕКТА ===== */
+  .wheel-card {
+    background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(0,119,255,.02));
+    border: 1px solid rgba(0,229,255,.25);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .wheel-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(0,229,255,.06), transparent 70%);
+    pointer-events: none;
+  }
+  .wheel-title {
+    font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: #00e5ff; margin-bottom: 10px;
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .wheel-title .hint {
+    font-size: 10px; color: #8fa2b8; font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .wheel-container {
+    position: relative;
+    width: 240px; height: 240px;
+    margin: 14px auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wheel-svg {
+    width: 100%; height: 100%;
+    transition: transform 4s cubic-bezier(.2,.8,.3,1);
+    filter: drop-shadow(0 0 20px rgba(0,229,255,.2));
+    position: relative;
+    z-index: 1;
+  }
+  .wheel-arrow {
+    position: absolute;
+    top: -6px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-top: 20px solid #00e5ff;
+    filter: drop-shadow(0 0 8px rgba(0,229,255,.8));
+    z-index: 3;
+  }
+  .wheel-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    border: 3px solid #0b0e14;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; z-index: 2;
+    box-shadow:
+      0 0 20px rgba(0,229,255,.6),
+      inset 0 -2px 6px rgba(0,0,0,.3);
+  }
+  .wheel-center::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0,229,255,.4);
+    animation: spinRing 8s linear infinite;
+  }
+  @keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .wheel-timer {
+    font-size: 12px; color: #8fa2b8;
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+    padding: 8px 14px;
+    background: rgba(0,0,0,.3);
+    border-radius: 8px;
+    display: inline-block;
+    min-width: 140px;
+  }
 
   .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
   .withdraw-block h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #00e5ff; margin-bottom: 10px; }
@@ -163,7 +249,7 @@
   .cp-input:focus { outline: none; border-color: #00e5ff; }
 
   @media (max-width: 600px) {
-    body { padding: 14px 10px; }
+    body { padding: calc(14px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom)); }
     .wrap { max-width: 100%; }
     .logo { font-size: 22px; }
     .logo-sub { font-size: 9px; margin-bottom: 14px; }
@@ -187,7 +273,17 @@
     .withdraw-block .amount { font-size: 26px; }
     .review-block { padding: 14px; }
     .star { font-size: 28px; }
-    .wheel-container { width: 180px; height: 180px; }
+    .wheel-container { width: 200px; height: 200px; margin: 10px auto 14px; }
+    .wheel-center { width: 48px; height: 48px; font-size: 18px; }
+    .wheel-arrow { border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 16px solid #00e5ff; }
+    .wheel-title { font-size: 12px; }
+    .wheel-timer { font-size: 11px; min-width: 120px; padding: 6px 12px; }
+  }
+  @media (max-width: 380px) {
+    body { padding: 10px 8px; }
+    .profile-name { font-size: 20px; }
+    .wheel-container { width: 170px; height: 170px; }
+    .wheel-center { width: 42px; height: 42px; font-size: 16px; }
   }
 </style>
 </head>
@@ -346,7 +442,6 @@ const RANKS_INFO = {
 };
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 const WHEEL_PRIZES = [1, 2, 4, 6, 10];
-const WHEEL_COLORS = ['#00e5ff', '#3fbf7f', '#f1c40f', '#ff9b9b', '#ff4d4d'];
 
 let session = null, summary = null, dailyState = null;
 let currentTab = 'profile';
@@ -526,7 +621,7 @@ function renderProfile(){
     </div>`;
 
   let withdrawPage = `<div class="page ${currentTab==='withdraw'?'active':''}">${renderWithdrawHtml()}</div>`;
-  let newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div class="section-title" style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Загрузка...</div></div></div></div>`;
+  let newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Загрузка...</div></div></div></div>`;
   let reviewPage = `
     <div class="page ${currentTab==='review'?'active':''}">
       <div class="review-block">
@@ -587,6 +682,17 @@ function renderDailyHtml(){
 function renderWheelHtml(){
   const segments = WHEEL_PRIZES.length;
   const angleStep = 360 / segments;
+
+  const segColors = [
+    'rgba(0,229,255,0.20)',
+    'rgba(0,119,255,0.20)',
+    'rgba(63,191,127,0.20)',
+    'rgba(241,196,15,0.25)',
+    'rgba(255,77,77,0.20)'
+  ];
+  const segStrokes = ['#00e5ff', '#0077ff', '#3fbf7f', '#f1c40f', '#ff4d4d'];
+  const textColors = ['#00e5ff', '#4db8ff', '#3fbf7f', '#f1c40f', '#ff8a8a'];
+
   let segmentsSvg = '';
   for (let i = 0; i < segments; i++) {
     const startAngle = i * angleStep - 90;
@@ -599,22 +705,30 @@ function renderWheelHtml(){
     const x2 = 110 + r * Math.cos(endRad);
     const y2 = 110 + r * Math.sin(endRad);
     const largeArc = angleStep > 180 ? 1 : 0;
-    segmentsSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z" fill="${WHEEL_COLORS[i]}" stroke="#111625" stroke-width="2"/>`;
+
+    segmentsSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z" fill="${segColors[i]}" stroke="${segStrokes[i]}" stroke-width="1.5" stroke-opacity="0.5"/>`;
+
     const midAngle = (startAngle + endAngle) / 2;
     const midRad = midAngle * Math.PI / 180;
-    const tx = 110 + 65 * Math.cos(midRad);
-    const ty = 110 + 65 * Math.sin(midRad);
-    segmentsSvg += `<text x="${tx}" y="${ty}" font-size="16" font-weight="900" fill="#111" text-anchor="middle" dominant-baseline="middle" transform="rotate(${midAngle + 90}, ${tx}, ${ty})">${WHEEL_PRIZES[i]}₽</text>`;
+    const tx = 110 + 68 * Math.cos(midRad);
+    const ty = 110 + 68 * Math.sin(midRad);
+
+    segmentsSvg += `<text x="${tx}" y="${ty}" font-size="15" font-weight="900" fill="${textColors[i]}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${midAngle + 90}, ${tx}, ${ty})" style="filter: drop-shadow(0 0 4px ${textColors[i]})">${WHEEL_PRIZES[i]}₽</text>`;
   }
 
   return `<div class="wheel-card">
-    <div class="wheel-title">🎡 Колесо Фортуны</div>
+    <div class="wheel-title">
+      <span>🎡 Колесо Фортуны</span>
+      <span class="hint">1 раз в час</span>
+    </div>
     <div class="wheel-container">
       <div class="wheel-arrow"></div>
       <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220" style="transform: rotate(${wheelRotation}deg)">
+        <circle cx="110" cy="110" r="105" fill="rgba(11,14,20,0.9)" stroke="#00e5ff" stroke-width="1.5" stroke-opacity="0.3"/>
         ${segmentsSvg}
+        <circle cx="110" cy="110" r="100" fill="none" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.15"/>
       </svg>
-      <div class="wheel-center">🎰</div>
+      <div class="wheel-center">💎</div>
     </div>
     <div class="wheel-timer" id="wheelTimer">Загрузка…</div>
     <button class="btn" id="wheelBtn" onclick="spinWheel()" style="background:#f1c40f;" disabled>Крутить</button>
@@ -631,7 +745,7 @@ async function checkWheelStatus() {
     const btn = document.getElementById('wheelBtn');
     if (!timerEl || !btn) return;
     if (data.can_spin) {
-      timerEl.textContent = 'Можно крутить!';
+      timerEl.textContent = '✦ Доступно!';
       timerEl.style.color = '#3fbf7f';
       btn.disabled = false;
     } else if (data.last_spin) {
@@ -931,66 +1045,4 @@ async function submitChangePass(){
   err.style.display = 'none';
   if(!oldPass){ err.textContent = 'Введите текущий пароль'; err.style.display = 'block'; return; }
   if(!newPass || newPass.length < 4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
-  if(newPass !== newPass2){ err.textContent = 'Новые пароли не совпадают'; err.style.display = 'block'; return; }
-  try {
-    const r = await fetch('/api/guest/change-password', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id, old_pass: oldPass, new_pass: newPass })
-    });
-    const data = await r.json();
-    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
-    closeChangePassModal();
-    document.getElementById('changePassSuccessModal').classList.add('show');
-  } catch(e){
-    err.textContent = 'Ошибка соединения';
-    err.style.display = 'block';
-  }
-}
-
-function switchTab(tab){
-  currentTab = tab;
-  renderProfile();
-}
-
-function showRankUpModal(rank, gift){
-  document.getElementById('rankUpText').innerHTML = `Поздравляем с рангом <b>${rank}</b>!`;
-  document.getElementById('rankUpAmount').textContent = '+' + fmt(gift) + ' ₽';
-  document.getElementById('rankUpModal').classList.add('show');
-}
-function closeRankUpModal(){ document.getElementById('rankUpModal').classList.remove('show'); }
-
-function doLogout(){
-  if(refreshTimer) clearInterval(refreshTimer);
-  session = null; summary = null; dailyState = null;
-  lastSeenRank = null; claimLock = false;
-  localStorage.removeItem('kingwin_guest_id');
-  localStorage.removeItem('kingwin_guest');
-  renderLogin('');
-}
-
-(async function init(){
-  const params = new URLSearchParams(location.search);
-  const cardId = params.get('id');
-  const saved = localStorage.getItem('kingwin_guest_id');
-  const prefill = cardId || saved || '';
-  if(prefill){
-    renderLogin(prefill);
-    if(saved && !cardId){
-      try {
-        const r = await fetch('/api/guest/me?id=' + encodeURIComponent(saved));
-        if(r.ok){
-          const data = await r.json();
-          session = data.guest;
-          saveGuestToStorage(data.guest);
-          await loadAll();
-          startAutoRefresh();
-        }
-      } catch(e){}
-    }
-  } else {
-    renderLogin('');
-  }
-})();
-</script>
-</body>
-</html>
+  if(newPass !== newPass2){
