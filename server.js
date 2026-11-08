@@ -387,7 +387,6 @@ initDB();
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 function sendJSON(res, code, data) { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); }
 function parseBody(req){ return new Promise((resolve)=>{ let body = ''; req.on('data', chunk => body += chunk); req.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch(e){ resolve({}); } }); }); }
-
 async function accruePointsByNick(nick, rubAmount, source){
   if(!nick || !rubAmount || rubAmount <= 0) return null;
   const g = await pool.query(`SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [nick.trim()]);
@@ -635,8 +634,7 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { ok: true });
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
     }
-
-    /* ================= СЕЙФ ================= */
+        /* ================= СЕЙФ ================= */
     if (url === '/api/dealer/cash-in' && method === 'POST') {
       const b = await parseBody(req);
       const dealerId = parseInt(b.dealer_id, 10);
@@ -811,34 +809,54 @@ const server = http.createServer(async (req, res) => {
       try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='cases' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
       catch(e) { return sendJSON(res, 200, []); }
     }
-
-    /* ================= MINER (серверная логика) ================= */
+        /* ================= MINER (серверная логика, без макс. лимита) ================= */
     if (url === '/api/miner/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
       const bet = parseFloat(b.bet) || 0;
-      const MIN_BET_M = 5, MAX_BET_M = 1000;
+      let mines = parseInt(b.mines, 10) || 3;
+      
+      // Поле 25 ячеек, мин от 1 до 24
+      if (mines < 1) mines = 1;
+      if (mines > 24) mines = 24;
+
       if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
-      if (bet < MIN_BET_M || bet > MAX_BET_M) return sendJSON(res, 400, { error: `Ставка ${MIN_BET_M}–${MAX_BET_M} ₽` });
+      // Убран лимит MAX_BET, только минимальная ставка 5
+      if (bet < 5) return sendJSON(res, 400, { error: 'Мин. ставка 5 ₽' });
+
       const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
       if (!g.rows.length) return sendJSON(res, 404, { error: 'Гость не найден' });
       const guest = g.rows[0];
       const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
       if (totalBal < bet) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+
       let bonus = parseFloat(guest.bonus_balance) || 0;
       let dep = parseFloat(guest.deposit_balance) || 0;
       let rem = bet;
       if (bonus >= rem) { bonus -= rem; rem = 0; }
       else { rem -= bonus; bonus = 0; dep -= rem; }
       await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
-      const SIZE = 5, TOTAL = SIZE * SIZE, MINES = 3;
-      const mines = new Set();
-      while (mines.size < MINES) mines.add(Math.floor(Math.random() * TOTAL));
+
+      const TOTAL = 25;
+      const mineSet = new Set();
+      while (mineSet.size < mines) mineSet.add(Math.floor(Math.random() * TOTAL));
       const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-      minerSessions[sessionId] = { guestId, bet, mines: [...mines], revealed: [], createdAt: Date.now() };
-      for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
-      return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: SIZE, mines: MINES, revealed: [], multiplier: 1.0, balance: bonus + dep });
+      
+      minerSessions[sessionId] = {
+        guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now()
+      };
+      for (const sid in minerSessions) {
+        if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid];
+      }
+
+      return sendJSON(res, 200, {
+        ok: true, session_id: sessionId, bet,
+        size: 5, mines,
+        revealed: [], multiplier: 1.0,
+        balance: bonus + dep
+      });
     }
+
     if (url === '/api/miner/open' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -850,38 +868,68 @@ const server = http.createServer(async (req, res) => {
       if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
       if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
+
+      // Попал на мину
       if (sess.mines.includes(cell)) {
         sess.finished = true;
         try {
-          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (${guestId})`]);
-          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, 0]);
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+            [todayStr(), 'доход', sess.bet, `Miner LOSS (${guestId})`]);
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`,
+            ['miner', guestId, sess.bet, 0]);
         } catch(e) {}
-        try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
+        try {
+          const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+          if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner');
+        } catch(e) {}
         const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId };
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
+
       sess.revealed.push(cell);
       const safeOpened = sess.revealed.length;
-      const multiplier = Math.round( (Math.pow(1.13, safeOpened) - 1) * 100 + 100 ) / 100;
-      const result = { ok: true, mine: false, cell, revealed: sess.revealed, multiplier, bet: sess.bet, potential_win: Math.round(sess.bet * multiplier * 100) / 100 };
       const safeTotal = 25 - sess.mines.length;
+
+      // === Расчёт множителя с RTP 99% ===
+      // Чем больше безопасных открыто, тем выше множитель.
+      // Чем больше мин, тем выше множитель с первой же клетки.
+      const RTP = 0.99;
+      let surviveProb = 1;
+      for (let i = 0; i < safeOpened; i++) {
+        surviveProb *= (safeTotal - i) / (25 - i);
+      }
+      const multiplier = Math.round((1 / surviveProb) * RTP * 100) / 100;
+
+      const result = {
+        ok: true, mine: false, cell,
+        revealed: sess.revealed,
+        multiplier,
+        bet: sess.bet,
+        potential_win: Math.round(sess.bet * multiplier * 100) / 100
+      };
+
+      // Если открыл все безопасные ячейки — авто-кэшаут
       if (sess.revealed.length >= safeTotal) {
         const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
         sess.finished = true;
         await creditMinerWin(guestId, winAmount);
         try {
-          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`,
+            ['miner', guestId, sess.bet, winAmount]);
           const net = sess.bet - winAmount;
-          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+            [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
         } catch(e) {}
         delete minerSessions[sessionId];
         result.auto_cashout = true;
         result.win = winAmount;
         result.mines = sess.mines;
       }
+
       return sendJSON(res, 200, result);
     }
+
     if (url === '/api/miner/cashout' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -891,26 +939,42 @@ const server = http.createServer(async (req, res) => {
       if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
       if (sess.revealed.length === 0) return sendJSON(res, 400, { error: 'Откройте хотя бы одну клетку' });
+
       const safeOpened = sess.revealed.length;
-      const multiplier = Math.round( (Math.pow(1.13, safeOpened) - 1) * 100 + 100 ) / 100;
+      const safeTotal = 25 - sess.mines.length;
+
+      const RTP = 0.99;
+      let surviveProb = 1;
+      for (let i = 0; i < safeOpened; i++) {
+        surviveProb *= (safeTotal - i) / (25 - i);
+      }
+      const multiplier = Math.round((1 / surviveProb) * RTP * 100) / 100;
       const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
       sess.finished = true;
+
       await creditMinerWin(guestId, winAmount);
       try {
-        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`,
+          ['miner', guestId, sess.bet, winAmount]);
         const net = sess.bet - winAmount;
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+          [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
       } catch(e) {}
+
       const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines };
       delete minerSessions[sessionId];
       return sendJSON(res, 200, result);
     }
-    if (url === '/api/miner/history' && method === 'GET') {
-      try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='miner' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
-      catch(e) { return sendJSON(res, 200, []); }
-    }
 
-    /* ================= LADDER ================= */
+    if (url === '/api/miner/history' && method === 'GET') {
+      try {
+        const r = await pool.query(
+          `SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='miner' ORDER BY id DESC LIMIT 15`
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch(e) { return sendJSON(res, 200, []); }
+    }
+        /* ================= LADDER ================= */
     if (url === '/api/ladder/play' && method === 'POST') {
       const b = await parseBody(req);
       const { guest_id, bet, win, multiplier } = b;
@@ -1057,7 +1121,7 @@ const server = http.createServer(async (req, res) => {
       try { await pool.query('UPDATE guests SET visits = visits + 1, last_visit = NOW() WHERE id=$1', [g.id]); } catch(e){}
       return sendJSON(res, 200, { ok: true, guest: g });
     }
-    if(url === '/api/guest/me' && method === 'GET'){
+        if(url === '/api/guest/me' && method === 'GET'){
       const u = new URL(req.url, 'http://x');
       const id = u.searchParams.get('id');
       if(!id) return sendJSON(res, 400, { error: 'no id' });
@@ -1208,7 +1272,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0] });
     }
 
-    /* ================= СЕССИИ ================= */
+    /* ================= СЕССИИ, БАККАРА, ДЕПОЗИТЫ, ВЫВОДЫ, ВЫПЛАТЫ ================= */
     if(url === '/api/sessions' && method === 'GET'){ const r = await pool.query('SELECT * FROM sessions ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/sessions' && method === 'POST'){
       const s = await parseBody(req);
@@ -1267,8 +1331,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE settings SET value=$1 WHERE key='jackpot_last_tick'`, [Date.now().toString()]);
       return sendJSON(res, 200, { ok: true, session: sessionRow, jackpot: currentJP, jackpot_reset: jackpotHit, jackpot_won: jackpotWon });
     }
-
-    /* ================= БАККАРА ================= */
     if(url === '/api/baccarat' && method === 'GET'){ const r = await pool.query('SELECT * FROM baccarat ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/baccarat' && method === 'POST'){
       const b = await parseBody(req);
@@ -1277,8 +1339,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, baccarat: r.rows[0], accrued });
     }
     if(url.startsWith('/api/baccarat/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM baccarat WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= ДЕПОЗИТЫ ================= */
     if(url === '/api/deposits' && method === 'GET'){ const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/deposits' && method === 'POST'){
       const d = await parseBody(req);
@@ -1313,8 +1373,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM deposits WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= ВЫВОДЫ ================= */
     if(url === '/api/withdrawals' && method === 'GET'){ const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/withdrawals' && method === 'POST'){
       const w = await parseBody(req);
@@ -1323,8 +1381,6 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/withdrawals/') && method === 'PUT'){ const id = url.split('/')[3]; const w = await parseBody(req); await pool.query('UPDATE withdrawals SET status=$1 WHERE id=$2', [w.status, id]); return sendJSON(res, 200, { ok: true }); }
     if(url.startsWith('/api/withdrawals/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM withdrawals WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= ВЫПЛАТЫ ================= */
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/payouts' && method === 'POST'){
       const p = await parseBody(req);
@@ -1333,7 +1389,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/payouts/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM payouts WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    /* ================= ИГРОКИ / ИГРЫ / АУДИТ / СОТРУДНИКИ ================= */
+    /* ================= ОСТАЛЬНОЕ (игроки, игры, аудит, сотрудники, дилеры, онлайн, новости) ================= */
     if(url === '/api/players' && method === 'GET'){ const r = await pool.query('SELECT * FROM players ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/players' && method === 'POST'){
       const p = await parseBody(req);
@@ -1376,8 +1432,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, online: r.rows[0] });
     }
     if(url.startsWith('/api/online/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM online WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
-    /* ================= НОВОСТИ ================= */
     if (url === '/api/news' && method === 'GET') { try { const r = await pool.query('SELECT * FROM news ORDER BY id DESC'); return sendJSON(res, 200, r.rows); } catch (e) { return sendJSON(res, 200, []); } }
     if (url === '/api/admin/news' && method === 'POST') {
       const b = await parseBody(req);
@@ -1396,8 +1450,6 @@ const server = http.createServer(async (req, res) => {
       try { await pool.query('DELETE FROM news WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
       catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
-
-    /* ================= ОТЗЫВЫ ================= */
     if (url === '/api/dealer-reviews' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
@@ -1436,8 +1488,6 @@ const server = http.createServer(async (req, res) => {
       catch (e) { return sendJSON(res, 200, []); }
     }
     if (url.startsWith('/api/dealer-reviews/') && method === 'DELETE') { const id = url.split('/')[3]; try { await pool.query('DELETE FROM dealer_reviews WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); } catch (e) { return sendJSON(res, 500, { error: e.message }); } }
-
-    /* ================= ГЕНЕРАЦИЯ КАРТ ================= */
     if (url === '/api/admin/guests/generate' && method === 'POST') {
       const b = await parseBody(req);
       const count = Math.min(500, Math.max(1, parseInt(b.count, 10) || 10));
@@ -1463,8 +1513,6 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, r.rows);
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
     }
-
-    /* ================= ЛОГИН ================= */
     if(url === '/api/login' && method === 'POST'){
       const { login, pass, type } = await parseBody(req);
       if(type === 'dealer'){
