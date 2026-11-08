@@ -303,7 +303,24 @@ function scheduleBotCashout(betId, targetMult) {
 async function crashStartWaiting() {
   try {
     crashClearTimers();
-    const cp = crashGeneratePoint();
+    let cp;
+    try {
+      const forceRes = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`);
+      if (forceRes.rows.length && forceRes.rows[0].value) {
+        const forced = parseFloat(forceRes.rows[0].value);
+        if (isFinite(forced) && forced >= 1.0 && forced <= 1000) {
+          cp = forced;
+          await pool.query(`UPDATE settings SET value='' WHERE key='crash_force_next'`);
+          console.log('CRASH: используем форсированный коэффициент ' + cp);
+        } else {
+          cp = crashGeneratePoint();
+        }
+      } else {
+        cp = crashGeneratePoint();
+      }
+    } catch(e) {
+      cp = crashGeneratePoint();
+    }
     try { await pool.query(`UPDATE crash_rounds SET status='crashed' WHERE status IN ('waiting', 'flying')`); } catch(e) {}
     const r = await pool.query(
       `INSERT INTO crash_rounds (crash_point, status) VALUES ($1, 'waiting') RETURNING id`,
@@ -601,6 +618,7 @@ async function initDB() {
     if(!jpCheck.rows.find(r => r.key === 'jackpot_last_tick')){
       await pool.query(`INSERT INTO settings (key, value) VALUES ('jackpot_last_tick', $1)`, [Date.now().toString()]);
     }
+    await pool.query(`INSERT INTO settings (key, value) VALUES ('crash_force_next', '') ON CONFLICT (key) DO NOTHING`);
 
     console.log('База готова');
     botInit();
@@ -747,6 +765,40 @@ const server = http.createServer(async (req, res) => {
     if(url === '/api/jackpot' && method === 'GET'){
       const jackpot = await getActualJackpot();
       return sendJSON(res, 200, { jackpot });
+    }
+
+    /* ========== ADMIN CRASH FORCE ========== */
+    if (url === '/api/admin/crash/force-next' && method === 'GET') {
+      try {
+        const r = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`);
+        const val = r.rows.length ? parseFloat(r.rows[0].value) || 0 : 0;
+        return sendJSON(res, 200, { value: val });
+      } catch(e) {
+        return sendJSON(res, 200, { value: 0 });
+      }
+    }
+
+    if (url === '/api/admin/crash/force-next' && method === 'POST') {
+      const b = await parseBody(req);
+      const pass = String(b.pass || '');
+      if (pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
+      const val = parseFloat(b.value);
+      if (!isFinite(val) || val < 1.0 || val > 1000) {
+        return sendJSON(res, 400, { error: 'Коэффициент должен быть от 1.00 до 1000' });
+      }
+      await pool.query(`
+        INSERT INTO settings (key, value) VALUES ('crash_force_next', $1)
+        ON CONFLICT (key) DO UPDATE SET value = $1
+      `, [String(val)]);
+      return sendJSON(res, 200, { ok: true, value: val });
+    }
+
+    if (url === '/api/admin/crash/clear-force' && method === 'POST') {
+      const b = await parseBody(req);
+      const pass = String(b.pass || '');
+      if (pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
+      await pool.query(`UPDATE settings SET value='' WHERE key='crash_force_next'`);
+      return sendJSON(res, 200, { ok: true });
     }
 
     /* ================= ДИЛЕР ================= */
@@ -1219,7 +1271,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, sum, guest: dep.nick });
     }
 
-    /* ================= КЕЙСЫ ================= */
+       /* ================= КЕЙСЫ ================= */
     if (url === '/api/cases/last-drops' && method === 'GET') {
       try {
         const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`);
