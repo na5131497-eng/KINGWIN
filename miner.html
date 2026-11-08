@@ -7,16 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0e14;
-    --panel:rgba(21,25,34,.95);
-    --card:#1a1f2b;
-    --text:#fff;
-    --muted:#8b92a5;
-    --accent:#00e5ff;
-    --green:#00e676;
-    --red:#ff4d4d;
-    --gold:#f1c40f;
-    --border:rgba(255,255,255,.06);
+    --bg:#0b0e14; --panel:rgba(21,25,34,.95); --card:#1a1f2b;
+    --text:#fff; --muted:#8b92a5; --accent:#00e5ff;
+    --green:#00e676; --red:#ff4d4d; --gold:#f1c40f; --border:rgba(255,255,255,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{
@@ -65,7 +58,9 @@
     animation:shake .3s;
   }
   .cell.disabled{cursor:not-allowed;opacity:.85}
-  .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);color:var(--red)}
+  .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);color:var(--red);opacity:.6}
+  .cell.revealed-mine{background:rgba(255,77,77,.35);border-color:var(--red);color:var(--red)}
+  .cell.revealed-safe{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.3);color:var(--green);opacity:.7}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
   .bet-panel{
@@ -117,7 +112,6 @@
   }
   .btn-main:hover{filter:brightness(1.1);box-shadow:0 0 20px rgba(0,229,255,.35)}
   .btn-main:disabled{opacity:.4;cursor:not-allowed}
-  .btn-main.green{background:var(--green);color:#000}
   .btn-main.gold{background:var(--gold);color:#000}
 
   .status{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:16px}
@@ -171,12 +165,11 @@
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- Панель ставки (скрывается в игре) -->
   <div class="bet-panel" id="betPanel">
     <div class="stats-row">
       <div class="stat">
-        <div class="stat-lbl">Макс. выигрыш</div>
-        <div class="stat-val" id="maxWinView">0 ₽</div>
+        <div class="stat-lbl">Множитель</div>
+        <div class="stat-val" id="multView" style="color:var(--gold)">x1.00</div>
       </div>
       <div class="mines-selector">
         <button class="mines-btn" onclick="changeMines(-1)">‹</button>
@@ -198,20 +191,9 @@
     <div class="status" id="status">Выберите ставку и начните</div>
   </div>
 
-  <!-- Панель игры (скрыта до старта) -->
   <div class="bet-panel" id="playPanel" style="display:none">
-    <div class="stats-row">
-      <div class="stat">
-        <div class="stat-lbl">Множитель</div>
-        <div class="stat-val" id="multView" style="color:var(--gold)">x1.00</div>
-      </div>
-      <div class="stat" style="text-align:right">
-        <div class="stat-lbl">Потенциал</div>
-        <div class="stat-val" id="potentialView">0 ₽</div>
-      </div>
-    </div>
     <button class="btn-main gold" id="btnCashout" onclick="cashout()">Забрать выигрыш</button>
-    <button class="btn-main" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;font-size:12px;padding:10px" onclick="resetGame()">Сдаться</button>
+    <div class="status" id="playStatus"></div>
   </div>
 
 </div>
@@ -261,26 +243,28 @@ async function refreshBalance() {
   } catch(e) {}
 }
 
-function setStatus(text, cls) {
-  const el = $('status');
-  el.textContent = text;
-  el.className = 'status' + (cls ? ' ' + cls : '');
+function setStatus(text, cls, el = 'status') {
+  const e = $(el); if (!e) return;
+  e.textContent = text;
+  e.className = 'status' + (cls ? ' ' + cls : '');
 }
 
 function renderGrid() {
   const grid = $('grid');
   grid.innerHTML = '';
   for (let i = 0; i < TOTAL; i++) {
-    const c = cells[i] || { open: false, mine: false, disabled: false };
+    const c = cells[i] || { open: false, mine: false, disabled: false, revealed: false };
     const div = document.createElement('div');
     div.className = 'cell';
+
     if (c.open) {
       if (c.mine) { div.classList.add('mine'); div.textContent = '💣'; }
       else { div.classList.add('safe'); div.textContent = '💎'; }
       div.classList.add('disabled');
-    } else if (c.mine) {
-      div.classList.add('hidden-mine');
-      div.textContent = '💣';
+    } else if (c.revealed) {
+      // вскрытая ячейка после проигрыша/забора — показываем, где мины, где алмазы
+      if (c.mine) { div.classList.add('revealed-mine'); div.textContent = '💣'; }
+      else { div.classList.add('revealed-safe'); div.textContent = '💎'; }
       div.classList.add('disabled');
     }
     if (c.disabled) div.classList.add('disabled');
@@ -290,7 +274,7 @@ function renderGrid() {
 }
 
 function resetCells() {
-  cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false }));
+  cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false, revealed: false }));
 }
 
 function changeBet(dir) {
@@ -299,25 +283,11 @@ function changeBet(dir) {
   v = Math.max(5, v + dir * 5);
   $('betInput').value = v;
   currentBet = v;
-  updateMaxWin();
 }
 function changeMines(dir) {
   if (sessionId) return;
   currentMines = Math.max(1, Math.min(24, currentMines + dir));
   $('minesVal').textContent = currentMines;
-  updateMaxWin();
-}
-function updateMaxWin() {
-  // Приблизительный «макс. выигрыш» = ставка × макс. множитель при данных минах
-  // (открытие всех безопасных ячеек)
-  const safeTotal = 25 - currentMines;
-  let surviveProb = 1;
-  for (let i = 0; i < safeTotal; i++) {
-    surviveProb *= (safeTotal - i) / (25 - i);
-  }
-  const fakeMult = surviveProb > 0 ? (1 / surviveProb) * 0.99 : 0;
-  const mw = Math.round(currentBet * fakeMult * 100) / 100;
-  $('maxWinView').textContent = fmt(mw) + ' ₽';
 }
 
 async function startGame() {
@@ -341,19 +311,32 @@ async function startGame() {
     resetCells();
     mult = 1.0;
     $('multView').textContent = 'x1.00';
-    $('potentialView').textContent = '0 ₽';
     renderGrid();
     $('betPanel').style.display = 'none';
     $('playPanel').style.display = 'block';
     $('btnCashout').disabled = true;
-    setStatus('Открывайте клетки. Осторожно: ' + currentMines + ' мин', 'ok');
+    setStatus('Открывайте клетки. Осторожно: ' + currentMines + ' мин', 'ok', 'playStatus');
     await refreshBalance();
   } catch(e) { setStatus('Ошибка соединения', 'err'); }
   busy = false;
 }
 
+function revealAll(mines, keepOpen = []) {
+  // Вскрываем все ячейки: мины → revealed-mine, безопасные → revealed-safe
+  // Уже открытые игроком — оставляем как safe/mine
+  for (let i = 0; i < TOTAL; i++) {
+    if (cells[i].open) continue;
+    if (mines.includes(i)) {
+      cells[i] = { open: false, mine: true, disabled: true, revealed: true };
+    } else {
+      cells[i] = { open: false, mine: false, disabled: true, revealed: true };
+    }
+  }
+  renderGrid();
+}
+
 async function openCell(i) {
-  if (busy || !sessionId || cells[i].open) return;
+  if (busy || !sessionId || cells[i].open || cells[i].revealed) return;
   busy = true;
   try {
     const r = await fetch('/api/miner/open', {
@@ -361,16 +344,17 @@ async function openCell(i) {
       body: JSON.stringify({ guest_id: me.guestId, session_id: sessionId, cell: i })
     });
     const d = await r.json();
-    if (!r.ok) { setStatus(d.error || 'Ошибка', 'err'); busy = false; return; }
+    if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
 
     if (d.mine) {
+      // Проиграл — открываем взорванную, затем вскрываем всё поле
       cells[i] = { open: true, mine: true, disabled: true };
-      (d.mines || []).forEach(m => { cells[m] = { open: false, mine: true, disabled: true }; });
       renderGrid();
       sessionId = null;
+      revealAll(d.mines || []);
       showResult('lose', 0, 'Вы попали на мину. Ставка потеряна.');
       await refreshBalance();
-      endRoundUI();
+      setTimeout(() => endRoundUI(), 1200); // даём посмотреть на поле
       busy = false;
       return;
     }
@@ -379,18 +363,18 @@ async function openCell(i) {
     (d.revealed || []).forEach(idx => { if (!cells[idx].open) cells[idx] = { open: true, mine: false, disabled: true }; });
     mult = parseFloat(d.multiplier) || mult;
     $('multView').textContent = 'x' + mult.toFixed(2);
-    $('potentialView').textContent = fmt(d.potential_win) + ' ₽';
     renderGrid();
     $('btnCashout').disabled = false;
-    setStatus(`Открыто: ${d.revealed.length}. Потенциал: ${fmt(d.potential_win)} ₽`, 'ok');
+    setStatus(`Открыто: ${d.revealed.length}. Потенциал: ${fmt(d.potential_win)} ₽`, 'ok', 'playStatus');
 
     if (d.auto_cashout) {
       sessionId = null;
+      revealAll(d.mines || []);
       showResult('win', d.win, `Все безопасные клетки открыты! Множитель x${mult.toFixed(2)}`);
       await refreshBalance();
-      endRoundUI();
+      setTimeout(() => endRoundUI(), 1200);
     }
-  } catch(e) { setStatus('Ошибка соединения', 'err'); }
+  } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
 }
 
@@ -403,25 +387,15 @@ async function cashout() {
       body: JSON.stringify({ guest_id: me.guestId, session_id: sessionId })
     });
     const d = await r.json();
-    if (!r.ok) { setStatus(d.error || 'Ошибка', 'err'); busy = false; return; }
+    if (!r.ok) { setStatus(d.error || 'Ошибка', 'err', 'playStatus'); busy = false; return; }
 
-    (d.mines || []).forEach(m => { cells[m] = { open: false, mine: true, disabled: true }; });
-    renderGrid();
     sessionId = null;
+    revealAll(d.mines || []);
     showResult('win', d.win, `Забрано с множителем x${d.multiplier.toFixed(2)}`);
     await refreshBalance();
-    endRoundUI();
-  } catch(e) { setStatus('Ошибка соединения', 'err'); }
+    setTimeout(() => endRoundUI(), 1200);
+  } catch(e) { setStatus('Ошибка соединения', 'err', 'playStatus'); }
   busy = false;
-}
-
-function resetGame() {
-  if (sessionId) {
-    if (!confirm('Сдаться? Ставка будет потеряна.')) return;
-    sessionId = null;
-  }
-  endRoundUI();
-  setStatus('Выберите ставку и начните');
 }
 
 function endRoundUI() {
@@ -429,9 +403,9 @@ function endRoundUI() {
   $('playPanel').style.display = 'none';
   mult = 1.0;
   $('multView').textContent = 'x1.00';
-  $('potentialView').textContent = '0 ₽';
   resetCells();
   renderGrid();
+  setStatus('Выберите ставку и начните');
 }
 
 function showResult(type, amount, text) {
@@ -458,7 +432,6 @@ function closeModal() { $('resultModal').classList.remove('show'); }
 me = loadMe();
 resetCells();
 renderGrid();
-updateMaxWin();
 if (!me) {
   setStatus('Войдите как гость на profile2.html, потом вернитесь', 'err');
   $('btnStart').disabled = true;
