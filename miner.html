@@ -4,108 +4,162 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Miner</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0d14;--panel:rgba(18,24,38,.9);--line:rgba(255,255,255,.06);
-    --text:#fff;--muted:#8fa2b8;--accent:#00e5ff;--green:#3fbf7f;--red:#ff4d4d;--gold:#f1c40f;
+    --bg:#0b0e14;
+    --panel:rgba(21,25,34,.95);
+    --card:#1a1f2b;
+    --text:#fff;
+    --muted:#8b92a5;
+    --accent:#00e5ff;
+    --green:#00e676;
+    --red:#ff4d4d;
+    --gold:#f1c40f;
+    --border:rgba(255,255,255,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{
     font-family:'Montserrat',sans-serif;color:var(--text);
-    background:radial-gradient(circle at top,#1a2332,#0a0d14);
-    min-height:100vh;padding:14px;display:flex;justify-content:center;
+    background:radial-gradient(circle at top,#1a2332,#0b0e14);
+    min-height:100vh;display:flex;justify-content:center;padding:14px;
   }
-  .wrap{width:100%;max-width:520px}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
-  .brand{font-size:20px;font-weight:900;letter-spacing:2px;
+  .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px}
+
+  /* Шапка */
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+  .logo{
+    font-size:22px;font-weight:900;letter-spacing:2px;
     background:linear-gradient(135deg,var(--accent),#0077ff);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .bal-box{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:10px;
-    padding:6px 12px;font-size:12px;color:var(--muted);text-align:right;line-height:1.3}
-  .bal-box b{display:block;color:var(--green);font-size:15px}
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .balance{
+    background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.35);
+    color:var(--green);padding:8px 14px;border-radius:10px;
+    font-weight:900;font-size:13px;white-space:nowrap;
+  }
 
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;
-    padding:16px;margin-bottom:12px;backdrop-filter:blur(10px)}
-
-  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-  .stat{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
-  .stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-  .stat .val{font-size:18px;font-weight:900;color:var(--accent)}
-  .stat .val.green{color:var(--green)}
-  .stat .val.gold{color:var(--gold)}
-
+  /* Сетка */
+  .grid-wrap{
+    background:var(--panel);border:1px solid var(--border);border-radius:20px;
+    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative;
+  }
   .grid{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
-    margin:12px 0;aspect-ratio:1;max-width:420px;margin-left:auto;margin-right:auto;
+    display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+    aspect-ratio:1;width:100%;
   }
   .cell{
-    background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;
+    background:rgba(0,229,255,.10);
+    border:1px solid rgba(0,229,255,.25);
+    border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    font-size:22px;cursor:pointer;transition:.15s;user-select:none;
-    aspect-ratio:1;position:relative;font-weight:900;
+    font-size:24px;cursor:pointer;transition:.15s;user-select:none;
+    aspect-ratio:1;font-weight:900;
+    position:relative;
   }
-  .cell:active{transform:scale(.95)}
-  .cell.safe{background:rgba(63,191,127,.25);border-color:var(--green);color:var(--green);cursor:default}
-  .cell.mine{background:rgba(255,77,77,.3);border-color:var(--red);color:var(--red);animation:shake .3s}
-  .cell.disabled{cursor:not-allowed;opacity:.7}
-  .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.5);color:rgba(255,77,77,.7)}
+  .cell:hover:not(.disabled){ background:rgba(0,229,255,.20); border-color:var(--accent); }
+  .cell:active:not(.disabled){ transform:scale(.94); }
+  .cell.safe{
+    background:rgba(0,230,118,.18);border-color:var(--green);color:var(--green);cursor:default;
+  }
+  .cell.mine{
+    background:rgba(255,77,77,.25);border-color:var(--red);color:var(--red);
+    animation:shake .3s;
+  }
+  .cell.disabled{cursor:not-allowed;opacity:.85}
+  .cell.hidden-mine{background:rgba(255,77,77,.15);border-color:rgba(255,77,77,.4);color:var(--red)}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-  .bet-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
-  .bet-chip{background:rgba(0,229,255,.1);border:1px solid var(--accent);color:var(--accent);
-    border-radius:10px;padding:9px 14px;font-weight:800;font-size:13px;cursor:pointer;transition:.2s}
-  .bet-chip:active{transform:scale(.95)}
-  .bet-chip.sel{background:var(--accent);color:#000}
-  .bet-input{background:rgba(0,0,0,.4);border:1px solid var(--line);color:#fff;
-    border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;width:100px;text-align:center}
+  /* Панель ставки */
+  .bet-panel{
+    background:var(--panel);border:1px solid var(--border);border-radius:20px;
+    padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.4);
+  }
 
-  .btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;
-    padding:14px;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
-    cursor:pointer;font-family:inherit;transition:.2s;margin-top:8px}
-  .btn:active{transform:scale(.98)}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
-  .btn.green{background:var(--green);color:#000}
-  .btn.gold{background:var(--gold);color:#000}
-  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .stats-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 4px;margin-bottom:10px;
+    border-bottom:1px solid var(--border);
+  }
+  .stat{ text-align:left; }
+  .stat-lbl{ font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700; }
+  .stat-val{ font-size:16px;font-weight:900;color:var(--green);margin-top:2px; }
 
-  .status{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:18px;line-height:1.5}
+  .mines-selector{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(0,0,0,.3);border-radius:10px;padding:6px 10px;
+  }
+  .mines-btn{
+    background:transparent;border:none;color:var(--muted);font-size:20px;
+    font-weight:900;cursor:pointer;padding:0 6px;font-family:inherit;
+  }
+  .mines-btn:hover{color:var(--accent)}
+  .mines-val{font-size:15px;font-weight:900;min-width:20px;text-align:center}
+
+  .bet-input-row{
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .bet-btn{
+    width:44px;height:44px;border-radius:10px;border:1px solid var(--border);
+    background:rgba(0,0,0,.3);color:#fff;font-size:20px;font-weight:900;
+    cursor:pointer;font-family:inherit;flex-shrink:0;
+  }
+  .bet-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .bet-input{
+    flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);
+    color:#fff;border-radius:10px;padding:11px;font-size:16px;font-weight:900;
+    text-align:center;font-family:inherit;
+  }
+  .bet-input:focus{outline:none;border-color:var(--accent)}
+
+  .btn-main{
+    width:100%;background:var(--accent);color:#000;border:none;
+    border-radius:12px;padding:16px;font-size:15px;font-weight:900;
+    text-transform:uppercase;letter-spacing:1px;cursor:pointer;
+    font-family:inherit;transition:.2s;
+  }
+  .btn-main:hover{filter:brightness(1.1);box-shadow:0 0 20px rgba(0,229,255,.35)}
+  .btn-main:disabled{opacity:.4;cursor:not-allowed}
+  .btn-main.green{background:var(--green);color:#000}
+  .btn-main.gold{background:var(--gold);color:#000}
+
+  .status{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:16px}
   .status.err{color:var(--red)}
   .status.ok{color:var(--green)}
 
-  .history{margin-top:8px}
-  .history h3{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:800}
-  .hist-item{display:flex;justify-content:space-between;padding:8px 10px;background:rgba(0,0,0,.3);
-    border-radius:8px;margin-bottom:6px;font-size:12px}
-  .hist-item .who{color:var(--muted)}
-  .hist-item .val{font-weight:900}
-  .hist-item .val.pos{color:var(--green)}
-  .hist-item .val.neg{color:var(--red)}
-
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
-    display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+  /* Модалка результата */
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;
+  }
   .modal.show{display:flex}
-  .modal-box{background:linear-gradient(135deg,#111625,#0a0d14);border:2px solid var(--accent);
-    border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;
-    box-shadow:0 0 60px rgba(0,229,255,.35);animation:up .3s}
+  .modal-box{
+    background:linear-gradient(135deg,#111625,#0b0e14);
+    border:2px solid var(--accent);border-radius:20px;padding:30px 24px;
+    max-width:340px;width:100%;text-align:center;
+    box-shadow:0 0 60px rgba(0,229,255,.3);animation:up .3s;
+  }
   @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
-  .modal-box.win{border-color:var(--green);box-shadow:0 0 60px rgba(63,191,127,.4)}
+  .modal-box.win{border-color:var(--green);box-shadow:0 0 60px rgba(0,230,118,.4)}
   .modal-box.lose{border-color:var(--red);box-shadow:0 0 60px rgba(255,77,77,.4)}
-  .modal-title{font-size:22px;font-weight:900;margin-bottom:8px}
+  .modal-title{font-size:24px;font-weight:900;margin-bottom:8px}
   .modal-title.win{color:var(--green)}
   .modal-title.lose{color:var(--red)}
-  .modal-amount{font-size:38px;font-weight:900;color:var(--gold);margin:14px 0;
-    text-shadow:0 0 20px rgba(241,196,15,.5)}
-  .modal-text{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:18px}
-  .modal-btn{background:var(--accent);color:#000;border:none;border-radius:10px;
-    padding:12px 30px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;
-    text-transform:uppercase;letter-spacing:1px;width:100%}
+  .modal-amount{font-size:40px;font-weight:900;color:var(--gold);margin:16px 0;text-shadow:0 0 20px rgba(241,196,15,.5)}
+  .modal-text{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:20px}
+  .modal-btn{
+    background:var(--accent);color:#000;border:none;border-radius:10px;
+    padding:14px 30px;font-size:14px;font-weight:900;cursor:pointer;
+    font-family:inherit;text-transform:uppercase;letter-spacing:1px;width:100%;
+  }
 
-  @media(max-width:380px){
-    .grid{gap:5px}
-    .cell{font-size:18px}
-    .bet-chip{padding:7px 10px;font-size:12px}
-    .stat .val{font-size:16px}
+  @media(max-width:400px){
+    .grid{gap:6px}
+    .cell{font-size:18px;border-radius:9px}
+    .grid-wrap,.bet-panel{padding:10px;border-radius:16px}
+    .bet-btn{width:38px;height:38px;font-size:18px}
+    .stat-val{font-size:14px}
+    .mines-selector{padding:5px 8px}
   }
 </style>
 </head>
@@ -113,52 +167,55 @@
 <div class="wrap">
 
   <div class="topbar">
-    <div class="brand">MINER</div>
-    <div class="bal-box">
-      Баланс
-      <b id="balanceView">— ₽</b>
-    </div>
+    <div class="logo">MINER</div>
+    <div class="balance" id="balanceView">— ₽</div>
   </div>
 
-  <div class="panel">
-    <div class="stat-row">
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- Панель ставки (скрывается в игре) -->
+  <div class="bet-panel" id="betPanel">
+    <div class="stats-row">
       <div class="stat">
-        <div class="lbl">Ставка</div>
-        <div class="val" id="betView">0 ₽</div>
+        <div class="stat-lbl">Макс. выигрыш</div>
+        <div class="stat-val" id="maxWinView">0 ₽</div>
       </div>
-      <div class="stat">
-        <div class="lbl">Множитель</div>
-        <div class="val gold" id="multView">x1.00</div>
+      <div class="mines-selector">
+        <button class="mines-btn" onclick="changeMines(-1)">‹</button>
+        <div style="text-align:center">
+          <div class="mines-val" id="minesVal">3</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700">мин</div>
+        </div>
+        <button class="mines-btn" onclick="changeMines(1)">›</button>
       </div>
     </div>
 
-    <div class="grid" id="grid"></div>
+    <div class="bet-input-row">
+      <button class="bet-btn" onclick="changeBet(-1)">−</button>
+      <input type="number" id="betInput" class="bet-input" value="10" min="5" max="1000">
+      <button class="bet-btn" onclick="changeBet(1)">+</button>
+    </div>
 
+    <button class="btn-main" id="btnStart" onclick="startGame()">Играть</button>
     <div class="status" id="status">Выберите ставку и начните</div>
   </div>
 
-  <div class="panel" id="betPanel">
-    <div class="bet-row">
-      <div class="bet-chip" onclick="setBet(10)">10 ₽</div>
-      <div class="bet-chip" onclick="setBet(50)">50 ₽</div>
-      <div class="bet-chip" onclick="setBet(100)">100 ₽</div>
-      <div class="bet-chip" onclick="setBet(500)">500 ₽</div>
-      <input type="number" class="bet-input" id="betInput" placeholder="Своя" min="5" max="1000">
-      <div class="bet-chip" onclick="setBetCustom()">OK</div>
+  <!-- Панель игры (скрыта до старта) -->
+  <div class="bet-panel" id="playPanel" style="display:none">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-lbl">Множитель</div>
+        <div class="stat-val" id="multView" style="color:var(--gold)">x1.00</div>
+      </div>
+      <div class="stat" style="text-align:right">
+        <div class="stat-lbl">Потенциал</div>
+        <div class="stat-val" id="potentialView">0 ₽</div>
+      </div>
     </div>
-    <button class="btn green" id="btnStart" onclick="startGame()">🎮 Начать игру</button>
-  </div>
-
-  <div class="panel" id="playPanel" style="display:none">
-    <button class="btn gold" id="btnCashout" onclick="cashout()">💰 Забрать выигрыш</button>
-    <button class="btn ghost" onclick="resetGame()">Сдаться</button>
-  </div>
-
-  <div class="panel">
-    <div class="history">
-      <h3>Последние игры</h3>
-      <div id="historyList"><div style="color:var(--muted);font-size:12px;text-align:center;padding:10px">Загрузка...</div></div>
-    </div>
+    <button class="btn-main gold" id="btnCashout" onclick="cashout()">Забрать выигрыш</button>
+    <button class="btn-main" style="background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:8px;font-size:12px;padding:10px" onclick="resetGame()">Сдаться</button>
   </div>
 
 </div>
@@ -174,18 +231,19 @@
 
 <script>
 const $ = id => document.getElementById(id);
-const SIZE = 5;
-const TOTAL = SIZE * SIZE;
+const TOTAL = 25;
 
 let me = null;
 let balance = 0;
-let currentBet = 0;
+let currentBet = 10;
+let currentMines = 3;
 let sessionId = null;
-let cells = [];      // { open, mine, disabled }
+let cells = [];
 let mult = 1.0;
 let busy = false;
 
-/* ==== Загрузка гостя ==== */
+function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
+
 function loadMe() {
   try {
     const raw = localStorage.getItem('kingwin_guest');
@@ -207,15 +265,13 @@ async function refreshBalance() {
   } catch(e) {}
 }
 
-function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
-
 function setStatus(text, cls) {
   const el = $('status');
   el.textContent = text;
   el.className = 'status' + (cls ? ' ' + cls : '');
 }
 
-/* ==== Сетка ==== */
+/* ---------- Минное поле ---------- */
 function renderGrid() {
   const grid = $('grid');
   grid.innerHTML = '';
@@ -233,9 +289,6 @@ function renderGrid() {
       div.classList.add('disabled');
     }
     if (c.disabled) div.classList.add('disabled');
-    if (!c.open && !sessionId) {
-      // игровое поле неактивно до старта
-    }
     div.onclick = () => openCell(i);
     grid.appendChild(div);
   }
@@ -245,28 +298,34 @@ function resetCells() {
   cells = Array(TOTAL).fill(0).map(() => ({ open: false, mine: false, disabled: false }));
 }
 
-/* ==== Ставка ==== */
-function setBet(n) {
+/* ---------- Ставка / Мины ---------- */
+function changeBet(dir) {
   if (sessionId) return;
-  currentBet = n;
-  $('betInput').value = '';
-  $('betView').textContent = fmt(n) + ' ₽';
-  document.querySelectorAll('.bet-chip').forEach(b => b.classList.remove('sel'));
-  event.target.classList.add('sel');
-}
-function setBetCustom() {
-  if (sessionId) return;
-  const v = parseInt($('betInput').value, 10) || 0;
-  if (v < 5 || v > 1000) { setStatus('Ставка 5–1000 ₽', 'err'); return; }
+  let v = parseInt($('betInput').value, 10) || 10;
+  v = Math.max(5, Math.min(1000, v + dir * 5));
+  $('betInput').value = v;
   currentBet = v;
-  $('betView').textContent = fmt(v) + ' ₽';
+  updateMaxWin();
+}
+function changeMines(dir) {
+  if (sessionId) return;
+  currentMines = Math.max(1, Math.min(15, currentMines + dir));
+  $('minesVal').textContent = currentMines;
+  updateMaxWin();
+}
+function updateMaxWin() {
+  // условный «макс. выигрыш» = bet × 5 при 3 минах (для отображения)
+  const fakeMult = Math.pow(1.13, TOTAL - currentMines);
+  const mw = Math.round(currentBet * fakeMult * 100) / 100;
+  $('maxWinView').textContent = fmt(mw) + ' ₽';
 }
 
-/* ==== Старт ==== */
+/* ---------- Старт ---------- */
 async function startGame() {
   if (busy) return;
   if (!me) { setStatus('Войдите как гость (profile2.html)', 'err'); return; }
-  if (currentBet < 5) { setStatus('Ставка от 5 ₽', 'err'); return; }
+  currentBet = parseInt($('betInput').value, 10) || 10;
+  if (currentBet < 5) { setStatus('Мин. ставка 5 ₽', 'err'); return; }
   if (balance < currentBet) { setStatus('Недостаточно средств', 'err'); return; }
 
   busy = true;
@@ -274,7 +333,7 @@ async function startGame() {
   try {
     const r = await fetch('/api/miner/start', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ guest_id: me.guestId, bet: currentBet })
+      body: JSON.stringify({ guest_id: me.guestId, bet: currentBet, mines: currentMines })
     });
     const d = await r.json();
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err'); busy = false; return; }
@@ -283,22 +342,20 @@ async function startGame() {
     resetCells();
     mult = 1.0;
     $('multView').textContent = 'x1.00';
+    $('potentialView').textContent = '0 ₽';
     renderGrid();
     $('betPanel').style.display = 'none';
     $('playPanel').style.display = 'block';
     $('btnCashout').disabled = true;
-    setStatus('Открывайте клетки. Осторожно: 3 мины', 'ok');
+    setStatus('Открывайте клетки. Осторожно: ' + currentMines + ' мин', 'ok');
     await refreshBalance();
-  } catch(e) {
-    setStatus('Ошибка соединения', 'err');
-  }
+  } catch(e) { setStatus('Ошибка соединения', 'err'); }
   busy = false;
 }
 
-/* ==== Открыть клетку ==== */
+/* ---------- Открыть клетку ---------- */
 async function openCell(i) {
-  if (busy || !sessionId) return;
-  if (cells[i].open) return;
+  if (busy || !sessionId || cells[i].open) return;
   busy = true;
   try {
     const r = await fetch('/api/miner/open', {
@@ -309,43 +366,37 @@ async function openCell(i) {
     if (!r.ok) { setStatus(d.error || 'Ошибка', 'err'); busy = false; return; }
 
     if (d.mine) {
-      // проиграл
       cells[i] = { open: true, mine: true, disabled: true };
       (d.mines || []).forEach(m => { cells[m] = { open: false, mine: true, disabled: true }; });
       renderGrid();
       sessionId = null;
       showResult('lose', 0, 'Вы попали на мину. Ставка потеряна.');
       await refreshBalance();
-      await loadHistory();
       endRoundUI();
       busy = false;
       return;
     }
 
-    // безопасная
     cells[i] = { open: true, mine: false, disabled: true };
     (d.revealed || []).forEach(idx => { if (!cells[idx].open) cells[idx] = { open: true, mine: false, disabled: true }; });
     mult = parseFloat(d.multiplier) || mult;
     $('multView').textContent = 'x' + mult.toFixed(2);
+    $('potentialView').textContent = fmt(d.potential_win) + ' ₽';
     renderGrid();
     $('btnCashout').disabled = false;
     setStatus(`Открыто: ${d.revealed.length}. Потенциал: ${fmt(d.potential_win)} ₽`, 'ok');
 
     if (d.auto_cashout) {
-      // открыл все безопасные — авто-выплата
       sessionId = null;
       showResult('win', d.win, `Все безопасные клетки открыты! Множитель x${mult.toFixed(2)}`);
       await refreshBalance();
-      await loadHistory();
       endRoundUI();
     }
-  } catch(e) {
-    setStatus('Ошибка соединения', 'err');
-  }
+  } catch(e) { setStatus('Ошибка соединения', 'err'); }
   busy = false;
 }
 
-/* ==== Забрать ==== */
+/* ---------- Забрать ---------- */
 async function cashout() {
   if (busy || !sessionId) return;
   busy = true;
@@ -362,11 +413,8 @@ async function cashout() {
     sessionId = null;
     showResult('win', d.win, `Забрано с множителем x${d.multiplier.toFixed(2)}`);
     await refreshBalance();
-    await loadHistory();
     endRoundUI();
-  } catch(e) {
-    setStatus('Ошибка соединения', 'err');
-  }
+  } catch(e) { setStatus('Ошибка соединения', 'err'); }
   busy = false;
 }
 
@@ -384,11 +432,12 @@ function endRoundUI() {
   $('playPanel').style.display = 'none';
   mult = 1.0;
   $('multView').textContent = 'x1.00';
+  $('potentialView').textContent = '0 ₽';
   resetCells();
   renderGrid();
 }
 
-/* ==== Модалка ==== */
+/* ---------- Модалка ---------- */
 function showResult(type, amount, text) {
   const box = $('modalBox');
   const title = $('modalTitle');
@@ -410,38 +459,16 @@ function showResult(type, amount, text) {
 }
 function closeModal() { $('resultModal').classList.remove('show'); }
 
-/* ==== История ==== */
-async function loadHistory() {
-  try {
-    const r = await fetch('/api/miner/history');
-    const list = await r.json();
-    const box = $('historyList');
-    if (!Array.isArray(list) || list.length === 0) {
-      box.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:10px">Пока нет игр</div>';
-      return;
-    }
-    box.innerHTML = list.map(g => {
-      const win = parseFloat(g.result) || 0;
-      const bet = parseFloat(g.bet) || 0;
-      const nameStr = String(g.name || '').length > 8 ? String(g.name).slice(0, 8) + '...' : (g.name || '—');
-      return `<div class="hist-item">
-        <span class="who">${nameStr}</span>
-        <span class="val ${win > 0 ? 'pos' : 'neg'}">${win > 0 ? '+' : '−'}${fmt(win > 0 ? win : bet)} ₽</span>
-      </div>`;
-    }).join('');
-  } catch(e) {}
-}
-
-/* ==== Init ==== */
+/* ---------- Init ---------- */
 me = loadMe();
 resetCells();
 renderGrid();
+updateMaxWin();
 if (!me) {
   setStatus('Войдите как гость на profile2.html, потом вернитесь', 'err');
   $('btnStart').disabled = true;
 } else {
   refreshBalance();
-  loadHistory();
 }
 </script>
 </body>
