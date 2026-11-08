@@ -282,6 +282,15 @@
   .day-list-item .who { color: var(--muted); }
   .day-list-item .val { font-weight: 800; }
 
+  .crash-force-block { background: rgba(0,0,0,0.3); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .crash-force-block h3 { color: var(--gold); font-size: 16px; margin-bottom: 10px; }
+  .crash-force-block .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+  .crash-force-block .hint code { background: rgba(0,229,255,0.15); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; }
+  .crash-force-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .crash-force-row label { flex: 1; min-width: 140px; }
+  .crash-force-row input { width: 100%; }
+  .crash-force-status { margin-top: 12px; font-size: 13px; color: var(--muted); min-height: 20px; }
+
   @media (max-width: 900px) {
     .sessions-grid { grid-template-columns: 1fr; }
     .mobile-menu-btn { display: block; }
@@ -355,7 +364,6 @@
     <button class="logout-btn" onclick="openLogoutModal()">Выйти</button>
   </div>
 </aside>
-
 <main>
   <div class="page active" id="page-dash">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
@@ -546,6 +554,22 @@
 
     <div class="cards" id="onlineCards"></div>
 
+    <div class="crash-force-block">
+      <h3>🎯 Контроль следующего краша</h3>
+      <div class="hint">
+        Введи коэффициент — <b>следующий раунд</b> крашнется именно на нём. После этого значение автоматически сбросится.
+        <br>Например: <code>1.5</code> — краш на x1.5, <code>10</code> — на x10. Диапазон: 1.00 – 1000.
+      </div>
+      <div class="crash-force-row">
+        <label>Следующий краш (x)
+          <input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="например, 2.5">
+        </label>
+        <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
+        <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
+      </div>
+      <div class="crash-force-status" id="crashForceStatus"></div>
+    </div>
+
     <div class="panel">
       <h3>Успешные выводы (Кэшауты)</h3>
       <div class="wrap"><table><thead><tr>
@@ -560,7 +584,6 @@
     <div class="sub">Начисления, зарплаты, сейфы</div>
     <div class="cards" id="payoutCards"></div>
 
-    <!-- 📦 СЕЙФЫ ДИЛЕРОВ -->
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
         <h3 style="margin:0;">📦 Сейфы дилеров</h3>
@@ -585,7 +608,6 @@
       <div class="empty" id="safeEmpty">Нет данных</div>
     </div>
 
-    <!-- 🎰 ФИШКИ ЗА ДЕНЬ -->
     <div class="panel">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
         <h3 style="margin:0;">🎰 Фишки за день</h3>
@@ -784,7 +806,6 @@
     <div class="day-modal-content" id="dayIncomeContent"></div>
   </div>
 </div>
-
 <script>
 let db = { sessions: [], baccarat: [], deposits: [], withdrawals: [], payouts: [], players: [], audit: [], employees: [], dealers: [], online: [], guests: [], crash_bets: [], dealer_reviews: [], dealer_ratings: [], dealerCash: [] };
 let newsList = [];
@@ -845,8 +866,7 @@ async function loadDB(){
     guests: '/api/guests',
     crash_bets: '/api/crash/all-bets',
     dealer_reviews: '/api/dealer-reviews',
-    dealer_ratings: '/api/dealer-ratings',
-    dealerCash: '/api/admin/cash-all'
+    dealer_ratings: '/api/dealer-ratings'
   };
   const results = await Promise.all(
     Object.entries(endpoints).map(async ([key, url]) => {
@@ -882,6 +902,7 @@ function switchPage(page) {
   if(b) b.classList.add('active');
   document.getElementById('page-'+page).classList.add('active');
   renderAll();
+  if (page === 'online') loadCrashForceStatus();
   if(window.innerWidth <= 900) toggleMenu();
 }
 
@@ -904,6 +925,7 @@ async function doLogin(){
     await Promise.all([loadDB(), loadNewsList()]);
     switchPage('dash');
     renderAll();
+    loadCrashForceStatus();
   } catch(e){ err.textContent = 'Ошибка соединения'; }
 }
 
@@ -1572,6 +1594,62 @@ function renderOnline() {
   document.getElementById('onlineEmpty').style.display = cashouts.length ? 'none' : 'block';
 }
 
+/* ========== КОНТРОЛЬ КРАША ========== */
+async function loadCrashForceStatus() {
+  try {
+    const r = await fetch('/api/admin/crash/force-next');
+    const data = await r.json();
+    const el = document.getElementById('crashForceStatus');
+    if (!el) return;
+    if (data.value && data.value > 0) {
+      el.innerHTML = `<span style="color:var(--gold); font-weight:900;">⚠ Активно: следующий краш на x${data.value.toFixed(2)}</span>`;
+      document.getElementById('crashForceInput').value = data.value;
+    } else {
+      el.innerHTML = '<span style="color:var(--muted);">Форсированный краш не задан</span>';
+    }
+  } catch(e) {}
+}
+
+async function setCrashForce() {
+  const val = parseFloat(document.getElementById('crashForceInput').value);
+  if (!isFinite(val) || val < 1 || val > 1000) {
+    alert('Введите число от 1.00 до 1000');
+    return;
+  }
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+  try {
+    const r = await fetch('/api/admin/crash/force-next', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ value: val, pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Ошибка'); return; }
+    document.getElementById('crashForceStatus').innerHTML =
+      `<span style="color:var(--gold); font-weight:900;">✓ Следующий краш будет на x${val.toFixed(2)}</span>`;
+    await audit('crash_force', 'x' + val.toFixed(2));
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
+async function clearCrashForce() {
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+  try {
+    const r = await fetch('/api/admin/crash/clear-force', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Ошибка'); return; }
+    document.getElementById('crashForceStatus').innerHTML =
+      `<span style="color:var(--green);">Форсированный краш сброшен</span>`;
+    document.getElementById('crashForceInput').value = '';
+    await audit('crash_force_clear', '');
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
 async function loadGuests(){
   db.guests = await apiGet('/api/guests');
   const body = document.getElementById('guestsBody');
@@ -1596,7 +1674,6 @@ async function loadGuests(){
         <button class="ghost small" onclick="printOneGuest('${g.id}')" title="Печать 6 карт">🖨</button>
         <button class="gold small" onclick="withdrawGuest('${g.id}')" title="Вывести бонусы">₽</button>
         <button class="ghost small" onclick="openEditGuest('${g.id}')" title="Редактировать">✏️</button>
-        <button class="ghost small" onclick="resetGuestDaily('${g.id}')" title="Сбросить daily">♻️</button>
         <button class="danger small" onclick="delGuest('${g.id}')">Удалить</button>
       </td>
     </tr>`;
@@ -1665,16 +1742,6 @@ async function saveEditGuest(){
   closeEditGuestModal();
   await loadDB(); loadGuests();
   showInfo('Готово', 'Данные гостя обновлены');
-}
-
-async function resetGuestDaily(id){
-  const g = db.guests.find(x => String(x.id) === String(id));
-  if(!g) return;
-  showConfirm('Сбросить daily?', `У гостя <b>${g.name}</b> сбросится streak и отметка о сегодняшнем клейме.`, 'Сбросить', 'danger', async ()=>{
-    await apiPost('/api/admin/reset-guest-daily', { id });
-    await audit('reset_daily', 'guest #'+id);
-    await loadGuests(); renderDash();
-  });
 }
 
 async function addGuest(){
@@ -1830,21 +1897,18 @@ function dealerStats(name){
   return { sessions: s.length + b.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
 }
 
-/* ============ СЕЙФЫ ДИЛЕРОВ ============ */
 async function loadCashSafeAdmin() {
   try {
     const r = await fetch('/api/admin/cash-safe');
     const data = await r.json();
     const body = document.getElementById('safeBody');
     const empty = document.getElementById('safeEmpty');
-
     if (!data.dealers || data.dealers.length === 0) {
       body.innerHTML = '';
       if (empty) empty.style.display = 'block';
       return;
     }
     if (empty) empty.style.display = 'none';
-
     body.innerHTML = data.dealers.map(d => `
       <tr>
         <td><b>${d.dealer_name || '—'}</b></td>
@@ -1865,10 +1929,8 @@ async function acceptCash(dealerId, expectedSum) {
   if (realStr === null) return;
   const realSum = parseFloat(realStr.replace(/\s/g, '').replace(',', '.')) || 0;
   if (realSum < 0) return;
-
   const pass = prompt('Пароль owner:');
   if (pass === null) return;
-
   try {
     const r = await fetch('/api/admin/cash-accept', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -1876,13 +1938,11 @@ async function acceptCash(dealerId, expectedSum) {
     });
     const data = await r.json();
     if (!r.ok) { showInfo('Ошибка', data.error || 'Ошибка'); return; }
-
     const diff = data.diff;
     let msg = `Ожидалось: ${fmt(data.expected)} ₽<br>Реально: ${fmt(data.real_sum)} ₽<br>`;
     if (Math.abs(diff) < 0.01) msg += '<b style="color:var(--green)">✓ Сошлось!</b>';
     else if (diff < 0) msg += `<b style="color:var(--red)">⚠ Недостача: ${fmt(Math.abs(diff))} ₽</b>`;
     else msg += `<b style="color:var(--gold)">⚠ Излишек: ${fmt(diff)} ₽</b>`;
-
     showInfo('Сейф принят', msg);
     loadCashSafeAdmin();
   } catch(e) {
@@ -1890,14 +1950,12 @@ async function acceptCash(dealerId, expectedSum) {
   }
 }
 
-/* ============ ОТЧЁТ ПО ФИШКАМ ============ */
 async function loadChipsReport() {
   const dateInput = document.getElementById('chipsDateInput');
   const date = dateInput.value || today();
   try {
     const r = await fetch('/api/admin/chips-summary?date=' + encodeURIComponent(date));
     const data = await r.json();
-
     const cards = document.getElementById('chipsCards');
     if (cards) {
       cards.innerHTML = `
@@ -1911,17 +1969,14 @@ async function loadChipsReport() {
         </div>
       `;
     }
-
     const body = document.getElementById('chipsReportBody');
     const empty = document.getElementById('chipsReportEmpty');
-
     if (!data.dealers || data.dealers.length === 0) {
       body.innerHTML = '';
       if (empty) empty.style.display = 'block';
       return;
     }
     if (empty) empty.style.display = 'none';
-
     body.innerHTML = data.dealers.map(d => {
       const profitColor = d.profit >= 0 ? 'var(--green)' : 'var(--red)';
       return `
@@ -1933,9 +1988,7 @@ async function loadChipsReport() {
         </tr>
       `;
     }).join('');
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
 function renderPayouts(){
@@ -1961,7 +2014,6 @@ function renderPayouts(){
       <td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
   document.getElementById('payoutEmpty').style.display = db.payouts.length ? 'none' : 'block';
 
-  // Отчёт по фишкам
   const chipsDateInput = document.getElementById('chipsDateInput');
   if (chipsDateInput && !chipsDateInput.value) {
     chipsDateInput.value = today();
