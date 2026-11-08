@@ -485,8 +485,7 @@
       </div>
     </div>
   </div>
-</main>
-<div class="modal-backdrop" id="confirmModal">
+</main><div class="modal-backdrop" id="confirmModal">
   <div class="modal">
     <h2 id="confirmTitle">Подтверждение</h2>
     <p id="confirmText"></p>
