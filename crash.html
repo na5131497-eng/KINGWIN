@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>KINGWIN — Crash</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +19,14 @@
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
   .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
 
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
+  .how-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; color: #00e5ff; height: 44px; padding: 0 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; font-family: inherit; }
+  .how-btn:hover { background: rgba(0,229,255,0.2); transform: scale(1.03); }
+  @media (max-width: 600px) {
+    .how-btn { top: 10px; right: 10px; height: 40px; padding: 0 12px; font-size: 11px; }
+    .how-btn .label { display: none; }
+  }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; padding-right: 160px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
   .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -102,16 +109,118 @@
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .toast-container { position: fixed; top: 60px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast-container { position: fixed; top: 60px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
+  /* Модалка «Как играть» */
+  .howto-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .howto-backdrop.show { display: flex; }
+  .howto-modal {
+    background: linear-gradient(135deg, #111625, #0a0d14);
+    border: 1px solid rgba(0,229,255,0.3);
+    border-radius: 20px;
+    max-width: 520px;
+    width: 100%;
+    margin: auto;
+    padding: 30px 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+  }
+  .howto-modal h2 {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+  .howto-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 22px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  .howto-step {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+  .howto-step-num {
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    color: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 15px;
+  }
+  .howto-step-body { flex: 1; min-width: 0; }
+  .howto-step-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .howto-step-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .howto-tips {
+    background: rgba(241,196,15,0.08);
+    border: 1px solid rgba(241,196,15,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .howto-tips b { color: var(--yellow); }
+  .howto-close {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    background: #00e5ff;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+  }
+  .howto-close:hover { box-shadow: 0 0 20px rgba(0,229,255,0.5); }
+
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
-    .topbar { padding: 10px 14px; padding-left: 70px; }
+    .topbar { padding: 10px 14px; padding-left: 70px; padding-right: 60px; }
     .balance-badge { padding: 6px 10px; font-size: 12px; }
     .balance-badge .lbl { display: none; }
     .crash-layout { display: flex; flex-direction: column; padding: 10px; gap: 10px; max-width: none; min-height: auto; height: auto; overflow: visible; }
@@ -164,6 +273,11 @@
   <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
   <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
 </div>
+
+<button class="how-btn" onclick="openHowTo()">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+  <span class="label">Как играть</span>
+</button>
 
 <div class="topbar">
   <div class="topbar-logo">KINGWIN</div>
@@ -230,6 +344,53 @@
   </div>
 </div>
 
+<!-- МОДАЛКА "КАК ИГРАТЬ" -->
+<div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
+  <div class="howto-modal">
+    <h2>🎮 Как играть в Crash</h2>
+    <div class="howto-sub">Просто. Быстро. Честно.</div>
+
+    <div class="howto-step">
+      <div class="howto-step-num">1</div>
+      <div class="howto-step-body">
+        <div class="howto-step-title">Сделай ставку</div>
+        <div class="howto-step-text">Введи сумму и нажми <b style="color:var(--yellow)">«Ставка»</b>. Деньги спишутся с баланса.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <div class="howto-step-num">2</div>
+      <div class="howto-step-body">
+        <div class="howto-step-title">Дождись старта</div>
+        <div class="howto-step-text">После приёма ставок начнётся полёт. Множитель <b>X</b> начнёт расти с <b style="color:var(--accent)">1.00x</b>.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <div class="howto-step-num">3</div>
+      <div class="howto-step-body">
+        <div class="howto-step-title">Забери выигрыш</div>
+        <div class="howto-step-text">Нажми <b style="color:var(--accent)">«Забрать»</b> до краша. Выигрыш = <b>ставка × X</b>.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <div class="howto-step-num">4</div>
+      <div class="howto-step-body">
+        <div class="howto-step-title">Не успел — проиграл</div>
+        <div class="howto-step-text">Если раунд крашнется раньше, чем ты забрал — ставка <b style="color:var(--red)">сгорает</b>.</div>
+      </div>
+    </div>
+
+    <div class="howto-tips">
+      <b>Совет:</b> чем выше X, тем больше выигрыш, но и риск краша растёт. <br><br>
+      <b>Пример:</b> поставил 100 ₽, забрал на <b>x2.50</b> → получил <b style="color:var(--accent-green)">250 ₽</b>. Забрал на x1.80 → 180 ₽.
+    </div>
+
+    <button class="howto-close" onclick="closeHowTo()">Понятно, играю</button>
+  </div>
+</div>
+
 <script>
 const PLAYER_KEY = 'kingwin_guest_id';
 const MAX_BET = 200;
@@ -238,8 +399,6 @@ const POLL_MS = 300;
 
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
-
-// Одна ячейка для ставки
 let myBetId = null;
 let myCashed = false;
 let queuedBet = null;
@@ -253,139 +412,76 @@ let graphPoints = [];
 let lastGraphRoundId = null;
 let lastBetsSig = '';
 let lastHistorySig = '';
-
 let localCrashed = false;
 let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
-/* ============ ЗВУК ОТСЧЁТА ============ */
+/* ===== ЗВУК ОТСЧЁТА ===== */
 let countdownAudio = null;
 let lastWaitingRoundId = null;
-
 function startCountdownSound() {
   stopCountdownSound();
   try {
-    if (!countdownAudio) {
-      countdownAudio = new Audio('/countdown.mp3');
-      countdownAudio.volume = 0.6;
-    }
+    if (!countdownAudio) { countdownAudio = new Audio('/countdown.mp3'); countdownAudio.volume = 0.6; }
     countdownAudio.currentTime = 0;
     const p = countdownAudio.play();
     if (p && p.catch) p.catch(() => {});
   } catch(e) {}
 }
-
 function stopCountdownSound() {
-  if (countdownAudio) {
-    try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {}
-  }
+  if (countdownAudio) { try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {} }
 }
 
-/* ============ ЗВУКИ (Web Audio API) ============ */
+/* ===== ЗВУКИ ===== */
 let audioCtx = null;
-
-function initAudio() {
-  if (audioCtx) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch(e) { audioCtx = null; }
-}
-
-// 1. Звук ставки
+function initAudio() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { audioCtx = null; } }
 function playBetSound() {
-  initAudio();
-  if (!audioCtx) return;
+  initAudio(); if (!audioCtx) return;
   const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(880, now);
-  osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(now);
-  osc.stop(now + 0.15);
+  const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+  osc.type = 'triangle'; osc.frequency.setValueAtTime(880, now); osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+  gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15);
 }
-
-// 2. Звук краша
 function playCrashSound() {
-  initAudio();
-  if (!audioCtx) return;
+  initAudio(); if (!audioCtx) return;
   const now = audioCtx.currentTime;
-
-  const boom = audioCtx.createOscillator();
-  const boomGain = audioCtx.createGain();
-  boom.type = 'sine';
-  boom.frequency.setValueAtTime(80, now);
-  boom.frequency.exponentialRampToValueAtTime(20, now + 0.6);
-  boomGain.gain.setValueAtTime(0.6, now);
-  boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
-  boom.connect(boomGain);
-  boomGain.connect(audioCtx.destination);
-  boom.start(now);
-  boom.stop(now + 0.9);
-
+  const boom = audioCtx.createOscillator(); const boomGain = audioCtx.createGain();
+  boom.type = 'sine'; boom.frequency.setValueAtTime(80, now); boom.frequency.exponentialRampToValueAtTime(20, now + 0.6);
+  boomGain.gain.setValueAtTime(0.6, now); boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+  boom.connect(boomGain); boomGain.connect(audioCtx.destination); boom.start(now); boom.stop(now + 0.9);
   const noiseSize = audioCtx.sampleRate * 1.2;
   const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < noiseSize; i++) data[i] = Math.random() * 2 - 1;
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buffer;
-  const noiseGain = audioCtx.createGain();
-  noiseGain.gain.setValueAtTime(0.35, now);
-  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-  const noiseFilter = audioCtx.createBiquadFilter();
-  noiseFilter.type = 'lowpass';
-  noiseFilter.frequency.setValueAtTime(800, now);
-  noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
-  noise.connect(noiseFilter);
-  noiseFilter.connect(noiseGain);
-  noiseGain.connect(audioCtx.destination);
-  noise.start(now);
-
-  const crackSize = audioCtx.sampleRate * 0.15;
-  const crackBuf = audioCtx.createBuffer(1, crackSize, audioCtx.sampleRate);
-  const crackData = crackBuf.getChannelData(0);
-  for (let i = 0; i < crackSize; i++) crackData[i] = Math.random() * 2 - 1;
-  const crack = audioCtx.createBufferSource();
-  crack.buffer = crackBuf;
-  const crackGain = audioCtx.createGain();
-  crackGain.gain.setValueAtTime(0.2, now);
-  crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-  const crackFilter = audioCtx.createBiquadFilter();
-  crackFilter.type = 'highpass';
-  crackFilter.frequency.setValueAtTime(2000, now);
-  crack.connect(crackFilter);
-  crackFilter.connect(crackGain);
-  crackGain.connect(audioCtx.destination);
-  crack.start(now);
+  const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain(); noiseGain.gain.setValueAtTime(0.35, now); noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+  const noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.setValueAtTime(800, now); noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noise.start(now);
 }
-
-// 3. Звук кэшаута
 function playCashoutSound() {
-  initAudio();
-  if (!audioCtx) return;
+  initAudio(); if (!audioCtx) return;
   const now = audioCtx.currentTime;
-  const freqs = [880, 1320];
-  freqs.forEach((f, idx) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(f, now + idx * 0.08);
-    gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now + idx * 0.08);
-    osc.stop(now + idx * 0.08 + 0.3);
+  [880, 1320].forEach((f, idx) => {
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(f, now + idx * 0.08);
+    gain.gain.setValueAtTime(0.0001, now + idx * 0.08); gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.3);
   });
 }
 
+/* ===== "КАК ИГРАТЬ" ===== */
+function openHowTo() {
+  document.getElementById('howtoModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeHowTo() {
+  document.getElementById('howtoModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* ===== CANVAS ===== */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const multValueEl = document.getElementById('multValue');
@@ -410,7 +506,6 @@ function historyColorClass(mult) {
   if (mult > 1.50) return 'blue';
   return 'red';
 }
-
 function resetLocalCrash() {
   localCrashed = false; localCrashMult = 1; crashedRoundId = null;
   graphPoints = []; prevMult = 1;
@@ -478,34 +573,15 @@ async function pollRound() {
 function restoreMyBetFromServer(serverBets) {
   if (!playerId || !Array.isArray(serverBets)) return;
   const myActive = serverBets.filter(b =>
-    b.player_id &&
-    String(b.player_id) === String(playerId) &&
-    !String(b.player_id).startsWith('BOT')
+    b.player_id && String(b.player_id) === String(playerId) && !String(b.player_id).startsWith('BOT')
   );
-
-  // Найти «свою» ставку в текущем раунде
   const mine = myActive.length > 0 ? myActive[myActive.length - 1] : null;
-
   if (mine) {
-    // Ставка из очереди стала активной — снимаем флаг очереди
-    if (queuedBet && !myBetId) {
-      queuedBet = null;
-    }
-    if (myBetId !== mine.id) {
-      myBetId = mine.id;
-      updateBetButtons();
-    }
-    if (!!mine.cashed_out !== myCashed) {
-      myCashed = !!mine.cashed_out;
-      updateBetButtons();
-    }
+    if (queuedBet && !myBetId) queuedBet = null;
+    if (myBetId !== mine.id) { myBetId = mine.id; updateBetButtons(); }
+    if (!!mine.cashed_out !== myCashed) { myCashed = !!mine.cashed_out; updateBetButtons(); }
   } else {
-    // В текущем раунде своей ставки нет — обнуляем
-    if (myBetId && myBetId !== 'queued') {
-      myBetId = null;
-      myCashed = false;
-      updateBetButtons();
-    }
+    if (myBetId && myBetId !== 'queued') { myBetId = null; myCashed = false; updateBetButtons(); }
   }
 }
 
@@ -517,18 +593,13 @@ function applyServerState(d) {
   }
   const isNewRound = round.id !== null && d.roundId !== round.id;
   const roundChanged = round.id !== d.roundId;
-
   if (isNewRound || roundChanged) {
-    myBetId = null;
-    myCashed = false;
+    myBetId = null; myCashed = false;
     resetLocalCrash();
     loadBalance();
-    // Ставку из очереди восстановит restoreMyBetFromServer() ниже,
-    // когда сервер реально её активирует в новом раунде.
   }
   const prevStatus = round.status;
   if (prevStatus === 'crashed' && d.status !== 'crashed') resetLocalCrash();
-
   round.id = d.roundId; round.status = d.status; round.startTime = d.startTime || 0;
   round.crashPoint = d.crashPoint || round.crashPoint || 1;
   round.serverMult = parseFloat(d.multiplier) || 1;
@@ -549,7 +620,6 @@ function applyServerState(d) {
   renderHistory(round.history);
   updateBetButtons();
 
-  // === ЗВУК ОТСЧЁТА ===
   if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
     lastWaitingRoundId = d.roundId;
     startCountdownSound();
@@ -572,7 +642,7 @@ function frame() {
     multValueEl.textContent = '1.00x';
     if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...';
     else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...';
-    else multLabelEl.textContent = 'Готовимся к росту...';
+    else multLabelEl.textContent = 'Приём ставок...';
     graphPoints = [];
   } else if (effStatus === 'flying') {
     multValueEl.classList.remove('crashed');
@@ -669,6 +739,7 @@ function renderBets(bets) {
   }).join('');
 }
 
+/* ===== ФИКС: 1.00x → 0.00x ===== */
 function renderHistory(history) {
   const sig = (history || []).join('|');
   if (sig === lastHistorySig) return;
@@ -676,8 +747,10 @@ function renderHistory(history) {
   const list = document.getElementById('historyList');
   if (!history || !history.length) { list.innerHTML = ''; return; }
   list.innerHTML = history.map(m => {
-    const cls = historyColorClass(m);
-    return `<div class="history-item ${cls}">${parseFloat(m).toFixed(2)}x</div>`;
+    const val = parseFloat(m) || 1;
+    const display = val <= 1.00 ? 0.00 : val;
+    const cls = display <= 1.00 ? 'red' : historyColorClass(display);
+    return `<div class="history-item ${cls}">${display.toFixed(2)}x</div>`;
   }).join('');
 }
 
@@ -751,10 +824,7 @@ function updateBetButtonsLive(mult, effStatus) {
       const html = `Забрать <div class="subtext">${val} ₽</div>`;
       if (btn.innerHTML !== html) btn.innerHTML = html;
     } else {
-      // Ставка исчезла из текущего раунда — сбрасываем состояние
-      myBetId = null;
-      myCashed = false;
-      updateBetButtons();
+      myBetId = null; myCashed = false; updateBetButtons();
     }
   }
 }
@@ -812,28 +882,18 @@ async function placeBet() {
 
 async function doCashout() {
   if (!myBetId || myCashed || myBetId === 'queued') return;
-
-  // Защита: если ставки реально нет в текущем раунде — не отправляем
   const amt = getBetAmountById(myBetId, round.bets);
   if (amt <= 0) {
-    myBetId = null;
-    myCashed = false;
-    updateBetButtons();
-    pollRound();
-    showToast('Ставка не найдена, обновляю...', 'error');
-    return;
+    myBetId = null; myCashed = false; updateBetButtons(); pollRound();
+    showToast('Ставка не найдена, обновляю...', 'error'); return;
   }
-
   const betId = myBetId; myCashed = true;
   try {
-    const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bet_id: betId }) });
+    const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ bet_id: betId }) });
     const d = await r.json();
     if (!r.ok) {
       showToast(d.error || 'Ошибка вывода', 'error');
-      myCashed = false;
-      myBetId = null;
-      pollRound();
-      return;
+      myCashed = false; myBetId = null; pollRound(); return;
     }
     playCashoutSound();
     showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
