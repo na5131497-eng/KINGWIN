@@ -321,8 +321,6 @@
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -332,17 +330,11 @@
       calc(16px + var(--safe-right))
       calc(16px + var(--safe-bottom))
       calc(16px + var(--safe-left));
-    overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .modal-backdrop.show {
-    display: flex;
-    animation: backdropIn .2s ease both;
-  }
-  @keyframes backdropIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
+  .modal-backdrop.show { display: flex; }
 
   .modal {
     background: linear-gradient(135deg, #111625, #0a0d14);
@@ -351,23 +343,14 @@
     padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 22px);
     width: 100%;
     max-width: 380px;
-
     margin: auto;
-    max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-
     text-align: center;
     box-shadow: 0 0 50px rgba(0,229,255,.3);
     position: relative;
-
-    animation: modalIn .25s cubic-bezier(.2,.9,.3,1.2) both;
+    opacity: 0;
+    transition: opacity .18s ease;
   }
-  @keyframes modalIn {
-    from { opacity: 0; transform: translateY(12px) scale(.96); }
-    to   { opacity: 1; transform: translateY(0)    scale(1); }
-  }
+  .modal-backdrop.show .modal { opacity: 1; }
 
   .modal.rank-up  { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.4); }
   .modal.wheel-win{ border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.45); }
@@ -382,10 +365,8 @@
     margin-bottom: 6px;
   }
   .modal-sub {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    font-size: 9px; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase;
     margin-bottom: 16px;
   }
   .modal-title { font-size: clamp(17px, 5vw, 20px); font-weight: 900; margin-bottom: 10px; }
@@ -396,8 +377,7 @@
 
   .modal-amount {
     font-size: clamp(24px, 8vw, 32px);
-    font-weight: 900;
-    color: var(--accent);
+    font-weight: 900; color: var(--accent);
     margin: 12px 0;
   }
   .modal.rank-up   .modal-amount { color: var(--gold); }
@@ -406,63 +386,52 @@
   .modal-hint { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
 
   .modal-btn {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 10px;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 10px;
     padding: 12px 24px;
-    font-size: 13px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: .2s;
-    min-height: 44px;
-    touch-action: manipulation;
+    font-size: 13px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; font-family: inherit; transition: .2s;
+    min-height: 44px; touch-action: manipulation;
   }
   .modal-btn:hover { filter: brightness(1.1); }
   .modal.rank-up .modal-btn { background: var(--gold); }
+
   .modal-close {
     position: absolute;
-    top: 8px; right: 8px;
+    top: 6px; right: 6px;
     width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 20px;
-    cursor: pointer;
+    background: none; border: none;
+    color: var(--muted); font-size: 20px; cursor: pointer;
   }
   .modal-close:hover { color: #fff; }
+
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
   .modal-btn.green  { background: var(--green); color: #000; }
 
   .modal-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  @media (max-width: 380px) {
-    .modal-btn { width: 100%; margin: 0 !important; }
-    .modal-btn.cancel { margin-right: 0 !important; }
-    .modal { border-radius: 16px; }
+    display: flex; gap: 8px;
+    justify-content: center; flex-wrap: wrap;
   }
 
-  /* Колесо: окно выигрыша */
   .wheel-win-icon {
-    font-size: 54px;
-    line-height: 1;
+    font-size: 54px; line-height: 1;
     margin: 6px 0 10px;
-    animation: popIn .5s cubic-bezier(.2,.9,.3,1.4) both;
   }
   @keyframes popIn {
     0%   { transform: scale(0);    opacity: 0; }
     70%  { transform: scale(1.15); opacity: 1; }
     100% { transform: scale(1);    opacity: 1; }
   }
-  .modal.wheel-win .modal-amount { animation: popIn .5s .15s cubic-bezier(.2,.9,.3,1.4) both; color: var(--gold); }
+  .modal.wheel-win .wheel-win-icon { animation: popIn .5s cubic-bezier(.2,.9,.3,1.4) both; }
+  .modal.wheel-win .modal-amount   { animation: popIn .5s .15s cubic-bezier(.2,.9,.3,1.4) both; }
+
+  @media (max-width: 380px) {
+    .modal-btn { width: 100%; margin: 0 !important; }
+    .modal-btn.cancel { margin-right: 0 !important; }
+    .modal { border-radius: 16px; }
+  }
 
   .login-form label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; font-weight: 600; }
   .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 13px; font-size: 16px; color: #fff; font-family: inherit; }
@@ -658,6 +627,7 @@ const RANKS_INFO = {
 };
 const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 const WHEEL_PRIZES = [1, 2, 4, 6, 10];
+const WHEEL_COOLDOWN_MS = 60 * 60 * 1000;
 
 let session = null, summary = null, dailyState = null;
 let currentTab = 'profile';
@@ -1008,7 +978,7 @@ function renderWheelStatus() {
 
   if (wheelState && wheelState.last_spin) {
     const lastTime = new Date(wheelState.last_spin).getTime();
-    const left = 3600000 - (Date.now() - lastTime);
+    const left = WHEEL_COOLDOWN_MS - (Date.now() - lastTime);
     if (left <= 0) {
       wheelState.can_spin = true;
       timerEl.textContent = '✦ Доступно!';
@@ -1038,13 +1008,33 @@ function stopWheelTimer() {
 }
 
 async function spinWheel() {
-  if (wheelSpinning || !wheelState.can_spin || !session) return;
+  if (wheelSpinning || !session) return;
+
   wheelSpinning = true;
   const btn = document.getElementById('wheelBtn');
   if (btn) btn.disabled = true;
   renderWheelStatus();
 
   try {
+    // 1. Всегда сверяемся с сервером перед спином
+    const sres = await fetch('/api/wheel/status?id=' + encodeURIComponent(session.id));
+    const sdata = await sres.json();
+    wheelState = sdata;
+
+    if (!sdata.can_spin) {
+      wheelSpinning = false;
+      renderWheelStatus();
+      if (sdata.last_spin) {
+        const left = WHEEL_COOLDOWN_MS - (Date.now() - new Date(sdata.last_spin).getTime());
+        if (left > 0) {
+          const min = Math.ceil(left / 60000);
+          alert(`Колесо будет доступно через ${min} мин.`);
+        }
+      }
+      return;
+    }
+
+    // 2. Крутим
     const r = await fetch('/api/wheel/spin', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id })
@@ -1057,6 +1047,7 @@ async function spinWheel() {
       return;
     }
 
+    // 3. Анимация
     const prizeIdx = WHEEL_PRIZES.indexOf(data.prize);
     const angleStep = 360 / WHEEL_PRIZES.length;
     const targetAngle = 360 * 5 + (360 - (prizeIdx * angleStep + angleStep / 2));
@@ -1067,8 +1058,10 @@ async function spinWheel() {
     setTimeout(async () => {
       document.getElementById('wheelPrize').textContent = '+' + fmt(data.prize) + ' ₽';
       document.getElementById('wheelModal').classList.add('show');
+
+      // 4. last_spin — с сервера, иначе локально
       wheelState.can_spin = false;
-      wheelState.last_spin = new Date().toISOString();
+      wheelState.last_spin = data.last_spin || new Date().toISOString();
       wheelSpinning = false;
       await loadSummary();
       renderWheelStatus();
