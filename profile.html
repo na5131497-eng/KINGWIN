@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>KINGWIN — Профиль</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -14,7 +14,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-  /* ШАПКА */
   .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
@@ -23,55 +22,47 @@
   .logout-btn { background: transparent; border: 1px solid rgba(255,77,77,0.4); color: var(--red); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; transition: 0.2s; }
   .logout-btn:hover { background: rgba(255,77,77,0.1); border-color: var(--red); }
 
-  /* СЕТКА */
   .layout { display: flex; max-width: 1400px; margin: 20px auto; width: 100%; padding: 0 20px; gap: 20px; align-items: flex-start; }
 
-  /* ЛЕВАЯ ПАНЕЛЬ */
   .sidebar { width: 320px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
   .panel { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
 
-  /* ПРОФИЛЬ */
   .user-head { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
   .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #2a2d3e, #1a1e2b); display: flex; justify-content: center; align-items: center; font-size: 30px; border: 2px solid var(--border); }
   .user-info .name { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
   .user-info .id { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
-  /* БАЛАНСЫ */
   .bal-block { margin-bottom: 15px; }
   .bal-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
   .bal-row { display: flex; justify-content: space-between; align-items: center; }
   .bal-amount { font-size: 20px; font-weight: 900; }
   .bal-actions { display: flex; gap: 8px; margin-top: 10px; }
-  .btn-dep { flex: 1; background: var(--accent); color: #000; font-weight: 900; border: none; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-  .btn-wd { flex: 1; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-weight: 800; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-dep { flex: 1; background: var(--accent); color: #000; font-weight: 900; border: none; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: inherit; }
+  .btn-wd { flex: 1; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-weight: 800; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: inherit; }
   .btn-dep:hover { box-shadow: 0 0 15px rgba(0,229,255,0.4); }
   .btn-wd:hover:not(:disabled) { border-color: var(--accent); }
   .btn-wd:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ПРОГРЕСС РАНГА */
   .rank-progress { background: var(--bg-dark); border-radius: 10px; padding: 15px; border: 1px solid var(--border); margin-top: 15px; }
   .rank-head { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; }
   .rank-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
   .rank-bar > div { height: 100%; background: var(--accent-green); width: 0%; border-radius: 3px; transition: width 0.5s; }
 
-  /* ПРАВАЯ ПАНЕЛЬ (ИСТОРИЯ) */
   .main-content { flex: 1; background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; min-width: 0; }
 
   .tabs-header { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
   .tabs-header::-webkit-scrollbar { display: none; }
-  .tab-btn { padding: 18px 20px; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+  .tab-btn { padding: 18px 20px; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; font-family: inherit; }
   .tab-btn.active { color: #fff; border-bottom: 2px solid var(--accent); }
   .tab-btn:hover:not(.active) { color: var(--accent); }
 
   .tab-content { display: none; padding: 20px; }
   .tab-content.active { display: block; }
 
-  /* ИГРЫ */
   .game-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
   .game-item { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; text-decoration: none; color: #fff; font-weight: 800; font-size: 13px; }
   .game-item:hover { border-color: var(--accent); background: rgba(0,229,255,0.05); }
 
-  /* ИСТОРИЯ (ТАБЛИЦА) */
   .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .history-table th { text-align: left; padding: 15px 20px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); }
   .history-table td { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.02); }
@@ -84,7 +75,6 @@
   .sum-minus { color: var(--red); }
   .date-cell { color: var(--text-muted); }
 
-  /* БОНУСЫ — СПИСОК */
   .bonus-list { display: flex; flex-direction: column; gap: 12px; }
   .bonus-item { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; transition: 0.2s; }
   .bonus-item:hover { border-color: rgba(0,229,255,0.3); }
@@ -109,27 +99,56 @@
   .bonus-refuse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .bonus-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; background: var(--bg-dark); border: 1px dashed var(--border); border-radius: 12px; }
 
-  /* СТАРАЯ КАРТОЧКА БОНУСА (fallback) */
   .bonus-card { background: linear-gradient(135deg, rgba(63,191,127,.1), rgba(0,229,255,.05)); border: 1px solid rgba(63,191,127,.3); border-radius: 12px; padding: 15px; margin-bottom: 10px; }
   .bonus-card .title { font-size: 14px; font-weight: 800; color: var(--accent-green); margin-bottom: 5px; }
   .bonus-card .code { font-size: 16px; font-weight: 900; font-family: 'Courier New', monospace; color: #fff; letter-spacing: 2px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 8px; display: inline-block; margin-top: 10px; border: 1px dashed var(--accent-green); }
 
-  /* МОДАЛКИ */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-  .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; }
-  .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; }
-  .modal-close:hover { color: #fff; }
+  /* ===== МОДАЛКИ ===== */
+  .modal-overlay {
+    position: fixed !important; inset: 0 !important;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(5px);
+    display: none !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 99999 !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
+  }
+  .modal-overlay.show { display: flex !important; }
+  .modal-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    margin: auto;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .modal-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: none; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
   .modal-box h2 { font-size: 20px; margin-bottom: 15px; }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
-  .modal-box input, .modal-box select { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 10px; outline: none; }
+  .modal-box input, .modal-box select { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 10px; outline: none; font-family: inherit; }
   .modal-box input:focus { border-color: var(--accent); }
-  .modal-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+  .modal-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 10px; font-family: inherit; }
   .modal-btn.green { background: var(--accent-green); color: #000; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; }
   .modal-btn.red { background: var(--red); color: #fff; }
+  .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .fee-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 13px; line-height: 1.8; display: none; }
+  .fee-info .row { display: flex; justify-content: space-between; }
+  .fee-info .row span:first-child { color: var(--text-muted); }
+  .fee-info .row .fee { color: var(--gold); font-weight: 800; }
+  .fee-info .row .net { color: var(--accent-green); font-weight: 800; }
+
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateX(120%); transition: 0.3s; font-size: 14px; font-weight: 600; color:#fff; }
   .toast.show { transform: translateX(0); }
   .toast.error { border-left-color: var(--red); }
@@ -152,6 +171,7 @@
     .bonus-item-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
     .bonus-item-sum { font-size: 16px; }
     .bonus-refuse-btn { padding: 6px 10px; font-size: 9px; }
+    .modal-box { padding: 22px 18px; }
   }
 </style>
 </head>
@@ -167,7 +187,6 @@
 </div>
 
 <div class="layout">
-  <!-- ЛЕВАЯ ПАНЕЛЬ -->
   <div class="sidebar">
     <div class="panel">
       <div class="user-head">
@@ -197,7 +216,6 @@
       </div>
     </div>
 
-    <!-- ПРОГРЕСС РАНГА -->
     <div class="panel">
       <div class="rank-progress" style="margin-top: 0; border: none; padding: 0; background: transparent;">
         <div class="rank-head">
@@ -211,7 +229,6 @@
     </div>
   </div>
 
-  <!-- ПРАВАЯ ПАНЕЛЬ -->
   <div class="main-content">
     <div class="tabs-header">
       <button class="tab-btn" onclick="switchTab('games')">Игры</button>
@@ -221,14 +238,10 @@
       <button class="tab-btn" onclick="switchTab('withdrawals')">Выводы</button>
     </div>
 
-    <!-- ВКЛАДКА: ИГРЫ -->
     <div class="tab-content" id="tab-games">
       <div class="game-list">
         <a href="/crash.html" class="game-item">Crash</a>
-        <a href="/cases.html" class="game-item">Cases</a>
         <a href="/miner.html" class="game-item">Miner</a>
-        <a href="/ladder.html" class="game-item">Ladder</a>
-        <a href="/plinko.html" class="game-item">Plinko</a>
       </div>
       <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-muted);">Последние ставки</h3>
       <table class="history-table">
@@ -239,7 +252,6 @@
       </table>
     </div>
 
-    <!-- ВКЛАДКА: ОПЕРАЦИИ -->
     <div class="tab-content active" id="tab-history">
       <table class="history-table">
         <thead><tr><th>Тип</th><th>Описание</th><th>Сумма</th><th>Дата</th></tr></thead>
@@ -249,14 +261,12 @@
       </table>
     </div>
 
-    <!-- ВКЛАДКА: БОНУСЫ -->
     <div class="tab-content" id="tab-bonuses">
       <div class="bonus-list" id="uiBonusesList">
         <div class="bonus-empty">Загрузка...</div>
       </div>
     </div>
 
-    <!-- ВКЛАДКА: ПЛАТЕЖИ -->
     <div class="tab-content" id="tab-payments">
       <table class="history-table">
         <thead><tr><th>Тип</th><th>Описание</th><th>Сумма</th><th>Дата</th></tr></thead>
@@ -266,7 +276,6 @@
       </table>
     </div>
 
-    <!-- ВКЛАДКА: ВЫВОДЫ -->
     <div class="tab-content" id="tab-withdrawals">
       <div id="uiWithdrawalsBlock">
         <div style="text-align:center; padding:30px; color:var(--text-muted);">Загрузка...</div>
@@ -280,19 +289,24 @@
   <div class="modal-box" style="border-color: var(--accent);">
     <button class="modal-close" onclick="closeModal('withdrawModal')">✕</button>
     <h2>Вывод средств</h2>
-    <p>Введите карту и сумму. Вывод занимает от 1 минуты до 3 банковских дней.</p>
-    <input type="text" id="withdrawCard" placeholder="Номер карты" style="text-align: left;">
-    <input type="number" id="withdrawAmount" placeholder="Сумма (₽)" value="">
-    <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Доступно: <span id="uiMaxWithdraw">0.00</span> ₽</div>
+    <p>Мин. сумма вывода — <b style="color:#fff;">500 ₽</b>. Комиссия <b style="color:#f1c40f;">15%</b>. Вывод до 3 банковских дней.</p>
+    <input type="text" id="withdrawCard" placeholder="Номер карты (16 цифр)" style="text-align: left;">
+    <input type="number" id="withdrawAmount" placeholder="Сумма (₽)" value="" min="500">
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Доступно: <span id="uiMaxWithdraw">0.00</span> ₽</div>
+    <div class="fee-info" id="withdrawFeeInfo">
+      <div class="row"><span>Сумма вывода:</span><span id="withdrawSumVal">0.00 ₽</span></div>
+      <div class="row"><span>Комиссия 15%:</span><span class="fee" id="withdrawFeeVal">0.00 ₽</span></div>
+      <div class="row"><span>На руки:</span><span class="net" id="withdrawNetVal">0.00 ₽</span></div>
+    </div>
     <button class="modal-btn green" onclick="doWithdraw()">Подтвердить</button>
   </div>
 </div>
 
-<!-- МОДАЛКА УСПЕХА ВЫВОДА -->
+<!-- МОДАЛКА УСПЕХА -->
 <div class="modal-overlay" id="successWithdrawModal">
   <div class="modal-box" style="border-color: var(--accent-green); background: linear-gradient(135deg, #111625, #0a0d14);">
     <h2 style="color: var(--accent-green);">Заявка создана!</h2>
-    <p style="font-size: 15px; margin-bottom: 20px;">Заявка на вывод <b id="successWithdrawAmount" style="color: #fff;">0.00</b> ₽ отправлена. Ожидайте зачисления.</p>
+    <p id="successWithdrawText" style="font-size: 14px; margin-bottom: 20px; line-height: 1.8;"></p>
     <button class="modal-btn green" onclick="closeModal('successWithdrawModal')">Отлично</button>
   </div>
 </div>
@@ -313,6 +327,9 @@ let currentPlayer = null;
 let userRank = 'Bronze';
 let pendingRefuseBonusId = null;
 
+const MIN_WITHDRAW = 500;
+const WITHDRAW_FEE = 0.15;
+
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -323,8 +340,16 @@ function showToast(text, type='success') {
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-function openModal(id) { document.getElementById(id).classList.add('show'); }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+  if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -334,22 +359,29 @@ function switchTab(tab) {
 }
 
 function doLogout() {
-  localStorage.removeItem('kingwin_player_id');
   localStorage.removeItem('kingwin_guest_id');
+  localStorage.removeItem('kingwin_guest');
   showToast('Вы вышли из аккаунта', 'success');
   setTimeout(() => { window.location.href = '/'; }, 500);
 }
 
+function formatTime(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 async function loadProfile() {
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id') || localStorage.getItem('kingwin_player_id') || localStorage.getItem('kingwin_guest_id');
+  const id = urlParams.get('id') || localStorage.getItem('kingwin_guest_id');
 
-  if(!id) { window.location.href = '/'; return; }
+  if (!id) { window.location.href = '/'; return; }
 
   try {
     const res = await fetch(`/api/guest/me?id=${id}`);
     const data = await res.json();
-    if(data.guest) {
+    if (data.guest) {
       currentPlayer = data.guest;
       if (Array.isArray(data.bonuses)) currentPlayer.bonuses = data.bonuses;
       if (data.wagering) currentPlayer.wagering = data.wagering;
@@ -367,7 +399,7 @@ async function loadProfile() {
       document.getElementById('uiMaxWithdraw').textContent = dep.toFixed(2);
 
       const rankIdx = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
-      if((rankIdx[userRank] || 1) >= 2) {
+      if ((rankIdx[userRank] || 1) >= 2 && dep >= MIN_WITHDRAW) {
         document.getElementById('btnWithdraw').disabled = false;
         document.getElementById('btnWithdraw').style.opacity = '1';
       } else {
@@ -390,12 +422,12 @@ async function loadProfile() {
 
 async function loadAllTabs() {
   try {
-    const [wRes, dRes] = await Promise.all([ fetch('/api/withdrawals'), fetch('/api/deposits') ]);
+    const [wRes, dRes] = await Promise.all([fetch('/api/withdrawals'), fetch('/api/deposits')]);
     const withdrawals = await wRes.json();
     const deposits = await dRes.json();
 
-    const myW = withdrawals.filter(w => w.nick.toLowerCase() === currentPlayer.name.toLowerCase());
-    const myD = deposits.filter(d => d.nick.toLowerCase() === currentPlayer.name.toLowerCase());
+    const myW = withdrawals.filter(w => (w.nick || '').toLowerCase() === (currentPlayer.name || '').toLowerCase());
+    const myD = deposits.filter(d => (d.nick || '').toLowerCase() === (currentPlayer.name || '').toLowerCase());
 
     renderOperations(myW, myD);
     renderPayments(myD);
@@ -407,20 +439,20 @@ async function loadAllTabs() {
 
 function renderOperations(myW, myD) {
   const all = [
-    ...myW.map(w => ({ type: 'Вывод', desc: 'Заявка на вывод', sum: w.sum, date: w.date, status: w.status })),
+    ...myW.map(w => ({ type: 'Вывод', desc: `Заявка на вывод (комиссия ${fmtFee(w.fee)})`, sum: w.sum, date: w.date, status: w.status })),
     ...myD.map(d => ({ type: 'Депозит', desc: 'Пополнение', sum: d.sum, date: d.date, status: d.status }))
   ].sort((a,b) => new Date(b.date) - new Date(a.date));
 
   const tbody = document.getElementById('uiHistoryTable');
-  if(all.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">История пуста</td></tr>`; return; }
+  if (all.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">История пуста</td></tr>`; return; }
 
   tbody.innerHTML = all.map(item => {
     const isDep = item.type === 'Депозит';
     const sumClass = isDep ? 'sum-plus' : 'sum-minus';
     const sumPrefix = isDep ? '+' : '-';
     let statusText = 'В обработке';
-    if(item.status === 'approved') statusText = 'Одобрено';
-    if(item.status === 'rejected') statusText = 'Отклонено';
+    if (item.status === 'approved') statusText = 'Одобрено';
+    if (item.status === 'rejected') statusText = 'Отклонено';
     return `<tr>
         <td><div class="type-cell"><span class="type-icon">${isDep ? '%' : '💳'}</span> ${item.type}</div></td>
         <td>${item.desc} <br><span style="font-size:10px; color:var(--text-muted);">${statusText}</span></td>
@@ -430,14 +462,19 @@ function renderOperations(myW, myD) {
   }).join('');
 }
 
+function fmtFee(fee) {
+  const f = parseFloat(fee) || 0;
+  return f > 0 ? f.toFixed(2) + ' ₽' : '0 ₽';
+}
+
 function renderPayments(myD) {
   const tbody = document.getElementById('uiPaymentsTable');
-  if(myD.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">Нет платежей</td></tr>`; return; }
+  if (myD.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">Нет платежей</td></tr>`; return; }
 
   tbody.innerHTML = myD.map(item => {
     let statusText = 'В обработке';
-    if(item.status === 'approved') statusText = 'Одобрено';
-    if(item.status === 'rejected') statusText = 'Отклонено';
+    if (item.status === 'approved') statusText = 'Одобрено';
+    if (item.status === 'rejected') statusText = 'Отклонено';
     return `<tr>
         <td><div class="type-cell"><span class="type-icon">%</span> Депозит</div></td>
         <td>Пополнение <br><span style="font-size:10px; color:var(--text-muted);">${statusText}</span></td>
@@ -451,7 +488,7 @@ function renderWithdrawals(myW) {
   const block = document.getElementById('uiWithdrawalsBlock');
   const rankIdx = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
 
-  if((rankIdx[userRank] || 1) < 2) {
+  if ((rankIdx[userRank] || 1) < 2) {
     block.innerHTML = `
       <div style="text-align:center; padding:40px 20px;">
         <div style="font-size:40px; margin-bottom:15px;">🔒</div>
@@ -462,21 +499,23 @@ function renderWithdrawals(myW) {
     return;
   }
 
-  if(myW.length === 0) {
+  if (myW.length === 0) {
     block.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">У вас пока нет выводов</div>`;
     return;
   }
 
   block.innerHTML = `
     <table class="history-table">
-      <thead><tr><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead>
+      <thead><tr><th>Сумма</th><th>Комиссия</th><th>На руки</th><th>Статус</th><th>Дата</th></tr></thead>
       <tbody>
         ${myW.map(w => {
           let statusText = 'В обработке';
-          if(w.status === 'approved') statusText = 'Выплачено';
-          if(w.status === 'rejected') statusText = 'Отклонено';
+          if (w.status === 'approved') statusText = 'Выплачено';
+          if (w.status === 'rejected') statusText = 'Отклонено';
           return `<tr>
             <td class="sum-cell sum-minus">-${w.sum} ₽</td>
+            <td class="sum-cell" style="color:var(--gold);">${fmtFee(w.fee)}</td>
+            <td class="sum-cell sum-plus">${parseFloat(w.net || 0).toFixed(2)} ₽</td>
             <td>${statusText}</td>
             <td class="date-cell">${w.date}</td>
           </tr>`;
@@ -486,7 +525,6 @@ function renderWithdrawals(myW) {
   `;
 }
 
-/* ============ БОНУСЫ ============ */
 function renderBonuses() {
   const block = document.getElementById('uiBonusesList');
   if (!currentPlayer) { block.innerHTML = '<div class="bonus-empty">Загрузка...</div>'; return; }
@@ -494,7 +532,6 @@ function renderBonuses() {
   const list = Array.isArray(currentPlayer.bonuses) ? currentPlayer.bonuses : [];
 
   if (list.length === 0) {
-    // fallback: если нет массива bonuses, но есть bonus_balance или bonus_text — показываем
     const bonusBal = parseFloat(currentPlayer.bonus_balance || 0);
     if (bonusBal > 0) {
       block.innerHTML = renderBonusItem({
@@ -524,7 +561,6 @@ function renderBonuses() {
 
   block.innerHTML = list.map(b => renderBonusItem(b)).join('');
 
-  // навешиваем обработчики
   block.querySelectorAll('.bonus-refuse-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const bonusId = btn.getAttribute('data-bonus-id');
@@ -582,7 +618,6 @@ async function confirmRefuseBonus() {
     showToast('Ошибка: не выбран бонус', 'error');
     return;
   }
-  const bonusId = pendingRefuseBonusId;
   const btn = document.getElementById('refuseBonusConfirmBtn');
   btn.disabled = true;
   btn.textContent = '...';
@@ -591,7 +626,7 @@ async function confirmRefuseBonus() {
     const res = await fetch('/api/guest/refuse-bonus', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: currentPlayer.id, bonus_id: bonusId })
+      body: JSON.stringify({ id: currentPlayer.id, bonus_id: pendingRefuseBonusId })
     });
     const data = await res.json().catch(() => ({}));
 
@@ -620,17 +655,44 @@ async function renderGamesHistory() {
   tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">История ставок загружается с сервера...</td></tr>`;
 }
 
-function openWithdrawModal() { openModal('withdrawModal'); }
+function openWithdrawModal() {
+  openModal('withdrawModal');
+  const amountInput = document.getElementById('withdrawAmount');
+  const feeInfo = document.getElementById('withdrawFeeInfo');
+  if (amountInput) {
+    amountInput.value = '';
+    amountInput.addEventListener('input', updateWithdrawFee);
+  }
+  if (feeInfo) feeInfo.style.display = 'none';
+}
+
+function updateWithdrawFee() {
+  const val = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+  const feeInfo = document.getElementById('withdrawFeeInfo');
+  const sumVal = document.getElementById('withdrawSumVal');
+  const feeVal = document.getElementById('withdrawFeeVal');
+  const netVal = document.getElementById('withdrawNetVal');
+  if (val < MIN_WITHDRAW) {
+    if (feeInfo) feeInfo.style.display = 'none';
+    return;
+  }
+  const fee = Math.round(val * WITHDRAW_FEE * 100) / 100;
+  const net = Math.round((val - fee) * 100) / 100;
+  if (feeInfo) feeInfo.style.display = 'block';
+  if (sumVal) sumVal.textContent = val.toFixed(2) + ' ₽';
+  if (feeVal) feeVal.textContent = fee.toFixed(2) + ' ₽';
+  if (netVal) netVal.textContent = net.toFixed(2) + ' ₽';
+}
 
 async function doWithdraw() {
-  if(!currentPlayer) return;
+  if (!currentPlayer) return;
   const card = document.getElementById('withdrawCard').value.trim();
   const amount = parseFloat(document.getElementById('withdrawAmount').value);
   const maxDep = parseFloat(currentPlayer.deposit_balance) || 0;
 
-  if(!card || card.length < 16) { showToast('Введите корректный номер карты', 'error'); return; }
-  if(!amount || amount <= 0) { showToast('Введите сумму больше 0', 'error'); return; }
-  if(amount > maxDep) { showToast(`Недостаточно средств. Доступно: ${maxDep.toFixed(2)} ₽`, 'error'); return; }
+  if (!card || card.replace(/\s/g, '').length < 16) { showToast('Введите корректный номер карты (16 цифр)', 'error'); return; }
+  if (!amount || amount < MIN_WITHDRAW) { showToast(`Минимальная сумма вывода — ${MIN_WITHDRAW} ₽`, 'error'); return; }
+  if (amount > maxDep) { showToast(`Недостаточно средств. Доступно: ${maxDep.toFixed(2)} ₽`, 'error'); return; }
 
   closeModal('withdrawModal');
 
@@ -641,8 +703,14 @@ async function doWithdraw() {
     });
     const data = await res.json();
 
-    if(res.ok) {
-      document.getElementById('successWithdrawAmount').textContent = amount.toFixed(2);
+    if (res.ok) {
+      const fee = data.fee || Math.round(amount * WITHDRAW_FEE * 100) / 100;
+      const net = data.net || Math.round((amount - fee) * 100) / 100;
+      document.getElementById('successWithdrawText').innerHTML =
+        `Заявка на вывод <b style="color:#fff;">${amount.toFixed(2)} ₽</b> отправлена.<br>
+         Комиссия 15%: <b style="color:var(--gold);">${fee.toFixed(2)} ₽</b><br>
+         На руки: <b style="color:var(--accent-green);">${net.toFixed(2)} ₽</b><br>
+         <span style="color:var(--text-muted);font-size:12px;">Ожидайте зачисления.</span>`;
       openModal('successWithdrawModal');
       loadProfile();
     } else {
