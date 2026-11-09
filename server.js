@@ -165,12 +165,24 @@ function crashClearTimers() {
   crashTimeouts = [];
   if (crashState.waitTimer) { clearTimeout(crashState.waitTimer); crashState.waitTimer = null; }
 }
+
+/* ============================================================
+   ГЕНЕРАЦИЯ CRASH POINT — RTP 93.95%
+   houseEdge = 1 - 0.9395 = 0.0605
+   ============================================================ */
+const CRASH_HOUSE_EDGE = 0.0605;   // RTP ≈ 93.95%
+const CRASH_INSTA_PROB = 1 / 33;   // ~3.03% раундов — мгновенный краш на 1.00x
+const CRASH_MAX_MULT    = 1000;    // жёсткий потолок множителя
+
 function crashGeneratePoint() {
   const r = Math.random();
-  if (r < 0.10) return Math.max(1.00, 1 + Math.random() * 0.10);
-  if (r < 0.60) return 1.10 + Math.random() * 0.90;
-  if (r < 0.90) return 2.00 + Math.random() * 8.00;
-  return 10.00 + Math.random() * 90.00;
+  // Мгновенный краш
+  if (r < CRASH_INSTA_PROB) return 1.00;
+  // Основное распределение (формула Bustabit)
+  const p = (r - CRASH_INSTA_PROB) / (1 - CRASH_INSTA_PROB);
+  let crash = Math.floor((100 * (1 - CRASH_HOUSE_EDGE)) / (1 - p)) / 100;
+  if (crash > CRASH_MAX_MULT) crash = CRASH_MAX_MULT;
+  return Math.max(1.00, crash);
 }
 
 let bots = [];
