@@ -251,6 +251,7 @@
     border-radius: 8px;
     display: inline-block;
     min-width: 130px;
+    font-variant-numeric: tabular-nums;
   }
 
   .withdraw-block {
@@ -340,6 +341,7 @@
     overflow-y: auto;
   }
   .modal.rank-up { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.4); }
+  .modal.wheel-win { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.45); }
   .modal-logo { font-size: clamp(22px, 7vw, 30px); font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
   .modal-sub { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
   .modal-title { font-size: clamp(17px, 5vw, 20px); font-weight: 900; margin-bottom: 10px; }
@@ -361,6 +363,20 @@
   .modal-close:hover { color: #fff; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
   .modal-btn.green { background: var(--green); color: #000; }
+
+  /* Колесо: окно выигрыша */
+  .wheel-win-icon {
+    font-size: 54px;
+    line-height: 1;
+    margin: 6px 0 10px;
+    animation: popIn .5s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0);    opacity: 0; }
+    70%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .modal.wheel-win .modal-amount { animation: popIn .5s .15s cubic-bezier(.2,.9,.3,1.4) both; color: var(--gold); }
 
   .login-form label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; font-weight: 600; }
   .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 13px; font-size: 16px; color: #fff; font-family: inherit; }
@@ -421,11 +437,15 @@
   </div>
 </div>
 
+<!-- Окно выигрыша колеса -->
 <div class="modal-backdrop" id="wheelModal">
-  <div class="modal" style="border-color:#f1c40f;">
+  <div class="modal wheel-win" style="border-color:#f1c40f;">
+    <button class="modal-close" onclick="closeWheelModal()">✕</button>
     <div class="modal-logo">KINGWIN</div>
     <div class="modal-sub">Lucky Wheel</div>
-    <div class="modal-title">Выигрыш <span style="color:#f1c40f;" id="wheelPrize">0</span> ₽</div>
+    <div class="wheel-win-icon">🎉</div>
+    <div class="modal-title">Выигрыш!</div>
+    <div class="modal-amount" id="wheelPrize" style="color:#f1c40f;">0 ₽</div>
     <div class="modal-text">Зачислено на бонусный баланс.</div>
     <div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div>
     <button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button>
@@ -530,6 +550,8 @@
 </div>
 
 <script>
+const CASINO_URL = 'https://kingwin-production.up.railway.app/';
+
 const RANKS_INFO = {
   Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
   Silver:   { next: 300,  label: 'Gold',     gift: 50   },
@@ -546,6 +568,7 @@ let currentTab = 'profile';
 let lastSeenRank = null, refreshTimer = null, claimLock = false;
 let selectedStars = 0, wheelSpinning = false, wheelRotation = 0;
 let wheelState = { can_spin: false, last_spin: null };
+let wheelTimerInterval = null;
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -660,6 +683,7 @@ function switchTab(tab){
 }
 
 function doLogout(){
+  stopWheelTimer();
   if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
   session = null; summary = null; dailyState = null; lastSeenRank = null;
   try { localStorage.removeItem('kingwin_guest_id'); } catch(e) {}
@@ -771,7 +795,8 @@ function renderProfile(){
 
   if(currentTab === 'news') loadNews();
   if(currentTab === 'review') loadMyReviews();
-  if(currentTab === 'bonus') checkWheelStatus();
+  if(currentTab === 'bonus'){ checkWheelStatus(); startWheelTimer(); }
+  else { stopWheelTimer(); }
 }
 
 function renderDailyHtml(){
@@ -862,22 +887,58 @@ async function checkWheelStatus() {
     const r = await fetch('/api/wheel/status?id=' + encodeURIComponent(session.id));
     const data = await r.json();
     wheelState = data;
-    const timerEl = document.getElementById('wheelTimer');
-    const btn = document.getElementById('wheelBtn');
-    if (!timerEl || !btn) return;
-    if (data.can_spin) {
+    renderWheelStatus();
+  } catch(e) {}
+}
+
+function renderWheelStatus() {
+  const timerEl = document.getElementById('wheelTimer');
+  const btn = document.getElementById('wheelBtn');
+  if (!timerEl || !btn) return;
+
+  if (wheelSpinning) {
+    timerEl.textContent = 'Крутим…';
+    timerEl.style.color = '#f1c40f';
+    btn.disabled = true;
+    return;
+  }
+
+  if (wheelState && wheelState.can_spin) {
+    timerEl.textContent = '✦ Доступно!';
+    timerEl.style.color = '#3fbf7f';
+    btn.disabled = false;
+    return;
+  }
+
+  if (wheelState && wheelState.last_spin) {
+    const lastTime = new Date(wheelState.last_spin).getTime();
+    const left = 3600000 - (Date.now() - lastTime);
+    if (left <= 0) {
+      wheelState.can_spin = true;
       timerEl.textContent = '✦ Доступно!';
       timerEl.style.color = '#3fbf7f';
       btn.disabled = false;
-    } else if (data.last_spin) {
-      const lastTime = new Date(data.last_spin).getTime();
-      const left = 3600000 - (Date.now() - lastTime);
-      const min = Math.ceil(left / 60000);
-      timerEl.textContent = `Доступно через ${min} мин.`;
-      timerEl.style.color = '#8fa2b8';
-      btn.disabled = true;
+      return;
     }
-  } catch(e) {}
+    const min = Math.floor(left / 60000);
+    const sec = Math.floor((left % 60000) / 1000);
+    timerEl.textContent = `Доступно через ${min}:${String(sec).padStart(2,'0')}`;
+    timerEl.style.color = '#8fa2b8';
+    btn.disabled = true;
+    return;
+  }
+
+  timerEl.textContent = 'Загрузка…';
+  timerEl.style.color = '#8fa2b8';
+  btn.disabled = true;
+}
+
+function startWheelTimer() {
+  stopWheelTimer();
+  wheelTimerInterval = setInterval(renderWheelStatus, 1000);
+}
+function stopWheelTimer() {
+  if (wheelTimerInterval) { clearInterval(wheelTimerInterval); wheelTimerInterval = null; }
 }
 
 async function spinWheel() {
@@ -885,6 +946,7 @@ async function spinWheel() {
   wheelSpinning = true;
   const btn = document.getElementById('wheelBtn');
   if (btn) btn.disabled = true;
+  renderWheelStatus();
 
   try {
     const r = await fetch('/api/wheel/spin', {
@@ -895,9 +957,10 @@ async function spinWheel() {
     if (!r.ok) {
       alert(data.error || 'Ошибка');
       wheelSpinning = false;
-      if (btn) btn.disabled = false;
+      renderWheelStatus();
       return;
     }
+
     const prizeIdx = WHEEL_PRIZES.indexOf(data.prize);
     const angleStep = 360 / WHEEL_PRIZES.length;
     const targetAngle = 360 * 5 + (360 - (prizeIdx * angleStep + angleStep / 2));
@@ -906,18 +969,18 @@ async function spinWheel() {
     if (svg) svg.style.transform = `rotate(${wheelRotation}deg)`;
 
     setTimeout(async () => {
-      document.getElementById('wheelPrize').textContent = data.prize;
+      document.getElementById('wheelPrize').textContent = '+' + fmt(data.prize) + ' ₽';
       document.getElementById('wheelModal').classList.add('show');
       wheelState.can_spin = false;
       wheelState.last_spin = new Date().toISOString();
       wheelSpinning = false;
       await loadSummary();
-      checkWheelStatus();
+      renderWheelStatus();
     }, 4100);
   } catch(e) {
     alert('Ошибка соединения');
     wheelSpinning = false;
-    if (btn) btn.disabled = false;
+    renderWheelStatus();
   }
 }
 function closeWheelModal(){ document.getElementById('wheelModal').classList.remove('show'); }
@@ -989,6 +1052,7 @@ function renderWithdrawHtml(){
         </div>
       </div>
       <button class="btn green" ${canToCasino?'':'disabled'} onclick="openConfirmTransfer(${pending})">Перевести на баланс</button>
+      <button class="btn ghost" onclick="openCasino()" style="margin-top:8px;">Открыть казино →</button>
     </div>
 
     <div class="withdraw-block">
@@ -1005,6 +1069,10 @@ function renderWithdrawHtml(){
       <button class="btn" ${canReal?'':'disabled'} onclick="openConfirmRealWithdraw(${deposit})">Заявка на вывод</button>
     </div>
   `;
+}
+
+function openCasino(){
+  window.location.href = CASINO_URL;
 }
 
 function openConfirmTransfer(amount){
