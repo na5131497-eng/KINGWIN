@@ -216,6 +216,8 @@
   .crash-force-row label { flex: 1; min-width: 140px; }
   .crash-force-row input { width: 100%; }
   .crash-force-status { margin-top: 12px; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .dot-yes { color: var(--green); font-weight: 900; }
+  .dot-no { color: var(--muted); }
   @media (max-width: 900px) {
     .sessions-grid { grid-template-columns: 1fr; }
     .mobile-menu-btn { display: block; }
@@ -725,7 +727,7 @@
   </div>
 </div>
 
-<!-- НОВАЯ МОДАЛКА: Управление балансом гостя -->
+<!-- Управление балансом гостя -->
 <div class="modal-backdrop" id="guestBalanceModal">
   <div class="modal" style="max-width: 460px;">
     <button class="ghost" style="position:absolute; top:12px; right:12px; width:auto; padding:4px 12px; font-size:16px;" onclick="closeGuestBalanceModal()">✕</button>
@@ -798,23 +800,56 @@ function toggleMenu() {
   else overlay.classList.remove('show');
 }
 
+/* ================= API ================= */
 async function apiGet(url){
-  try { const r = await fetch(url); if (!r.ok) return []; return await r.json(); }
-  catch(e) { return []; }
+  try {
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) {
+      console.warn('[apiGet] ' + url + ' → HTTP ' + r.status);
+      return [];
+    }
+    const data = await r.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    console.warn('[apiGet] ' + url + ' → ' + e.message);
+    return [];
+  }
 }
 async function apiPost(url, data){
-  try { const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }); return await r.json(); }
-  catch(e) { return { error: e.message }; }
+  try {
+    const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok) console.warn('[apiPost] ' + url + ' → HTTP ' + r.status, j);
+    return j;
+  } catch(e) {
+    console.warn('[apiPost] ' + url + ' → ' + e.message);
+    return { error: e.message };
+  }
 }
 async function apiPut(url, data){
-  try { const r = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }); return await r.json(); }
-  catch(e) { return { error: e.message }; }
+  try {
+    const r = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok) console.warn('[apiPut] ' + url + ' → HTTP ' + r.status, j);
+    return j;
+  } catch(e) {
+    console.warn('[apiPut] ' + url + ' → ' + e.message);
+    return { error: e.message };
+  }
 }
 async function apiDelete(url){
-  try { const r = await fetch(url, { method:'DELETE' }); return await r.json(); }
-  catch(e) { return { error: e.message }; }
+  try {
+    const r = await fetch(url, { method:'DELETE' });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok) console.warn('[apiDelete] ' + url + ' → HTTP ' + r.status, j);
+    return j;
+  } catch(e) {
+    console.warn('[apiDelete] ' + url + ' → ' + e.message);
+    return { error: e.message };
+  }
 }
 
+/* ================= LOAD DB (НЕЗАВИСИМО ДЛЯ КАЖДОГО ЭНДПОИНТА) ================= */
 async function loadDB(){
   const endpoints = {
     sessions: '/api/sessions',
@@ -832,31 +867,37 @@ async function loadDB(){
     dealer_reviews: '/api/dealer-reviews',
     dealer_ratings: '/api/dealer-ratings'
   };
+  const keys = Object.keys(endpoints);
   const results = await Promise.all(
-    Object.entries(endpoints).map(async ([key, url]) => {
-      const data = await apiGet(url);
-      return [key, Array.isArray(data) ? data : []];
+    keys.map(async (key) => {
+      const data = await apiGet(endpoints[key]);
+      return [key, data];
     })
   );
   results.forEach(([key, data]) => { db[key] = data; });
+  console.log('DB loaded:', keys.reduce((acc, k) => { acc[k] = db[k].length; return acc; }, {}));
 }
 
 async function loadNewsList(){
-  const data = await apiGet('/api/news');
-  newsList = Array.isArray(data) ? data : [];
+  newsList = await apiGet('/api/news');
 }
 
 async function audit(action, details){
   if(!currentUser) return;
-  await apiPost('/api/audit', { time: now(), user: currentUser, action, details });
+  try { await apiPost('/api/audit', { time: now(), user: currentUser, action, details }); } catch(e) {}
 }
 
+/* ================= РОЛИ ================= */
 const ROLES = {
   owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','online','payouts','history','roles']},
   admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','online','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
-function hasPerm(page){ const r = ROLES[currentRole]; return r ? r.perms.includes(page) : false; }
+function hasPerm(page){
+  if(!currentRole) return true; // fallback: если роль не пришла — не блокируем
+  const r = ROLES[currentRole];
+  return r ? r.perms.includes(page) : true;
+}
 
 function switchPage(page) {
   if(!hasPerm(page)){ showInfo('Нет доступа', 'У вашей роли нет доступа.'); return; }
@@ -864,37 +905,48 @@ function switchPage(page) {
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   const b = document.querySelector(`.nav button[data-page="${page}"]`);
   if(b) b.classList.add('active');
-  document.getElementById('page-'+page).classList.add('active');
-  renderAll();
+  const p = document.getElementById('page-'+page);
+  if(p) p.classList.add('active');
+  try { renderAll(); } catch(e){ console.error('renderAll error:', e); }
   if (page === 'online') loadCrashForceStatus();
   if(window.innerWidth <= 900) toggleMenu();
 }
 
+/* ================= ЛОГИН ================= */
 async function doLogin(){
   const login = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
+  err.textContent = '';
   try {
-    const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ login, pass, type: 'admin' }) });
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, pass, type: 'admin' })
+    });
     const data = await r.json();
     if(!r.ok){ err.textContent = data.error || 'Ошибка'; return; }
-    currentUser = data.employee.name;
-    currentRole = data.employee.role;
-    err.textContent = '';
+    currentUser = data.employee?.name || login;
+    currentRole = data.employee?.role || 'owner';
     document.getElementById('loginScreen').classList.add('hidden');
-    await audit('login', `${currentUser} вошёл`);
+
+    // audit не блокирует загрузку
+    try { await audit('login', `${currentUser} вошёл`); } catch(e) {}
+
     await Promise.all([loadDB(), loadNewsList()]);
-    switchPage('dash');
     renderAll();
+    switchPage('dash');
     loadCrashForceStatus();
-  } catch(e){ err.textContent = 'Ошибка соединения'; }
+  } catch(e){
+    err.textContent = 'Ошибка соединения: ' + e.message;
+  }
 }
 
 function openLogoutModal(){ document.getElementById('logoutModal').classList.add('show'); }
 function closeLogoutModal(){ document.getElementById('logoutModal').classList.remove('show'); }
 
 async function confirmLogout(){
-  await audit('logout', `${currentUser} вышел`);
+  try { await audit('logout', `${currentUser} вышел`); } catch(e) {}
   currentUser = null; currentRole = null;
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginUser').focus();
@@ -936,6 +988,7 @@ async function confirmClearCrash(){
 
 document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
 
+/* ================= МОДАЛКИ ================= */
 let confirmAction = null;
 function showConfirm(title, text, btnLabel, btnClass, action){
   document.getElementById('confirmTitle').textContent = title;
@@ -976,7 +1029,7 @@ async function confirmPass(){
 }
 document.getElementById('passInput').addEventListener('keypress', e=>{ if(e.key==='Enter') confirmPass(); });
 
-/* ================= УПРАВЛЕНИЕ БАЛАНСОМ ГОСТЯ ================= */
+/* ================= УПРАВЛЕНИЕ БАЛАНСОМ ================= */
 function openGuestBalance(id){
   const g = db.guests.find(x => String(x.id) === String(id));
   if(!g){ showInfo('Ошибка', 'Гость не найден'); return; }
@@ -998,9 +1051,8 @@ function closeGuestBalanceModal(){
   document.getElementById('guestBalanceModal').classList.remove('show');
   guestBalanceId = null;
 }
-function gbSetAmount(v){
-  document.getElementById('gbAmount').value = v;
-}
+function gbSetAmount(v){ document.getElementById('gbAmount').value = v; }
+
 async function submitGuestBalance(){
   if(!guestBalanceId) return;
   const type = document.getElementById('gbType').value;
@@ -1009,21 +1061,18 @@ async function submitGuestBalance(){
   const pass = document.getElementById('gbPass').value;
   const err = document.getElementById('gbErr');
   err.textContent = '';
-
   if(amount <= 0){ err.textContent = 'Сумма должна быть больше 0'; return; }
   if(!pass){ err.textContent = 'Введите пароль owner'; return; }
 
-  const r = await apiPost('/api/admin/guests/balance', {
-    id: guestBalanceId, amount, type, op, pass
-  });
+  const r = await apiPost('/api/admin/guests/balance', { id: guestBalanceId, amount, type, op, pass });
   if(r.error){ err.textContent = r.error; return; }
 
-  await audit('guest_balance', `#${guestBalanceId} ${op} ${type}: ${amount} ₽`);
   const g = db.guests.find(x => String(x.id) === String(guestBalanceId));
   const label = op === 'add' ? 'Добавлено' : 'Списано';
   const typeLabel = type === 'bonus' ? 'бонусный' : 'реальный';
   closeGuestBalanceModal();
-  await loadGuests();
+  await loadDB();
+  loadGuests();
   showInfo('Готово', `${label} <b>${fmt(amount)} ₽</b> (${typeLabel} баланс) гостю <b>${escHtml(g?.name || '—')}</b>.<br>Новый баланс: реальный <b style="color:var(--green)">${fmt(r.balance?.deposit_balance ?? 0)} ₽</b>, бонусный <b style="color:var(--gold)">${fmt(r.balance?.bonus_balance ?? 0)} ₽</b>.`);
 }
 
@@ -1031,6 +1080,7 @@ async function submitGuestBalance(){
 async function loadGuests(){
   db.guests = await apiGet('/api/guests');
   const body = document.getElementById('guestsBody');
+  if(!body) return;
   const todayS = today();
   body.innerHTML = db.guests.map(g => {
     const lastVisit = g.last_visit ? String(g.last_visit).slice(0,16).replace('T',' ') : '—';
@@ -1145,8 +1195,903 @@ async function delGuest(id){
 
 function escHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ===== остальные функции — без изменений (dash, finance, players, news, reviews, online, payouts, history, roles) ===== */
-/* ... (вставь сюда оставшуюся часть скрипта из оригинала БЕЗ изменений — renderDash, renderFinance, renderPlayers, renderOnline, loadCrashForceStatus, setCrashForce, clearCrashForce, renderNewsAdmin, addNews, saveNews, delNews, renderReviews, delReview, dealerNames, dealerStats, loadCashSafeAdmin, acceptCash, loadChipsReport, renderPayouts, openPayoutModal, delPayout, renderHistory, clearHistory, renderRoles, addEmployee, delEmployee, addDealer, delDealer, renderAll, tickLive) ... */
+/* ================= DASH ================= */
+function bacCalc(r){
+  let payout = 0;
+  if(r.bet === 'игрок'){ if(r.result === 'игрок') payout = r.sum * 2; else if(r.result === 'ничья') payout = r.sum; }
+  else if(r.bet === 'банк'){ if(r.result === 'банк') payout = r.sum * 1.95; else if(r.result === 'ничья') payout = r.sum; }
+  else { if(r.result === 'ничья') payout = r.sum * 9; }
+  return { payout, casino: r.sum - payout };
+}
+function sessionNet(s){
+  const dep = parseFloat(s.dep) || 0;
+  const outSum = parseFloat(s.out_sum) || 0;
+  const fee = parseFloat(s.fee) || 0;
+  const net = outSum - fee;
+  return { dep, outSum, fee, net, income: dep - net };
+}
+function bjStats(){
+  let turnover = 0, payouts = 0, income = 0;
+  db.sessions.forEach(s=>{ const r = sessionNet(s); turnover += r.dep; payouts += r.net; income += r.income; });
+  return { turnover, payouts, income, count: db.sessions.length };
+}
+function bacStats(){
+  let turnover = 0, payouts = 0, income = 0;
+  db.baccarat.forEach(b=>{ const r = bacCalc(b); turnover += b.sum; payouts += r.payout; income += r.casino; });
+  return { turnover, payouts, income, count: db.baccarat.length };
+}
+function onlineStats(){
+  let income = 0, expense = 0;
+  db.online.forEach(o=>{
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
+    if(o.type === 'доход') income += parseFloat(o.sum) || 0;
+    else expense += parseFloat(o.sum) || 0;
+  });
+  return { income, expense, net: income - expense };
+}
+
+function renderDash(){
+  const bj = bjStats(), bac = bacStats(), on = onlineStats();
+  let totalDeposits = 0;
+  db.deposits.forEach(d => { if (d.status === 'approved') totalDeposits += parseFloat(d.sum) || 0; });
+  const onlineIncome = on.net;
+  const totalIncome = bj.income + bac.income + onlineIncome;
+
+  const cards = document.getElementById('dashCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Crash (онлайн)</div><div class="value accent">${fmt(onlineIncome)} ₽</div></div>
+    <div class="card"><div class="label">Депозиты (оборот)</div><div class="value" style="color:var(--muted)">${fmt(totalDeposits)} ₽</div></div>
+    <div class="card" style="border-color: var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(totalIncome)} ₽</div></div>
+  `;
+
+  drawChart();
+  renderIncomeCalendar();
+  renderSessionsUnderChart();
+}
+
+function renderIncomeCalendar(){
+  const days = {};
+  function ensureDay(date) {
+    if (!days[date]) days[date] = { bj: 0, bac: 0, crash: 0, dep: 0, commission: 0, salaries: 0 };
+    return days[date];
+  }
+  (db.sessions || []).forEach(s => { if (!s.date) return; ensureDay(s.date).bj += sessionNet(s).income; });
+  (db.baccarat || []).forEach(b => { if (!b.date) return; ensureDay(b.date).bac += bacCalc(b).casino; });
+  (db.online || []).forEach(o => {
+    if (!o.date) return;
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
+    const inc = o.type === 'доход' ? (parseFloat(o.sum) || 0) : -(parseFloat(o.sum) || 0);
+    ensureDay(o.date).crash += inc;
+  });
+  (db.deposits || []).forEach(d => { if (!d.date) return; if (d.status === 'approved') ensureDay(d.date).dep += parseFloat(d.sum) || 0; });
+  (db.withdrawals || []).forEach(w => {
+    if (!w.date) return;
+    if (w.status === 'approved') {
+      const sum = parseFloat(w.sum) || 0;
+      const fee = parseFloat(w.fee) || Math.round(sum * 0.07 * 100) / 100;
+      ensureDay(w.date).commission += fee;
+    }
+  });
+  (db.payouts || []).forEach(p => { if (!p.date) return; ensureDay(p.date).salaries += parseFloat(p.sum) || 0; });
+
+  const calendar = document.getElementById('incomeCalendar');
+  const empty = document.getElementById('incomeCalendarEmpty');
+  const summaryBadge = document.getElementById('incSummaryBadge');
+  const daysCount = document.getElementById('incDaysCount');
+  if(!calendar) return;
+
+  const allDates = Object.keys(days).sort();
+  if (allDates.length === 0) {
+    calendar.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    if (summaryBadge) summaryBadge.textContent = '';
+    if (daysCount) daysCount.textContent = '0';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  let grandTotal = 0;
+  allDates.forEach(d => {
+    const g = days[d];
+    grandTotal += (g.bj + g.bac + g.crash) - g.commission - g.salaries;
+  });
+
+  if (summaryBadge) {
+    summaryBadge.textContent = (grandTotal >= 0 ? '+' : '') + fmt(grandTotal) + ' ₽';
+    summaryBadge.style.color = grandTotal >= 0 ? 'var(--green)' : 'var(--red)';
+  }
+  if (daysCount) daysCount.textContent = allDates.length;
+
+  const dayValues = allDates.map(date => {
+    const g = days[date];
+    return (g.bj + g.bac + g.crash) - g.commission - g.salaries;
+  });
+  const maxAbs = Math.max(...dayValues.map(Math.abs), 1);
+
+  calendar.innerHTML = allDates.map((date, i) => {
+    const net = dayValues[i];
+    const [y, m, dd] = date.split('-');
+    let cls = 'zero';
+    if (net !== 0) {
+      const ratio = Math.abs(net) / maxAbs;
+      let level;
+      if (ratio < 0.15) level = 1;
+      else if (ratio < 0.4) level = 2;
+      else if (ratio < 0.7) level = 3;
+      else level = 4;
+      cls = (net > 0 ? 'pos-' : 'neg-') + level;
+    }
+    return `<div class="inc-cell ${cls}" 
+                 data-date="${date}"
+                 data-bj="${days[date].bj.toFixed(2)}"
+                 data-bac="${days[date].bac.toFixed(2)}"
+                 data-crash="${days[date].crash.toFixed(2)}"
+                 data-dep="${days[date].dep.toFixed(2)}"
+                 data-comm="${days[date].commission.toFixed(2)}"
+                 data-sal="${days[date].salaries.toFixed(2)}"
+                 data-net="${net.toFixed(2)}">${dd}</div>`;
+  }).join('');
+
+  bindCalendarTooltips();
+}
+
+function bindCalendarTooltips(){
+  let tooltip = document.getElementById('incGlobalTooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'incGlobalTooltip';
+    tooltip.className = 'inc-tooltip';
+    document.body.appendChild(tooltip);
+  }
+  document.querySelectorAll('.inc-cell').forEach(cell => {
+    cell.addEventListener('mouseenter', () => {
+      const date = cell.dataset.date;
+      const net = parseFloat(cell.dataset.net) || 0;
+      const [y, m, dd] = date.split('-');
+      tooltip.innerHTML = `
+        <div class="tt-date">${dd}.${m}.${y}</div>
+        <div class="tt-total ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '+' : ''}${fmt(net)} ₽</div>
+        <div class="tt-row"><span>Блэкджек</span><span class="${parseFloat(cell.dataset.bj) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.bj) >= 0 ? '+' : ''}${fmt(cell.dataset.bj)} ₽</span></div>
+        <div class="tt-row"><span>Баккара</span><span class="${parseFloat(cell.dataset.bac) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.bac) >= 0 ? '+' : ''}${fmt(cell.dataset.bac)} ₽</span></div>
+        <div class="tt-row"><span>Crash</span><span class="${parseFloat(cell.dataset.crash) >= 0 ? 'pos' : 'neg'}">${parseFloat(cell.dataset.crash) >= 0 ? '+' : ''}${fmt(cell.dataset.crash)} ₽</span></div>
+        <div class="tt-row"><span>Депозиты (оборот)</span><span style="color:var(--muted)">${fmt(cell.dataset.dep)} ₽</span></div>
+        <div class="tt-row"><span>Комиссии 7%</span><span class="neg">−${fmt(cell.dataset.comm)} ₽</span></div>
+        <div class="tt-row"><span>Зарплаты</span><span class="neg">−${fmt(cell.dataset.sal)} ₽</span></div>
+      `;
+      tooltip.classList.add('show');
+      const rect = cell.getBoundingClientRect();
+      let left = rect.left + rect.width / 2 - 100;
+      let top = rect.top - tooltip.offsetHeight - 10;
+      if (top < 10) top = rect.bottom + 10;
+      if (left + 200 > window.innerWidth - 10) left = window.innerWidth - 210;
+      if (left < 10) left = 10;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    });
+    cell.addEventListener('mouseleave', () => { tooltip.classList.remove('show'); });
+    cell.addEventListener('click', () => { openDayIncomeModal(cell.dataset.date); });
+  });
+}
+
+function openDayIncomeModal(date){
+  const [y, m, dd] = date.split('-');
+  const dateStr = `${dd}.${m}.${y}`;
+  const bjSessions = (db.sessions || []).filter(s => s.date === date);
+  const bacSessions = (db.baccarat || []).filter(b => b.date === date);
+  const crashRounds = (db.online || []).filter(o => o.date === date && (o.note || '').startsWith('Crash Round'));
+  const depApproved = (db.deposits || []).filter(d => d.date === date && d.status === 'approved');
+  const wdApproved = (db.withdrawals || []).filter(w => w.date === date && w.status === 'approved');
+  const payoutsDay = (db.payouts || []).filter(p => p.date === date);
+
+  let bjTotal = 0, bacTotal = 0, crashTotal = 0, depTotal = 0, commTotal = 0, salTotal = 0;
+  bjSessions.forEach(s => bjTotal += sessionNet(s).income);
+  bacSessions.forEach(b => bacTotal += bacCalc(b).casino);
+  crashRounds.forEach(o => {
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
+    if (o.type === 'доход') crashTotal += parseFloat(o.sum) || 0;
+    else crashTotal -= parseFloat(o.sum) || 0;
+  });
+  depApproved.forEach(d => depTotal += parseFloat(d.sum) || 0);
+  wdApproved.forEach(w => {
+    const sum = parseFloat(w.sum) || 0;
+    commTotal += parseFloat(w.fee) || Math.round(sum * 0.07 * 100) / 100;
+  });
+  payoutsDay.forEach(p => salTotal += parseFloat(p.sum) || 0);
+
+  const net = (bjTotal + bacTotal + crashTotal) - commTotal - salTotal;
+
+  let html = `
+    <div class="day-modal-title">${dateStr}</div>
+    <div class="day-modal-sub">Отчёт за день</div>
+    <div class="day-modal-total ${net >= 0 ? 'pos' : 'neg'}" style="color:${net >= 0 ? 'var(--green)' : 'var(--red)'};">${net >= 0 ? '+' : ''}${fmt(net)} ₽</div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>🎲 Блэкджек (${bjSessions.length} сессий)</span>
+        <span class="amt ${bjTotal >= 0 ? 'pos' : 'neg'}">${bjTotal >= 0 ? '+' : ''}${fmt(bjTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${bjSessions.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>' :
+          bjSessions.map(s => {
+            const r = sessionNet(s);
+            return `<div class="day-list-item">
+              <span class="who">${s.nick || '—'} · ставка ${fmt(r.dep)} ₽ · дилер ${s.dealer || '—'}</span>
+              <span class="val ${r.income >= 0 ? 'pos' : 'neg'}">${r.income >= 0 ? '+' : ''}${fmt(r.income)} ₽</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>🎴 Баккара (${bacSessions.length} сессий)</span>
+        <span class="amt ${bacTotal >= 0 ? 'pos' : 'neg'}">${bacTotal >= 0 ? '+' : ''}${fmt(bacTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${bacSessions.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>' :
+          bacSessions.map(b => {
+            const r = bacCalc(b);
+            return `<div class="day-list-item">
+              <span class="who">${b.player || '—'} · ставка ${fmt(b.sum)} ₽ · дилер ${b.dealer || '—'}</span>
+              <span class="val ${r.casino >= 0 ? 'pos' : 'neg'}">${r.casino >= 0 ? '+' : ''}${fmt(r.casino)} ₽</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>🚀 Crash (${crashRounds.length} раундов)</span>
+        <span class="amt ${crashTotal >= 0 ? 'pos' : 'neg'}">${crashTotal >= 0 ? '+' : ''}${fmt(crashTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${crashRounds.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>' :
+          crashRounds.map(o => {
+            const val = o.type === 'доход' ? (parseFloat(o.sum) || 0) : -(parseFloat(o.sum) || 0);
+            return `<div class="day-list-item">
+              <span class="who">${o.note || '—'}</span>
+              <span class="val ${val >= 0 ? 'pos' : 'neg'}">${val >= 0 ? '+' : ''}${fmt(val)} ₽</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>💰 Депозиты (${depApproved.length}) — оборот</span>
+        <span class="amt" style="color:var(--muted)">${fmt(depTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${depApproved.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет депозитов</div>' :
+          depApproved.map(d => `<div class="day-list-item">
+            <span class="who">${d.nick || '—'}</span>
+            <span class="val" style="color:var(--muted)">${fmt(d.sum)} ₽</span>
+          </div>`).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>💳 Комиссии 7% (${wdApproved.length} выводов)</span>
+        <span class="amt neg">−${fmt(commTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${wdApproved.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет выводов</div>' :
+          wdApproved.map(w => {
+            const sum = parseFloat(w.sum) || 0;
+            const fee = parseFloat(w.fee) || Math.round(sum * 0.07 * 100) / 100;
+            return `<div class="day-list-item">
+              <span class="who">${w.nick || '—'} · вывод ${fmt(sum)} ₽</span>
+              <span class="val neg">−${fmt(fee)} ₽</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `
+    <div class="day-section">
+      <div class="day-section-title">
+        <span>👔 Зарплаты дилерам (${payoutsDay.length})</span>
+        <span class="amt neg">−${fmt(salTotal)} ₽</span>
+      </div>
+      <div class="day-list">
+        ${payoutsDay.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:8px;">Нет выплат</div>' :
+          payoutsDay.map(p => `<div class="day-list-item">
+            <span class="who">${p.dealer || '—'} ${p.note ? '· ' + p.note : ''}</span>
+            <span class="val neg">−${fmt(p.sum)} ₽</span>
+          </div>`).join('')
+        }
+      </div>
+    </div>
+  `;
+  html += `<div style="text-align:center;margin-top:20px"><button class="ghost" onclick="closeDayIncomeModal()" style="width:100%">Закрыть</button></div>`;
+  const content = document.getElementById('dayIncomeContent');
+  if(content) content.innerHTML = html;
+  document.getElementById('dayIncomeModal').classList.add('show');
+}
+
+function closeDayIncomeModal(){ document.getElementById('dayIncomeModal').classList.remove('show'); }
+
+function renderSessionsUnderChart(){
+  const bjBody = document.getElementById('bjSessionsBody');
+  const bacBody = document.getElementById('bacSessionsBody');
+  if(!bjBody || !bacBody) return;
+
+  const bj = [...db.sessions].sort((a,b) => {
+    const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
+    const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
+    return dbb - da;
+  }).slice(0, 50);
+  const bjCount = document.getElementById('bjCount');
+  if(bjCount) bjCount.textContent = db.sessions.length;
+  if(bj.length === 0){
+    bjBody.innerHTML = '<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>';
+  } else {
+    bjBody.innerHTML = bj.map(s => {
+      const r = sessionNet(s);
+      const time = s.created_at ? new Date(s.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (s.date || '—');
+      const winCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : '');
+      return `<tr><td>${s.nick || '—'}</td><td>${fmt(r.dep)} ₽</td><td class="${winCls}">${fmt(r.net)} ₽</td><td>${s.dealer || '—'}</td><td style="color:var(--muted);font-size:11px">${time}</td></tr>`;
+    }).join('');
+  }
+
+  const bac = [...db.baccarat].sort((a,b) => {
+    const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
+    const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
+    return dbb - da;
+  }).slice(0, 50);
+  const bacCount = document.getElementById('bacCount');
+  if(bacCount) bacCount.textContent = db.baccarat.length;
+  if(bac.length === 0){
+    bacBody.innerHTML = '<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>';
+  } else {
+    bacBody.innerHTML = bac.map(b => {
+      const r = bacCalc(b);
+      const time = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : (b.date || '—');
+      const winCls = r.payout > 0 ? 'pos' : (r.payout < 0 ? 'neg' : '');
+      return `<tr><td>${b.player || '—'}</td><td>${fmt(b.sum)} ₽</td><td class="${winCls}">${fmt(r.payout)} ₽</td><td>${b.dealer || '—'}</td><td style="color:var(--muted);font-size:11px">${time}</td></tr>`;
+    }).join('');
+  }
+}
+
+function drawChart(){
+  const canvas = document.getElementById('incomeChart');
+  if(!canvas) return;
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
+  const map = {};
+  db.sessions.forEach(s=>{ if(!s.date) return; if(!map[s.date]) map[s.date]=0; map[s.date]+=sessionNet(s).income; });
+  db.baccarat.forEach(b=>{ if(!b.date) return; if(!map[b.date]) map[b.date]=0; map[b.date]+=bacCalc(b).casino; });
+  db.online.forEach(o=>{
+    if(!o.date) return;
+    const note = (o.note || '').toLowerCase();
+    if (note.includes('бонус') || note.includes('ранг') || note.includes('daily') || note.includes('подарок')) return;
+    if(!map[o.date]) map[o.date]=0;
+    if(o.type === 'доход') map[o.date]+=parseFloat(o.sum)||0; else map[o.date]-=parseFloat(o.sum)||0;
+  });
+  const dates = Object.keys(map).sort();
+  if(!dates.length){
+    ctx.fillStyle = '#a0aec0'; ctx.font = '14px Montserrat';
+    ctx.textAlign = 'center'; ctx.fillText('Нет данных для графика', W/2, H/2); return;
+  }
+  let runningTotal = 0;
+  const values = dates.map(d => { runningTotal += map[d]; return runningTotal; });
+  const padL = 60, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxVal = Math.max(1, ...values);
+  const minVal = Math.min(0, ...values);
+  const range = maxVal - minVal || 1;
+  const y = v => padT + plotH - ((v - minVal) / range) * plotH;
+  const x = i => padL + (dates.length === 1 ? plotW/2 : (i/(dates.length-1))*plotW);
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'right';
+  for(let i=0; i<=4; i++){
+    const v = minVal + (range/4)*i;
+    const yy = y(v);
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W-padR, yy); ctx.stroke();
+    ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4);
+  }
+  ctx.fillStyle = '#a0aec0'; ctx.font = '11px Montserrat'; ctx.textAlign = 'center';
+  const step = Math.ceil(dates.length / 7);
+  dates.forEach((d,i)=>{
+    if(i % step === 0 || i === dates.length-1){
+      const [yy,mm,dd] = d.split('-');
+      ctx.fillText(dd+'.'+mm, x(i), H-15);
+    }
+  });
+  ctx.beginPath();
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(0,229,255,0.5)';
+  values.forEach((v, i) => { const xx = x(i), yy = y(v); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  const lastX = x(values.length - 1);
+  const lastY = y(values[values.length - 1]);
+  ctx.beginPath(); ctx.fillStyle = '#00e5ff'; ctx.arc(lastX, lastY, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 18; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+  ctx.beginPath(); ctx.arc(lastX, lastY, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+/* ================= FINANCE ================= */
+function renderFinance(){
+  const depBody = document.getElementById('depositsBody');
+  const wdBody = document.getElementById('withdrawalsBody');
+  if(depBody) depBody.innerHTML = db.deposits.map(d=>`
+    <tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td>
+      <td>${fmt(d.sum)} ₽</td><td><span class="status ${d.status}">${d.status}</span></td>
+      <td>${d.status==='pending' ? `<button class="success small" onclick="depAction(${d.id},'approved')">Зачислить</button><button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>` : `<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
+  const depEmpty = document.getElementById('depositsEmpty');
+  if(depEmpty) depEmpty.style.display = db.deposits.length ? 'none' : 'block';
+  if(wdBody) wdBody.innerHTML = db.withdrawals.map(w=>`
+    <tr><td>${w.date}</td><td>${w.nick}<br><span style="font-size:11px;color:#a0aec0">${w.email||''}</span></td>
+      <td>${fmt(w.sum)} ₽</td><td>${fmt(w.fee)} ₽</td><td>${fmt(w.net)} ₽</td>
+      <td><span class="status ${w.status}">${w.status}</span></td>
+      <td>${w.status==='pending' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="ghost small" onclick="wdAction(${w.id},'hold')">Отложить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` : w.status==='hold' ? `<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>` : `<button class="ghost small" onclick="delWithdrawal(${w.id})">Удалить</button>`}</td></tr>`).join('');
+  const wdEmpty = document.getElementById('withdrawalsEmpty');
+  if(wdEmpty) wdEmpty.style.display = db.withdrawals.length ? 'none' : 'block';
+}
+async function depAction(id, status){ await apiPut('/api/deposits/'+id, {status}); await audit('deposit_'+status, '#'+id); await loadDB(); renderFinance(); }
+async function wdAction(id, status){ await apiPut('/api/withdrawals/'+id, {status}); await audit('withdrawal_'+status, '#'+id); await loadDB(); renderFinance(); }
+async function delDeposit(id){ await apiDelete('/api/deposits/'+id); await loadDB(); renderFinance(); }
+async function delWithdrawal(id){ await apiDelete('/api/withdrawals/'+id); await loadDB(); renderFinance(); }
+
+/* ================= PLAYERS ================= */
+function renderPlayers(){
+  const names = new Set();
+  db.sessions.forEach(s=>{ if(s.nick) names.add(s.nick); });
+  db.baccarat.forEach(b=>{ if(b.player) names.add(b.player); });
+  const list = [...names];
+  let total = 0;
+  const body = document.getElementById('playersBody');
+  if(body) body.innerHTML = list.map((nick,i)=>{
+    const bj = db.sessions.filter(s=>s.nick===nick).reduce((a,s)=>a+sessionNet(s).income, 0);
+    const bac = db.baccarat.filter(b=>b.player===nick).reduce((a,b)=>a+bacCalc(b).casino, 0);
+    const sum = bj + bac;
+    total += sum;
+    const p = db.players.find(x=>x.nick===nick) || {};
+    return `<tr><td>${i+1}</td><td>${nick}</td>
+      <td class="${bj>=0?'pos':'neg'}">${bj>=0?'+':''}${fmt(bj)} ₽</td>
+      <td class="${bac>=0?'pos':'neg'}">${bac>=0?'+':''}${fmt(bac)} ₽</td>
+      <td class="${sum>=0?'pos':'neg'}">${sum>=0?'+':''}${fmt(sum)} ₽</td>
+      <td>${p.vip?'VIP':'—'}</td>
+      <td><button class="ghost small" onclick="toggleVIP('${nick.replace(/'/g,"\\'")}', ${!p.vip})">VIP</button></td></tr>`;
+  }).join('');
+  const empty = document.getElementById('playersEmpty');
+  if(empty) empty.style.display = list.length ? 'none' : 'block';
+  const cards = document.getElementById('playerCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Игроков</div><div class="value accent">${list.length}</div></div>
+    <div class="card"><div class="label">Общий проигрыш</div><div class="value ${total>=0?'green':'red'}">${fmt(total)} ₽</div></div>`;
+}
+async function toggleVIP(nick, val){ await apiPost('/api/players', {nick, vip:val}); await audit('vip_toggle', nick); await loadDB(); renderPlayers(); }
+
+/* ================= ONLINE ================= */
+function renderOnline() {
+  const cashouts = db.crash_bets.filter(b => b.cashed_out);
+  const totalBets = db.crash_bets.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+  const totalPayouts = cashouts.reduce((a, b) => a + (parseFloat(b.amount) * parseFloat(b.cashout_mult) || 0), 0);
+  const cards = document.getElementById('onlineCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Всего ставок в Crash</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
+    <div class="card"><div class="label">Выигрыши (Кэшауты)</div><div class="value red">${fmt(totalPayouts)} ₽</div></div>
+    <div class="card"><div class="label">Прибыль казино</div><div class="value green">${fmt(totalBets - totalPayouts)} ₽</div></div>
+  `;
+  const body = document.getElementById('onlineBody');
+  if(body) body.innerHTML = cashouts.map(b => {
+    const dateStr = b.created_at ? new Date(b.created_at).toLocaleString('ru-RU') : '—';
+    return `<tr>
+        <td>${dateStr}</td>
+        <td>${b.player_name}</td>
+        <td>${fmt(b.amount)} ₽</td>
+        <td class="pos">x${parseFloat(b.cashout_mult).toFixed(2)}</td>
+        <td class="pos">${fmt(b.amount * parseFloat(b.cashout_mult))} ₽</td>
+        <td>#${b.round_id}</td>
+      </tr>`;
+  }).join('');
+  const empty = document.getElementById('onlineEmpty');
+  if(empty) empty.style.display = cashouts.length ? 'none' : 'block';
+}
+
+async function loadCrashForceStatus() {
+  try {
+    const r = await fetch('/api/admin/crash/force-next');
+    const data = await r.json();
+    const el = document.getElementById('crashForceStatus');
+    if (!el) return;
+    if (data.value && data.value > 0) {
+      el.innerHTML = `<span style="color:var(--gold); font-weight:900;">⚠ Активно: следующий краш на x${data.value.toFixed(2)}</span>`;
+      document.getElementById('crashForceInput').value = data.value;
+    } else {
+      el.innerHTML = '<span style="color:var(--muted);">Форсированный краш не задан</span>';
+    }
+  } catch(e) {}
+}
+
+async function setCrashForce() {
+  const val = parseFloat(document.getElementById('crashForceInput').value);
+  if (!isFinite(val) || val < 1 || val > 1000) { alert('Введите число от 1.00 до 1000'); return; }
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+  try {
+    const r = await fetch('/api/admin/crash/force-next', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ value: val, pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Ошибка'); return; }
+    document.getElementById('crashForceStatus').innerHTML =
+      `<span style="color:var(--gold); font-weight:900;">✓ Следующий краш будет на x${val.toFixed(2)}</span>`;
+    await audit('crash_force', 'x' + val.toFixed(2));
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
+async function clearCrashForce() {
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+  try {
+    const r = await fetch('/api/admin/crash/clear-force', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Ошибка'); return; }
+    document.getElementById('crashForceStatus').innerHTML =
+      `<span style="color:var(--green);">Форсированный краш сброшен</span>`;
+    document.getElementById('crashForceInput').value = '';
+    await audit('crash_force_clear', '');
+  } catch(e) { alert('Ошибка соединения'); }
+}
+
+/* ================= NEWS ================= */
+function renderNewsAdmin(){
+  const wrap = document.getElementById('newsList');
+  const empty = document.getElementById('newsEmpty');
+  if(!wrap) return;
+  if(!newsList.length){
+    wrap.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  wrap.innerHTML = newsList.map(n=>`
+    <div class="news-edit-row">
+      <div class="col">
+        <input type="text" value="${(n.title||'').replace(/"/g,'&quot;')}" data-id="${n.id}" data-field="title">
+        <textarea data-id="${n.id}" data-field="body">${escHtml(n.body||'')}</textarea>
+        <input type="date" value="${(n.date||'').slice(0,10)}" data-id="${n.id}" data-field="date">
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button class="success small" onclick="saveNews(${n.id})">💾</button>
+        <button class="danger small" onclick="delNews(${n.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addNews(){
+  const title = document.getElementById('n_title').value.trim();
+  const body = document.getElementById('n_body').value.trim();
+  const date = document.getElementById('n_date').value || today();
+  if(!title){ showInfo('Ошибка', 'Введите заголовок'); return; }
+  const r = await apiPost('/api/admin/news', { title, body, date });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  await audit('news_add', title);
+  document.getElementById('n_title').value = '';
+  document.getElementById('n_body').value = '';
+  document.getElementById('n_date').value = '';
+  await loadNewsList();
+  renderNewsAdmin();
+}
+
+async function saveNews(id){
+  const row = document.querySelector(`.news-edit-row input[data-id="${id}"]`)?.closest('.news-edit-row');
+  if(!row) return;
+  const title = row.querySelector('input[data-field="title"]').value.trim();
+  const body = row.querySelector('textarea[data-field="body"]').value.trim();
+  const date = row.querySelector('input[data-field="date"]').value || today();
+  const r = await apiPost('/api/admin/news/' + id, { title, body, date });
+  if(r.error){ showInfo('Ошибка', r.error); return; }
+  await loadNewsList();
+  renderNewsAdmin();
+  showInfo('Готово', 'Новость обновлена.');
+}
+
+async function delNews(id){
+  if(!confirm('Удалить новость?')) return;
+  await apiDelete('/api/admin/news/' + id);
+  await loadNewsList();
+  renderNewsAdmin();
+}
+
+/* ================= REVIEWS ================= */
+function renderReviews(){
+  const reviews = db.dealer_reviews || [];
+  const ratings = db.dealer_ratings || [];
+  const totalReviews = reviews.length;
+  const avgAll = totalReviews ? (reviews.reduce((a, r) => a + (parseInt(r.stars) || 0), 0) / totalReviews) : 0;
+  const cards = document.getElementById('reviewCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Всего отзывов</div><div class="value accent">${totalReviews}</div></div>
+    <div class="card"><div class="label">Средний рейтинг</div><div class="value gold">${avgAll.toFixed(2)} ⭐</div></div>
+    <div class="card"><div class="label">Дилеров с оценками</div><div class="value green">${ratings.length}</div></div>
+  `;
+  const ratingsBody = document.getElementById('ratingsBody');
+  if(ratingsBody) ratingsBody.innerHTML = ratings.map((r, i) => {
+    const avg = parseFloat(r.avg_stars) || 0;
+    const full = Math.round(avg);
+    const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
+    return `<tr><td>${i+1}</td><td style="text-transform:capitalize;">${r.dealer}</td><td><span class="star-line">${stars}</span> <b>${avg.toFixed(2)}</b></td><td>${r.reviews_count}</td></tr>`;
+  }).join('');
+  const ratingsEmpty = document.getElementById('ratingsEmpty');
+  if(ratingsEmpty) ratingsEmpty.style.display = ratings.length ? 'none' : 'block';
+  const reviewsBody = document.getElementById('reviewsBody');
+  if(reviewsBody) reviewsBody.innerHTML = reviews.map(rv => {
+    const stars = '★'.repeat(parseInt(rv.stars) || 0) + '☆'.repeat(5 - (parseInt(rv.stars) || 0));
+    const date = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date || '—');
+    return `<tr>
+      <td>${date}</td>
+      <td>${rv.guest_name || '—'}<br><span style="font-size:11px;color:#a0aec0">${rv.guest_id || ''}</span></td>
+      <td style="text-transform:capitalize;">${rv.dealer_name}</td>
+      <td><span class="star-line">${stars}</span></td>
+      <td style="white-space:normal; max-width:300px;">${escHtml(rv.comment || '—')}</td>
+      <td><button class="danger small" onclick="delReview(${rv.id})">Удалить</button></td>
+    </tr>`;
+  }).join('');
+  const reviewsEmpty = document.getElementById('reviewsEmpty');
+  if(reviewsEmpty) reviewsEmpty.style.display = reviews.length ? 'none' : 'block';
+}
+
+async function delReview(id){
+  if(!confirm('Удалить отзыв?')) return;
+  await apiDelete('/api/dealer-reviews/' + id);
+  await loadDB();
+  renderReviews();
+}
+
+/* ================= PAYOUTS ================= */
+function dealerNames(){
+  const set = new Set();
+  db.sessions.forEach(s=>{ if(s.dealer && s.dealer!=='—') set.add(s.dealer); });
+  db.baccarat.forEach(b=>{ if(b.dealer && b.dealer!=='—') set.add(b.dealer); });
+  db.payouts.forEach(p=>{ if(p.dealer) set.add(p.dealer); });
+  return [...set];
+}
+function dealerStats(name){
+  const s = db.sessions.filter(x=>x.dealer===name);
+  const b = db.baccarat.filter(x=>x.dealer===name);
+  const income = s.reduce((a,x)=>a+sessionNet(x).income,0) + b.reduce((a,x)=>a+bacCalc(x).casino,0);
+  const accrued = Math.round(income * 10 / 100 * 100) / 100;
+  const paid = db.payouts.filter(p=>p.dealer===name).reduce((a,p)=>a+(parseFloat(p.sum)||0),0);
+  return { sessions: s.length + b.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
+}
+
+async function loadCashSafeAdmin() {
+  try {
+    const r = await fetch('/api/admin/cash-safe');
+    const data = await r.json();
+    const body = document.getElementById('safeBody');
+    const empty = document.getElementById('safeEmpty');
+    if(!body) return;
+    if (!data.dealers || data.dealers.length === 0) { body.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    body.innerHTML = data.dealers.map(d => `
+      <tr>
+        <td><b>${d.dealer_name || '—'}</b></td>
+        <td style="color:var(--accent); font-weight:900;">${fmt(d.open_total)} ₽</td>
+        <td style="color:var(--gold); font-weight:900;">${fmt(d.handed_total)} ₽</td>
+        <td>${d.handed_cnt > 0 ? `<button class="success small" onclick="acceptCash(${d.dealer_id}, ${d.handed_total})">✓ Принять</button>` : '—'}</td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+async function acceptCash(dealerId, expectedSum) {
+  const realStr = prompt(`Сколько реально в сейфе? (ожидается ${fmt(expectedSum)} ₽)`, fmt(expectedSum));
+  if (realStr === null) return;
+  const realSum = parseFloat(realStr.replace(/\s/g, '').replace(',', '.')) || 0;
+  if (realSum < 0) return;
+  const pass = prompt('Пароль owner:');
+  if (pass === null) return;
+  try {
+    const r = await fetch('/api/admin/cash-accept', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dealer_id: dealerId, real_sum: realSum, pass })
+    });
+    const data = await r.json();
+    if (!r.ok) { showInfo('Ошибка', data.error || 'Ошибка'); return; }
+    const diff = data.diff;
+    let msg = `Ожидалось: ${fmt(data.expected)} ₽<br>Реально: ${fmt(data.real_sum)} ₽<br>`;
+    if (Math.abs(diff) < 0.01) msg += '<b style="color:var(--green)">✓ Сошлось!</b>';
+    else if (diff < 0) msg += `<b style="color:var(--red)">⚠ Недостача: ${fmt(Math.abs(diff))} ₽</b>`;
+    else msg += `<b style="color:var(--gold)">⚠ Излишек: ${fmt(diff)} ₽</b>`;
+    showInfo('Сейф принят', msg);
+    loadCashSafeAdmin();
+  } catch(e) { showInfo('Ошибка', 'Ошибка соединения'); }
+}
+
+async function loadChipsReport() {
+  const dateInput = document.getElementById('chipsDateInput');
+  if(!dateInput) return;
+  const date = dateInput.value || today();
+  try {
+    const r = await fetch('/api/admin/chips-summary?date=' + encodeURIComponent(date));
+    const data = await r.json();
+    const cards = document.getElementById('chipsCards');
+    if (cards) {
+      cards.innerHTML = `
+        <div class="card"><div class="label">🎰 Выдано</div><div class="value accent">${fmt(data.grandIn)} ₽</div></div>
+        <div class="card"><div class="label">🔄 Принято</div><div class="value" style="color:var(--gold);">${fmt(data.grandOut)} ₽</div></div>
+        <div class="card" style="border-color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">
+          <div class="label">💰 Прибыль</div>
+          <div class="value" style="color:${data.grandProfit >= 0 ? 'var(--green)' : 'var(--red)'};">${data.grandProfit >= 0 ? '+' : ''}${fmt(data.grandProfit)} ₽</div>
+        </div>
+      `;
+    }
+    const body = document.getElementById('chipsReportBody');
+    const empty = document.getElementById('chipsReportEmpty');
+    if(!body) return;
+    if (!data.dealers || data.dealers.length === 0) { body.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    body.innerHTML = data.dealers.map(d => {
+      const profitColor = d.profit >= 0 ? 'var(--green)' : 'var(--red)';
+      return `<tr><td><b>${d.dealer_name || '—'}</b></td><td style="color:var(--green);">${fmt(d.totalIn)} ₽</td><td style="color:var(--gold);">${fmt(d.totalOut)} ₽</td><td style="font-weight:900; color:${profitColor};">${d.profit >= 0 ? '+' : ''}${fmt(d.profit)} ₽</td></tr>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+function renderPayouts(){
+  const names = dealerNames();
+  let tAcc=0, tPaid=0;
+  const accruedBody = document.getElementById('accruedBody');
+  if(accruedBody) accruedBody.innerHTML = names.map((n,i)=>{
+    const s = dealerStats(n);
+    tAcc += s.accrued; tPaid += s.paid;
+    return `<tr><td>${i+1}</td><td>${n}</td><td>${s.sessions}</td><td>${fmt(s.income)} ₽</td><td class="pos">${fmt(s.accrued)} ₽</td><td>${fmt(s.paid)} ₽</td><td class="${s.remaining>0?'red':'green'}">${fmt(s.remaining)} ₽</td></tr>`;
+  }).join('');
+  const accruedEmpty = document.getElementById('accruedEmpty');
+  if(accruedEmpty) accruedEmpty.style.display = names.length ? 'none' : 'block';
+  const payoutCards = document.getElementById('payoutCards');
+  if(payoutCards) payoutCards.innerHTML = `
+    <div class="card"><div class="label">Дилеров</div><div class="value accent">${names.length}</div></div>
+    <div class="card"><div class="label">Начислено</div><div class="value accent">${fmt(tAcc)} ₽</div></div>
+    <div class="card"><div class="label">Выплачено</div><div class="value green">${fmt(tPaid)} ₽</div></div>
+    <div class="card"><div class="label">Остаток</div><div class="value ${(tAcc-tPaid)>0?'red':'green'}">${fmt(tAcc-tPaid)} ₽</div></div>`;
+  const payoutBody = document.getElementById('payoutBody');
+  if(payoutBody) payoutBody.innerHTML = db.payouts.map(p=>`<tr><td>${p.id}</td><td>${p.date}</td><td>${p.dealer}</td><td>${fmt(p.sum)} ₽</td><td>${p.note||'—'}</td><td><button class="danger small" onclick="delPayout(${p.id})">Удалить</button></td></tr>`).join('');
+  const payoutEmpty = document.getElementById('payoutEmpty');
+  if(payoutEmpty) payoutEmpty.style.display = db.payouts.length ? 'none' : 'block';
+  const chipsDateInput = document.getElementById('chipsDateInput');
+  if (chipsDateInput && !chipsDateInput.value) chipsDateInput.value = today();
+  loadChipsReport();
+  loadCashSafeAdmin();
+}
+
+function openPayoutModal(){
+  const dealer = document.getElementById('pay_dealer').value.trim();
+  const sum = parseFloat(document.getElementById('pay_sum').value) || 0;
+  if(!dealer || sum<=0){ showInfo('Ошибка', 'Заполни дилера и сумму'); return; }
+  showPass('Выдача зарплаты', `Выдать <b>${sum} ₽</b> дилеру <b>${dealer}</b>?<br>Пароль владельца:`, async ()=>{
+    const date = document.getElementById('pay_date').value || today();
+    const note = document.getElementById('pay_note').value.trim();
+    await apiPost('/api/payouts', { date, dealer, sum, note });
+    await audit('payout_add', `${dealer}: ${sum} ₽`);
+    await loadDB(); renderPayouts();
+    ['pay_dealer','pay_sum','pay_note'].forEach(id=>document.getElementById(id).value='');
+    showInfo('Готово', `Выплачено <b>${sum} ₽</b> дилеру <b>${dealer}</b>.`);
+  });
+}
+async function delPayout(id){ await apiDelete('/api/payouts/'+id); await loadDB(); renderPayouts(); }
+
+/* ================= HISTORY ================= */
+function renderHistory(){
+  const body = document.getElementById('historyBody');
+  if(body) body.innerHTML = db.audit.map(a=>`<tr><td>${a.time}</td><td>${a.user_name}</td><td>${a.action}</td><td>${a.details}</td></tr>`).join('');
+  const empty = document.getElementById('historyEmpty');
+  if(empty) empty.style.display = db.audit.length ? 'none' : 'block';
+}
+async function clearHistory(){ await apiDelete('/api/audit'); await loadDB(); renderHistory(); }
+
+/* ================= ROLES ================= */
+function renderRoles(){
+  const rolesBody = document.getElementById('rolesBody');
+  if(rolesBody) rolesBody.innerHTML = db.employees.map((e,i)=>`
+    <tr><td>${i+1}</td><td>${e.name}</td><td>${e.login}</td>
+      <td>${ROLES[e.role]?.label || e.role}</td>
+      <td>${e.role!=='owner' ? `<button class="danger small" onclick="delEmployee(${e.id})">Удалить</button>` : '—'}</td></tr>`).join('');
+  const rolesEmpty = document.getElementById('rolesEmpty');
+  if(rolesEmpty) rolesEmpty.style.display = db.employees.length ? 'none' : 'block';
+  const dealersBody = document.getElementById('dealersBody');
+  if(dealersBody) dealersBody.innerHTML = db.dealers.map((d,i)=>`
+    <tr><td>${i+1}</td><td>${d.name}</td><td>${d.login}</td>
+      <td><button class="danger small" onclick="delDealer(${d.id})">Удалить</button></td></tr>`).join('');
+  const dealersEmpty = document.getElementById('dealersEmpty');
+  if(dealersEmpty) dealersEmpty.style.display = db.dealers.length ? 'none' : 'block';
+}
+async function addEmployee(){
+  const name = document.getElementById('r_name').value.trim();
+  const login = document.getElementById('r_login').value.trim();
+  const pass = document.getElementById('r_pass').value.trim();
+  const role = document.getElementById('r_role').value;
+  if(!name || !login || !pass){ showInfo('Ошибка', 'Заполни все поля'); return; }
+  const res = await apiPost('/api/employees', { name, login, pass, role });
+  if(res.error){ showInfo('Ошибка', res.error); return; }
+  await audit('role_change', `${name} (${login})`);
+  await loadDB(); renderRoles();
+  ['r_name','r_login','r_pass'].forEach(id=>document.getElementById(id).value='');
+}
+async function delEmployee(id){ await apiDelete('/api/employees/'+id); await loadDB(); renderRoles(); }
+async function addDealer(){
+  const name = document.getElementById('d_name').value.trim();
+  const login = document.getElementById('d_login').value.trim();
+  const pass = document.getElementById('d_pass').value.trim();
+  if(!name || !login || !pass){ showInfo('Ошибка', 'Заполни все поля'); return; }
+  const res = await apiPost('/api/dealers', { name, login, pass });
+  if(res.error){ showInfo('Ошибка', res.error); return; }
+  await audit('dealer_add', `${name} (${login})`);
+  await loadDB(); renderRoles();
+  ['d_name','d_login','d_pass'].forEach(id=>document.getElementById(id).value='');
+}
+async function delDealer(id){ await apiDelete('/api/dealers/'+id); await loadDB(); renderRoles(); }
+
+/* ================= RENDER ALL ================= */
+function renderAll(){
+  try { if(hasPerm('dash')) renderDash(); } catch(e){ console.error('renderDash', e); }
+  try { if(hasPerm('finance')) renderFinance(); } catch(e){ console.error('renderFinance', e); }
+  try { if(hasPerm('players')) renderPlayers(); } catch(e){ console.error('renderPlayers', e); }
+  try { if(hasPerm('guests')) loadGuests(); } catch(e){ console.error('loadGuests', e); }
+  try { if(hasPerm('news')) renderNewsAdmin(); } catch(e){ console.error('renderNewsAdmin', e); }
+  try { if(hasPerm('reviews')) renderReviews(); } catch(e){ console.error('renderReviews', e); }
+  try { if(hasPerm('online')) renderOnline(); } catch(e){ console.error('renderOnline', e); }
+  try { if(hasPerm('payouts')) renderPayouts(); } catch(e){ console.error('renderPayouts', e); }
+  try { if(hasPerm('history')) renderHistory(); } catch(e){ console.error('renderHistory', e); }
+  try { if(hasPerm('roles')) renderRoles(); } catch(e){ console.error('renderRoles', e); }
+  if(currentUser){ const cu = document.getElementById('currentUser'); if(cu) cu.textContent = currentUser; }
+  if(currentRole){ const cr = document.getElementById('currentRole'); if(cr && ROLES[currentRole]) cr.textContent = ROLES[currentRole].label; }
+}
+
+/* ================= LIVE REFRESH ================= */
+let liveCounter = 10;
+async function tickLive(){
+  liveCounter--;
+  if(liveCounter <= 0){
+    liveCounter = 10;
+    if(currentUser){
+      await loadDB();
+      renderAll();
+    }
+  }
+}
+setInterval(tickLive, 1000);
+
+(async () => {
+  const payDateEl = document.getElementById('pay_date');
+  if (payDateEl) payDateEl.value = today();
+})();
 </script>
 </body>
 </html>
