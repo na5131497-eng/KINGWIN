@@ -7,21 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #0b0e14; 
-    --bg-panel: #151922; 
-    --bg-card: #1a1f2b;
-    --accent: #00e5ff; 
-    --accent-green: #00e676;
-    --text-main: #fff; 
-    --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.05); 
-    --red: #ff4d4d; 
-    --gold: #f1c40f;
+    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
+    --accent: #00e5ff; --accent-green: #00e676;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; position: relative; }
-  
-  /* ===== ФОН: ЛЕТАЮЩИЕ КОРОНЫ ===== */
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .floating-crown { position: absolute; opacity: 0.12; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.3)); will-change: transform; }
   .floating-crown.broken { opacity: 0.1; filter: drop-shadow(0 0 6px rgba(255,77,77,.3)); }
@@ -33,7 +25,6 @@
     75% { transform: translateY(-20px) translateX(15px) rotate(6deg); }
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
-  /* Контент выше фона */
   body > *:not(.bg-crowns) { position: relative; z-index: 1; }
 
   .topbar { height: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
@@ -43,166 +34,37 @@
   .nav-item { color: var(--text-muted); font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; position: relative; }
   .nav-item:hover, .nav-item.active { color: #fff; }
   .nav-item.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 2px; background: var(--accent); }
-
   .header-right { display: flex; align-items: center; gap: 10px; }
-  
-  .balance-pill {
-    background: rgba(0,230,118,0.12);
-    border: 1px solid rgba(0,230,118,0.35);
-    color: #00e676;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-weight: 900;
-    font-size: 13px;
-    white-space: nowrap;
-    font-family: inherit;
-  }
+  .balance-pill { background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.35); color: #00e676; padding: 10px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
   .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; font-family: inherit; }
   .btn-deposit:hover { box-shadow: 0 0 15px rgba(0,230,118,0.4); transform: translateY(-1px); }
-
-  .profile-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    color: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 900;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 0 12px rgba(0,229,255,0.35);
-    user-select: none;
-    font-family: inherit;
-    flex-shrink: 0;
-  }
-  .profile-avatar:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 20px rgba(0,229,255,0.6);
-  }
-
+  .profile-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 12px rgba(0,229,255,0.35); user-select: none; flex-shrink: 0; }
+  .profile-avatar:hover { transform: scale(1.08); box-shadow: 0 0 20px rgba(0,229,255,0.6); }
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
   .btn-login:hover { border-color: var(--accent); }
 
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
-
-  .hero-banner {
-    position: relative;
-    width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 30px;
-    background: linear-gradient(135deg, #1c2230, #0f1219);
-    border: 1px solid var(--border);
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-  }
-  .hero-banner img.bg-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 30%;
-    z-index: 1;
-  }
-  .hero-banner .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.5) 50%, transparent 100%);
-    z-index: 2;
-  }
-  .hero-content {
-    position: relative;
-    z-index: 3;
-    padding: 40px;
-    max-width: 500px;
-  }
-  .hero-content h1 {
-    font-size: 42px;
-    font-weight: 900;
-    color: var(--accent-green);
-    line-height: 1.1;
-    margin-bottom: 15px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-  }
-  .hero-content p {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 25px;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-  }
-  .hero-content .btn-claim {
-    background: var(--accent-green);
-    color: #000;
-    padding: 15px 30px;
-    border-radius: 10px;
-    font-weight: 900;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 0 0 20px rgba(0,230,118,0.4);
-    font-family: inherit;
-  }
-  .hero-content .btn-claim:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(0,230,118,0.6);
-  }
+  .hero-banner { position: relative; width: 100%; border-radius: 16px; overflow: hidden; margin-bottom: 30px; background: linear-gradient(135deg, #1c2230, #0f1219); border: 1px solid var(--border); min-height: 300px; display: flex; align-items: center; }
+  .hero-banner img.bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; z-index: 1; }
+  .hero-banner .overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.5) 50%, transparent 100%); z-index: 2; }
+  .hero-content { position: relative; z-index: 3; padding: 40px; max-width: 500px; }
+  .hero-content h1 { font-size: 42px; font-weight: 900; color: var(--accent-green); line-height: 1.1; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+  .hero-content p { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+  .hero-content .btn-claim { background: var(--accent-green); color: #000; padding: 15px 30px; border-radius: 10px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,230,118,0.4); font-family: inherit; }
+  .hero-content .btn-claim:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,230,118,0.6); }
 
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
   .section-title svg { width: 20px; height: 20px; fill: var(--text-muted); }
 
   .games-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; }
-  
-  .game-card { 
-    background: var(--bg-card); border-radius: 12px; overflow: hidden; cursor: pointer; 
-    transition: 0.3s; border: 1px solid var(--border); text-decoration: none;
-    display: flex; flex-direction: column; aspect-ratio: 3 / 4;
-    position: relative;
-  }
+  .game-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); text-decoration: none; display: flex; flex-direction: column; aspect-ratio: 3 / 4; position: relative; }
   .game-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-  .game-card.locked { opacity: 0.5; }
-  .game-card.locked::after {
-    content: '🔒'; position: absolute; top: 10px; right: 10px;
-    font-size: 18px; z-index: 5;
-  }
-
-  .game-card.coming-soon {
-    opacity: 0.55;
-    cursor: not-allowed;
-    filter: grayscale(0.6);
-  }
-  .game-card.coming-soon::after {
-    content: 'СКОРО';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 5;
-    background: linear-gradient(135deg, #f1c40f, #e67e22);
-    color: #000;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(241,196,15,0.5);
-  }
-  .game-card.coming-soon:hover {
-    transform: none;
-    border-color: var(--border);
-    box-shadow: none;
-  }
-  
+  .game-card.coming-soon { opacity: 0.55; cursor: not-allowed; filter: grayscale(0.6); }
+  .game-card.coming-soon::after { content: 'СКОРО'; position: absolute; top: 10px; right: 10px; z-index: 5; background: linear-gradient(135deg, #f1c40f, #e67e22); color: #000; font-size: 10px; font-weight: 900; letter-spacing: 1px; padding: 3px 8px; border-radius: 6px; }
+  .game-card.coming-soon:hover { transform: none; border-color: var(--border); box-shadow: none; }
   .game-img-wrap { width: 100%; flex: 1; position: relative; overflow: hidden; }
   .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: 0.3s; }
   .game-card:hover .game-img-wrap img { transform: scale(1.05); }
-  .game-card.coming-soon:hover .game-img-wrap img { transform: none; }
-  
   .game-info { padding: 12px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); flex-shrink: 0; }
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -213,17 +75,15 @@
   .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
   .modal-close:hover { color: #fff; }
   .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; font-family: inherit; }
+  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; }
   .modal-box input:focus { border-color: var(--accent); }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
-  
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
   .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
   .dep-banner { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-weight: 800; font-size: 14px; color: var(--accent-green); }
   .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
-  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; font-family: inherit; }
-  
+  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; }
   .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
   .card-info .note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
   .card-info .note b { color: #fff; }
@@ -235,23 +95,18 @@
   .toast.error { border-left-color: var(--red); }
   .toast.info { border-left-color: var(--gold); }
 
-  @media (max-width: 1200px) {
-    .games-grid { grid-template-columns: repeat(5, 1fr); }
-  }
+  @media (max-width: 1200px) { .games-grid { grid-template-columns: repeat(5, 1fr); } }
   @media (max-width: 900px) {
     .games-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .nav-menu { display: none; }
     .balance-pill { padding: 8px 10px; font-size: 12px; }
     .btn-deposit { padding: 8px 12px; font-size: 12px; }
     .profile-avatar { width: 36px; height: 36px; font-size: 12px; }
-    
     .hero-banner { min-height: 250px; }
     .hero-content { padding: 20px; }
     .hero-content h1 { font-size: 28px; }
     .hero-content p { font-size: 14px; }
     .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
-    .hero-banner img.bg-img { object-position: right center; }
-    .hero-banner .overlay { background: linear-gradient(90deg, rgba(11,14,20,0.95) 0%, rgba(11,14,20,0.6) 60%, transparent 100%); }
   }
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; }
@@ -265,26 +120,17 @@
     .game-info { padding: 8px; }
     .game-title { font-size: 10px; }
     .game-sub { font-size: 8px; }
-    .game-card.coming-soon::after { font-size: 8px; padding: 2px 6px; top: 6px; right: 6px; }
-    
     .hero-content h1 { font-size: 24px; }
     .hero-content p { font-size: 12px; }
-
     .modal-box { padding: 22px 18px; }
     .modal-box h2 { font-size: 19px; }
     .dep-methods { flex-direction: column; }
-  }
-  @media (max-width: 380px) {
-    .balance-pill { padding: 6px 8px; font-size: 10px; }
-    .btn-deposit { padding: 6px 8px; font-size: 10px; }
-    .profile-avatar { width: 30px; height: 30px; font-size: 10px; }
   }
 </style>
 </head>
 <body>
 
 <div class="bg-crowns" id="bgCrowns"></div>
-
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="topbar">
@@ -292,20 +138,15 @@
     <a href="/" class="logo">KINGWIN</a>
     <div class="nav-menu">
       <a href="/" class="nav-item active">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> 
-        Главная
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
       </a>
-      <a href="/profile2.html" class="nav-item" onclick="return requireLogin(event)">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 
-        Профиль
+      <a href="/profile.html" class="nav-item" onclick="return requireLogin(event)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Профиль
       </a>
     </div>
   </div>
-  
   <div class="header-right" id="userArea" style="display:none">
-    <div class="balance-pill">
-      <span id="topBalance">0.00</span> ₽
-    </div>
+    <div class="balance-pill"><span id="topBalance">0.00</span> ₽</div>
     <button class="btn-deposit" onclick="openDeposit()">Пополнить</button>
     <div class="profile-avatar" onclick="goToProfile()" title="Профиль">KW</div>
   </div>
@@ -315,7 +156,6 @@
 </div>
 
 <div class="main-content">
-  
   <div class="hero-banner">
     <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
     <div class="overlay"></div>
@@ -332,57 +172,27 @@
   </div>
 
   <div class="games-grid">
-    <a href="/crash.html" class="game-card" id="gameCrash" onclick="return requireLogin(event)">
-      <div class="game-img-wrap">
-        <img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash">
-      </div>
-      <div class="game-info">
-        <div class="game-title">Crash</div>
-        <div class="game-sub">Успей забрать</div>
-      </div>
+    <a href="/crash.html" class="game-card" onclick="return requireLogin(event)">
+      <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash"></div>
+      <div class="game-info"><div class="game-title">Crash</div><div class="game-sub">Успей забрать</div></div>
     </a>
-
     <div class="game-card coming-soon" onclick="showComingSoon('Cases')">
-      <div class="game-img-wrap">
-        <img src="/cases_card.jpg" alt="Cases">
-      </div>
-      <div class="game-info">
-        <div class="game-title">Cases</div>
-        <div class="game-sub">Скоро</div>
-      </div>
+      <div class="game-img-wrap"><img src="/cases_card.jpg" alt="Cases"></div>
+      <div class="game-info"><div class="game-title">Cases</div><div class="game-sub">Скоро</div></div>
     </div>
-
-    <a href="/miner.html" class="game-card" id="gameMiner" onclick="return requireLogin(event)">
-      <div class="game-img-wrap">
-        <img src="/miner_card.jpg" alt="Miner">
-      </div>
-      <div class="game-info">
-        <div class="game-title">Miner</div>
-        <div class="game-sub">Минное поле</div>
-      </div>
+    <a href="/miner.html" class="game-card" onclick="return requireLogin(event)">
+      <div class="game-img-wrap"><img src="/miner_card.jpg" alt="Miner"></div>
+      <div class="game-info"><div class="game-title">Miner</div><div class="game-sub">Минное поле</div></div>
     </a>
-
     <div class="game-card coming-soon" onclick="showComingSoon('Ladder')">
-      <div class="game-img-wrap">
-        <img src="/ladder_card.jpg" alt="Ladder">
-      </div>
-      <div class="game-info">
-        <div class="game-title">Ladder</div>
-        <div class="game-sub">Скоро</div>
-      </div>
+      <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder"></div>
+      <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Скоро</div></div>
     </div>
-
     <div class="game-card coming-soon" onclick="showComingSoon('Plinko')">
-      <div class="game-img-wrap">
-        <img src="/plinko_card.jpg" alt="Plinko">
-      </div>
-      <div class="game-info">
-        <div class="game-title">Plinko</div>
-        <div class="game-sub">Скоро</div>
-      </div>
+      <div class="game-img-wrap"><img src="/plinko_card.jpg" alt="Plinko"></div>
+      <div class="game-info"><div class="game-title">Plinko</div><div class="game-sub">Скоро</div></div>
     </div>
   </div>
-
 </div>
 
 <div class="modal-overlay" id="loginModal">
@@ -393,7 +203,7 @@
     <input type="text" id="loginId" placeholder="KING-0001">
     <input type="password" id="loginPass" placeholder="Пароль">
     <div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div>
-    <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="doLogin()">Войти</button>
+    <button class="btn-deposit" style="width: 100%; padding: 15px; font-size: 16px;" onclick="doLogin()">Войти</button>
   </div>
 </div>
 
@@ -401,29 +211,24 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
     <h2>Пополнение</h2>
-    
     <div class="dep-methods">
       <div class="dep-method active" id="methodBonus" onclick="selectDepMethod('bonus')">С бонусом</div>
       <div class="dep-method" id="methodNoBonus" onclick="selectDepMethod('nobonus')">Без бонуса</div>
     </div>
-
     <div id="bonusBlock">
       <div class="dep-banner" id="depBanner">+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ</div>
       <input type="text" id="promoCodeInput" placeholder="Введите промокод (если есть)" style="display:none; margin-bottom: 15px;">
     </div>
-
     <div class="dep-amount-row">
       <input type="number" id="depositAmountInput" class="dep-amount-input" placeholder="500" value="500" min="200">
     </div>
-
     <div class="card-info">
       <div class="note">
         После нажатия «Перейти к оплате»<br>
         <b>свяжитесь с администратором</b> для получения реквизитов.
       </div>
     </div>
-
-    <button class="btn-deposit" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px;" onclick="goToPayment()">Перейти к оплате</button>
+    <button class="btn-deposit" style="width: 100%; padding: 15px; font-size: 16px;" onclick="goToPayment()">Перейти к оплате</button>
   </div>
 </div>
 
@@ -432,7 +237,6 @@ let currentPlayer = null;
 let selectedDepMethod = 'bonus';
 let balanceRefreshTimer = null;
 
-/* ===== ИНИЦИАЛИЗАЦИЯ ФОНА С КОРОНАМИ ===== */
 (function initBackgroundCrowns() {
   const c = document.getElementById('bgCrowns');
   if (!c) return;
@@ -456,6 +260,7 @@ let balanceRefreshTimer = null;
 
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = text;
@@ -464,18 +269,20 @@ function showToast(text, type='success') {
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
 }
 
-function showComingSoon(gameName) {
-  showToast(`«${gameName}» скоро появится! Следите за новостями.`, 'info');
-}
+function showComingSoon(gameName) { showToast(`«${gameName}» скоро появится! Следите за новостями.`, 'info'); }
 
 function openModal(id) { 
   if(id === 'depositModal' && !currentPlayer) {
     document.getElementById('loginModal').classList.add('show');
     return;
   }
-  document.getElementById(id).classList.add('show'); 
+  const el = document.getElementById(id);
+  if (el) el.classList.add('show');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function closeModal(id) { 
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
 
 function requireLogin(e) {
   if (!currentPlayer) {
@@ -491,30 +298,38 @@ function actionRequireLogin(fnName) {
   if (typeof window[fnName] === 'function') window[fnName]();
 }
 
+/* ===== ПЕРЕХОД В ПРОФИЛЬ → profile.html ===== */
 function goToProfile() {
   if(!currentPlayer) { openModal('loginModal'); return; }
-  window.location.href = `/profile2.html`;
+  window.location.href = `/profile.html?id=${encodeURIComponent(currentPlayer.id)}`;
 }
 
 function openDeposit() {
-  if(!currentPlayer) { openModal('loginModal'); return; }
-  
+  if (!currentPlayer) { openModal('loginModal'); return; }
+
   document.getElementById('depositAmountInput').value = 500;
   selectDepMethod('bonus');
-  
-  fetch('/api/deposits').then(r => r.json()).then(deps => {
-    const myDeps = deps.filter(d => String(d.nick).toLowerCase() === String(currentPlayer.name).toLowerCase());
-    if(myDeps.length > 0) {
-      document.getElementById('depBanner').textContent = 'ВВЕДИТЕ ПРОМОКОД';
-      document.getElementById('promoCodeInput').style.display = 'block';
-      document.getElementById('promoCodeInput').value = '';
-    } else {
-      document.getElementById('depBanner').textContent = '+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ';
-      document.getElementById('promoCodeInput').style.display = 'none';
-    }
-  }).catch(() => {});
+  document.getElementById('depBanner').textContent = '+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ';
+  const promo = document.getElementById('promoCodeInput');
+  if (promo) { promo.style.display = 'none'; promo.value = ''; }
 
   openModal('depositModal');
+
+  fetch('/api/deposits', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(deps => {
+      if (!Array.isArray(deps)) return;
+      const myDeps = deps.filter(d =>
+        String(d.nick || '').toLowerCase() === String(currentPlayer.name || '').toLowerCase()
+      );
+      if (myDeps.length > 0) {
+        const banner = document.getElementById('depBanner');
+        if (banner) banner.textContent = 'ВВЕДИТЕ ПРОМОКОД';
+        const p = document.getElementById('promoCodeInput');
+        if (p) p.style.display = 'block';
+      }
+    })
+    .catch(e => console.warn('[openDeposit] deposits check failed:', e));
 }
 
 function selectDepMethod(method) {
@@ -525,14 +340,18 @@ function selectDepMethod(method) {
 }
 
 function goToPayment() {
-  if(!currentPlayer) { openModal('loginModal'); return; }
+  if (!currentPlayer) { openModal('loginModal'); return; }
+
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
-  if(amount < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
+  if (amount < 200) { showToast('Минимальная сумма 200 ₽', 'error'); return; }
+
   closeModal('depositModal');
+
   let url = `/pay.html?amount=${amount}&method=${selectedDepMethod}`;
-  if(selectedDepMethod === 'bonus') {
-    const promo = document.getElementById('promoCodeInput').value.trim();
-    if(promo) url += `&promo=${encodeURIComponent(promo)}`;
+  if (selectedDepMethod === 'bonus') {
+    const promoInput = document.getElementById('promoCodeInput');
+    const promo = promoInput ? promoInput.value.trim() : '';
+    if (promo) url += `&promo=${encodeURIComponent(promo)}`;
   }
   window.location.href = url;
 }
