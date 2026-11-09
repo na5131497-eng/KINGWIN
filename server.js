@@ -156,7 +156,7 @@ async function addDealerBalance(dealerId, amount){
 
 const CRASH_WAIT_AFTER_FIRST_BET = 11000;
 const CRASH_CRASH_PAUSE = 2500;
-const CRASH_BETTING_WINDOW = 11000;
+const CRASH_BETTING_WINDOW = 12000;
 const BOT_COUNT = 11;
 let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false, forcedStop: false, plannedCrashPoint: 1, startWaitingAt: 0 };
 let crashTimeouts = [];
@@ -239,7 +239,6 @@ async function crashStartWaiting() {
     crashState.plannedCrashPoint = cp;
     crashState.startWaitingAt = Date.now();
 
-    crashTimeouts.push(setTimeout(() => { if (crashState.status === 'waiting') crashStartFlight(); }, 10000));
     crashTimeouts.push(setTimeout(() => {
       if (crashState.status === 'waiting') crashStartFlight();
     }, CRASH_BETTING_WINDOW));
@@ -290,11 +289,10 @@ function tryStartFlightCountdown() {
   if (crashState.status !== 'waiting') return;
   if (crashState.waitTimer) return;
   const elapsed = Date.now() - (crashState.startWaitingAt || Date.now());
-  const minWait = 5000;
-  const extra = Math.max(0, minWait - elapsed);
+  const remaining = Math.max(0, CRASH_BETTING_WINDOW - elapsed);
   crashState.waitTimer = setTimeout(() => {
     if (crashState.status === 'waiting') crashStartFlight();
-  }, extra + CRASH_WAIT_AFTER_FIRST_BET);
+  }, remaining);
 }
 async function crashStartFlight() {
   try {
@@ -414,7 +412,24 @@ async function initDB() {
 }
 initDB();
 
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.mp4': 'video/mp4',
+  '.wasm': 'application/wasm'
+};
 function sendJSON(res, code, data) { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); }
 function parseBody(req){ return new Promise((resolve)=>{ let body = ''; req.on('data', chunk => body += chunk); req.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch(e){ resolve({}); } }); }); }
 async function accruePointsByNick(nick, rubAmount, source){
@@ -1364,36 +1379,58 @@ const server = http.createServer(async (req, res) => {
 
     if (url === '/api/guest/withdraw-real' && method === 'POST') {
       const b = await parseBody(req);
-      const id = b.id;
-      const sum = parseFloat(b.sum) || 0;
+      const id = String(b.id || '').trim();
+      const sumRaw = parseFloat(b.sum);
+      const sum = Math.round((isFinite(sumRaw) ? sumRaw : 0) * 100) / 100;
+
       if (!id) return sendJSON(res, 400, { error: 'no id' });
+      if (!isFinite(sum) || sum <= 0) return sendJSON(res, 400, { error: 'Введите сумму вывода' });
       if (sum < 500) return sendJSON(res, 400, { error: 'Минимальная сумма вывода — 500 ₽' });
       if (sum > 10000) return sendJSON(res, 400, { error: 'Максимальная сумма вывода — 10 000 ₽' });
+
       const g = await getGuestById(id);
       if (!g) return sendJSON(res, 404, { error: 'not found' });
+
       const rankIdx = RANK_INDEX[g.rank] || 1;
       if (rankIdx < 2) return sendJSON(res, 400, { error: 'Нужен ранг Silver или выше' });
+
       const req_ = parseFloat(g.wagering_required) || 0;
       const done = parseFloat(g.wagering_done) || 0;
-      if (req_ > 0 && done < req_) return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} ₽ оборота` });
-      const balance = parseFloat(g.deposit_balance) || 0;
-      if (sum > balance) return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${balance.toFixed(2)} ₽` });
+      if (req_ > 0 && done < req_) {
+        return sendJSON(res, 400, { error: `Отыграйте ещё ${Math.ceil(req_ - done)} ₽ оборота` });
+      }
+
+      const balance = Math.round((parseFloat(g.deposit_balance) || 0) * 100) / 100;
+      if (sum > balance) {
+        return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${balance.toFixed(2)} ₽` });
+      }
 
       const COMMISSION = 0.15;
       const fee = Math.round(sum * COMMISSION * 100) / 100;
       const net = Math.round((sum - fee) * 100) / 100;
 
-      await pool.query(`UPDATE guests SET deposit_balance = deposit_balance - $1 WHERE id=$2`, [sum, id]);
+      const upd = await pool.query(
+        `UPDATE guests SET deposit_balance = deposit_balance - $1
+         WHERE id=$2 AND deposit_balance >= $1
+         RETURNING deposit_balance`,
+        [sum, id]
+      );
+      if (upd.rows.length === 0) {
+        return sendJSON(res, 400, { error: 'Недостаточно средств (баланс изменился)' });
+      }
 
       const w = await pool.query(
-        `INSERT INTO withdrawals (date,nick,email,sum,fee,net,status) VALUES ($1,$2,$3,$4,$5,$6,'pending') RETURNING *`,
+        `INSERT INTO withdrawals (date,nick,email,sum,fee,net,status)
+         VALUES ($1,$2,$3,$4,$5,$6,'pending') RETURNING *`,
         [todayStr(), g.name, '', sum, fee, net]
       );
 
       try {
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
-          [todayStr(), 'доход', fee, `Комиссия 15% с вывода ${g.name} (#${g.id}) — ${sum} ₽`]);
-      } catch(e) {}
+        await pool.query(
+          `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+          [todayStr(), 'доход', fee, `Комиссия 15% с вывода ${g.name} (#${g.id}) — ${sum} ₽`]
+        );
+      } catch (e) {}
 
       return sendJSON(res, 200, { ok: true, withdrawal: w.rows[0], fee, net, commission: COMMISSION });
     }
@@ -1760,16 +1797,44 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 200, { exists: false }); }
     }
 
-    let file = url === '/' ? '/index.html' : url;
-    const filePath = path.join(__dirname, file);
-    if (!fs.existsSync(filePath)) { res.writeHead(404); res.end('Not found'); return; }
-    const ext = path.extname(filePath);
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'text/plain' });
+    // ============ СТАТИЧЕСКИЕ ФАЙЛЫ (HTML, PNG, MP3 и т.д.) ============
+    let file = url === '/' ? '/index.html' : decodeURIComponent(url);
+    
+    // Защита от path traversal: убираем всё, что пытается выйти за пределы папки
+    const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
+    const filePath = path.join(__dirname, safeRelative);
+
+    if (!filePath.startsWith(__dirname)) {
+      res.writeHead(403); res.end('Forbidden'); return;
+    }
+
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+      // Логируем 404 для картинок, чтобы было видно в консоли сервера
+      if (/\.(png|jpg|jpeg|webp|svg|gif|mp3|wav)$/i.test(safeRelative)) {
+        console.log(`[404] Статика не найдена: ${safeRelative}`);
+      }
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); 
+      res.end('Not found'); 
+      return;
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const mime = MIME[ext] || 'application/octet-stream';
+    
+    // Для картинок — кеш на 1 час (чтобы браузер не дёргал постоянно)
+    const headers = { 'Content-Type': mime };
+    if (/^image\//.test(mime)) {
+      headers['Cache-Control'] = 'public, max-age=3600';
+      console.log(`[STATIC] ${safeRelative} → ${mime}`);
+    }
+
+    res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
+    return;
 
   } catch (e) {
     console.error('Ошибка сервера:', e.message);
-    sendJSON(res, 500, { error: e.message });
+    try { sendJSON(res, 500, { error: e.message }); } catch(err) {}
   }
 });
 
@@ -1836,10 +1901,10 @@ function dealerStartBetting() {
   table.phase = 'betting';
   table.dealerCards = [];
   table.dealerHidden = true;
-  table.betDeadline = Date.now() + 30000;
+  table.betDeadline = Date.now() + 12000;
   for (const s of table.seats) if (s) { s.cards = []; s.stood = false; s.busted = false; s.doubled = false; s.result = null; s.bet = 0; s.wantsCard = false; }
   broadcastState();
-  io.emit('dealerMsg', 'Приём ставок открыт (30 сек)');
+  io.emit('dealerMsg', 'Приём ставок открыт (12 сек)');
   table.timer = setTimeout(() => {
     if (table.phase === 'betting') {
       const active = table.seats.filter(s => s && s.bet > 0);
@@ -1848,7 +1913,7 @@ function dealerStartBetting() {
       broadcastState();
       io.emit('dealerMsg', 'Раздавайте карты');
     }
-  }, 30000);
+  }, 12000);
 }
 function dealerAddCardToSeat(seatIdx, card) {
   const s = table.seats[seatIdx];
