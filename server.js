@@ -155,7 +155,7 @@ async function addDealerBalance(dealerId, amount){
 }
 
 const CRASH_WAIT_AFTER_FIRST_BET = 11000, CRASH_CRASH_PAUSE = 1500, BOT_COUNT = 11;
-let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false };
+let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false, forcedStop: false, plannedCrashPoint: 1 };
 let crashTimeouts = [];
 let queuedBets = [];
 const minerSessions = {};
@@ -168,7 +168,6 @@ function crashClearTimers() {
 
 /* ============================================================
    ГЕНЕРАЦИЯ CRASH POINT — RTP 93.95%
-   houseEdge = 1 - 0.9395 = 0.0605
    ============================================================ */
 const CRASH_HOUSE_EDGE = 0.0605;
 const CRASH_INSTA_PROB = 1 / 33;
@@ -237,6 +236,8 @@ async function crashStartWaiting() {
     crashState.status = 'waiting';
     crashState.hasRealBet = false;
     crashState.waitTimer = null;
+    crashState.forcedStop = false;
+    crashState.plannedCrashPoint = cp;
     console.log('CRASH round #' + crashState.roundId + ' waiting, point=' + cp.toFixed(2));
     crashTimeouts.push(setTimeout(() => { if (crashState.status === 'waiting') crashStartFlight(); }, 10000));
     if (queuedBets.length > 0) {
@@ -290,6 +291,8 @@ async function crashStartFlight() {
   try {
     crashState.status = 'flying';
     crashState.startTime = Date.now();
+    crashState.forcedStop = false;
+    crashState.plannedCrashPoint = crashState.crashPoint;
     await pool.query(`UPDATE crash_rounds SET status='flying', start_time=$1 WHERE id=$2`, [crashState.startTime, crashState.roundId]);
     const msToCrash = Math.log(crashState.crashPoint) / Math.log(1.00006);
     crashTimeouts.push(setTimeout(() => crashEndRound(), Math.max(msToCrash, 200)));
@@ -303,7 +306,7 @@ async function crashEndRound() {
     crashState.status = 'crashed';
     crashState.waitTimer = null;
     const endTime = Date.now();
-    try { await pool.query(`UPDATE crash_rounds SET status='crashed', end_time=$1 WHERE id=$2`, [endTime, crashState.roundId]); } catch(e) {}
+    try { await pool.query(`UPDATE crash_rounds SET status='crashed', end_time=$1, crash_point=$2 WHERE id=$3`, [endTime, crashState.crashPoint, crashState.roundId]); } catch(e) {}
     try {
       const betsRes = await pool.query(`SELECT amount, cashout_mult, cashed_out FROM crash_bets WHERE round_id = $1 AND (player_id IS NULL OR player_id NOT LIKE 'BOT%')`, [crashState.roundId]);
       let totalBet = 0, totalWin = 0;
@@ -369,7 +372,12 @@ async function initDB() {
       `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`,
       `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS card TEXT`,
       `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS fee NUMERIC DEFAULT 0`,
-      `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS net NUMERIC DEFAULT 0`
+      `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS net NUMERIC DEFAULT 0`,
+      `ALTER TABLE game_history ADD COLUMN IF NOT EXISTS mines INT`,
+      `ALTER TABLE game_history ADD COLUMN IF NOT EXISTS revealed INT`,
+      `ALTER TABLE game_history ADD COLUMN IF NOT EXISTS multiplier NUMERIC DEFAULT 0`,
+      `ALTER TABLE game_history ADD COLUMN IF NOT EXISTS status TEXT`,
+      `ALTER TABLE game_history ADD COLUMN IF NOT EXISTS guest_id TEXT`
     ];
     for (const c of cols){ try { await pool.query(c); } catch(e){} }
     const own = await pool.query(`SELECT * FROM employees WHERE role = 'owner'`);
@@ -478,7 +486,7 @@ const server = http.createServer(async (req, res) => {
 
     if(url === '/api/jackpot' && method === 'GET'){ const jackpot = await getActualJackpot(); return sendJSON(res, 200, { jackpot }); }
 
-    /* ================= УПРАВЛЕНИЕ БАЛАНСОМ ГОСТЯ (АДМИН) ================= */
+    /* ================= УПРАВЛЕНИЕ БАЛАНСОМ ГОСТЯ ================= */
     if (url === '/api/admin/guests/balance' && method === 'POST') {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
@@ -519,6 +527,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    /* ================= УПРАВЛЕНИЕ КРАШЕМ ================= */
     if (url === '/api/admin/crash/force-next' && method === 'GET') {
       try { const r = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`); const val = r.rows.length ? parseFloat(r.rows[0].value) || 0 : 0; return sendJSON(res, 200, { value: val }); }
       catch(e) { return sendJSON(res, 200, { value: 0 }); }
@@ -536,6 +545,72 @@ const server = http.createServer(async (req, res) => {
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
       await pool.query(`UPDATE settings SET value='' WHERE key='crash_force_next'`);
       return sendJSON(res, 200, { ok: true });
+    }
+    if (url === '/api/admin/crash/live' && method === 'GET') {
+      let multiplier = 1;
+      if (crashState.status === 'flying' && crashState.startTime) {
+        const elapsed = Date.now() - crashState.startTime;
+        multiplier = Math.pow(1.00006, elapsed);
+        if (multiplier > crashState.crashPoint) multiplier = crashState.crashPoint;
+      } else if (crashState.status === 'crashed') {
+        multiplier = crashState.crashPoint;
+      }
+      const msToPlanned = crashState.status === 'flying'
+        ? Math.max(0, (Math.log(crashState.crashPoint) / Math.log(1.00006)) - (Date.now() - crashState.startTime))
+        : 0;
+      return sendJSON(res, 200, {
+        status: crashState.status,
+        multiplier: Math.round(multiplier * 100) / 100,
+        crashPoint: crashState.crashPoint,
+        plannedCrashPoint: crashState.plannedCrashPoint,
+        msToPlanned,
+        roundId: crashState.roundId
+      });
+    }
+    if (url === '/api/admin/crash/stop' && method === 'POST') {
+      const b = await parseBody(req);
+      if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
+      if (crashState.status !== 'flying') return sendJSON(res, 400, { error: 'Раунд не в полёте' });
+      crashClearTimers();
+      crashState.crashPoint = Math.pow(1.00006, Date.now() - crashState.startTime);
+      crashState.forcedStop = true;
+      await crashEndRound();
+      return sendJSON(res, 200, { ok: true, stopped_at: Math.round(crashState.crashPoint * 100) / 100 });
+    }
+
+    /* ================= МИНЕР (АДМИН) ================= */
+    if (url === '/api/admin/miner/history' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(500, parseInt(u.searchParams.get('limit'), 10) || 100);
+      try {
+        const r = await pool.query(
+          `SELECT id, player_name, bet, result, mines, revealed, multiplier, status, created_at
+           FROM game_history
+           WHERE game = 'miner'
+           ORDER BY id DESC
+           LIMIT $1`,
+          [limit]
+        );
+        return sendJSON(res, 200, r.rows);
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
+    }
+    if (url === '/api/admin/miner/active' && method === 'GET') {
+      const now = Date.now();
+      const list = Object.keys(minerSessions).map(sid => {
+        const s = minerSessions[sid];
+        return {
+          session_id: sid,
+          guest_id: s.guestId,
+          bet: s.bet,
+          mines: s.mines.length,
+          revealed: s.revealed.length,
+          started_at: new Date(s.createdAt).toISOString(),
+          elapsed_sec: Math.round((now - s.createdAt) / 1000)
+        };
+      });
+      return sendJSON(res, 200, list);
     }
 
     /* ================= ДИЛЕР ================= */
@@ -906,7 +981,11 @@ const server = http.createServer(async (req, res) => {
         sess.finished = true;
         try {
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (${guestId})`]);
-          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, 0]);
+          await pool.query(
+            `INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+            ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length, 0, 'lose', guestId]
+          );
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
         const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId };
@@ -926,7 +1005,11 @@ const server = http.createServer(async (req, res) => {
         sess.finished = true;
         await creditMinerWin(guestId, winAmount);
         try {
-          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+          await pool.query(
+            `INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+            ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]
+          );
           const net = sess.bet - winAmount;
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
         } catch(e) {}
@@ -956,7 +1039,11 @@ const server = http.createServer(async (req, res) => {
       sess.finished = true;
       await creditMinerWin(guestId, winAmount);
       try {
-        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['miner', guestId, sess.bet, winAmount]);
+        await pool.query(
+          `INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+          ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]
+        );
         const net = sess.bet - winAmount;
         await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
       } catch(e) {}
