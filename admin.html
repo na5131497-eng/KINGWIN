@@ -358,38 +358,69 @@
 
   <div class="page" id="page-online">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-      <div><h1>Онлайн-казино (Crash)</h1><div class="sub">История кэшаутов</div></div>
+      <div><h1>Онлайн-казино (Crash)</h1><div class="sub">Управление и успешные выводы (только реальные игроки)</div></div>
       <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
     </div>
-    <div class="cards" id="onlineCards"></div>
-    <div class="crash-live-block">
-      <h3>🎮 Управление полётом</h3>
-      <div class="crash-live-grid">
-        <div class="crash-live-mult">
-          <div class="lbl">Текущий X</div>
-          <div id="liveMult" class="val">1.00x</div>
-          <div id="liveStatus" class="st">Ожидание...</div>
-        </div>
-        <div class="crash-live-actions">
-          <div class="crash-live-info">Нажми <b style="color:#ff4d4d;">СТОП</b> — раунд крашится <b>прямо сейчас</b> на текущем X. Если не нажимать — долетит до запланированного.</div>
-          <button id="btnCrashStop" class="crash-stop-btn" onclick="doCrashStop()" disabled>🛑 СТОП — крашнуть сейчас</button>
-        </div>
+
+    <!-- Пароль-гейт -->
+    <div id="crashGate" style="display:none;">
+      <div class="panel" style="max-width:420px; margin:40px auto; text-align:center;">
+        <h3 style="margin-bottom:14px;">Введите пароль</h3>
+        <input type="password" id="crashGatePass" class="modal-input" style="width:100%; background:rgba(0,0,0,.5); border:1px solid var(--line); color:#fff; border-radius:8px; padding:14px; font-size:16px; text-align:center; margin-bottom:14px; font-family:inherit;">
+        <div class="err" id="crashGateErr" style="color:var(--red); font-size:13px; min-height:18px; margin-bottom:10px;"></div>
+        <button class="success" style="width:100%; padding:14px; font-size:15px;" onclick="submitCrashGate()">Войти</button>
       </div>
-      <div id="liveInfo" class="crash-live-status">Раунд ещё не начался.</div>
     </div>
-    <div class="crash-force-block">
-      <h3>🎯 Контроль следующего краша</h3>
-      <div class="hint">Введи коэффициент — следующий раунд крашнется именно на нём. Например: <code>1.5</code> или <code>10</code>. Диапазон: 1.00 – 1000.</div>
-      <div class="crash-force-row">
-        <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="2.5"></label>
-        <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
-        <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
+
+    <div id="crashContent" style="display:none;">
+      <div class="cards" id="onlineCards"></div>
+
+      <div class="crash-live-block">
+        <h3>🎮 Управление полётом</h3>
+        <div class="crash-live-grid">
+          <div class="crash-live-mult">
+            <div class="lbl">Текущий X</div>
+            <div id="liveMult" class="val">1.00x</div>
+            <div id="liveStatus" class="st">Ожидание...</div>
+          </div>
+          <div class="crash-live-actions">
+            <div class="crash-live-info">Нажми <b style="color:#ff4d4d;">СТОП</b> — раунд крашится <b>прямо сейчас</b> на текущем X.</div>
+            <button id="btnCrashStop" class="crash-stop-btn" onclick="doCrashStop()" disabled>🛑 СТОП — крашнуть сейчас</button>
+          </div>
+        </div>
+        <div id="liveInfo" class="crash-live-status">Раунд ещё не начался.</div>
       </div>
-      <div class="crash-force-status" id="crashForceStatus"></div>
-    </div>
-    <div class="panel"><h3>Успешные выводы (Кэшауты)</h3>
-      <div class="wrap"><table><thead><tr><th>Дата</th><th>Игрок</th><th>Ставка</th><th>Кэф</th><th>Сумма</th><th>Раунд</th></tr></thead><tbody id="onlineBody"></tbody></table></div>
-      <div class="empty" id="onlineEmpty">Пока нет кэшаутов</div>
+
+      <div class="crash-force-block">
+        <h3>🎯 Контроль следующего краша</h3>
+        <div class="hint">Введи коэффициент — следующий раунд крашнется именно на нём. Диапазон: 1.00 – 1000.</div>
+        <div class="crash-force-row">
+          <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="2.5"></label>
+          <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
+          <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
+        </div>
+        <div class="crash-force-status" id="crashForceStatus"></div>
+      </div>
+
+      <div class="panel"><h3>✅ Успешные выводы (только реальные игроки)</h3>
+        <div class="wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ник</th>
+                <th>Ранг</th>
+                <th>Карта</th>
+                <th>Время</th>
+                <th>Ставка</th>
+                <th>X</th>
+                <th>Вывел</th>
+              </tr>
+            </thead>
+            <tbody id="onlineBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="onlineEmpty">Пока нет успешных выводов</div>
+      </div>
     </div>
   </div>
 
@@ -557,7 +588,7 @@
       <button class="ghost small" type="button" onclick="gbSetAmount(500)">500</button>
       <button class="ghost small" type="button" onclick="gbSetAmount(1000)">1000</button>
     </div>
-    <div><label>Пароль owner</label><input type="password" id="gbPass" placeholder="56UpahoS"></div>
+    <div><label>Пароль owner</label><input type="password" id="gbPass" placeholder=""></div>
   </div>
   <div class="err" id="gbErr"></div>
   <div class="btn-row"><button class="ghost" onclick="closeGuestBalanceModal()">Отмена</button><button class="success" onclick="submitGuestBalance()">Применить</button></div>
@@ -578,6 +609,10 @@ let guestBalanceId = null;
 let liveCrashInterval = null;
 let minerInterval = null;
 
+/* ===== ПАРОЛЬ ДЛЯ CRASH ===== */
+const CRASH_PASS = '56UpahoS';
+let crashGateUnlocked = false;
+
 const ROLES = {
   owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','online','miner','payouts','history','roles']},
   admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','online','miner','payouts','history']},
@@ -589,6 +624,12 @@ function today(){ return new Date().toISOString().slice(0,10); }
 function now(){ return new Date().toLocaleString('ru-RU'); }
 function escHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function $(id){ return document.getElementById(id); }
+function formatTime(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 async function apiGet(url){
   try {
@@ -665,13 +706,43 @@ function switchPage(page){
   const p = $('page-'+page); if(p) p.classList.add('active');
   try { renderAll(); } catch(e){ console.error('renderAll', e); }
 
-  if (page==='online'){ loadCrashForceStatus(); startLiveCrashPoll(); }
-  else { stopLiveCrashPoll(); }
+  if (page==='online'){
+    if (!crashGateUnlocked) {
+      $('crashGate').style.display = 'block';
+      $('crashContent').style.display = 'none';
+      $('crashGatePass').value = '';
+      $('crashGateErr').textContent = '';
+      setTimeout(() => { const el = $('crashGatePass'); if (el) el.focus(); }, 100);
+      stopLiveCrashPoll();
+    } else {
+      $('crashGate').style.display = 'none';
+      $('crashContent').style.display = 'block';
+      loadCrashForceStatus();
+      renderOnline();
+      startLiveCrashPoll();
+    }
+  } else {
+    stopLiveCrashPoll();
+  }
 
   if (page==='miner'){ startMinerPoll(); loadMinerForceLose(); }
   else { stopMinerPoll(); }
 
   if (window.innerWidth <= 900) toggleMenu();
+}
+
+/* ===== CRASH GATE ===== */
+function submitCrashGate(){
+  const pass = $('crashGatePass').value;
+  const err = $('crashGateErr');
+  err.textContent = '';
+  if (pass !== CRASH_PASS) { err.textContent = 'Неверный пароль'; return; }
+  crashGateUnlocked = true;
+  $('crashGate').style.display = 'none';
+  $('crashContent').style.display = 'block';
+  loadCrashForceStatus();
+  renderOnline();
+  startLiveCrashPoll();
 }
 
 async function doLogin(){
@@ -704,6 +775,7 @@ async function confirmLogout(){
   try { await audit('logout', currentUser + ' вышел'); } catch(e){}
   stopLiveCrashPoll(); stopMinerPoll();
   currentUser = null; currentRole = null;
+  crashGateUnlocked = false;
   $('loginScreen').classList.remove('hidden');
   $('loginUser').focus();
   closeLogoutModal();
@@ -716,7 +788,7 @@ function closeClearCrashModal(){ $('clearCrashModal').classList.remove('show'); 
 
 async function confirmClearAll(){
   const pass = $('clearAllPass').value;
-  if(pass !== '56UpahoS'){ $('clearAllErr').textContent = 'Неверный пароль.'; return; }
+  if(pass !== CRASH_PASS){ $('clearAllErr').textContent = 'Неверный пароль.'; return; }
   for(const s of db.sessions) await apiDelete('/api/sessions/' + s.id);
   for(const b of db.baccarat) await apiDelete('/api/baccarat/' + b.id);
   for(const d of db.deposits) await apiDelete('/api/deposits/' + d.id);
@@ -732,7 +804,7 @@ async function confirmClearAll(){
 }
 async function confirmClearCrash(){
   const pass = $('clearCrashPass').value;
-  if(pass !== '56UpahoS'){ $('clearCrashErr').textContent = 'Неверный пароль.'; return; }
+  if(pass !== CRASH_PASS){ $('clearCrashErr').textContent = 'Неверный пароль.'; return; }
   await apiDelete('/api/crash/clear');
   closeClearCrashModal();
   await loadDB(); renderAll();
@@ -769,7 +841,7 @@ function showPass(title, text, action){
 function closePassModal(){ $('passModal').classList.remove('show'); passAction = null; }
 async function confirmPass(){
   const pass = $('passInput').value;
-  if(pass !== '56UpahoS'){ $('passErr').textContent = 'Неверный пароль.'; return; }
+  if(pass !== CRASH_PASS){ $('passErr').textContent = 'Неверный пароль.'; return; }
   if(passAction) await passAction();
   closePassModal();
 }
@@ -1108,22 +1180,58 @@ function renderPlayers(){
 }
 async function toggleVIP(nick,val){ await apiPost('/api/players',{nick,vip:val}); await audit('vip_toggle',nick); await loadDB(); renderPlayers(); }
 
+/* ===== ONLINE ===== */
 function renderOnline(){
-  const cash = db.crash_bets.filter(b=>b.cashed_out);
-  const totalBets = db.crash_bets.reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
+  // Только реальные игроки: cashed_out = true, player_id не BOT, есть player_name
+  const cash = db.crash_bets.filter(b =>
+    b.cashed_out === true &&
+    b.player_id &&
+    !String(b.player_id).startsWith('BOT') &&
+    b.player_name &&
+    b.player_name !== '••••'
+  );
+  const totalBets = db.crash_bets
+    .filter(b => b.player_id && !String(b.player_id).startsWith('BOT'))
+    .reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
   const totalPay = cash.reduce((a,b)=>a+(parseFloat(b.amount)*parseFloat(b.cashout_mult)||0),0);
   const cards = $('onlineCards');
   if(cards) cards.innerHTML = `
-    <div class="card"><div class="label">Всего ставок</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
-    <div class="card"><div class="label">Выигрыши</div><div class="value red">${fmt(totalPay)} ₽</div></div>
-    <div class="card"><div class="label">Прибыль</div><div class="value green">${fmt(totalBets-totalPay)} ₽</div></div>`;
+    <div class="card"><div class="label">Ставок (реальные)</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
+    <div class="card"><div class="label">Выигрышей (реальные)</div><div class="value red">${fmt(totalPay)} ₽</div></div>
+    <div class="card"><div class="label">Прибыль</div><div class="value green">${fmt(totalBets-totalPay)} ₽</div></div>
+    <div class="card"><div class="label">Успешных выводов</div><div class="value gold">${cash.length}</div></div>`;
+
   const body = $('onlineBody');
-  if(body) body.innerHTML = cash.map(b=>{
-    const dt = b.created_at?new Date(b.created_at).toLocaleString('ru-RU'):'—';
-    return `<tr><td>${dt}</td><td>${b.player_name}</td><td>${fmt(b.amount)} ₽</td><td class="pos">x${parseFloat(b.cashout_mult).toFixed(2)}</td><td class="pos">${fmt(b.amount*parseFloat(b.cashout_mult))} ₽</td><td>#${b.round_id}</td></tr>`;
-  }).join('');
-  const e = $('onlineEmpty'); if(e) e.style.display = cash.length?'none':'block';
+  if(body) {
+    if (cash.length === 0) {
+      body.innerHTML = '';
+      const e = $('onlineEmpty'); if(e) e.style.display = 'block';
+    } else {
+      const e = $('onlineEmpty'); if(e) e.style.display = 'none';
+      const map = Object.fromEntries(db.guests.map(g => [String(g.id), g]));
+      body.innerHTML = cash.map(b => {
+        const g = map[String(b.player_id)] || {};
+        const nick = b.player_name || g.name || '—';
+        const rank = b.player_rank || g.rank || '—';
+        const card = g.id || b.player_id || '—';
+        const time = formatTime(b.created_at);
+        const bet = parseFloat(b.amount) || 0;
+        const mult = parseFloat(b.cashout_mult) || 0;
+        const win = bet * mult;
+        return `<tr>
+          <td><b>${escHtml(nick)}</b></td>
+          <td><span class="rank-pill ${rank}">${rank}</span></td>
+          <td style="font-family:'Courier New',monospace">${escHtml(card)}</td>
+          <td style="color:var(--muted);font-size:12px">${escHtml(time)}</td>
+          <td>${fmt(bet)} ₽</td>
+          <td class="pos">x${mult.toFixed(2)}</td>
+          <td class="pos">${fmt(win)} ₽</td>
+        </tr>`;
+      }).join('');
+    }
+  }
 }
+
 async function loadCrashForceStatus(){
   try { const r = await fetch('/api/admin/crash/force-next'); const d = await r.json(); const el = $('crashForceStatus'); if(!el) return;
     if(d.value && d.value>0){ el.innerHTML = `<span style="color:var(--gold);font-weight:900;">⚠ Активно: x${d.value.toFixed(2)}</span>`; $('crashForceInput').value = d.value; }
@@ -1133,23 +1241,33 @@ async function loadCrashForceStatus(){
 async function setCrashForce(){
   const val = parseFloat($('crashForceInput').value);
   if(!isFinite(val) || val<1 || val>1000){ alert('1.00–1000'); return; }
-  const pass = prompt('Пароль owner:'); if(pass===null) return;
-  try { const r = await fetch('/api/admin/crash/force-next',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:val,pass})}); const d = await r.json();
+  try {
+    const r = await fetch('/api/admin/crash/force-next',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ value: val, pass: CRASH_PASS })
+    });
+    const d = await r.json();
     if(!r.ok){ alert(d.error||'Ошибка'); return; }
     $('crashForceStatus').innerHTML = `<span style="color:var(--gold);font-weight:900;">✓ Следующий краш: x${val.toFixed(2)}</span>`;
     await audit('crash_force','x'+val.toFixed(2));
   } catch(e){ alert('Ошибка соединения'); }
 }
 async function clearCrashForce(){
-  const pass = prompt('Пароль owner:'); if(pass===null) return;
-  try { const r = await fetch('/api/admin/crash/clear-force',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass})}); const d = await r.json();
+  try {
+    const r = await fetch('/api/admin/crash/clear-force',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ pass: CRASH_PASS })
+    });
+    const d = await r.json();
     if(!r.ok){ alert(d.error||'Ошибка'); return; }
-    $('crashForceStatus').innerHTML = `<span style="color:var(--green);">Сброшено</span>`; $('crashForceInput').value='';
+    $('crashForceStatus').innerHTML = `<span style="color:var(--muted);">Сброшено</span>`;
+    $('crashForceInput').value='';
     await audit('crash_force_clear','');
   } catch(e){ alert('Ошибка соединения'); }
 }
 
-/* ===== LIVE CRASH ===== */
 async function pollLiveCrash(){
   try {
     const r = await fetch('/api/admin/crash/live', { cache: 'no-store' });
@@ -1190,16 +1308,13 @@ function stopLiveCrashPoll(){
   if(liveCrashInterval){ clearInterval(liveCrashInterval); liveCrashInterval = null; }
 }
 async function doCrashStop(){
-  const pass = prompt('Пароль owner:');
-  if(pass === null) return;
   try {
     const r = await fetch('/api/admin/crash/stop', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ pass })
+      body: JSON.stringify({ pass: CRASH_PASS })
     });
     const d = await r.json();
     if(!r.ok){ alert(d.error || 'Ошибка'); return; }
-    alert(`Раунд крашнут на x${d.stopped_at.toFixed(2)}`);
     await audit('crash_stop', 'x' + d.stopped_at.toFixed(2));
     pollLiveCrash();
   } catch(e){ alert('Ошибка соединения'); }
@@ -1223,13 +1338,11 @@ async function toggleMinerForceLose(){
   const cb = $('minerForceLose');
   const st = $('minerForceStatus');
   const enabled = cb.checked;
-  const pass = prompt(enabled ? 'Включить режим «сливать»? Введите пароль owner:' : 'Выключить режим? Введите пароль owner:');
-  if (pass === null) { cb.checked = !enabled; return; }
   try {
     const r = await fetch('/api/admin/miner/force-lose', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ enabled, pass })
+      body: JSON.stringify({ enabled, pass: CRASH_PASS })
     });
     const d = await r.json();
     if (!r.ok) {
@@ -1292,7 +1405,7 @@ async function loadMinerAdmin(){
             <td>${s.mines}</td>
             <td class="pos">${s.revealed}</td>
             <td>${s.elapsed_sec} сек</td>
-            <td style="color:var(--muted);font-size:11px">${new Date(s.started_at).toLocaleTimeString('ru-RU')}</td>
+            <td style="color:var(--muted);font-size:11px">${formatTime(s.started_at)}</td>
           </tr>
         `).join('');
       }
@@ -1311,7 +1424,7 @@ async function loadMinerAdmin(){
           const win = parseFloat(g.result) || 0;
           const mult = parseFloat(g.multiplier) || 0;
           const isWin = g.status === 'win';
-          const dt = g.created_at ? new Date(g.created_at).toLocaleString('ru-RU') : '—';
+          const dt = formatTime(g.created_at);
           return `<tr>
             <td style="color:var(--muted);font-size:11px">${dt}</td>
             <td><b>${g.player_name || '—'}</b></td>
