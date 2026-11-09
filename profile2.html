@@ -8,207 +8,81 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
-    --accent: #00e5ff;
-    --accent-2: #0077ff;
-    --green: #3fbf7f;
-    --gold: #f1c40f;
-    --muted: #8fa2b8;
-    --radius: 16px;
+    --accent: #00e5ff; --accent-2: #0077ff;
+    --green: #3fbf7f; --gold: #f1c40f;
+    --muted: #8fa2b8; --radius: 16px;
   }
-
   html { -webkit-text-size-adjust: 100%; }
-
   body {
     font-family: 'Montserrat', sans-serif;
     background: radial-gradient(circle at top, #1a2332, #0a0d14);
-    color: #fff;
-    min-height: 100dvh;
+    color: #fff; min-height: 100dvh;
     display: flex; justify-content: center;
-    padding:
-      calc(16px + var(--safe-top))
-      calc(12px + var(--safe-right))
-      calc(16px + var(--safe-bottom))
-      calc(12px + var(--safe-left));
+    padding: calc(16px + var(--safe-top)) calc(12px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(12px + var(--safe-left));
     position: relative;
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
   }
-
   .wrap { width: 100%; max-width: 480px; }
-
-  .logo {
-    text-align: center; font-size: clamp(20px, 6vw, 26px); font-weight: 900; letter-spacing: 3px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
-  }
+  .logo { text-align: center; font-size: clamp(20px, 6vw, 26px); font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
   .logo-sub { text-align: center; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
-
-  .card {
-    background: rgba(18,24,38,.9);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: var(--radius);
-    padding: clamp(14px, 4vw, 22px);
-    box-shadow: 0 15px 40px rgba(0,0,0,.4);
-    margin-bottom: 12px;
-  }
-
+  .card { background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); padding: clamp(14px, 4vw, 22px); box-shadow: 0 15px 40px rgba(0,0,0,.4); margin-bottom: 12px; }
   .profile-head { text-align: center; margin-bottom: 18px; }
-  .profile-name {
-    font-size: clamp(20px, 6vw, 28px); font-weight: 900; letter-spacing: .5px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    word-break: break-word;
-  }
+  .profile-name { font-size: clamp(20px, 6vw, 28px); font-weight: 900; letter-spacing: .5px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; word-break: break-word; }
   .profile-id { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; letter-spacing: 2px; margin-top: 4px; }
   .rank-badge { display: inline-block; margin-top: 10px; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,.3); }
-  .rank-badge.Bronze   { background: rgba(205,127,50,.25); color: #e8a76a; border-color: #cd7f32; }
-  .rank-badge.Silver   { background: rgba(192,192,192,.2); color: #d9d9d9; border-color: #c0c0c0; }
-  .rank-badge.Gold     { background: rgba(241,196,15,.2); color: var(--gold); border-color: var(--gold); }
+  .rank-badge.Bronze { background: rgba(205,127,50,.25); color: #e8a76a; border-color: #cd7f32; }
+  .rank-badge.Silver { background: rgba(192,192,192,.2); color: #d9d9d9; border-color: #c0c0c0; }
+  .rank-badge.Gold { background: rgba(241,196,15,.2); color: var(--gold); border-color: var(--gold); }
   .rank-badge.Platinum { background: rgba(229,228,226,.2); color: #e5e4e2; border-color: #e5e4e2; }
-  .rank-badge.Diamond  { background: rgba(185,242,255,.18); color: #b9f2ff; border-color: #b9f2ff; }
-  .rank-badge.VIP      { background: rgba(212,175,55,.25); color: #ffe066; border-color: #d4af37; }
-
+  .rank-badge.Diamond { background: rgba(185,242,255,.18); color: #b9f2ff; border-color: #b9f2ff; }
+  .rank-badge.VIP { background: rgba(212,175,55,.25); color: #ffe066; border-color: #d4af37; }
   .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .balance-item { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 12px 8px; text-align: center; }
   .balance-item .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
   .balance-item .val { font-size: clamp(16px, 5vw, 22px); font-weight: 900; }
   .balance-item.real .val { color: var(--green); }
   .balance-item.bonus .val { color: var(--accent); }
-
   .progress-wrap { margin-top: 4px; }
   .progress-lbl { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; }
   .progress { height: 10px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; }
-  .progress > div { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 6px; transition: width .6s cubic-bezier(.4,0,.2,1); }
-
-  .tabs {
-    display: flex; gap: 4px;
-    background: rgba(18,24,38,.9);
-    border: 1px solid rgba(255,255,255,.06);
-    padding: 5px; border-radius: 12px; margin-bottom: 12px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
+  .progress > div { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 6px; transition: width .6s; }
+  .tabs { display: flex; gap: 4px; background: rgba(18,24,38,.9); border: 1px solid rgba(255,255,255,.06); padding: 5px; border-radius: 12px; margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    flex: 0 0 auto; min-width: 72px;
-    padding: 11px 8px; text-align: center; border-radius: 8px;
-    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
-    cursor: pointer; color: var(--muted); transition: .2s; user-select: none; white-space: nowrap;
-    touch-action: manipulation;
-  }
+  .tab { flex: 0 0 auto; min-width: 72px; padding: 11px 8px; text-align: center; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; cursor: pointer; color: var(--muted); transition: .2s; user-select: none; white-space: nowrap; touch-action: manipulation; }
   .tab.active { background: rgba(0,229,255,.15); color: var(--accent); }
-
   .page { display: none; }
   .page.active { display: block; }
-
-  .btn {
-    width: 100%; min-height: 46px;
-    background: var(--accent); color: #000;
-    border: none; border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    margin-top: 4px; touch-action: manipulation;
-  }
+  .btn { width: 100%; min-height: 46px; background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 12px 14px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; margin-top: 4px; touch-action: manipulation; }
   .btn:active { transform: scale(.98); }
   .btn.ghost { background: transparent; color: #a0aec0; border: 1px solid rgba(255,255,255,.12); }
   .btn.green { background: var(--green); color: #000; }
   .btn:disabled { opacity: .35; cursor: not-allowed; }
-
-  .daily-card {
-    background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(63,191,127,.04));
-    border: 1px solid rgba(0,229,255,.2);
-    border-radius: var(--radius);
-    padding: clamp(12px, 4vw, 18px);
-    margin-bottom: 14px;
-  }
+  .daily-card { background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(63,191,127,.04)); border: 1px solid rgba(0,229,255,.2); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 14px; }
   .daily-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .daily-title .streak { font-size: 11px; color: var(--green); }
   .daily-sub { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
   .daily-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 12px; }
-  .daily-day {
-    aspect-ratio: 1; border-radius: 8px;
-    background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.06);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 9px; color: var(--muted); font-weight: 700; position: relative; min-width: 0;
-  }
+  .daily-day { aspect-ratio: 1; border-radius: 8px; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); font-weight: 700; position: relative; min-width: 0; }
   .daily-day .num { font-size: 8px; opacity: .6; }
   .daily-day .reward { font-size: clamp(8px, 2.6vw, 10px); font-weight: 900; margin-top: 2px; }
   .daily-day.done { background: rgba(63,191,127,.18); border-color: var(--green); color: var(--green); }
   .daily-day.done::after { content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px; }
   .daily-day.today { background: rgba(0,229,255,.15); border-color: var(--accent); color: var(--accent); }
-
-  .wheel-card {
-    background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(0,119,255,.02));
-    border: 1px solid rgba(0,229,255,.25);
-    border-radius: var(--radius);
-    padding: clamp(12px, 4vw, 18px);
-    margin-bottom: 14px;
-    text-align: center;
-  }
-  .wheel-title {
-    font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--accent); margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
-  }
+  .wheel-card { background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(0,119,255,.02)); border: 1px solid rgba(0,229,255,.25); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 14px; text-align: center; }
+  .wheel-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .wheel-title .hint { font-size: 10px; color: var(--muted); font-weight: 700; }
-
-  .wheel-container {
-    position: relative;
-    width: min(240px, 72vw);
-    height: min(240px, 72vw);
-    margin: 10px auto 14px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .wheel-svg {
-    width: 100%; height: 100%;
-    transition: transform 4s cubic-bezier(.2,.8,.3,1);
-    position: relative; z-index: 1;
-  }
-  .wheel-arrow {
-    position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
-    width: 0; height: 0;
-    border-left: clamp(8px, 2.8vw, 11px) solid transparent;
-    border-right: clamp(8px, 2.8vw, 11px) solid transparent;
-    border-top: clamp(14px, 5vw, 20px) solid var(--accent);
-    z-index: 3;
-  }
-  .wheel-center {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: clamp(42px, 14vw, 56px); height: clamp(42px, 14vw, 56px);
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    border: 3px solid #0b0e14;
-    display: flex; align-items: center; justify-content: center;
-    font-size: clamp(16px, 5vw, 22px); z-index: 2;
-  }
-  .wheel-timer {
-    font-size: 12px; color: var(--muted);
-    margin-bottom: 10px;
-    padding: 7px 12px;
-    background: rgba(0,0,0,.3);
-    border-radius: 8px;
-    display: inline-block;
-    min-width: 140px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .withdraw-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: var(--radius);
-    padding: clamp(12px, 4vw, 18px);
-    margin-bottom: 12px;
-  }
+  .wheel-container { position: relative; width: min(240px, 72vw); height: min(240px, 72vw); margin: 10px auto 14px; display: flex; align-items: center; justify-content: center; }
+  .wheel-svg { width: 100%; height: 100%; transition: transform 4s cubic-bezier(.2,.8,.3,1); position: relative; z-index: 1; }
+  .wheel-arrow { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: clamp(8px, 2.8vw, 11px) solid transparent; border-right: clamp(8px, 2.8vw, 11px) solid transparent; border-top: clamp(14px, 5vw, 20px) solid var(--accent); z-index: 3; }
+  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(42px, 14vw, 56px); height: clamp(42px, 14vw, 56px); border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: 3px solid #0b0e14; display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 22px); z-index: 2; }
+  .wheel-timer { font-size: 12px; color: var(--muted); margin-bottom: 10px; padding: 7px 12px; background: rgba(0,0,0,.3); border-radius: 8px; display: inline-block; min-width: 140px; font-variant-numeric: tabular-nums; }
+  .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 12px; }
   .withdraw-block h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 10px; }
   .withdraw-block .amount { font-size: clamp(22px, 7vw, 30px); font-weight: 900; color: var(--green); margin: 4px 0 12px; word-break: break-word; }
   .withdraw-block .amount.small { color: var(--accent); }
@@ -216,33 +90,15 @@
   .withdraw-block .cond .row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .withdraw-block .cond .ok { color: var(--green); font-weight: 700; }
   .withdraw-block .cond .bad { color: #ff8a8a; font-weight: 700; }
-
-  .news-item {
-    background: linear-gradient(135deg, rgba(0,229,255,.05), rgba(0,119,255,.02));
-    border: 1px solid rgba(0,229,255,.15);
-    border-radius: 14px; padding: 14px; margin-bottom: 10px;
-    position: relative; overflow: hidden;
-  }
+  .news-item { background: linear-gradient(135deg, rgba(0,229,255,.05), rgba(0,119,255,.02)); border: 1px solid rgba(0,229,255,.15); border-radius: 14px; padding: 14px; margin-bottom: 10px; position: relative; overflow: hidden; }
   .news-item::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(180deg, var(--accent), var(--accent-2)); }
   .news-item .title { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 6px; padding-left: 8px; }
   .news-item .body { font-size: 12px; color: #d0d5e0; line-height: 1.6; margin-bottom: 6px; padding-left: 8px; white-space: pre-wrap; }
   .news-item .date { font-size: 11px; color: var(--muted); padding-left: 8px; }
-
-  .review-block {
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: var(--radius);
-    padding: clamp(12px, 4vw, 18px);
-    margin-bottom: 12px;
-  }
+  .review-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 12px; }
   .review-block h3 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 10px; }
   .review-block label { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
-  .review-block input, .review-block textarea {
-    width: 100%; background: rgba(0,0,0,.4);
-    border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
-    padding: 12px; font-size: 16px; color: #fff; font-family: inherit;
-    margin-bottom: 12px; outline: none;
-  }
+  .review-block input, .review-block textarea { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; font-size: 16px; color: #fff; font-family: inherit; margin-bottom: 12px; outline: none; }
   .review-block input:focus, .review-block textarea:focus { border-color: var(--accent); }
   .review-block textarea { min-height: 80px; resize: vertical; }
   .stars { display: flex; gap: clamp(4px, 2vw, 8px); margin-bottom: 12px; justify-content: center; }
@@ -255,89 +111,24 @@
   .my-review-item .dname { font-weight: 800; color: var(--accent); }
   .my-review-item .stars-line { color: var(--gold); font-size: 13px; }
   .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; word-break: break-word; }
-
-  /* ===== МОДАЛКИ — МОБИЛЬНАЯ ВЕРСИЯ ===== */
-  .modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.85);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding:
-      calc(16px + var(--safe-top))
-      calc(16px + var(--safe-right))
-      calc(16px + var(--safe-bottom))
-      calc(16px + var(--safe-left));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 9999; padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .modal-backdrop.show { display: flex; }
-
-  .modal {
-    background: linear-gradient(135deg, #111625, #0a0d14);
-    border: 2px solid var(--accent);
-    border-radius: 20px;
-    padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 22px);
-    width: 100%;
-    max-width: 380px;
-    margin: auto;
-    text-align: center;
-    box-shadow: 0 0 50px rgba(0,229,255,.3);
-    position: relative;
-  }
-  .modal.rank-up   { border-color: var(--gold); }
+  .modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid var(--accent); border-radius: 20px; padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 22px); width: 100%; max-width: 380px; margin: auto; text-align: center; box-shadow: 0 0 50px rgba(0,229,255,.3); position: relative; }
   .modal.wheel-win { border-color: var(--gold); }
-
-  .modal-logo {
-    font-size: clamp(22px, 7vw, 30px); font-weight: 900; letter-spacing: 3px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-  }
+  .modal-logo { font-size: clamp(22px, 7vw, 30px); font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
   .modal-sub { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
   .modal-title { font-size: clamp(17px, 5vw, 20px); font-weight: 900; margin-bottom: 10px; }
   .modal-title span { color: var(--green); }
   .modal-text { font-size: 13px; color: #a0aec0; line-height: 1.6; margin-bottom: 8px; }
   .modal-amount { font-size: clamp(24px, 8vw, 32px); font-weight: 900; color: var(--accent); margin: 12px 0; }
-  .modal.rank-up   .modal-amount { color: var(--gold); }
   .modal.wheel-win .modal-amount { color: var(--gold); }
   .modal-hint { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
-
-  .modal-btn {
-    background: var(--accent); color: #000;
-    border: none; border-radius: 10px;
-    padding: 12px 24px; font-size: 13px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit;
-    min-height: 44px; touch-action: manipulation;
-  }
-  .modal.rank-up .modal-btn { background: var(--gold); }
+  .modal-btn { background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 12px 24px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; min-height: 44px; touch-action: manipulation; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
-  .modal-btn.green  { background: var(--green); color: #000; }
-
-  .modal-close {
-    position: absolute; top: 6px; right: 6px;
-    width: 40px; height: 40px;
-    display: flex; align-items: center; justify-content: center;
-    background: none; border: none;
-    color: var(--muted); font-size: 20px; cursor: pointer;
-  }
-
-  .modal-actions {
-    display: flex; gap: 8px;
-    justify-content: center; flex-wrap: wrap;
-  }
-
+  .modal-btn.green { background: var(--green); color: #000; }
+  .modal-close { position: absolute; top: 6px; right: 6px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+  .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .wheel-win-icon { font-size: 54px; line-height: 1; margin: 6px 0 10px; }
-
-  @media (max-width: 420px) {
-    .modal-btn { width: 100%; margin: 0 !important; }
-    .modal-btn.cancel { margin-right: 0 !important; }
-    .modal { border-radius: 16px; padding: 18px 14px; }
-    .modal-actions { flex-direction: column; }
-  }
-
   .login-form label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; font-weight: 600; }
   .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 13px; font-size: 16px; color: #fff; font-family: inherit; }
   .login-form input:focus { outline: none; border-color: var(--accent); }
@@ -345,7 +136,12 @@
   .footer { text-align: center; font-size: 10px; color: #6d819a; margin-top: 16px; }
   .cp-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; color: #fff; font-size: 16px; margin-bottom: 10px; text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: var(--accent); }
-
+  @media (max-width: 420px) {
+    .modal-btn { width: 100%; margin: 0 !important; }
+    .modal-btn.cancel { margin-right: 0 !important; }
+    .modal { border-radius: 16px; padding: 18px 14px; }
+    .modal-actions { flex-direction: column; }
+  }
   @media (max-width: 340px) {
     .balance-grid { grid-template-columns: 1fr; }
     .tab { min-width: 64px; font-size: 9px; padding: 10px 6px; }
@@ -362,188 +158,42 @@
 </div>
 
 <!-- МОДАЛКИ -->
-<div class="modal-backdrop" id="rankUpModal">
-  <div class="modal rank-up">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Rank Up</div>
-    <div class="modal-title">Ранг повышен! <span>🎉</span></div>
-    <div class="modal-text" id="rankUpText">Поздравляем!</div>
-    <div class="modal-amount" id="rankUpAmount">+0 ₽</div>
-    <div class="modal-hint">Подарок зачислен в бонусный баланс.</div>
-    <div class="modal-actions">
-      <button class="modal-btn" onclick="closeRankUpModal()">Отлично</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="dailyModal">
-  <div class="modal" style="border-color:#3fbf7f;">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Daily Bonus</div>
-    <div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div>
-    <div class="modal-text" id="dailyModalText">Ваш бонус:</div>
-    <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div>
-    <div class="modal-hint" id="dailyModalHint">Streak: 1 день</div>
-    <div class="modal-actions">
-      <button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="wheelModal">
-  <div class="modal wheel-win" style="border-color:#f1c40f;">
-    <button class="modal-close" onclick="closeWheelModal()">✕</button>
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Lucky Wheel</div>
-    <div class="wheel-win-icon">🎉</div>
-    <div class="modal-title">Выигрыш!</div>
-    <div class="modal-amount" id="wheelPrize" style="color:#f1c40f;">0 ₽</div>
-    <div class="modal-text">Зачислено на бонусный баланс.</div>
-    <div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div>
-    <div class="modal-actions">
-      <button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="confirmTransferModal">
-  <div class="modal" style="border-color:#3fbf7f;">
-    <button class="modal-close" onclick="closeConfirmTransfer()">✕</button>
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Transfer</div>
-    <div class="modal-title">Перевод на казино</div>
-    <div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div>
-    <div class="modal-hint">Средства сразу поступят на игровой счёт.</div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button>
-      <button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="successTransferModal">
-  <div class="modal" style="border-color:#3fbf7f;">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Success</div>
-    <div class="modal-title">Успешно!</div>
-    <div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div>
-    <div class="modal-actions">
-      <button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="confirmRealWithdrawModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button>
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Withdraw</div>
-    <div class="modal-title">Заявка на вывод</div>
-    <div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div>
-    <div class="modal-hint">Заявка уходит администратору.</div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button>
-      <button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="successRealWithdrawModal">
-  <div class="modal">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Success</div>
-    <div class="modal-title">Заявка создана!</div>
-    <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div>
-    <div class="modal-actions">
-      <button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="reviewSuccessModal">
-  <div class="modal" style="border-color:#3fbf7f;">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Thanks</div>
-    <div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div>
-    <div class="modal-text">Ваша оценка отправлена.</div>
-    <div class="modal-actions">
-      <button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="reviewErrorModal">
-  <div class="modal" style="border-color:#ff4d4d;">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Notice</div>
-    <div class="modal-title" style="color:#ff8a8a;">Ошибка</div>
-    <div class="modal-text" id="reviewErrorText">Ошибка</div>
-    <div class="modal-actions">
-      <button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="changePassModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeChangePassModal()">✕</button>
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Security</div>
-    <div class="modal-title">Смена пароля</div>
-    <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль">
-    <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)">
-    <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый">
-    <div class="err" id="cpErr" style="display:none;"></div>
-    <div class="modal-actions" style="margin-top:6px;">
-      <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
-      <button class="modal-btn green" onclick="submitChangePass()">Сохранить</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="changePassSuccessModal">
-  <div class="modal" style="border-color:#3fbf7f;">
-    <div class="modal-logo">KINGWIN</div>
-    <div class="modal-sub">Success</div>
-    <div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div>
-    <div class="modal-text">Используйте новый пароль.</div>
-    <div class="modal-actions">
-      <button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button>
-    </div>
-  </div>
-</div>
+<div class="modal-backdrop" id="rankUpModal"><div class="modal" style="border-color:#f1c40f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Rank Up</div><div class="modal-title">Ранг повышен! <span>🎉</span></div><div class="modal-text" id="rankUpText">Поздравляем!</div><div class="modal-amount" id="rankUpAmount">+0 ₽</div><div class="modal-hint">Подарок зачислен в бонусный баланс.</div><div class="modal-actions"><button class="modal-btn" style="background:#f1c40f;" onclick="closeRankUpModal()">Отлично</button></div></div></div>
+<div class="modal-backdrop" id="dailyModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Daily Bonus</div><div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div><div class="modal-text" id="dailyModalText">Ваш бонус:</div><div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div><div class="modal-hint" id="dailyModalHint">Streak: 1 день</div><div class="modal-actions"><button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button></div></div></div>
+<div class="modal-backdrop" id="wheelModal"><div class="modal wheel-win"><button class="modal-close" onclick="closeWheelModal()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Lucky Wheel</div><div class="wheel-win-icon">🎉</div><div class="modal-title">Выигрыш!</div><div class="modal-amount" id="wheelPrize">0 ₽</div><div class="modal-text">Зачислено на бонусный баланс.</div><div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div><div class="modal-actions"><button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button></div></div></div>
+<div class="modal-backdrop" id="confirmTransferModal"><div class="modal" style="border-color:#3fbf7f;"><button class="modal-close" onclick="closeConfirmTransfer()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Transfer</div><div class="modal-title">Перевод на казино</div><div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div><div class="modal-hint">Средства сразу поступят на игровой счёт.</div><div class="modal-actions"><button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button><button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button></div></div></div>
+<div class="modal-backdrop" id="successTransferModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Успешно!</div><div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button></div></div></div>
+<div class="modal-backdrop" id="confirmRealWithdrawModal"><div class="modal"><button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Withdraw</div><div class="modal-title">Заявка на вывод</div><div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div><div class="modal-hint">Заявка уходит администратору.</div><div class="modal-actions"><button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button><button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button></div></div></div>
+<div class="modal-backdrop" id="successRealWithdrawModal"><div class="modal"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Заявка создана!</div><div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div><div class="modal-actions"><button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button></div></div></div>
+<div class="modal-backdrop" id="reviewSuccessModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Thanks</div><div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div><div class="modal-text">Ваша оценка отправлена.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button></div></div></div>
+<div class="modal-backdrop" id="reviewErrorModal"><div class="modal" style="border-color:#ff4d4d;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Notice</div><div class="modal-title" style="color:#ff8a8a;">Ошибка</div><div class="modal-text" id="reviewErrorText">Ошибка</div><div class="modal-actions"><button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button></div></div></div>
+<div class="modal-backdrop" id="changePassModal"><div class="modal"><button class="modal-close" onclick="closeChangePassModal()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Security</div><div class="modal-title">Смена пароля</div><input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль"><input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)"><input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый"><div class="err" id="cpErr" style="display:none;"></div><div class="modal-actions" style="margin-top:6px;"><button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button><button class="modal-btn green" onclick="submitChangePass()">Сохранить</button></div></div></div>
+<div class="modal-backdrop" id="changePassSuccessModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div><div class="modal-text">Используйте новый пароль.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button></div></div></div>
 
 <script>
 const CASINO_URL = 'https://kingwin-production.up.railway.app/';
-
 const RANKS_INFO = {
-  Bronze:   { next: 100,  label: 'Silver',   gift: 0    },
-  Silver:   { next: 300,  label: 'Gold',     gift: 50   },
-  Gold:     { next: 600,  label: 'Platinum', gift: 200  },
-  Platinum: { next: 1000, label: 'Diamond',  gift: 500  },
-  Diamond:  { next: 1500, label: 'VIP',      gift: 1000 },
-  VIP:      { next: null, label: null,       gift: 3000 }
+  Bronze: { next:100, label:'Silver', gift:0 }, Silver: { next:300, label:'Gold', gift:50 },
+  Gold: { next:600, label:'Platinum', gift:200 }, Platinum: { next:1000, label:'Diamond', gift:500 },
+  Diamond: { next:1500, label:'VIP', gift:1000 }, VIP: { next:null, label:null, gift:3000 }
 };
-const DAILY_REWARDS = [10, 15, 20, 25, 30, 35, 40];
-const WHEEL_PRIZES = [1, 2, 4, 6, 10];
-const WHEEL_COOLDOWN_MS = 60 * 60 * 1000;
+const DAILY_REWARDS = [10,15,20,25,30,35,40];
+const WHEEL_PRIZES = [1,2,4,6,10];
+const WHEEL_COOLDOWN_MS = 60*60*1000;
 
 let session = null, summary = null, dailyState = null;
 let currentTab = 'profile';
 let lastSeenRank = null, refreshTimer = null, claimLock = false;
 let selectedStars = 0, wheelSpinning = false, wheelRotation = 0;
-let wheelState = { can_spin: false, last_spin: null };
+let wheelState = { can_spin:false, last_spin:null };
 let wheelTimerInterval = null;
+let wheelStatusLoading = false;
 
-function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+function saveGuestToStorage(g){ if(!g||!g.id)return; try{ localStorage.setItem('kingwin_guest',JSON.stringify({id:String(g.id),name:String(g.name||'')})); }catch(e){} }
 
-function saveGuestToStorage(g){
-  if(!g || !g.id) return;
-  try { localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(g.id), name: String(g.name || '') })); } catch(e) {}
-}
-
-/* ===== ЛОГИН ===== */
+/* ===== LOGIN ===== */
 function renderLogin(prefillId){
   document.getElementById('content').innerHTML = `
     <div class="card">
@@ -566,20 +216,18 @@ async function doLogin(){
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
-  if(!id || !pass){ err.textContent = 'Введите номер и пароль'; err.style.display='block'; return; }
+  if(!id||!pass){ err.textContent='Введите номер и пароль'; err.style.display='block'; return; }
   try {
-    const r = await fetch('/api/guest/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id, pass })
-    });
+    const r = await fetch('/api/guest/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,pass})});
     const data = await r.json();
-    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display='block'; return; }
+    if(!r.ok){ err.textContent=data.error||'Ошибка'; err.style.display='block'; return; }
     session = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
     saveGuestToStorage(data.guest);
     await loadAll();
+    await checkWheelStatus();
     startAutoRefresh();
-  } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display='block'; }
+  } catch(e){ err.textContent='Ошибка соединения'; err.style.display='block'; }
 }
 
 async function loadAll(){
@@ -587,52 +235,32 @@ async function loadAll(){
   await Promise.all([loadSummary(), loadDaily()]);
   renderProfile();
 }
-
 async function loadSummary(){
-  try {
-    const r = await fetch('/api/guest/summary?id=' + encodeURIComponent(session.id));
-    if(r.ok){ summary = await r.json(); checkRankUp(); }
-  } catch(e){}
+  try { const r = await fetch('/api/guest/summary?id='+encodeURIComponent(session.id)); if(r.ok){ summary = await r.json(); checkRankUp(); } } catch(e){}
 }
 async function loadDaily(){
-  try {
-    const r = await fetch('/api/guest/daily?id=' + encodeURIComponent(session.id));
-    if(r.ok) dailyState = await r.json();
-  } catch(e){}
+  try { const r = await fetch('/api/guest/daily?id='+encodeURIComponent(session.id)); if(r.ok) dailyState = await r.json(); } catch(e){}
 }
-
 function checkRankUp(){
   if(!summary) return;
-  if(lastSeenRank === null){ lastSeenRank = summary.rank; return; }
+  if(lastSeenRank===null){ lastSeenRank = summary.rank; return; }
   if(summary.rank !== lastSeenRank){
-    const gift = RANKS_INFO[summary.rank]?.gift || 0;
-    showRankUpModal(summary.rank, gift);
+    showRankUpModal(summary.rank, RANKS_INFO[summary.rank]?.gift||0);
     lastSeenRank = summary.rank;
   }
 }
-
 function startAutoRefresh(){
   if(refreshTimer) clearInterval(refreshTimer);
-  refreshTimer = setInterval(async ()=>{
-    if(!session) return;
-    await Promise.all([loadSummary(), loadDaily()]);
-    renderProfile();
-  }, 15000);
+  refreshTimer = setInterval(async ()=>{ if(!session) return; await Promise.all([loadSummary(), loadDaily()]); renderProfile(); }, 15000);
 }
-
-function switchTab(tab){
-  currentTab = tab;
-  renderProfile();
-}
-
+function switchTab(tab){ currentTab = tab; renderProfile(); }
 function doLogout(){
   stopWheelTimer();
   if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
   session = null; summary = null; dailyState = null; lastSeenRank = null;
-  try { localStorage.removeItem('kingwin_guest_id'); } catch(e) {}
+  try { localStorage.removeItem('kingwin_guest_id'); } catch(e){}
   renderLogin('');
 }
-
 function showRankUpModal(rank, gift){
   document.getElementById('rankUpText').textContent = `Вы достигли ранга ${rank}!`;
   document.getElementById('rankUpAmount').textContent = '+' + fmt(gift) + ' ₽';
@@ -641,122 +269,83 @@ function showRankUpModal(rank, gift){
 function closeRankUpModal(){ document.getElementById('rankUpModal').classList.remove('show'); }
 
 function renderProfile(){
-  if(!session || !summary){ return; }
+  if(!session || !summary) return;
   const g = summary;
   const info = RANKS_INFO[g.rank] || RANKS_INFO.Bronze;
   const points = g.points || 0;
   const nextMin = g.next_min;
   let progress = 0, progressLabel = '';
   const RANK_MIN = { Bronze:0, Silver:100, Gold:300, Platinum:600, Diamond:1000, VIP:1500 };
-  if(info.next && nextMin !== null){
-    const cur = RANK_MIN[g.rank] || 0;
-    progress = Math.min(100, Math.round(((points - cur) / (nextMin - cur)) * 100));
-    progressLabel = `${points} / ${nextMin}`;
-  } else {
-    progress = 100; progressLabel = 'Максимум';
-  }
+  if(info.next && nextMin!==null){ const cur = RANK_MIN[g.rank]||0; progress = Math.min(100, Math.round(((points-cur)/(nextMin-cur))*100)); progressLabel = `${points} / ${nextMin}`; }
+  else { progress = 100; progressLabel = 'Максимум'; }
 
-  const tabs = `
-    <div class="tabs">
-      <div class="tab ${currentTab==='profile'?'active':''}" onclick="switchTab('profile')">Профиль</div>
-      <div class="tab ${currentTab==='bonus'?'active':''}" onclick="switchTab('bonus')">Бонусы</div>
-      <div class="tab ${currentTab==='withdraw'?'active':''}" onclick="switchTab('withdraw')">Вывод</div>
-      <div class="tab ${currentTab==='news'?'active':''}" onclick="switchTab('news')">Новости</div>
-      <div class="tab ${currentTab==='review'?'active':''}" onclick="switchTab('review')">Оценка</div>
-    </div>`;
+  const tabs = `<div class="tabs">
+    <div class="tab ${currentTab==='profile'?'active':''}" onclick="switchTab('profile')">Профиль</div>
+    <div class="tab ${currentTab==='bonus'?'active':''}" onclick="switchTab('bonus')">Бонусы</div>
+    <div class="tab ${currentTab==='withdraw'?'active':''}" onclick="switchTab('withdraw')">Вывод</div>
+    <div class="tab ${currentTab==='news'?'active':''}" onclick="switchTab('news')">Новости</div>
+    <div class="tab ${currentTab==='review'?'active':''}" onclick="switchTab('review')">Оценка</div>
+  </div>`;
 
-  let profilePage = `
-    <div class="page ${currentTab==='profile'?'active':''}">
-      <div class="card">
-        <div class="profile-head">
-          <div class="profile-name">${esc(g.name)}</div>
-          <div class="profile-id">№ ${esc(g.id)}</div>
-          <div class="rank-badge ${g.rank}">${g.rank}</div>
-        </div>
-
-        <div class="balance-grid">
-          <div class="balance-item real">
-            <div class="lbl">Реальные ₽</div>
-            <div class="val">${fmt(g.deposit_balance)}</div>
-          </div>
-          <div class="balance-item bonus">
-            <div class="lbl">Бонусные ₽</div>
-            <div class="val">${fmt(g.bonus_balance)}</div>
-          </div>
-        </div>
-
-        <div class="progress-wrap">
-          <div class="progress-lbl">
-            <span>До ${info.label || 'максимума'}</span>
-            <span>${progressLabel}</span>
-          </div>
-          <div class="progress"><div style="width:${progress}%"></div></div>
-        </div>
-
-        <div style="margin-top:16px">
-          <button class="btn ghost" onclick="openChangePassModal()">Сменить пароль</button>
-          <button class="btn ghost" onclick="doLogout()" style="margin-top:8px; color:#ff8a8a; border-color:rgba(255,138,138,.3)">Выйти</button>
-        </div>
+  const profilePage = `<div class="page ${currentTab==='profile'?'active':''}">
+    <div class="card">
+      <div class="profile-head">
+        <div class="profile-name">${esc(g.name)}</div>
+        <div class="profile-id">№ ${esc(g.id)}</div>
+        <div class="rank-badge ${g.rank}">${g.rank}</div>
       </div>
-    </div>`;
-
-  let bonusPage = `
-    <div class="page ${currentTab==='bonus'?'active':''}">
-      ${renderDailyHtml()}
-      ${renderWheelHtml()}
-    </div>`;
-
-  let withdrawPage = `<div class="page ${currentTab==='withdraw'?'active':''}">${renderWithdrawHtml()}</div>`;
-  let newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Загрузка...</div></div></div></div>`;
-  let reviewPage = `
-    <div class="page ${currentTab==='review'?'active':''}">
-      <div class="review-block">
-        <h3>⭐ Оцените дилера</h3>
-        <label>Имя дилера</label>
-        <input type="text" id="reviewDealerName" placeholder="Введите имя дилера" maxlength="100">
-        <label>Оценка</label>
-        <div class="stars" id="starsRow">
-          <span class="star" data-val="1" onclick="selectStars(1)">★</span>
-          <span class="star" data-val="2" onclick="selectStars(2)">★</span>
-          <span class="star" data-val="3" onclick="selectStars(3)">★</span>
-          <span class="star" data-val="4" onclick="selectStars(4)">★</span>
-          <span class="star" data-val="5" onclick="selectStars(5)">★</span>
-        </div>
-        <label>Комментарий</label>
-        <textarea id="reviewComment" placeholder="Что понравилось / не понравилось?" maxlength="1000"></textarea>
-        <button class="btn green" onclick="submitReview()">Отправить</button>
+      <div class="balance-grid">
+        <div class="balance-item real"><div class="lbl">Реальные ₽</div><div class="val">${fmt(g.deposit_balance)}</div></div>
+        <div class="balance-item bonus"><div class="lbl">Бонусные ₽</div><div class="val">${fmt(g.bonus_balance)}</div></div>
       </div>
-      <div class="my-reviews">
-        <h4>Ваши прошлые оценки</h4>
-        <div id="myReviewsList"><div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Загрузка...</div></div>
+      <div class="progress-wrap">
+        <div class="progress-lbl"><span>До ${info.label||'максимума'}</span><span>${progressLabel}</span></div>
+        <div class="progress"><div style="width:${progress}%"></div></div>
       </div>
-    </div>`;
+      <div style="margin-top:16px">
+        <button class="btn ghost" onclick="openChangePassModal()">Сменить пароль</button>
+        <button class="btn ghost" onclick="doLogout()" style="margin-top:8px;color:#ff8a8a;border-color:rgba(255,138,138,.3)">Выйти</button>
+      </div>
+    </div>
+  </div>`;
+
+  const bonusPage = `<div class="page ${currentTab==='bonus'?'active':''}">${renderDailyHtml()}${renderWheelHtml()}</div>`;
+  const withdrawPage = `<div class="page ${currentTab==='withdraw'?'active':''}">${renderWithdrawHtml()}</div>`;
+  const newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8;font-size:12px;text-align:center;padding:16px;">Загрузка...</div></div></div></div>`;
+  const reviewPage = `<div class="page ${currentTab==='review'?'active':''}">
+    <div class="review-block">
+      <h3>⭐ Оцените дилера</h3>
+      <label>Имя дилера</label>
+      <input type="text" id="reviewDealerName" placeholder="Введите имя дилера" maxlength="100">
+      <label>Оценка</label>
+      <div class="stars" id="starsRow">
+        <span class="star" data-val="1" onclick="selectStars(1)">★</span>
+        <span class="star" data-val="2" onclick="selectStars(2)">★</span>
+        <span class="star" data-val="3" onclick="selectStars(3)">★</span>
+        <span class="star" data-val="4" onclick="selectStars(4)">★</span>
+        <span class="star" data-val="5" onclick="selectStars(5)">★</span>
+      </div>
+      <label>Комментарий</label>
+      <textarea id="reviewComment" placeholder="Что понравилось / не понравилось?" maxlength="1000"></textarea>
+      <button class="btn green" onclick="submitReview()">Отправить</button>
+    </div>
+    <div class="my-reviews"><h4>Ваши прошлые оценки</h4><div id="myReviewsList"><div style="color:#8fa2b8;font-size:12px;text-align:center;padding:10px;">Загрузка...</div></div></div>
+  </div>`;
 
   document.getElementById('content').innerHTML = tabs + profilePage + bonusPage + withdrawPage + newsPage + reviewPage;
-
-  if(currentTab === 'news') loadNews();
-  if(currentTab === 'review') loadMyReviews();
-  if(currentTab === 'bonus'){ checkWheelStatus(); startWheelTimer(); }
-  else { stopWheelTimer(); }
+  if(currentTab==='news') loadNews();
+  if(currentTab==='review') loadMyReviews();
+  if(currentTab==='bonus'){ checkWheelStatus(); startWheelTimer(); } else { stopWheelTimer(); }
 }
 
-/* ===== DAILY ===== */
 function renderDailyHtml(){
-  if(!dailyState){
-    return `<div class="daily-card"><div class="daily-title">🔥 Ежедневный бонус</div><div class="daily-sub">Загрузка…</div></div>`;
-  }
+  if(!dailyState) return `<div class="daily-card"><div class="daily-title">🔥 Ежедневный бонус</div><div class="daily-sub">Загрузка…</div></div>`;
   const level = dailyState.level || 0;
   const claimed = dailyState.claimed_today;
-  const rewards = DAILY_REWARDS;
-  const todayIdx = claimed ? Math.max(0, Math.min(6, level - 1)) : Math.min(6, level);
+  const todayIdx = claimed ? Math.max(0, Math.min(6, level-1)) : Math.min(6, level);
   let daysHtml = '';
-  for(let i=0; i<7; i++){
-    let cls = 'daily-day';
-    if(i < level) cls += ' done';
-    else if(i === todayIdx && !claimed) cls += ' today';
-    daysHtml += `<div class="${cls}"><div class="num">Д${i+1}</div><div class="reward">${fmt(rewards[i] || 0)}</div></div>`;
-  }
-  const nextReward = claimed ? 0 : (rewards[todayIdx] || 0);
+  for(let i=0;i<7;i++){ let cls='daily-day'; if(i<level) cls+=' done'; else if(i===todayIdx && !claimed) cls+=' today'; daysHtml += `<div class="${cls}"><div class="num">Д${i+1}</div><div class="reward">${fmt(DAILY_REWARDS[i]||0)}</div></div>`; }
+  const nextReward = claimed ? 0 : (DAILY_REWARDS[todayIdx]||0);
   const btnText = claimed ? '✓ Получено сегодня' : `Забрать ${fmt(nextReward)} ₽`;
   return `<div class="daily-card">
     <div class="daily-title"><span>🔥 Ежедневный бонус</span><span class="streak">${level}/7</span></div>
@@ -767,44 +356,33 @@ function renderDailyHtml(){
   </div>`;
 }
 
-/* ===== КОЛЕСО ===== */
+/* ===== WHEEL ===== */
 function renderWheelHtml(){
   const segments = WHEEL_PRIZES.length;
   const angleStep = 360 / segments;
   const segColors = ['rgba(0,229,255,0.20)','rgba(0,119,255,0.20)','rgba(63,191,127,0.20)','rgba(241,196,15,0.25)','rgba(255,77,77,0.20)'];
-  const segStrokes = ['#00e5ff', '#0077ff', '#3fbf7f', '#f1c40f', '#ff4d4d'];
-  const textColors = ['#00e5ff', '#4db8ff', '#3fbf7f', '#f1c40f', '#ff8a8a'];
-
-  let segmentsSvg = '';
-  for (let i = 0; i < segments; i++) {
-    const startAngle = i * angleStep - 90;
-    const endAngle = (i + 1) * angleStep - 90;
-    const startRad = startAngle * Math.PI / 180;
-    const endRad = endAngle * Math.PI / 180;
+  const segStrokes = ['#00e5ff','#0077ff','#3fbf7f','#f1c40f','#ff4d4d'];
+  const textColors = ['#00e5ff','#4db8ff','#3fbf7f','#f1c40f','#ff8a8a'];
+  let segSvg = '';
+  for(let i=0;i<segments;i++){
+    const sa = i*angleStep-90, ea = (i+1)*angleStep-90;
+    const sr = sa*Math.PI/180, er = ea*Math.PI/180;
     const r = 100;
-    const x1 = 110 + r * Math.cos(startRad);
-    const y1 = 110 + r * Math.sin(startRad);
-    const x2 = 110 + r * Math.cos(endRad);
-    const y2 = 110 + r * Math.sin(endRad);
-    const largeArc = angleStep > 180 ? 1 : 0;
-    segmentsSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z" fill="${segColors[i]}" stroke="${segStrokes[i]}" stroke-width="1.5" stroke-opacity="0.5"/>`;
-    const midAngle = (startAngle + endAngle) / 2;
-    const midRad = midAngle * Math.PI / 180;
-    const tx = 110 + 68 * Math.cos(midRad);
-    const ty = 110 + 68 * Math.sin(midRad);
-    segmentsSvg += `<text x="${tx}" y="${ty}" font-size="15" font-weight="900" fill="${textColors[i]}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${midAngle + 90}, ${tx}, ${ty})">${WHEEL_PRIZES[i]}₽</text>`;
+    const x1 = 110 + r*Math.cos(sr), y1 = 110 + r*Math.sin(sr);
+    const x2 = 110 + r*Math.cos(er), y2 = 110 + r*Math.sin(er);
+    const la = angleStep>180?1:0;
+    segSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${la},1 ${x2},${y2} Z" fill="${segColors[i]}" stroke="${segStrokes[i]}" stroke-width="1.5" stroke-opacity="0.5"/>`;
+    const ma = (sa+ea)/2, mr = ma*Math.PI/180;
+    const tx = 110 + 68*Math.cos(mr), ty = 110 + 68*Math.sin(mr);
+    segSvg += `<text x="${tx}" y="${ty}" font-size="15" font-weight="900" fill="${textColors[i]}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${ma+90}, ${tx}, ${ty})">${WHEEL_PRIZES[i]}₽</text>`;
   }
-
   return `<div class="wheel-card">
-    <div class="wheel-title">
-      <span>🎡 Колесо Фортуны</span>
-      <span class="hint">1 раз в час</span>
-    </div>
+    <div class="wheel-title"><span>🎡 Колесо Фортуны</span><span class="hint">1 раз в час</span></div>
     <div class="wheel-container">
       <div class="wheel-arrow"></div>
       <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220" style="transform: rotate(${wheelRotation}deg)">
         <circle cx="110" cy="110" r="105" fill="rgba(11,14,20,0.9)" stroke="#00e5ff" stroke-width="1.5" stroke-opacity="0.3"/>
-        ${segmentsSvg}
+        ${segSvg}
         <circle cx="110" cy="110" r="100" fill="none" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.15"/>
       </svg>
       <div class="wheel-center">💎</div>
@@ -814,126 +392,127 @@ function renderWheelHtml(){
   </div>`;
 }
 
-async function checkWheelStatus() {
-  if (!session) return;
+async function checkWheelStatus(){
+  if(!session) return;
+  wheelStatusLoading = true;
+  const btn = document.getElementById('wheelBtn'); if(btn) btn.disabled = true;
   try {
-    const r = await fetch('/api/wheel/status?id=' + encodeURIComponent(session.id));
+    const r = await fetch('/api/wheel/status?id='+encodeURIComponent(session.id), { cache:'no-store' });
     const data = await r.json();
     wheelState = data;
     renderWheelStatus();
-  } catch(e) {}
+  } catch(e){
+    wheelState = { can_spin:false, last_spin:null };
+    renderWheelStatus();
+  } finally { wheelStatusLoading = false; }
 }
 
-function renderWheelStatus() {
+function renderWheelStatus(){
   const timerEl = document.getElementById('wheelTimer');
   const btn = document.getElementById('wheelBtn');
-  if (!timerEl || !btn) return;
+  if(!timerEl || !btn) return;
 
-  if (wheelSpinning) {
+  if(wheelStatusLoading){
+    timerEl.textContent = 'Проверка…';
+    timerEl.style.color = '#8fa2b8';
+    btn.disabled = true;
+    return;
+  }
+  if(wheelSpinning){
     timerEl.textContent = 'Крутим…';
     timerEl.style.color = '#f1c40f';
     btn.disabled = true;
     return;
   }
-
-  if (wheelState && wheelState.can_spin) {
+  if(wheelState && wheelState.can_spin){
     timerEl.textContent = '✦ Доступно!';
     timerEl.style.color = '#3fbf7f';
     btn.disabled = false;
     return;
   }
-
-  if (wheelState && wheelState.last_spin) {
+  if(wheelState && wheelState.last_spin){
     const lastTime = new Date(wheelState.last_spin).getTime();
     const left = WHEEL_COOLDOWN_MS - (Date.now() - lastTime);
-    if (left <= 0) {
+    if(left <= 0){
       wheelState.can_spin = true;
       timerEl.textContent = '✦ Доступно!';
       timerEl.style.color = '#3fbf7f';
       btn.disabled = false;
       return;
     }
-    const min = Math.floor(left / 60000);
-    const sec = Math.floor((left % 60000) / 1000);
+    const min = Math.floor(left/60000);
+    const sec = Math.floor((left%60000)/1000);
     timerEl.textContent = `Доступно через ${min}:${String(sec).padStart(2,'0')}`;
     timerEl.style.color = '#8fa2b8';
     btn.disabled = true;
     return;
   }
-
   timerEl.textContent = 'Загрузка…';
   timerEl.style.color = '#8fa2b8';
   btn.disabled = true;
 }
 
-function startWheelTimer() {
+function startWheelTimer(){
   stopWheelTimer();
   wheelTimerInterval = setInterval(renderWheelStatus, 1000);
 }
-function stopWheelTimer() {
-  if (wheelTimerInterval) { clearInterval(wheelTimerInterval); wheelTimerInterval = null; }
+function stopWheelTimer(){
+  if(wheelTimerInterval){ clearInterval(wheelTimerInterval); wheelTimerInterval = null; }
 }
 
-async function spinWheel() {
-  if (wheelSpinning || !session) return;
-
+async function spinWheel(){
+  if(wheelSpinning || !session) return;
   wheelSpinning = true;
-  const btn = document.getElementById('wheelBtn');
-  if (btn) btn.disabled = true;
+  const btn = document.getElementById('wheelBtn'); if(btn) btn.disabled = true;
   renderWheelStatus();
 
   try {
-    // 1. Всегда сверяемся с сервером перед спином
-    const sres = await fetch('/api/wheel/status?id=' + encodeURIComponent(session.id));
+    const sres = await fetch('/api/wheel/status?id='+encodeURIComponent(session.id), { cache:'no-store' });
     const sdata = await sres.json();
     wheelState = sdata;
 
-    if (!sdata.can_spin) {
+    if(!sdata.can_spin){
       wheelSpinning = false;
       renderWheelStatus();
-      if (sdata.last_spin) {
+      if(sdata.last_spin){
         const left = WHEEL_COOLDOWN_MS - (Date.now() - new Date(sdata.last_spin).getTime());
-        if (left > 0) {
-          const min = Math.ceil(left / 60000);
+        if(left > 0){
+          const min = Math.ceil(left/60000);
           alert(`Колесо будет доступно через ${min} мин.`);
         }
       }
       return;
     }
 
-    // 2. Крутим
-    const r = await fetch('/api/wheel/spin', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+    const r = await fetch('/api/wheel/spin',{
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id: session.id })
     });
     const data = await r.json();
-    if (!r.ok) {
+    if(!r.ok){
       alert(data.error || 'Ошибка');
       wheelSpinning = false;
       renderWheelStatus();
       return;
     }
 
-    // 3. Анимация
     const prizeIdx = WHEEL_PRIZES.indexOf(data.prize);
     const angleStep = 360 / WHEEL_PRIZES.length;
-    const targetAngle = 360 * 5 + (360 - (prizeIdx * angleStep + angleStep / 2));
+    const targetAngle = 360*5 + (360 - (prizeIdx*angleStep + angleStep/2));
     wheelRotation += targetAngle;
     const svg = document.getElementById('wheelSvg');
-    if (svg) svg.style.transform = `rotate(${wheelRotation}deg)`;
+    if(svg) svg.style.transform = `rotate(${wheelRotation}deg)`;
 
-    setTimeout(async () => {
+    setTimeout(async ()=>{
       document.getElementById('wheelPrize').textContent = '+' + fmt(data.prize) + ' ₽';
       document.getElementById('wheelModal').classList.add('show');
-
-      // 4. last_spin — с сервера, иначе локально
       wheelState.can_spin = false;
       wheelState.last_spin = data.last_spin || new Date().toISOString();
       wheelSpinning = false;
       await loadSummary();
       renderWheelStatus();
     }, 4100);
-  } catch(e) {
+  } catch(e){
     alert('Ошибка соединения');
     wheelSpinning = false;
     renderWheelStatus();
@@ -950,15 +529,9 @@ async function claimDaily(){
   if(box) box.innerHTML = '';
   if(btn){ btn.disabled = true; btn.textContent = 'Отправка…'; }
   try {
-    const r = await fetch('/api/guest/daily-claim', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id })
-    });
+    const r = await fetch('/api/guest/daily-claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:session.id})});
     const data = await r.json();
-    if(!r.ok){
-      if(box) box.innerHTML = `<div class="err">${esc(data.error || 'Ошибка')}</div>`;
-      await loadDaily(); renderProfile(); return;
-    }
+    if(!r.ok){ if(box) box.innerHTML = `<div class="err">${esc(data.error||'Ошибка')}</div>`; await loadDaily(); renderProfile(); return; }
     dailyState.claimed_today = true;
     dailyState.level = data.level;
     dailyState.pending_bonus = data.pending_bonus;
@@ -971,103 +544,70 @@ async function claimDaily(){
     await loadDaily(); renderProfile();
   } finally { claimLock = false; }
 }
-
 function showDailyModal(reward, level){
   document.getElementById('dailyModalAmount').textContent = '+' + fmt(reward) + ' ₽';
   document.getElementById('dailyModalText').textContent = `День ${level} пройден! Бонус:`;
-  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${plural(level, 'день','дня','дней')}.`;
+  document.getElementById('dailyModalHint').textContent = `Streak: ${level} ${plural(level,'день','дня','дней')}.`;
   document.getElementById('dailyModal').classList.add('show');
 }
 function closeDailyModal(){ document.getElementById('dailyModal').classList.remove('show'); }
-function plural(n, one, few, many){
-  const m10 = n % 10, m100 = n % 100;
-  if(m10 === 1 && m100 !== 11) return one;
-  if(m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
-  return many;
-}
+function plural(n,one,few,many){ const m10=n%10,m100=n%100; if(m10===1&&m100!==11) return one; if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return few; return many; }
 
-/* ===== ВЫВОД ===== */
+/* ===== WITHDRAW ===== */
 function renderWithdrawHtml(){
-  const g = summary;
-  if(!g) return '';
+  const g = summary; if(!g) return '';
   const RANK_IDX = { Bronze:1, Silver:2, Gold:3, Platinum:4, Diamond:5, VIP:6 };
-  const rankOk = (RANK_IDX[g.rank] || 1) >= 2;
-  const wageringOk = (g.wagering_required === 0) || (g.wagering_done >= g.wagering_required);
-  const pending = g.pending_bonus || 0;
-  const deposit = g.deposit_balance || 0;
-  const canToCasino = wageringOk && pending > 0;
-  const canReal = rankOk && wageringOk && deposit > 0;
-  const wageringLeft = Math.max(0, (g.wagering_required || 0) - (g.wagering_done || 0));
-
+  const rankOk = (RANK_IDX[g.rank]||1) >= 2;
+  const wageringOk = (g.wagering_required===0) || (g.wagering_done >= g.wagering_required);
+  const pending = g.pending_bonus||0;
+  const deposit = g.deposit_balance||0;
+  const canToCasino = wageringOk && pending>0;
+  const canReal = rankOk && wageringOk && deposit>0;
+  const wageringLeft = Math.max(0, (g.wagering_required||0) - (g.wagering_done||0));
   return `
     <div class="withdraw-block">
       <h3>💰 На казино (онлайн)</h3>
       <div class="amount small">${fmt(pending)} ₽</div>
       <div class="cond">
         <div class="row"><span>Сыграть в любом режиме Kingwin</span><span class="ok">✓</span></div>
-        <div class="row"><span>Отыгрыш бонуса</span>
-          ${wageringOk ? '<span class="ok">✓ выполнен</span>' : `<span class="bad">осталось ${fmt(wageringLeft)}</span>`}
-        </div>
+        <div class="row"><span>Отыгрыш бонуса</span>${wageringOk?'<span class="ok">✓ выполнен</span>':`<span class="bad">осталось ${fmt(wageringLeft)}</span>`}</div>
       </div>
       <button class="btn green" ${canToCasino?'':'disabled'} onclick="openConfirmTransfer(${pending})">Перевести на баланс</button>
       <button class="btn ghost" onclick="openCasino()" style="margin-top:8px;">Открыть казино →</button>
     </div>
-
     <div class="withdraw-block">
       <h3>🏦 Реальные деньги</h3>
       <div class="amount">${fmt(deposit)} ₽</div>
       <div class="cond">
-        <div class="row"><span>Ранг Silver или выше</span>
-          ${rankOk ? '<span class="ok">✓</span>' : '<span class="bad">не выполнен</span>'}
-        </div>
-        <div class="row"><span>Отыгрыш бонусов ×5</span>
-          ${wageringOk ? '<span class="ok">✓</span>' : `<span class="bad">${fmt(wageringLeft)}</span>`}
-        </div>
+        <div class="row"><span>Ранг Silver или выше</span>${rankOk?'<span class="ok">✓</span>':'<span class="bad">не выполнен</span>'}</div>
+        <div class="row"><span>Отыгрыш бонусов ×5</span>${wageringOk?'<span class="ok">✓</span>':`<span class="bad">${fmt(wageringLeft)}</span>`}</div>
       </div>
       <button class="btn" ${canReal?'':'disabled'} onclick="openConfirmRealWithdraw(${deposit})">Заявка на вывод</button>
-    </div>
-  `;
+    </div>`;
 }
-
 function openCasino(){ window.location.href = CASINO_URL; }
-
-function openConfirmTransfer(amount){
-  document.getElementById('transferAmount').textContent = fmt(amount);
-  document.getElementById('confirmTransferModal').classList.add('show');
-}
+function openConfirmTransfer(amount){ document.getElementById('transferAmount').textContent = fmt(amount); document.getElementById('confirmTransferModal').classList.add('show'); }
 function closeConfirmTransfer(){ document.getElementById('confirmTransferModal').classList.remove('show'); }
-
 async function executeTransfer(){
   closeConfirmTransfer();
   try {
-    const r = await fetch('/api/guest/withdraw-to-casino', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id })
-    });
+    const r = await fetch('/api/guest/withdraw-to-casino',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:session.id})});
     const data = await r.json();
-    if(!r.ok){ alert(data.error || 'Ошибка'); return; }
+    if(!r.ok){ alert(data.error||'Ошибка'); return; }
     document.getElementById('successTransferAmount').textContent = fmt(data.amount);
     document.getElementById('successTransferModal').classList.add('show');
     await loadSummary(); renderProfile();
   } catch(e){ alert('Ошибка соединения'); }
 }
 function closeSuccessTransfer(){ document.getElementById('successTransferModal').classList.remove('show'); }
-
-function openConfirmRealWithdraw(amount){
-  document.getElementById('realWithdrawAmount').textContent = fmt(amount);
-  document.getElementById('confirmRealWithdrawModal').classList.add('show');
-}
+function openConfirmRealWithdraw(amount){ document.getElementById('realWithdrawAmount').textContent = fmt(amount); document.getElementById('confirmRealWithdrawModal').classList.add('show'); }
 function closeConfirmRealWithdraw(){ document.getElementById('confirmRealWithdrawModal').classList.remove('show'); }
-
 async function executeRealWithdraw(){
   closeConfirmRealWithdraw();
   try {
-    const r = await fetch('/api/guest/withdraw-real', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id })
-    });
+    const r = await fetch('/api/guest/withdraw-real',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:session.id})});
     const data = await r.json();
-    if(!r.ok){ alert(data.error || 'Ошибка'); return; }
+    if(!r.ok){ alert(data.error||'Ошибка'); return; }
     document.getElementById('successRealWithdrawAmount').textContent = fmt(data.withdrawal.sum);
     document.getElementById('successRealWithdrawModal').classList.add('show');
     await loadSummary(); renderProfile();
@@ -1075,105 +615,60 @@ async function executeRealWithdraw(){
 }
 function closeSuccessRealWithdraw(){ document.getElementById('successRealWithdrawModal').classList.remove('show'); }
 
-/* ===== НОВОСТИ ===== */
+/* ===== NEWS ===== */
 async function loadNews(){
-  const box = document.getElementById('newsContainer');
-  if(!box) return;
+  const box = document.getElementById('newsContainer'); if(!box) return;
   try {
     const r = await fetch('/api/news');
     const list = await r.json();
-    if(!Array.isArray(list) || list.length === 0){
-      box.innerHTML = `<div style="color:#8fa2b8; font-size:12px; text-align:center; padding:16px;">Пока нет новостей</div>`;
-      return;
-    }
-    box.innerHTML = list.map(n => `
-      <div class="news-item">
-        <div class="title">${esc(n.title)}</div>
-        <div class="body">${esc(n.body)}</div>
-        <div class="date">${esc(n.date || '')}</div>
-      </div>
-    `).join('');
-  } catch(e) {
-    box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:16px;">Ошибка загрузки</div>`;
-  }
+    if(!Array.isArray(list) || !list.length){ box.innerHTML = `<div style="color:#8fa2b8;font-size:12px;text-align:center;padding:16px;">Пока нет новостей</div>`; return; }
+    box.innerHTML = list.map(n=>`<div class="news-item"><div class="title">${esc(n.title)}</div><div class="body">${esc(n.body)}</div><div class="date">${esc(n.date||'')}</div></div>`).join('');
+  } catch(e){ box.innerHTML = `<div style="color:#ff8a8a;font-size:12px;text-align:center;padding:16px;">Ошибка загрузки</div>`; }
 }
 
-/* ===== ОТЗЫВЫ ===== */
+/* ===== REVIEWS ===== */
 function selectStars(val){
   selectedStars = val;
-  document.querySelectorAll('#starsRow .star').forEach(s => {
-    const v = parseInt(s.dataset.val);
-    s.classList.toggle('active', v <= val);
-  });
+  document.querySelectorAll('#starsRow .star').forEach(s=>{ s.classList.toggle('active', parseInt(s.dataset.val)<=val); });
 }
-function showReviewError(text){
-  document.getElementById('reviewErrorText').textContent = text;
-  document.getElementById('reviewErrorModal').classList.add('show');
-}
+function showReviewError(text){ document.getElementById('reviewErrorText').textContent = text; document.getElementById('reviewErrorModal').classList.add('show'); }
 function closeReviewError(){ document.getElementById('reviewErrorModal').classList.remove('show'); }
 function closeReviewSuccess(){ document.getElementById('reviewSuccessModal').classList.remove('show'); }
-
 async function submitReview(){
   if(!session) return;
   const dealerName = document.getElementById('reviewDealerName').value.trim();
   const comment = document.getElementById('reviewComment').value.trim();
   if(!dealerName){ showReviewError('Введите имя дилера'); return; }
-  if(selectedStars < 1){ showReviewError('Поставьте оценку'); return; }
-
+  if(selectedStars<1){ showReviewError('Поставьте оценку'); return; }
+  try { const check = await fetch('/api/dealer/exists?name='+encodeURIComponent(dealerName)); const cd = await check.json(); if(!cd.exists){ showReviewError('Дилер не найден'); return; } }
+  catch(e){ showReviewError('Ошибка проверки дилера'); return; }
   try {
-    const check = await fetch('/api/dealer/exists?name=' + encodeURIComponent(dealerName));
-    const checkData = await check.json();
-    if(!checkData.exists){ showReviewError('Дилер с таким именем не найден'); return; }
-  } catch(e) { showReviewError('Ошибка проверки дилера'); return; }
-
-  try {
-    const r = await fetch('/api/dealer-reviews', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        guest_id: session.id, guest_name: session.name,
-        dealer_name: dealerName, stars: selectedStars, comment: comment
-      })
-    });
+    const r = await fetch('/api/dealer-reviews',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guest_id:session.id,guest_name:session.name,dealer_name:dealerName,stars:selectedStars,comment})});
     const data = await r.json();
-    if(!r.ok){ showReviewError(data.error || 'Ошибка отправки'); return; }
+    if(!r.ok){ showReviewError(data.error||'Ошибка отправки'); return; }
     document.getElementById('reviewDealerName').value = '';
     document.getElementById('reviewComment').value = '';
     selectedStars = 0;
-    document.querySelectorAll('#starsRow .star').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#starsRow .star').forEach(s=>s.classList.remove('active'));
     document.getElementById('reviewSuccessModal').classList.add('show');
     await loadMyReviews();
   } catch(e){ showReviewError('Ошибка соединения'); }
 }
-
 async function loadMyReviews(){
-  const box = document.getElementById('myReviewsList');
-  if(!box || !session) return;
+  const box = document.getElementById('myReviewsList'); if(!box || !session) return;
   try {
-    const r = await fetch('/api/dealer-reviews?guest_id=' + encodeURIComponent(session.id));
+    const r = await fetch('/api/dealer-reviews?guest_id='+encodeURIComponent(session.id));
     const list = await r.json();
-    if(!Array.isArray(list) || list.length === 0){
-      box.innerHTML = `<div style="color:#8fa2b8; font-size:12px; text-align:center; padding:10px;">Пока нет оценок</div>`;
-      return;
-    }
-    box.innerHTML = list.map(rv => {
-      const st = parseInt(rv.stars) || 0;
-      const dt = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date || '');
-      return `
-      <div class="my-review-item">
-        <div class="head">
-          <span class="dname">${esc(rv.dealer_name)}</span>
-          <span class="stars-line">${'★'.repeat(st)}${'☆'.repeat(5-st)}</span>
-        </div>
-        ${rv.comment ? `<div class="txt">${esc(rv.comment)}</div>` : ''}
-        <div style="font-size:10px; color:#6d819a; margin-top:4px;">${esc(dt)}</div>
-      </div>`;
+    if(!Array.isArray(list) || !list.length){ box.innerHTML = `<div style="color:#8fa2b8;font-size:12px;text-align:center;padding:10px;">Пока нет оценок</div>`; return; }
+    box.innerHTML = list.map(rv=>{
+      const st = parseInt(rv.stars)||0;
+      const dt = rv.created_at ? new Date(rv.created_at).toLocaleString('ru-RU') : (rv.date||'');
+      return `<div class="my-review-item"><div class="head"><span class="dname">${esc(rv.dealer_name)}</span><span class="stars-line">${'★'.repeat(st)}${'☆'.repeat(5-st)}</span></div>${rv.comment?`<div class="txt">${esc(rv.comment)}</div>`:''}<div style="font-size:10px;color:#6d819a;margin-top:4px;">${esc(dt)}</div></div>`;
     }).join('');
-  } catch(e) {
-    box.innerHTML = `<div style="color:#ff8a8a; font-size:12px; text-align:center; padding:10px;">Ошибка загрузки</div>`;
-  }
+  } catch(e){ box.innerHTML = `<div style="color:#ff8a8a;font-size:12px;text-align:center;padding:10px;">Ошибка загрузки</div>`; }
 }
 
-/* ===== СМЕНА ПАРОЛЯ ===== */
+/* ===== CHANGE PASS ===== */
 function openChangePassModal(){
   document.getElementById('cpOld').value = '';
   document.getElementById('cpNew').value = '';
@@ -1183,7 +678,6 @@ function openChangePassModal(){
 }
 function closeChangePassModal(){ document.getElementById('changePassModal').classList.remove('show'); }
 function closeChangePassSuccess(){ document.getElementById('changePassSuccessModal').classList.remove('show'); }
-
 async function submitChangePass(){
   if(!session) return;
   const oldPass = document.getElementById('cpOld').value;
@@ -1192,40 +686,33 @@ async function submitChangePass(){
   const err = document.getElementById('cpErr');
   err.style.display = 'none';
   if(!oldPass){ err.textContent = 'Введите текущий пароль'; err.style.display = 'block'; return; }
-  if(!newPass || newPass.length < 4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
+  if(!newPass || newPass.length<4){ err.textContent = 'Новый пароль — минимум 4 символа'; err.style.display = 'block'; return; }
   if(newPass !== newPass2){ err.textContent = 'Пароли не совпадают'; err.style.display = 'block'; return; }
-
   try {
-    const r = await fetch('/api/guest/change-password', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id, old_pass: oldPass, new_pass: newPass })
-    });
+    const r = await fetch('/api/guest/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:session.id,old_pass:oldPass,new_pass:newPass})});
     const data = await r.json();
-    if(!r.ok){ err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
+    if(!r.ok){ err.textContent = data.error||'Ошибка'; err.style.display = 'block'; return; }
     closeChangePassModal();
     document.getElementById('changePassSuccessModal').classList.add('show');
-  } catch(e){
-    err.textContent = 'Ошибка соединения'; err.style.display = 'block';
-  }
+  } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
-/* ===== АВТОЗАПУСК ===== */
+/* ===== BOOT ===== */
 (async function boot(){
   let savedId = null, savedName = '';
   try {
     savedId = localStorage.getItem('kingwin_guest_id');
     const raw = localStorage.getItem('kingwin_guest');
     if(raw){ const g = JSON.parse(raw); if(g && g.name) savedName = g.name; }
-  } catch(e) {}
-
+  } catch(e){}
   if(!savedId){ renderLogin(''); return; }
-
   try {
-    const r = await fetch('/api/guest/summary?id=' + encodeURIComponent(savedId));
+    const r = await fetch('/api/guest/summary?id='+encodeURIComponent(savedId));
     if(!r.ok){ renderLogin(savedId); return; }
     const s = await r.json();
     session = { id: savedId, name: s.name || savedName || '' };
     await loadAll();
+    await checkWheelStatus();
     startAutoRefresh();
   } catch(e){
     renderLogin(savedId);
