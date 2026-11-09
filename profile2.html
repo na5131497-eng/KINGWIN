@@ -316,53 +316,139 @@
   .my-review-item .stars-line { color: var(--gold); font-size: 13px; }
   .my-review-item .txt { color: #a0aec0; font-size: 12px; line-height: 1.5; margin-top: 4px; word-break: break-word; }
 
+  /* ===== МОДАЛКИ ===== */
   .modal-backdrop {
-    position: fixed; inset: 0;
+    position: fixed;
+    inset: 0;
     background: rgba(0,0,0,.85);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: none;
-    align-items: center; justify-content: center;
+    align-items: center;
+    justify-content: center;
     z-index: 9999;
-    padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
-    overflow-y: auto;
+    padding:
+      calc(16px + var(--safe-top))
+      calc(16px + var(--safe-right))
+      calc(16px + var(--safe-bottom))
+      calc(16px + var(--safe-left));
+    overflow: hidden;
   }
-  .modal-backdrop.show { display: flex; }
+
+  .modal-backdrop.show {
+    display: flex;
+    animation: backdropIn .2s ease both;
+  }
+  @keyframes backdropIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   .modal {
     background: linear-gradient(135deg, #111625, #0a0d14);
     border: 2px solid var(--accent);
     border-radius: 20px;
     padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 22px);
-    max-width: 380px; width: 100%;
+    width: 100%;
+    max-width: 380px;
+
+    margin: auto;
+    max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
     text-align: center;
     box-shadow: 0 0 50px rgba(0,229,255,.3);
-    position: relative; overflow: hidden;
-    margin: auto;
-    max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
-    overflow-y: auto;
+    position: relative;
+
+    animation: modalIn .25s cubic-bezier(.2,.9,.3,1.2) both;
   }
-  .modal.rank-up { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.4); }
-  .modal.wheel-win { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.45); }
-  .modal-logo { font-size: clamp(22px, 7vw, 30px); font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
-  .modal-sub { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(12px) scale(.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  .modal.rank-up  { border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.4); }
+  .modal.wheel-win{ border-color: var(--gold); box-shadow: 0 0 50px rgba(241,196,15,.45); }
+
+  .modal-logo {
+    font-size: clamp(22px, 7vw, 30px);
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .modal-sub {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
   .modal-title { font-size: clamp(17px, 5vw, 20px); font-weight: 900; margin-bottom: 10px; }
   .modal-title span { color: var(--green); }
   .modal.rank-up .modal-title span { color: var(--gold); }
+
   .modal-text { font-size: 13px; color: #a0aec0; line-height: 1.6; margin-bottom: 8px; }
-  .modal-amount { font-size: clamp(24px, 8vw, 32px); font-weight: 900; color: var(--accent); margin: 12px 0; }
-  .modal.rank-up .modal-amount { color: var(--gold); }
+
+  .modal-amount {
+    font-size: clamp(24px, 8vw, 32px);
+    font-weight: 900;
+    color: var(--accent);
+    margin: 12px 0;
+  }
+  .modal.rank-up   .modal-amount { color: var(--gold); }
+  .modal.wheel-win .modal-amount { color: var(--gold); }
+
   .modal-hint { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
   .modal-btn {
-    background: var(--accent); color: #000; border: none; border-radius: 10px;
-    padding: 12px 24px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit; transition: .2s;
-    min-height: 44px; touch-action: manipulation;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: .2s;
+    min-height: 44px;
+    touch-action: manipulation;
   }
   .modal-btn:hover { filter: brightness(1.1); }
   .modal.rank-up .modal-btn { background: var(--gold); }
-  .modal-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 6px; min-width: 40px; min-height: 40px; }
+  .modal-close {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+  }
   .modal-close:hover { color: #fff; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
-  .modal-btn.green { background: var(--green); color: #000; }
+  .modal-btn.green  { background: var(--green); color: #000; }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 380px) {
+    .modal-btn { width: 100%; margin: 0 !important; }
+    .modal-btn.cancel { margin-right: 0 !important; }
+    .modal { border-radius: 16px; }
+  }
 
   /* Колесо: окно выигрыша */
   .wheel-win-icon {
@@ -386,15 +472,10 @@
   .cp-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 12px; color: #fff; font-size: 16px; margin-bottom: 10px; text-align: center; font-family: inherit; }
   .cp-input:focus { outline: none; border-color: var(--accent); }
 
-  @media (max-width: 380px) {
-    .modal-btn { width: 100%; margin: 0 0 8px 0 !important; }
-    .modal-btn.cancel { margin-right: 0 !important; }
-    .modal { border-radius: 16px; }
-    .daily-day .num { font-size: 7px; }
-  }
   @media (max-width: 340px) {
     .balance-grid { grid-template-columns: 1fr; }
     .tab { min-width: 64px; font-size: 9px; padding: 10px 6px; }
+    .daily-day .num { font-size: 7px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -421,7 +502,9 @@
     <div class="modal-text" id="rankUpText">Поздравляем!</div>
     <div class="modal-amount" id="rankUpAmount">+0 ₽</div>
     <div class="modal-hint">Подарок зачислен в бонусный баланс.</div>
-    <button class="modal-btn" onclick="closeRankUpModal()">Отлично</button>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeRankUpModal()">Отлично</button>
+    </div>
   </div>
 </div>
 
@@ -433,11 +516,12 @@
     <div class="modal-text" id="dailyModalText">Ваш бонус:</div>
     <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div>
     <div class="modal-hint" id="dailyModalHint">Streak: 1 день</div>
-    <button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button>
+    <div class="modal-actions">
+      <button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button>
+    </div>
   </div>
 </div>
 
-<!-- Окно выигрыша колеса -->
 <div class="modal-backdrop" id="wheelModal">
   <div class="modal wheel-win" style="border-color:#f1c40f;">
     <button class="modal-close" onclick="closeWheelModal()">✕</button>
@@ -448,7 +532,9 @@
     <div class="modal-amount" id="wheelPrize" style="color:#f1c40f;">0 ₽</div>
     <div class="modal-text">Зачислено на бонусный баланс.</div>
     <div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div>
-    <button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button>
+    <div class="modal-actions">
+      <button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button>
+    </div>
   </div>
 </div>
 
@@ -460,7 +546,7 @@
     <div class="modal-title">Перевод на казино</div>
     <div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div>
     <div class="modal-hint">Средства сразу поступят на игровой счёт.</div>
-    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+    <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button>
       <button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button>
     </div>
@@ -473,7 +559,9 @@
     <div class="modal-sub">Success</div>
     <div class="modal-title">Успешно!</div>
     <div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div>
-    <button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button>
+    <div class="modal-actions">
+      <button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button>
+    </div>
   </div>
 </div>
 
@@ -485,7 +573,7 @@
     <div class="modal-title">Заявка на вывод</div>
     <div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div>
     <div class="modal-hint">Заявка уходит администратору.</div>
-    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+    <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button>
       <button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button>
     </div>
@@ -498,7 +586,9 @@
     <div class="modal-sub">Success</div>
     <div class="modal-title">Заявка создана!</div>
     <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div>
-    <button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button>
+    </div>
   </div>
 </div>
 
@@ -508,7 +598,9 @@
     <div class="modal-sub">Thanks</div>
     <div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div>
     <div class="modal-text">Ваша оценка отправлена.</div>
-    <button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button>
+    <div class="modal-actions">
+      <button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button>
+    </div>
   </div>
 </div>
 
@@ -518,7 +610,9 @@
     <div class="modal-sub">Notice</div>
     <div class="modal-title" style="color:#ff8a8a;">Ошибка</div>
     <div class="modal-text" id="reviewErrorText">Ошибка</div>
-    <button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button>
+    <div class="modal-actions">
+      <button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button>
+    </div>
   </div>
 </div>
 
@@ -532,7 +626,7 @@
     <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)">
     <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый">
     <div class="err" id="cpErr" style="display:none;"></div>
-    <div style="display:flex; gap:8px; justify-content:center; margin-top:6px; flex-wrap:wrap;">
+    <div class="modal-actions" style="margin-top:6px;">
       <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
       <button class="modal-btn green" onclick="submitChangePass()">Сохранить</button>
     </div>
@@ -545,7 +639,9 @@
     <div class="modal-sub">Success</div>
     <div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div>
     <div class="modal-text">Используйте новый пароль.</div>
-    <button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button>
+    <div class="modal-actions">
+      <button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button>
+    </div>
   </div>
 </div>
 
