@@ -310,12 +310,24 @@ const MAX_BET = 200;
 const MIN_BET = 1;
 const POLL_MS = 300;
 
-// --- ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
+// --- УМНАЯ ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
 const rocketImg = new Image();
-rocketImg.src = '/assets/crash-rocket.png';
-let isRocketLoaded = false;
-rocketImg.onload = () => { isRocketLoaded = true; };
-rocketImg.onerror = () => { console.warn('Ракета не найдена по пути:', rocketImg.src); };
+// Пробуем три варианта пути (если один не сработает, загрузится следующий)
+const rocketPaths = ['/rocket.png', '/assets/crash-rocket.png', '/crash-rocket.png'];
+let currentPathIdx = 0;
+
+rocketImg.onload = () => { 
+  console.log('✅ Ракета успешно загружена:', rocketImg.src); 
+};
+rocketImg.onerror = () => {
+  if (currentPathIdx < rocketPaths.length - 1) {
+    currentPathIdx++;
+    rocketImg.src = rocketPaths[currentPathIdx];
+  } else {
+    console.warn('❌ Ракета не найдена ни по одному пути:', rocketPaths.join(', '));
+  }
+};
+rocketImg.src = rocketPaths[currentPathIdx];
 
 // --- СИСТЕМА ЧАСТИЦ ВЗРЫВА ---
 let particles = [];
@@ -703,6 +715,7 @@ function drawGraph(currentMult, status) {
     if (status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
     else if (currentMult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
 
+    // Линия графика
     ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineJoin = 'round';
     ctx.shadowBlur = 10; ctx.shadowColor = shadowColor;
     for (let i = 0; i < graphPoints.length; i++) {
@@ -717,35 +730,41 @@ function drawGraph(currentMult, status) {
     const lx = paddingL + (lastP.x / maxX) * drawW;
     const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
 
-    // --- ОТРИСОВКА РАКЕТЫ (РАЗМЕР 100x100) ---
-    if (isRocketLoaded && status === 'flying') {
-      // Угол наклона
-      let angle = -45;
-      if (graphPoints.length >= 2) {
-        const p1 = graphPoints[graphPoints.length - 2];
-        const p2 = graphPoints[graphPoints.length - 1];
-        const p1x = paddingL + (p1.x / maxX) * drawW;
-        const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
-        const p2x = paddingL + (p2.x / maxX) * drawW;
-        const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
-        angle = Math.atan2(p2y - p1y, p2x - p1x);
+    // --- ОТРИСОВКА РАКЕТЫ (100x100) ---
+    if (status === 'flying') {
+      if (rocketImg.complete && rocketImg.naturalWidth > 0) {
+        let angle = -45;
+        if (graphPoints.length >= 2) {
+          const p1 = graphPoints[graphPoints.length - 2];
+          const p2 = graphPoints[graphPoints.length - 1];
+          const p1x = paddingL + (p1.x / maxX) * drawW;
+          const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
+          const p2x = paddingL + (p2.x / maxX) * drawW;
+          const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
+          angle = Math.atan2(p2y - p1y, p2x - p1x);
+        }
+
+        const ROCKET_SIZE = 100;
+        const vibration = Math.sin(Date.now() / 50) * 2;
+
+        ctx.save();
+        ctx.translate(lx + vibration, ly + vibration); 
+        ctx.rotate(angle + Math.PI / 4); 
+        
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = 'rgba(0,229,255,0.8)';
+        
+        ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
+        
+        ctx.restore();
+      } else {
+        // Если картинка не загрузилась — рисуем неоновую точку
+        ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
+        ctx.beginPath(); ctx.arc(lx, ly, 8, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
       }
-
-      const ROCKET_SIZE = 100; // Жесткий размер 100px
-      const vibration = Math.sin(Date.now() / 50) * 2;
-
-      ctx.save();
-      ctx.translate(lx + vibration, ly + vibration); 
-      ctx.rotate(angle + Math.PI / 4); 
-      
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = 'rgba(0,229,255,0.8)';
-      
-      ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
-      
-      ctx.restore();
     } else {
-      // Точка на конце
+      // Точка при краше
       ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
       ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
       ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
@@ -759,7 +778,6 @@ function drawGraph(currentMult, status) {
       }
     }
   } else if (status === 'crashed' && graphPoints.length <= 1) {
-    // Если краш случился моментально, без линии
     if (!explosionTriggered) {
       const lastP = graphPoints[0] || { x: 0, y: 1 };
       const lx = paddingL + (lastP.x / Math.max(3, lastP.x)) * drawW;
