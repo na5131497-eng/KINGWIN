@@ -74,14 +74,6 @@
   .daily-day.done { background: rgba(63,191,127,.18); border-color: var(--green); color: var(--green); }
   .daily-day.done::after { content: '✓'; position: absolute; font-size: 8px; top: 2px; right: 3px; }
   .daily-day.today { background: rgba(0,229,255,.15); border-color: var(--accent); color: var(--accent); }
-  .wheel-card { background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(0,119,255,.02)); border: 1px solid rgba(0,229,255,.25); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 14px; text-align: center; }
-  .wheel-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .wheel-title .hint { font-size: 10px; color: var(--muted); font-weight: 700; }
-  .wheel-container { position: relative; width: min(240px, 72vw); height: min(240px, 72vw); margin: 10px auto 14px; display: flex; align-items: center; justify-content: center; }
-  .wheel-svg { width: 100%; height: 100%; transition: transform 4s cubic-bezier(.2,.8,.3,1); position: relative; z-index: 1; }
-  .wheel-arrow { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: clamp(8px, 2.8vw, 11px) solid transparent; border-right: clamp(8px, 2.8vw, 11px) solid transparent; border-top: clamp(14px, 5vw, 20px) solid var(--accent); z-index: 3; }
-  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(42px, 14vw, 56px); height: clamp(42px, 14vw, 56px); border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: 3px solid #0b0e14; display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 22px); z-index: 2; }
-  .wheel-timer { font-size: 12px; color: var(--muted); margin-bottom: 10px; padding: 7px 12px; background: rgba(0,0,0,.3); border-radius: 8px; display: inline-block; min-width: 140px; font-variant-numeric: tabular-nums; }
   .withdraw-block { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); padding: clamp(12px, 4vw, 18px); margin-bottom: 12px; }
   .withdraw-block h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 10px; }
   .withdraw-block .amount { font-size: clamp(22px, 7vw, 30px); font-weight: 900; color: var(--green); margin: 4px 0 12px; word-break: break-word; }
@@ -114,21 +106,18 @@
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 9999; padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .modal-backdrop.show { display: flex; }
   .modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 2px solid var(--accent); border-radius: 20px; padding: clamp(20px, 6vw, 28px) clamp(16px, 5vw, 22px); width: 100%; max-width: 380px; margin: auto; text-align: center; box-shadow: 0 0 50px rgba(0,229,255,.3); position: relative; }
-  .modal.wheel-win { border-color: var(--gold); }
   .modal-logo { font-size: clamp(22px, 7vw, 30px); font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
   .modal-sub { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
   .modal-title { font-size: clamp(17px, 5vw, 20px); font-weight: 900; margin-bottom: 10px; }
   .modal-title span { color: var(--green); }
   .modal-text { font-size: 13px; color: #a0aec0; line-height: 1.6; margin-bottom: 8px; }
   .modal-amount { font-size: clamp(24px, 8vw, 32px); font-weight: 900; color: var(--accent); margin: 12px 0; }
-  .modal.wheel-win .modal-amount { color: var(--gold); }
   .modal-hint { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
   .modal-btn { background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 12px 24px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; min-height: 44px; touch-action: manipulation; }
   .modal-btn.cancel { background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px; }
   .modal-btn.green { background: var(--green); color: #000; }
   .modal-close { position: absolute; top: 6px; right: 6px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
   .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-  .wheel-win-icon { font-size: 54px; line-height: 1; margin: 6px 0 10px; }
   .login-form label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 6px; font-weight: 600; }
   .login-form input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 13px; font-size: 16px; color: #fff; font-family: inherit; }
   .login-form input:focus { outline: none; border-color: var(--accent); }
@@ -158,17 +147,126 @@
 </div>
 
 <!-- МОДАЛКИ -->
-<div class="modal-backdrop" id="rankUpModal"><div class="modal" style="border-color:#f1c40f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Rank Up</div><div class="modal-title">Ранг повышен! <span>🎉</span></div><div class="modal-text" id="rankUpText">Поздравляем!</div><div class="modal-amount" id="rankUpAmount">+0 ₽</div><div class="modal-hint">Подарок зачислен в бонусный баланс.</div><div class="modal-actions"><button class="modal-btn" style="background:#f1c40f;" onclick="closeRankUpModal()">Отлично</button></div></div></div>
-<div class="modal-backdrop" id="dailyModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Daily Bonus</div><div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div><div class="modal-text" id="dailyModalText">Ваш бонус:</div><div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div><div class="modal-hint" id="dailyModalHint">Streak: 1 день</div><div class="modal-actions"><button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button></div></div></div>
-<div class="modal-backdrop" id="wheelModal"><div class="modal wheel-win"><button class="modal-close" onclick="closeWheelModal()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Lucky Wheel</div><div class="wheel-win-icon">🎉</div><div class="modal-title">Выигрыш!</div><div class="modal-amount" id="wheelPrize">0 ₽</div><div class="modal-text">Зачислено на бонусный баланс.</div><div class="modal-hint">Отыграйте с вейджером ×5, чтобы вывести.</div><div class="modal-actions"><button class="modal-btn" style="background:#f1c40f;" onclick="closeWheelModal()">Отлично</button></div></div></div>
-<div class="modal-backdrop" id="confirmTransferModal"><div class="modal" style="border-color:#3fbf7f;"><button class="modal-close" onclick="closeConfirmTransfer()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Transfer</div><div class="modal-title">Перевод на казино</div><div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div><div class="modal-hint">Средства сразу поступят на игровой счёт.</div><div class="modal-actions"><button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button><button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button></div></div></div>
-<div class="modal-backdrop" id="successTransferModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Успешно!</div><div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button></div></div></div>
-<div class="modal-backdrop" id="confirmRealWithdrawModal"><div class="modal"><button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Withdraw</div><div class="modal-title">Заявка на вывод</div><div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div><div class="modal-hint">Заявка уходит администратору.</div><div class="modal-actions"><button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button><button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button></div></div></div>
-<div class="modal-backdrop" id="successRealWithdrawModal"><div class="modal"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Заявка создана!</div><div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div><div class="modal-actions"><button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button></div></div></div>
-<div class="modal-backdrop" id="reviewSuccessModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Thanks</div><div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div><div class="modal-text">Ваша оценка отправлена.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button></div></div></div>
-<div class="modal-backdrop" id="reviewErrorModal"><div class="modal" style="border-color:#ff4d4d;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Notice</div><div class="modal-title" style="color:#ff8a8a;">Ошибка</div><div class="modal-text" id="reviewErrorText">Ошибка</div><div class="modal-actions"><button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button></div></div></div>
-<div class="modal-backdrop" id="changePassModal"><div class="modal"><button class="modal-close" onclick="closeChangePassModal()">✕</button><div class="modal-logo">KINGWIN</div><div class="modal-sub">Security</div><div class="modal-title">Смена пароля</div><input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль"><input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)"><input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый"><div class="err" id="cpErr" style="display:none;"></div><div class="modal-actions" style="margin-top:6px;"><button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button><button class="modal-btn green" onclick="submitChangePass()">Сохранить</button></div></div></div>
-<div class="modal-backdrop" id="changePassSuccessModal"><div class="modal" style="border-color:#3fbf7f;"><div class="modal-logo">KINGWIN</div><div class="modal-sub">Success</div><div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div><div class="modal-text">Используйте новый пароль.</div><div class="modal-actions"><button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button></div></div></div>
+<div class="modal-backdrop" id="rankUpModal">
+  <div class="modal" style="border-color:#f1c40f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Rank Up</div>
+    <div class="modal-title">Ранг повышен! <span>🎉</span></div>
+    <div class="modal-text" id="rankUpText">Поздравляем!</div>
+    <div class="modal-amount" id="rankUpAmount">+0 ₽</div>
+    <div class="modal-hint">Подарок зачислен в бонусный баланс.</div>
+    <div class="modal-actions"><button class="modal-btn" style="background:#f1c40f;" onclick="closeRankUpModal()">Отлично</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="dailyModal">
+  <div class="modal" style="border-color:#3fbf7f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Daily Bonus</div>
+    <div class="modal-title">Бонус <span style="color:#3fbf7f;">получен!</span></div>
+    <div class="modal-text" id="dailyModalText">Ваш бонус:</div>
+    <div class="modal-amount" id="dailyModalAmount" style="color:#3fbf7f;">+10 ₽</div>
+    <div class="modal-hint" id="dailyModalHint">Streak: 1 день</div>
+    <div class="modal-actions"><button class="modal-btn" style="background:#3fbf7f;" onclick="closeDailyModal()">Забрать</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmTransferModal">
+  <div class="modal" style="border-color:#3fbf7f;">
+    <button class="modal-close" onclick="closeConfirmTransfer()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Transfer</div>
+    <div class="modal-title">Перевод на казино</div>
+    <div class="modal-text">Перевести <b id="transferAmount" style="color:#fff;">0</b> ₽ на баланс казино?</div>
+    <div class="modal-hint">Средства сразу поступят на игровой счёт.</div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeConfirmTransfer()">Отмена</button>
+      <button class="modal-btn green" onclick="executeTransfer()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="successTransferModal">
+  <div class="modal" style="border-color:#3fbf7f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Успешно!</div>
+    <div class="modal-text">Переведено <b id="successTransferAmount" style="color:#fff;">0</b> ₽.</div>
+    <div class="modal-actions"><button class="modal-btn green" onclick="closeSuccessTransfer()">Отлично</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmRealWithdrawModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeConfirmRealWithdraw()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Withdraw</div>
+    <div class="modal-title">Заявка на вывод</div>
+    <div class="modal-text">Вывести <b id="realWithdrawAmount" style="color:#fff;">0</b> ₽?</div>
+    <div class="modal-hint">Заявка уходит администратору.</div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeConfirmRealWithdraw()">Отмена</button>
+      <button class="modal-btn" onclick="executeRealWithdraw()">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="successRealWithdrawModal">
+  <div class="modal">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Заявка создана!</div>
+    <div class="modal-text">Заявка на вывод <b id="successRealWithdrawAmount" style="color:#fff;">0</b> ₽ отправлена.</div>
+    <div class="modal-actions"><button class="modal-btn" onclick="closeSuccessRealWithdraw()">Понятно</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="reviewSuccessModal">
+  <div class="modal" style="border-color:#3fbf7f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Thanks</div>
+    <div class="modal-title">Спасибо! <span style="color:#3fbf7f;">⭐</span></div>
+    <div class="modal-text">Ваша оценка отправлена.</div>
+    <div class="modal-actions"><button class="modal-btn green" onclick="closeReviewSuccess()">Отлично</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="reviewErrorModal">
+  <div class="modal" style="border-color:#ff4d4d;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Notice</div>
+    <div class="modal-title" style="color:#ff8a8a;">Ошибка</div>
+    <div class="modal-text" id="reviewErrorText">Ошибка</div>
+    <div class="modal-actions"><button class="modal-btn" style="background:#ff4d4d; color:#fff;" onclick="closeReviewError()">Понятно</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="changePassModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeChangePassModal()">✕</button>
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Security</div>
+    <div class="modal-title">Смена пароля</div>
+    <input type="password" id="cpOld" class="cp-input" placeholder="Текущий пароль">
+    <input type="password" id="cpNew" class="cp-input" placeholder="Новый пароль (мин. 4)">
+    <input type="password" id="cpNew2" class="cp-input" placeholder="Повторите новый">
+    <div class="err" id="cpErr" style="display:none;"></div>
+    <div class="modal-actions" style="margin-top:6px;">
+      <button class="modal-btn cancel" onclick="closeChangePassModal()">Отмена</button>
+      <button class="modal-btn green" onclick="submitChangePass()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="changePassSuccessModal">
+  <div class="modal" style="border-color:#3fbf7f;">
+    <div class="modal-logo">KINGWIN</div>
+    <div class="modal-sub">Success</div>
+    <div class="modal-title">Пароль <span style="color:#3fbf7f;">изменён!</span></div>
+    <div class="modal-text">Используйте новый пароль.</div>
+    <div class="modal-actions"><button class="modal-btn green" onclick="closeChangePassSuccess()">Понятно</button></div>
+  </div>
+</div>
 
 <script>
 const CASINO_URL = 'https://kingwin-production.up.railway.app/';
@@ -178,16 +276,11 @@ const RANKS_INFO = {
   Diamond: { next:1500, label:'VIP', gift:1000 }, VIP: { next:null, label:null, gift:3000 }
 };
 const DAILY_REWARDS = [10,15,20,25,30,35,40];
-const WHEEL_PRIZES = [1,2,4,6,10];
-const WHEEL_COOLDOWN_MS = 60*60*1000;
 
 let session = null, summary = null, dailyState = null;
 let currentTab = 'profile';
 let lastSeenRank = null, refreshTimer = null, claimLock = false;
-let selectedStars = 0, wheelSpinning = false, wheelRotation = 0;
-let wheelState = { can_spin:false, last_spin:null };
-let wheelTimerInterval = null;
-let wheelStatusLoading = false;
+let selectedStars = 0;
 
 function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
@@ -225,7 +318,6 @@ async function doLogin(){
     localStorage.setItem('kingwin_guest_id', id);
     saveGuestToStorage(data.guest);
     await loadAll();
-    await checkWheelStatus();
     startAutoRefresh();
   } catch(e){ err.textContent='Ошибка соединения'; err.style.display='block'; }
 }
@@ -255,7 +347,6 @@ function startAutoRefresh(){
 }
 function switchTab(tab){ currentTab = tab; renderProfile(); }
 function doLogout(){
-  stopWheelTimer();
   if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
   session = null; summary = null; dailyState = null; lastSeenRank = null;
   try { localStorage.removeItem('kingwin_guest_id'); } catch(e){}
@@ -309,7 +400,7 @@ function renderProfile(){
     </div>
   </div>`;
 
-  const bonusPage = `<div class="page ${currentTab==='bonus'?'active':''}">${renderDailyHtml()}${renderWheelHtml()}</div>`;
+  const bonusPage = `<div class="page ${currentTab==='bonus'?'active':''}">${renderDailyHtml()}</div>`;
   const withdrawPage = `<div class="page ${currentTab==='withdraw'?'active':''}">${renderWithdrawHtml()}</div>`;
   const newsPage = `<div class="page ${currentTab==='news'?'active':''}"><div class="card"><div style="font-size:11px;color:#8fa2b8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:10px;">📰 Новости</div><div id="newsContainer"><div style="color:#8fa2b8;font-size:12px;text-align:center;padding:16px;">Загрузка...</div></div></div></div>`;
   const reviewPage = `<div class="page ${currentTab==='review'?'active':''}">
@@ -335,7 +426,6 @@ function renderProfile(){
   document.getElementById('content').innerHTML = tabs + profilePage + bonusPage + withdrawPage + newsPage + reviewPage;
   if(currentTab==='news') loadNews();
   if(currentTab==='review') loadMyReviews();
-  if(currentTab==='bonus'){ checkWheelStatus(); startWheelTimer(); } else { stopWheelTimer(); }
 }
 
 function renderDailyHtml(){
@@ -356,171 +446,6 @@ function renderDailyHtml(){
   </div>`;
 }
 
-/* ===== WHEEL ===== */
-function renderWheelHtml(){
-  const segments = WHEEL_PRIZES.length;
-  const angleStep = 360 / segments;
-  const segColors = ['rgba(0,229,255,0.20)','rgba(0,119,255,0.20)','rgba(63,191,127,0.20)','rgba(241,196,15,0.25)','rgba(255,77,77,0.20)'];
-  const segStrokes = ['#00e5ff','#0077ff','#3fbf7f','#f1c40f','#ff4d4d'];
-  const textColors = ['#00e5ff','#4db8ff','#3fbf7f','#f1c40f','#ff8a8a'];
-  let segSvg = '';
-  for(let i=0;i<segments;i++){
-    const sa = i*angleStep-90, ea = (i+1)*angleStep-90;
-    const sr = sa*Math.PI/180, er = ea*Math.PI/180;
-    const r = 100;
-    const x1 = 110 + r*Math.cos(sr), y1 = 110 + r*Math.sin(sr);
-    const x2 = 110 + r*Math.cos(er), y2 = 110 + r*Math.sin(er);
-    const la = angleStep>180?1:0;
-    segSvg += `<path d="M110,110 L${x1},${y1} A${r},${r} 0 ${la},1 ${x2},${y2} Z" fill="${segColors[i]}" stroke="${segStrokes[i]}" stroke-width="1.5" stroke-opacity="0.5"/>`;
-    const ma = (sa+ea)/2, mr = ma*Math.PI/180;
-    const tx = 110 + 68*Math.cos(mr), ty = 110 + 68*Math.sin(mr);
-    segSvg += `<text x="${tx}" y="${ty}" font-size="15" font-weight="900" fill="${textColors[i]}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${ma+90}, ${tx}, ${ty})">${WHEEL_PRIZES[i]}₽</text>`;
-  }
-  return `<div class="wheel-card">
-    <div class="wheel-title"><span>🎡 Колесо Фортуны</span><span class="hint">1 раз в час</span></div>
-    <div class="wheel-container">
-      <div class="wheel-arrow"></div>
-      <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220" style="transform: rotate(${wheelRotation}deg)">
-        <circle cx="110" cy="110" r="105" fill="rgba(11,14,20,0.9)" stroke="#00e5ff" stroke-width="1.5" stroke-opacity="0.3"/>
-        ${segSvg}
-        <circle cx="110" cy="110" r="100" fill="none" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.15"/>
-      </svg>
-      <div class="wheel-center">💎</div>
-    </div>
-    <div class="wheel-timer" id="wheelTimer">Загрузка…</div>
-    <button class="btn" id="wheelBtn" onclick="spinWheel()" style="background:#f1c40f;" disabled>Крутить</button>
-  </div>`;
-}
-
-async function checkWheelStatus(){
-  if(!session) return;
-  wheelStatusLoading = true;
-  const btn = document.getElementById('wheelBtn'); if(btn) btn.disabled = true;
-  try {
-    const r = await fetch('/api/wheel/status?id='+encodeURIComponent(session.id), { cache:'no-store' });
-    const data = await r.json();
-    wheelState = data;
-    renderWheelStatus();
-  } catch(e){
-    wheelState = { can_spin:false, last_spin:null };
-    renderWheelStatus();
-  } finally { wheelStatusLoading = false; }
-}
-
-function renderWheelStatus(){
-  const timerEl = document.getElementById('wheelTimer');
-  const btn = document.getElementById('wheelBtn');
-  if(!timerEl || !btn) return;
-
-  if(wheelStatusLoading){
-    timerEl.textContent = 'Проверка…';
-    timerEl.style.color = '#8fa2b8';
-    btn.disabled = true;
-    return;
-  }
-  if(wheelSpinning){
-    timerEl.textContent = 'Крутим…';
-    timerEl.style.color = '#f1c40f';
-    btn.disabled = true;
-    return;
-  }
-  if(wheelState && wheelState.can_spin){
-    timerEl.textContent = '✦ Доступно!';
-    timerEl.style.color = '#3fbf7f';
-    btn.disabled = false;
-    return;
-  }
-  if(wheelState && wheelState.last_spin){
-    const lastTime = new Date(wheelState.last_spin).getTime();
-    const left = WHEEL_COOLDOWN_MS - (Date.now() - lastTime);
-    if(left <= 0){
-      wheelState.can_spin = true;
-      timerEl.textContent = '✦ Доступно!';
-      timerEl.style.color = '#3fbf7f';
-      btn.disabled = false;
-      return;
-    }
-    const min = Math.floor(left/60000);
-    const sec = Math.floor((left%60000)/1000);
-    timerEl.textContent = `Доступно через ${min}:${String(sec).padStart(2,'0')}`;
-    timerEl.style.color = '#8fa2b8';
-    btn.disabled = true;
-    return;
-  }
-  timerEl.textContent = 'Загрузка…';
-  timerEl.style.color = '#8fa2b8';
-  btn.disabled = true;
-}
-
-function startWheelTimer(){
-  stopWheelTimer();
-  wheelTimerInterval = setInterval(renderWheelStatus, 1000);
-}
-function stopWheelTimer(){
-  if(wheelTimerInterval){ clearInterval(wheelTimerInterval); wheelTimerInterval = null; }
-}
-
-async function spinWheel(){
-  if(wheelSpinning || !session) return;
-  wheelSpinning = true;
-  const btn = document.getElementById('wheelBtn'); if(btn) btn.disabled = true;
-  renderWheelStatus();
-
-  try {
-    const sres = await fetch('/api/wheel/status?id='+encodeURIComponent(session.id), { cache:'no-store' });
-    const sdata = await sres.json();
-    wheelState = sdata;
-
-    if(!sdata.can_spin){
-      wheelSpinning = false;
-      renderWheelStatus();
-      if(sdata.last_spin){
-        const left = WHEEL_COOLDOWN_MS - (Date.now() - new Date(sdata.last_spin).getTime());
-        if(left > 0){
-          const min = Math.ceil(left/60000);
-          alert(`Колесо будет доступно через ${min} мин.`);
-        }
-      }
-      return;
-    }
-
-    const r = await fetch('/api/wheel/spin',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id: session.id })
-    });
-    const data = await r.json();
-    if(!r.ok){
-      alert(data.error || 'Ошибка');
-      wheelSpinning = false;
-      renderWheelStatus();
-      return;
-    }
-
-    const prizeIdx = WHEEL_PRIZES.indexOf(data.prize);
-    const angleStep = 360 / WHEEL_PRIZES.length;
-    const targetAngle = 360*5 + (360 - (prizeIdx*angleStep + angleStep/2));
-    wheelRotation += targetAngle;
-    const svg = document.getElementById('wheelSvg');
-    if(svg) svg.style.transform = `rotate(${wheelRotation}deg)`;
-
-    setTimeout(async ()=>{
-      document.getElementById('wheelPrize').textContent = '+' + fmt(data.prize) + ' ₽';
-      document.getElementById('wheelModal').classList.add('show');
-      wheelState.can_spin = false;
-      wheelState.last_spin = data.last_spin || new Date().toISOString();
-      wheelSpinning = false;
-      await loadSummary();
-      renderWheelStatus();
-    }, 4100);
-  } catch(e){
-    alert('Ошибка соединения');
-    wheelSpinning = false;
-    renderWheelStatus();
-  }
-}
-function closeWheelModal(){ document.getElementById('wheelModal').classList.remove('show'); }
-
-/* ===== DAILY CLAIM ===== */
 async function claimDaily(){
   if(!dailyState || dailyState.claimed_today || claimLock) return;
   claimLock = true;
@@ -553,7 +478,6 @@ function showDailyModal(reward, level){
 function closeDailyModal(){ document.getElementById('dailyModal').classList.remove('show'); }
 function plural(n,one,few,many){ const m10=n%10,m100=n%100; if(m10===1&&m100!==11) return one; if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return few; return many; }
 
-/* ===== WITHDRAW ===== */
 function renderWithdrawHtml(){
   const g = summary; if(!g) return '';
   const RANK_IDX = { Bronze:1, Silver:2, Gold:3, Platinum:4, Diamond:5, VIP:6 };
@@ -615,7 +539,6 @@ async function executeRealWithdraw(){
 }
 function closeSuccessRealWithdraw(){ document.getElementById('successRealWithdrawModal').classList.remove('show'); }
 
-/* ===== NEWS ===== */
 async function loadNews(){
   const box = document.getElementById('newsContainer'); if(!box) return;
   try {
@@ -626,7 +549,6 @@ async function loadNews(){
   } catch(e){ box.innerHTML = `<div style="color:#ff8a8a;font-size:12px;text-align:center;padding:16px;">Ошибка загрузки</div>`; }
 }
 
-/* ===== REVIEWS ===== */
 function selectStars(val){
   selectedStars = val;
   document.querySelectorAll('#starsRow .star').forEach(s=>{ s.classList.toggle('active', parseInt(s.dataset.val)<=val); });
@@ -668,7 +590,6 @@ async function loadMyReviews(){
   } catch(e){ box.innerHTML = `<div style="color:#ff8a8a;font-size:12px;text-align:center;padding:10px;">Ошибка загрузки</div>`; }
 }
 
-/* ===== CHANGE PASS ===== */
 function openChangePassModal(){
   document.getElementById('cpOld').value = '';
   document.getElementById('cpNew').value = '';
@@ -697,7 +618,6 @@ async function submitChangePass(){
   } catch(e){ err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
-/* ===== BOOT ===== */
 (async function boot(){
   let savedId = null, savedName = '';
   try {
@@ -712,7 +632,6 @@ async function submitChangePass(){
     const s = await r.json();
     session = { id: savedId, name: s.name || savedName || '' };
     await loadAll();
-    await checkWheelStatus();
     startAutoRefresh();
   } catch(e){
     renderLogin(savedId);
