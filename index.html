@@ -71,23 +71,29 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* ===== МОДАЛКИ: ФИКСИРОВАННЫЙ ОВЕРЛЕЙ ПО ЦЕНТРУ ===== */
+  /* ===== МОДАЛКИ — ФИКСИРОВАННЫЙ ОВЕРЛЕЙ ===== */
   .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    background: rgba(0,0,0,0.85) !important;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 20px 15px;
-    overflow-y: auto;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  .modal-overlay.show { display: flex; }
+  .modal-overlay.show { display: flex !important; }
 
   .modal-box {
     background: var(--bg-panel);
@@ -103,12 +109,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    animation: modalIn 0.25s cubic-bezier(.2,.9,.3,1.2) both;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-  }
-  @keyframes modalIn {
-    from { opacity: 0; transform: translateY(16px) scale(.96); }
-    to   { opacity: 1; transform: translateY(0)    scale(1); }
   }
 
   .modal-close {
@@ -155,7 +156,7 @@
     .hero-content h1 { font-size: 28px; }
     .hero-content p { font-size: 14px; }
     .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
-    .modal-overlay { padding: 10px; }
+    .modal-overlay { padding: 10px !important; }
     .modal-box { padding: 22px 18px; max-height: calc(100dvh - 20px); border-radius: 14px; }
     .modal-box h2 { font-size: 18px; }
   }
@@ -341,8 +342,9 @@ function closeModal(id) {
   }
 }
 
-document.addEventListener('click', (e) => {
+window.addEventListener('click', (e) => {
   if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('show');
     if (!document.querySelector('.modal-overlay.show')) {
       document.body.style.overflow = '';
     }
