@@ -115,106 +115,19 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
-  /* Модалка «Как играть» */
-  .howto-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88);
-    backdrop-filter: blur(6px);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 99999;
-    padding: 20px;
-    overflow-y: auto;
-  }
+  .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; overflow-y: auto; }
   .howto-backdrop.show { display: flex; }
-  .howto-modal {
-    background: linear-gradient(135deg, #111625, #0a0d14);
-    border: 1px solid rgba(0,229,255,0.3);
-    border-radius: 20px;
-    max-width: 520px;
-    width: 100%;
-    margin: auto;
-    padding: 30px 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    max-height: calc(100dvh - 40px);
-    overflow-y: auto;
-  }
-  .howto-modal h2 {
-    font-size: 22px;
-    font-weight: 900;
-    margin-bottom: 6px;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-align: center;
-  }
-  .howto-sub {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-align: center;
-    margin-bottom: 22px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-  }
-  .howto-step {
-    display: flex;
-    gap: 14px;
-    padding: 14px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    margin-bottom: 10px;
-  }
-  .howto-step-num {
-    flex-shrink: 0;
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00e5ff, #0077ff);
-    color: #000;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 15px;
-  }
+  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 520px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
+  .howto-modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
+  .howto-sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 22px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .howto-step { display: flex; gap: 14px; padding: 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; }
+  .howto-step-num { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 15px; }
   .howto-step-body { flex: 1; min-width: 0; }
-  .howto-step-title {
-    font-size: 14px;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-  .howto-step-text {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-  .howto-tips {
-    background: rgba(241,196,15,0.08);
-    border: 1px solid rgba(241,196,15,0.3);
-    border-radius: 12px;
-    padding: 14px;
-    margin-top: 16px;
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
+  .howto-step-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .howto-step-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .howto-tips { background: rgba(241,196,15,0.08); border: 1px solid rgba(241,196,15,0.3); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
   .howto-tips b { color: var(--yellow); }
-  .howto-close {
-    display: block;
-    width: 100%;
-    margin-top: 20px;
-    background: #00e5ff;
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 14px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-  }
+  .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.2s; }
   .howto-close:hover { box-shadow: 0 0 20px rgba(0,229,255,0.5); }
 
   @media (max-width: 900px) {
@@ -396,6 +309,13 @@ const PLAYER_KEY = 'kingwin_guest_id';
 const MAX_BET = 200;
 const MIN_BET = 1;
 const POLL_MS = 300;
+
+// --- ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
+const rocketImg = new Image();
+rocketImg.src = '/assets/crash-rocket.png'; // Путь к твоей картинке
+let isRocketLoaded = false;
+rocketImg.onload = () => { isRocketLoaded = true; };
+rocketImg.onerror = () => { console.warn('Ракета не найдена по пути:', rocketImg.src); };
 
 let playerId = localStorage.getItem(PLAYER_KEY);
 let playerBalance = 0;
@@ -679,6 +599,7 @@ function drawGraph(currentMult, status) {
   ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
   for (let i = 0; i < H; i += 60) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
   for (let i = 0; i < W; i += 60) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
+
   if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
     const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
     const drawW = W - paddingL - paddingR;
@@ -686,9 +607,11 @@ function drawGraph(currentMult, status) {
     const lastX = graphPoints[graphPoints.length - 1].x;
     const maxX = Math.max(3, lastX);
     const maxY = Math.max(currentMult * 1.15, 1.5);
+
     let lineColor = '#00e5ff', shadowColor = 'rgba(0,229,255,0.5)';
     if (status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
     else if (currentMult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
+
     ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineJoin = 'round';
     ctx.shadowBlur = 10; ctx.shadowColor = shadowColor;
     for (let i = 0; i < graphPoints.length; i++) {
@@ -698,12 +621,47 @@ function drawGraph(currentMult, status) {
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke(); ctx.shadowBlur = 0;
+
     const lastP = graphPoints[graphPoints.length - 1];
     const lx = paddingL + (lastP.x / maxX) * drawW;
     const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
-    ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
-    ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+
+    // --- ОТРИСОВКА РАКЕТЫ ---
+    if (isRocketLoaded && status === 'flying') {
+      // Расчет угла наклона по последним двум точкам
+      let angle = -45; // Угол по умолчанию (вверх-вправо)
+      if (graphPoints.length >= 2) {
+        const p1 = graphPoints[graphPoints.length - 2];
+        const p2 = graphPoints[graphPoints.length - 1];
+        const p1x = paddingL + (p1.x / maxX) * drawW;
+        const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
+        const p2x = paddingL + (p2.x / maxX) * drawW;
+        const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
+        angle = Math.atan2(p2y - p1y, p2x - p1x);
+      }
+
+      const rocketSize = 80; // Размер ракеты на экране
+      // Добавляем легкую вибрацию (пульсацию) для эффекта работающего двигателя
+      const vibration = Math.sin(Date.now() / 50) * 2;
+
+      ctx.save();
+      ctx.translate(lx + vibration, ly + vibration); // Центрируем ракету на конце графика
+      ctx.rotate(angle + Math.PI / 4); // Поворачиваем (Math.PI/4 корректирует исходный наклон картинки)
+      
+      // Свечение вокруг ракеты
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(0,229,255,0.8)';
+      
+      // Рисуем картинку (центрируем относительно точки lx, ly)
+      ctx.drawImage(rocketImg, -rocketSize / 2, -rocketSize / 2, rocketSize, rocketSize);
+      
+      ctx.restore();
+    } else {
+      // Точка, если картинки нет или раунд крашнулся
+      ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
+      ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+    }
   }
 }
 
@@ -739,7 +697,6 @@ function renderBets(bets) {
   }).join('');
 }
 
-/* ===== ФИКС: 1.00x → 0.00x ===== */
 function renderHistory(history) {
   const sig = (history || []).join('|');
   if (sig === lastHistorySig) return;
