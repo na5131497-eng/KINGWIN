@@ -124,7 +124,7 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-// ===== ИСПРАВЛЕНО: синхронизировано с клиентом (ladder.html) =====
+// ===== LADDER: синхронизировано с клиентом =====
 const LADDER_MULTS = {
   1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
   2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
@@ -135,9 +135,28 @@ const LADDER_MULTS = {
   7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
 };
 
-// ===== ИСПРАВЛЕНО: единая функция начисления для Ladder с учётом отыгрыша =====
-async function creditLadderWin(guestId, amount, betAmount) {
-  if (amount <= 0) return;
+/* ============================================================
+   ЕДИНАЯ ЛОГИКА НАЧИСЛЕНИЯ (используется во ВСЕХ играх)
+   ============================================================ */
+
+// Списать ставку. Возвращает { ok, bonus, deposit } после списания, или null если не хватило.
+async function debitBet(guestId, amount) {
+  const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
+  if (!r.rows.length) return null;
+  let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
+  let dep = parseFloat(r.rows[0].deposit_balance) || 0;
+  const total = bonus + dep;
+  if (total < amount) return null;
+  let rem = amount;
+  if (bonus >= rem) { bonus -= rem; rem = 0; }
+  else { rem -= bonus; bonus = 0; dep -= rem; }
+  await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
+  return { bonus, deposit: dep };
+}
+
+// Начислить выигрыш с учётом отыгрыша. betAmount засчитывается в wagering_done.
+async function creditWin(guestId, winAmount, betAmount) {
+  if (winAmount <= 0) return;
   try {
     const g = await pool.query('SELECT wagering_required, wagering_done, bonus_balance FROM guests WHERE id=$1', [guestId]);
     if (!g.rows.length) return;
@@ -145,12 +164,10 @@ async function creditLadderWin(guestId, amount, betAmount) {
     const done = parseFloat(g.rows[0].wagering_done) || 0;
 
     if (req_ > 0 && done < req_) {
-      // Отыгрыш активен — начисляем в бонус и увеличиваем отыгранное
       await pool.query(
         'UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_done = wagering_done + $2 WHERE id=$3',
-        [amount, betAmount, guestId]
+        [winAmount, betAmount || 0, guestId]
       );
-      // Проверяем завершение отыгрыша
       const check = await pool.query('SELECT wagering_required, wagering_done, bonus_balance FROM guests WHERE id=$1', [guestId]);
       if (check.rows.length) {
         const nr = parseFloat(check.rows[0].wagering_required) || 0;
@@ -164,9 +181,26 @@ async function creditLadderWin(guestId, amount, betAmount) {
         }
       }
     } else {
-      await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
+      await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [winAmount, guestId]);
     }
-  } catch (e) { console.error('creditLadderWin error:', e.message); }
+  } catch (e) { console.error('creditWin error:', e.message); }
+}
+
+// Вернуть актуальный баланс с сервера (для ответов клиенту)
+async function getBalance(guestId) {
+  const r = await pool.query('SELECT deposit_balance, bonus_balance, wagering_required, wagering_done FROM guests WHERE id=$1', [guestId]);
+  if (!r.rows.length) return { total: 0, deposit: 0, bonus: 0, wagering: { required: 0, done: 0, left: 0 } };
+  const g = r.rows[0];
+  const dep = parseFloat(g.deposit_balance) || 0;
+  const bon = parseFloat(g.bonus_balance) || 0;
+  const req_ = parseFloat(g.wagering_required) || 0;
+  const done = parseFloat(g.wagering_done) || 0;
+  return {
+    total: dep + bon,
+    deposit: dep,
+    bonus: bon,
+    wagering: { required: req_, done, left: Math.max(0, req_ - done) }
+  };
 }
 
 const DEALER_TASKS_BJ = [
@@ -295,17 +329,11 @@ async function crashStartWaiting() {
       const toApply = queuedBets.slice(); queuedBets = [];
       for (const q of toApply) {
         try {
-          const guestRes = await pool.query(`SELECT * FROM guests WHERE id=$1`, [q.player_id]);
-          if (guestRes.rows.length === 0) continue;
+          const debited = await debitBet(q.player_id, q.amount);
+          if (!debited) continue;
+          const guestRes = await pool.query(`SELECT id, rank FROM guests WHERE id=$1`, [q.player_id]);
+          if (!guestRes.rows.length) continue;
           const guest = guestRes.rows[0];
-          const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-          if (totalBal < q.amount) continue;
-          let bonus = parseFloat(guest.bonus_balance) || 0;
-          let dep = parseFloat(guest.deposit_balance) || 0;
-          let remaining = q.amount;
-          if (bonus >= remaining) { bonus -= remaining; remaining = 0; }
-          else { remaining -= bonus; bonus = 0; dep -= remaining; }
-          await pool.query(`UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3`, [bonus, dep, q.player_id]);
           const s = String(guest.id);
           const maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••';
           await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount) VALUES ($1,$2,$3,$4,$5)`, [crashState.roundId, q.player_id, maskName, guest.rank || 'Bronze', q.amount]);
@@ -526,16 +554,6 @@ async function addBalanceByNick(nick, amount, isBonus = false){
   return true;
 }
 
-async function creditMinerWin(guestId, amount) {
-  if (amount <= 0) return;
-  const g = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guestId]);
-  if (!g.rows.length) return;
-  const req_ = parseFloat(g.rows[0].wagering_required) || 0;
-  const done = parseFloat(g.rows[0].wagering_done) || 0;
-  if (req_ > 0 && done < req_) await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [amount, guestId]);
-  else await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
-}
-
 async function getGuestById(id){ const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id)]); return r.rows[0] || null; }
 
 /* ============================================================
@@ -579,7 +597,8 @@ const server = http.createServer(async (req, res) => {
       else { next = cur - amount; if (next < 0) return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${cur.toFixed(2)} ₽` }); }
       await pool.query(`UPDATE guests SET ${col}=$1 WHERE id=$2`, [next, id]);
       try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), op === 'add' ? 'расход' : 'доход', amount, `Admin ${op} ${type} ${g.name} (#${id})`]); } catch(e) {}
-      return sendJSON(res, 200, { ok: true, balance: { deposit_balance: type === 'deposit' ? next : (parseFloat(g.deposit_balance) || 0), bonus_balance: type === 'bonus' ? next : (parseFloat(g.bonus_balance) || 0) } });
+      const bal = await getBalance(id);
+      return sendJSON(res, 200, { ok: true, balance: bal });
     }
 
     if (url === '/api/admin/crash/force-next' && method === 'GET') {
@@ -651,7 +670,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, list);
     }
 
-    // ===== ИНДИВИДУАЛЬНЫЙ СЛИВ В МИНЕРЕ =====
     if (url === '/api/admin/miner/players' && method === 'GET') {
       try {
         const r = await pool.query(`
@@ -714,23 +732,12 @@ const server = http.createServer(async (req, res) => {
       if (bet > 1000) return sendJSON(res, 400, { error: 'Макс. ставка 1000 ₽' });
       if (minesCount < 1 || minesCount > 7) return sendJSON(res, 400, { error: 'Камней от 1 до 7' });
 
-      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
-      if (!g.rows.length) return sendJSON(res, 404, { error: 'Гость не найден' });
-      const guest = g.rows[0];
-      const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-      if (totalBal < bet) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-
-      let bonus = parseFloat(guest.bonus_balance) || 0;
-      let dep = parseFloat(guest.deposit_balance) || 0;
-      let rem = bet;
-      if (bonus >= rem) { bonus -= rem; rem = 0; }
-      else { rem -= bonus; bonus = 0; dep -= rem; }
-      await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
+      const debited = await debitBet(guestId, bet);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
 
       const levelsCount = 9;
       const cellsCount = 20;
       const ladder = [];
-
       for (let i = 0; i < levelsCount; i++) {
         const mines = [];
         while (mines.length < minesCount) {
@@ -743,7 +750,8 @@ const server = http.createServer(async (req, res) => {
       const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
       ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, createdAt: Date.now() };
 
-      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount });
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
 
     if (url === '/api/ladder/step' && method === 'POST') {
@@ -769,21 +777,20 @@ const server = http.createServer(async (req, res) => {
           const mults = LADDER_MULTS[sess.minesCount];
           const winMult = mults[8];
           const winAmount = Math.round(sess.bet * winMult * 100) / 100;
-
-          // ===== ИСПРАВЛЕНО: начисление с учётом отыгрыша =====
-          await creditLadderWin(guestId, winAmount, sess.bet);
-
+          await creditWin(guestId, winAmount, sess.bet);
           try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
           try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]); } catch(e){}
-
+          const bal = await getBalance(guestId);
           delete ladderSessions[sessionId];
-          return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult });
+          return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
         }
-        return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep });
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       } else {
         delete ladderSessions[sessionId];
         try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]); } catch(e){}
-        return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines });
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       }
     }
 
@@ -804,17 +811,17 @@ const server = http.createServer(async (req, res) => {
       const winMult = mults[sess.currentStep - 1];
       const winAmount = Math.round(sess.bet * winMult * 100) / 100;
 
-      // ===== ИСПРАВЛЕНО: начисление с учётом отыгрыша =====
-      await creditLadderWin(guestId, winAmount, sess.bet);
+      await creditWin(guestId, winAmount, sess.bet);
 
       try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
       try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guestId})`]); } catch(e){}
 
+      const bal = await getBalance(guestId);
       delete ladderSessions[sessionId];
-      return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult });
+      return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
-      // ===== КЕЙСЫ =====
+    // ===== КЕЙСЫ =====
     if (url === '/api/cases/last-drops' && method === 'GET') {
       try { const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`); return sendJSON(res, 200, r.rows); }
       catch (e) { return sendJSON(res, 200, []); }
@@ -838,25 +845,24 @@ const server = http.createServer(async (req, res) => {
       const guest = g.rows[0];
       const rankIdx = RANK_INDEX[guest.rank] || 0;
       if (rankIdx < c.minRank) return sendJSON(res, 403, { error: 'Кейс недоступен' });
-      const bal = (parseFloat(guest.deposit_balance) || 0) + (parseFloat(guest.bonus_balance) || 0);
-      if (bal < c.price) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      let bonus = parseFloat(guest.bonus_balance) || 0;
-      let dep = parseFloat(guest.deposit_balance) || 0;
-      let remaining = c.price;
-      if (bonus >= remaining) { bonus -= remaining; remaining = 0; }
-      else { remaining -= bonus; bonus = 0; dep -= remaining; }
+
+      const debited = await debitBet(guest.id, c.price);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+
       const prize = pickPrize(c.prizes);
-      const wagerActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0);
-      if (wagerActive) await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus + prize, dep, guest.id]);
-      else await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep + prize, guest.id]);
+      await creditWin(guest.id, prize, c.price);
+
       await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`, [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
       await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1, $2, $3, $4, NOW())`, ['cases', guest.name, c.price, prize]);
       const net = c.price - prize;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
-      const gs = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guest.id]);
-      const req_ = parseFloat(gs.rows[0].wagering_required) || 0;
-      const done = parseFloat(gs.rows[0].wagering_done) || 0;
-      return sendJSON(res, 200, { ok: true, prize, new_balance: bonus + dep + prize, case_name, price: c.price, wagering: { required: req_, done, left: Math.max(0, req_ - done) } });
+
+      const bal = await getBalance(guest.id);
+      return sendJSON(res, 200, {
+        ok: true, prize, new_balance: bal.total,
+        deposit_balance: bal.deposit, bonus_balance: bal.bonus,
+        case_name, price: c.price, wagering: bal.wagering
+      });
     }
     if (url === '/api/cases/history' && method === 'GET') {
       try { const r = await pool.query(`SELECT player_name as name, bet, result, created_at FROM game_history WHERE game='cases' ORDER BY id DESC LIMIT 15`); return sendJSON(res, 200, r.rows); }
@@ -873,24 +879,19 @@ const server = http.createServer(async (req, res) => {
       if (mines > 24) mines = 24;
       if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
       if (bet < 5) return sendJSON(res, 400, { error: 'Мин. ставка 5 ₽' });
-      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
-      if (!g.rows.length) return sendJSON(res, 404, { error: 'Гость не найден' });
-      const guest = g.rows[0];
-      const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-      if (totalBal < bet) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      let bonus = parseFloat(guest.bonus_balance) || 0;
-      let dep = parseFloat(guest.deposit_balance) || 0;
-      let rem = bet;
-      if (bonus >= rem) { bonus -= rem; rem = 0; }
-      else { rem -= bonus; bonus = 0; dep -= rem; }
-      await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
+
+      const debited = await debitBet(guestId, bet);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+
       const TOTAL = 25;
       const mineSet = new Set();
       while (mineSet.size < mines) mineSet.add(Math.floor(Math.random() * TOTAL));
       const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       minerSessions[sessionId] = { guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now() };
       for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
-      return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: 5, mines, revealed: [], multiplier: 1.0, balance: bonus + dep });
+
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: 5, mines, revealed: [], multiplier: 1.0, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
     if (url === '/api/miner/open' && method === 'POST') {
       const b = await parseBody(req);
@@ -923,7 +924,8 @@ const server = http.createServer(async (req, res) => {
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length + 1, 0, 'lose', guestId]);
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
-        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId, forced: true };
+        const bal = await getBalance(guestId);
+        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId, forced: true, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
@@ -935,7 +937,8 @@ const server = http.createServer(async (req, res) => {
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length, 0, 'lose', guestId]);
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
-        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId };
+        const bal = await getBalance(guestId);
+        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
@@ -950,16 +953,26 @@ const server = http.createServer(async (req, res) => {
       if (sess.revealed.length >= safeTotal) {
         const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
         sess.finished = true;
-        await creditMinerWin(guestId, winAmount);
+        await creditWin(guestId, winAmount, sess.bet);
         try {
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
           const net = sess.bet - winAmount;
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
         } catch(e) {}
         delete minerSessions[sessionId];
+        const bal = await getBalance(guestId);
         result.auto_cashout = true;
         result.win = winAmount;
         result.mines = sess.mines;
+        result.balance = bal.total;
+        result.deposit_balance = bal.deposit;
+        result.bonus_balance = bal.bonus;
+        result.wagering = bal.wagering;
+      } else {
+        const bal = await getBalance(guestId);
+        result.balance = bal.total;
+        result.deposit_balance = bal.deposit;
+        result.bonus_balance = bal.bonus;
       }
       return sendJSON(res, 200, result);
     }
@@ -980,13 +993,14 @@ const server = http.createServer(async (req, res) => {
       const multiplier = Math.round((1 / surviveProb) * RTP * 100) / 100;
       const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
       sess.finished = true;
-      await creditMinerWin(guestId, winAmount);
+      await creditWin(guestId, winAmount, sess.bet);
       try {
         await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
         const net = sess.bet - winAmount;
         await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
       } catch(e) {}
-      const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines };
+      const bal = await getBalance(guestId);
+      const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering };
       delete minerSessions[sessionId];
       return sendJSON(res, 200, result);
     }
@@ -1021,36 +1035,28 @@ const server = http.createServer(async (req, res) => {
       if (amt > 200) return sendJSON(res, 400, { error: 'Макс. ставка 200 ₽' });
       if (crashState.status !== 'waiting') {
         if (!b.player_id) return sendJSON(res, 400, { error: 'Войдите в аккаунт' });
-        const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1`, [String(b.player_id)]);
-        if (gRes.rows.length === 0) return sendJSON(res, 400, { error: 'Гость не найден' });
-        const guest = gRes.rows[0];
-        const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-        if (totalBal < amt) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+        const bal = await getBalance(String(b.player_id));
+        if (bal.total < amt) return sendJSON(res, 400, { error: 'Недостаточно средств' });
         queuedBets.push({ player_id: String(b.player_id), amount: amt, queued_at: Date.now() });
-        return sendJSON(res, 200, { ok: true, queued: true, amount: amt });
+        return sendJSON(res, 200, { ok: true, queued: true, amount: amt, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       }
       let maskName = '••••', playerRank = 'Bronze';
       if (b.player_id) {
-        const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1`, [String(b.player_id)]);
+        const debited = await debitBet(String(b.player_id), amt);
+        if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+        const gRes = await pool.query(`SELECT id, rank FROM guests WHERE id=$1`, [String(b.player_id)]);
         if (gRes.rows.length > 0) {
-          const guest = gRes.rows[0];
-          const totalBal = (parseFloat(guest.bonus_balance) || 0) + (parseFloat(guest.deposit_balance) || 0);
-          if (totalBal < amt) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-          let bonus = parseFloat(guest.bonus_balance) || 0;
-          let dep = parseFloat(guest.deposit_balance) || 0;
-          let rem = amt;
-          if (bonus >= rem) { bonus -= rem; rem = 0; } else { rem -= bonus; bonus = 0; dep -= rem; }
-          await pool.query(`UPDATE guests SET bonus_balance = $1, deposit_balance = $2 WHERE id=$3`, [bonus, dep, String(b.player_id)]);
-          const s = String(guest.id);
+          const s = String(gRes.rows[0].id);
           maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••';
-          playerRank = guest.rank || 'Bronze';
+          playerRank = gRes.rows[0].rank || 'Bronze';
         }
       }
       const r = await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [crashState.roundId, b.player_id || null, maskName, playerRank, amt]);
       if (b.player_id) crashState.hasRealBet = true;
       tryStartFlightCountdown();
       if (b.player_id) { try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]); if (gRes.rows.length > 0) await accruePointsByNick(gRes.rows[0].name, amt, 'crash'); } catch(e){} }
-      return sendJSON(res, 200, { ok: true, bet: r.rows[0] });
+      const bal = b.player_id ? await getBalance(String(b.player_id)) : null;
+      return sendJSON(res, 200, { ok: true, bet: r.rows[0], balance: bal ? bal.total : 0, deposit_balance: bal ? bal.deposit : 0, bonus_balance: bal ? bal.bonus : 0 });
     }
     if (url === '/api/crash/cashout' && method === 'POST') {
       const b = await parseBody(req);
@@ -1063,18 +1069,12 @@ const server = http.createServer(async (req, res) => {
       const bet = betRes.rows[0];
       const winAmount = (parseFloat(bet.amount) * mult);
       await pool.query(`UPDATE crash_bets SET cashed_out=true, cashout_mult=$1 WHERE id=$2`, [mult, b.bet_id]);
-      let wageringInfo = { required: 0, done: 0, left: 0 };
+      let bal = null;
       if (bet.player_id && !String(bet.player_id).startsWith('BOT')) {
-        const guestRow = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [bet.player_id]);
-        if (guestRow.rows.length) {
-          const req_ = parseFloat(guestRow.rows[0].wagering_required) || 0;
-          const done = parseFloat(guestRow.rows[0].wagering_done) || 0;
-          if (req_ > 0 && done < req_) await pool.query(`UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2`, [winAmount, bet.player_id]);
-          else await pool.query(`UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2`, [winAmount, bet.player_id]);
-          wageringInfo = { required: req_, done, left: Math.max(0, req_ - done) };
-        }
+        await creditWin(bet.player_id, winAmount, parseFloat(bet.amount) || 0);
+        bal = await getBalance(bet.player_id);
       }
-      return sendJSON(res, 200, { ok: true, mult, win: winAmount, wagering: wageringInfo });
+      return sendJSON(res, 200, { ok: true, mult, win: winAmount, balance: bal ? bal.total : 0, deposit_balance: bal ? bal.deposit : 0, bonus_balance: bal ? bal.bonus : 0, wagering: bal ? bal.wagering : { required: 0, done: 0, left: 0 } });
     }
 
     // ===== ГОСТИ И ПРОФИЛЬ =====
@@ -1126,7 +1126,7 @@ const server = http.createServer(async (req, res) => {
       const wagerLeft = Math.max(0, wagerReq - wagerDone);
       if (bonusBal > 0) bonuses.push({ id: 'rank_bonus_' + (guest.rank || 'Bronze'), type: 'rank', title: 'Бонус за повышение ранга', desc: 'Начислен за достижение ранга ' + (guest.rank || 'Bronze') + (wagerLeft > 0 ? `. Отыграно ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽.` : '.'), amount: bonusBal, can_refuse: true, status: 'active', wager: wagerReq > 0 ? ('x' + (wagerReq / Math.max(bonusBal, 1)).toFixed(0)) : null });
       if (bonusBal <= 0 && guest.bonus_text) bonuses.push({ id: 'text_bonus_' + guest.id, type: 'welcome', title: guest.bonus_text.slice(0, 40), desc: guest.bonus_code ? ('Код: ' + guest.bonus_code) : '', amount: 0, can_refuse: false, status: 'active', wager: null });
-      return sendJSON(res, 200, { guest, unseen_deposits: unseen, bonuses, wagering: { required: wagerReq, done: wagerDone, left: wagerLeft } });
+      return sendJSON(res, 200, { guest, unseen_deposits: unseen, bonuses, wagering: { required: wagerReq, done: wagerDone, left: wagerLeft }, balance: { total: (parseFloat(guest.deposit_balance) || 0) + (parseFloat(guest.bonus_balance) || 0), deposit: parseFloat(guest.deposit_balance) || 0, bonus: parseFloat(guest.bonus_balance) || 0 } });
     }
     if (url === '/api/guest/refuse-bonus' && method === 'POST') {
       const b = await parseBody(req);
@@ -1140,7 +1140,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, refunded: bonusBal });
     }
 
-       if(url === '/api/deposits' && method === 'GET'){ const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
+    if(url === '/api/deposits' && method === 'GET'){ const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/deposits' && method === 'POST'){
       const d = await parseBody(req);
       const amt = parseFloat(d.sum) || 0;
@@ -1248,10 +1248,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // ============ СТАТИЧЕСКИЕ ФАЙЛЫ (HTML, PNG, MP3 и т.д.) ============
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
-
-    // Защита от path traversal: убираем всё, что пытается выйти за пределы папки
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
 
@@ -1336,15 +1333,6 @@ async function withdrawBet(guestId, amount) {
   await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
   return true;
 }
-async function creditWin(guestId, amount) {
-  if (amount <= 0) return;
-  const g = await pool.query('SELECT wagering_required, wagering_done FROM guests WHERE id=$1', [guestId]);
-  if (!g.rows.length) return;
-  const req_ = parseFloat(g.rows[0].wagering_required) || 0;
-  const done = parseFloat(g.rows[0].wagering_done) || 0;
-  if (req_ > 0 && done < req_) await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [amount, guestId]);
-  else await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
-}
 function dealerStartBetting() {
   clearTableTimer();
   table.phase = 'betting';
@@ -1401,7 +1389,7 @@ async function dealerFinishRound() {
     else if (dv > 21 || pv > dv) { result = 'win'; payout = s.bet * 2; }
     else if (pv === dv) { result = 'push'; payout = s.bet; }
     s.result = result;
-    if (payout > 0 && s.guestId) await creditWin(s.guestId, payout);
+    if (payout > 0 && s.guestId) await creditWin(s.guestId, payout, s.bet);
     try { await pool.query(`INSERT INTO sessions (date, nick, decks, dep, out_sum, fee, net, result, dealer) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, [todayStr(), s.name, 6, s.bet, payout, 0, s.bet - payout, s.bet - payout, 'live-dealer']); } catch(e) {}
     try { const net = s.bet - payout; await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Live BJ (${s.name})`]); } catch(e) {}
   }
