@@ -61,20 +61,19 @@
   }
   @keyframes starTwinkle{0%,100%{opacity:.3}50%{opacity:.8}}
 
-  .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+  /* ===== МЕНЮ В СТИЛЕ CRASH ===== */
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
+  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+  .wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1;margin-top: 50px;}
 
   .topbar{display:flex;justify-content:space-between;align-items:center;padding:4px 0;gap:8px;flex-wrap:wrap}
   .top-left{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
-  
-  /* Компактная кнопка "Главная" */
-  .btn-back{
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);
-    color:var(--accent);padding:6px 10px;border-radius:8px;
-    font-weight:800;font-size:11px;cursor:pointer;font-family:inherit;
-    text-decoration:none;white-space:nowrap;transition:.2s;min-height:30px;
-  }
-  .btn-back:hover{background:rgba(0,229,255,.2)}
   
   .logo{
     font-size:18px;font-weight:900;letter-spacing:2px;
@@ -83,7 +82,6 @@
   }
   .top-actions{display:flex;align-items:center;gap:6px}
   
-  /* Компактная кнопка "Как играть?" */
   .btn-help{
     background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);
     color:var(--accent);padding:6px 10px;border-radius:8px;
@@ -196,8 +194,8 @@
   .modal-btn{background:var(--accent);color:#000;border:none;border-radius:10px;padding:16px 30px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:1px;width:100%;margin-top:8px;min-height:54px}
 
   @media(max-width: 500px) {
-    .wrap { max-width: 100%; }
-    .btn-back, .btn-help { padding: 5px 8px; font-size: 10px; }
+    .wrap { max-width: 100%; margin-top: 45px; }
+    .btn-help { padding: 5px 8px; font-size: 10px; }
     .logo { font-size: 16px; }
     .balance { padding: 5px 9px; font-size: 11px; }
     .grid { gap: 6px; }
@@ -205,8 +203,7 @@
   }
   @media(max-width: 420px) {
     body { padding: calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bottom)); }
-    .wrap { gap: 10px; }
-    .btn-back { padding: 5px 7px; font-size: 10px; min-height: 28px; }
+    .wrap { gap: 10px; margin-top: 40px; }
     .logo { font-size: 15px; }
     .btn-help { padding: 5px 7px; font-size: 10px; min-height: 28px; }
     .balance-label { font-size: 7px; }
@@ -233,9 +230,9 @@
     .modal-btn { padding: 14px; font-size: 13px; min-height: 50px; }
   }
   @media(max-width: 360px) {
-    .wrap { gap: 8px; }
+    .wrap { gap: 8px; margin-top: 36px; }
     .logo { font-size: 14px; }
-    .btn-back, .btn-help { font-size: 9px; padding: 4px 6px; min-height: 26px; }
+    .btn-help { font-size: 9px; padding: 4px 6px; min-height: 26px; }
     .balance { padding: 4px 6px; font-size: 10px; min-height: 26px; }
     .balance-label { font-size: 6px; }
     .grid-wrap { padding: 8px; }
@@ -254,11 +251,19 @@
 
 <div class="bg-crowns" id="bgCrowns"></div>
 
+<!-- МЕНЮ В СТИЛЕ CRASH -->
+<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
+<div class="float-menu" id="floatMenu">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
+  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
+  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Miner</a>
+</div>
+
 <div class="wrap">
 
   <div class="topbar">
     <div class="top-left">
-      <a href="/" class="btn-back">← Главная</a>
       <div class="logo">KINGWIN</div>
     </div>
     <div class="top-actions">
