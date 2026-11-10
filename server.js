@@ -124,15 +124,50 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
+// ===== ИСПРАВЛЕНО: синхронизировано с клиентом (ladder.html) =====
 const LADDER_MULTS = {
-  1: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95],
-  2: [1.50, 2.30, 3.50, 5.50, 8.80, 14.00, 22.00, 36.00, 60.00],
-  3: [1.88, 3.10, 5.20, 8.80, 15.00, 26.00, 45.00, 78.00, 135.00],
-  4: [2.35, 4.20, 7.50, 13.50, 24.00, 43.00, 78.00, 140.00, 250.00],
-  5: [2.94, 5.70, 11.00, 21.00, 40.00, 78.00, 150.00, 290.00, 550.00],
-  6: [3.67, 7.70, 16.00, 33.00, 68.00, 140.00, 290.00, 600.00, 1200.00],
+  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
+  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
+  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20],
+  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56],
+  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21],
+  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20],
   7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
 };
+
+// ===== ИСПРАВЛЕНО: единая функция начисления для Ladder с учётом отыгрыша =====
+async function creditLadderWin(guestId, amount, betAmount) {
+  if (amount <= 0) return;
+  try {
+    const g = await pool.query('SELECT wagering_required, wagering_done, bonus_balance FROM guests WHERE id=$1', [guestId]);
+    if (!g.rows.length) return;
+    const req_ = parseFloat(g.rows[0].wagering_required) || 0;
+    const done = parseFloat(g.rows[0].wagering_done) || 0;
+
+    if (req_ > 0 && done < req_) {
+      // Отыгрыш активен — начисляем в бонус и увеличиваем отыгранное
+      await pool.query(
+        'UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_done = wagering_done + $2 WHERE id=$3',
+        [amount, betAmount, guestId]
+      );
+      // Проверяем завершение отыгрыша
+      const check = await pool.query('SELECT wagering_required, wagering_done, bonus_balance FROM guests WHERE id=$1', [guestId]);
+      if (check.rows.length) {
+        const nr = parseFloat(check.rows[0].wagering_required) || 0;
+        const nd = parseFloat(check.rows[0].wagering_done) || 0;
+        const nb = parseFloat(check.rows[0].bonus_balance) || 0;
+        if (nr > 0 && nd >= nr && nb > 0) {
+          await pool.query(
+            'UPDATE guests SET deposit_balance = deposit_balance + $1, bonus_balance = 0, wagering_required = 0, wagering_done = 0 WHERE id=$2',
+            [nb * 2, guestId]
+          );
+        }
+      }
+    } else {
+      await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [amount, guestId]);
+    }
+  } catch (e) { console.error('creditLadderWin error:', e.message); }
+}
 
 const DEALER_TASKS_BJ = [
   { id: 'bj_hands_10', title: 'Блэкджек: 10 раздач за день', goal: 10, reward: 10, type: 'bj' },
@@ -695,7 +730,7 @@ const server = http.createServer(async (req, res) => {
       const levelsCount = 9;
       const cellsCount = 20;
       const ladder = [];
-      
+
       for (let i = 0; i < levelsCount; i++) {
         const mines = [];
         while (mines.length < minesCount) {
@@ -734,19 +769,13 @@ const server = http.createServer(async (req, res) => {
           const mults = LADDER_MULTS[sess.minesCount];
           const winMult = mults[8];
           const winAmount = Math.round(sess.bet * winMult * 100) / 100;
-          
-          const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
-          const guest = g.rows[0];
-          let wageringActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0);
-          if (wageringActive) {
-            await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, guestId]);
-          } else {
-            await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [winAmount, guestId]);
-          }
-          
-          try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guest.name, sess.bet, winMult]); } catch(e){}
-          try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guest.name})`]); } catch(e){}
-          
+
+          // ===== ИСПРАВЛЕНО: начисление с учётом отыгрыша =====
+          await creditLadderWin(guestId, winAmount, sess.bet);
+
+          try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
+          try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]); } catch(e){}
+
           delete ladderSessions[sessionId];
           return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult });
         }
@@ -775,17 +804,11 @@ const server = http.createServer(async (req, res) => {
       const winMult = mults[sess.currentStep - 1];
       const winAmount = Math.round(sess.bet * winMult * 100) / 100;
 
-      const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
-      const guest = g.rows[0];
-      let wageringActive = (parseFloat(guest.wagering_required) || 0) > (parseFloat(guest.wagering_done) || 0);
-      if (wageringActive) {
-        await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1 WHERE id=$2', [winAmount, guestId]);
-      } else {
-        await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [winAmount, guestId]);
-      }
+      // ===== ИСПРАВЛЕНО: начисление с учётом отыгрыша =====
+      await creditLadderWin(guestId, winAmount, sess.bet);
 
-      try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guest.name, sess.bet, winMult]); } catch(e){}
-      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guest.name})`]); } catch(e){}
+      try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
+      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guestId})`]); } catch(e){}
 
       delete ladderSessions[sessionId];
       return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult });
@@ -1163,7 +1186,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/withdrawals/') && method === 'PUT'){ const id = url.split('/')[3]; const w = await parseBody(req); await pool.query('UPDATE withdrawals SET status=$1 WHERE id=$2', [w.status, id]); return sendJSON(res, 200, { ok: true }); }
     if(url.startsWith('/api/withdrawals/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM withdrawals WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-    
+
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/payouts' && method === 'POST'){
       const p = await parseBody(req);
@@ -1178,7 +1201,7 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query(`INSERT INTO players (nick,vip,blocked) VALUES ($1,$2,$3) ON CONFLICT (nick) DO UPDATE SET vip=EXCLUDED.vip, blocked=EXCLUDED.blocked RETURNING *`, [p.nick,p.vip||false,p.blocked||false]);
       return sendJSON(res, 200, { ok: true, player: r.rows[0] });
     }
-    
+
     if(url === '/api/audit' && method === 'GET'){ const r = await pool.query('SELECT * FROM audit ORDER BY id DESC LIMIT 500'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/audit' && method === 'POST'){
       const a = await parseBody(req);
@@ -1194,7 +1217,7 @@ const server = http.createServer(async (req, res) => {
       catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
     if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
-    
+
     if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/dealers' && method === 'POST'){
       const d = await parseBody(req);
@@ -1227,7 +1250,7 @@ const server = http.createServer(async (req, res) => {
 
     // ============ СТАТИЧЕСКИЕ ФАЙЛЫ (HTML, PNG, MP3 и т.д.) ============
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
-    
+
     // Защита от path traversal: убираем всё, что пытается выйти за пределы папки
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
@@ -1240,14 +1263,14 @@ const server = http.createServer(async (req, res) => {
       if (/\.(png|jpg|jpeg|webp|svg|gif|mp3|wav)$/i.test(safeRelative)) {
         console.log(`[404] Статика не найдена: ${safeRelative}`);
       }
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); 
-      res.end('Not found'); 
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found');
       return;
     }
 
     const ext = path.extname(filePath).toLowerCase();
     const mime = MIME[ext] || 'application/octet-stream';
-    
+
     const headers = { 'Content-Type': mime };
     if (/^image\//.test(mime)) {
       headers['Cache-Control'] = 'public, max-age=3600';
