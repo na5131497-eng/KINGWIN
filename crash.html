@@ -454,66 +454,58 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-// === ОТРИСОВКА БЕЗ ГРАФИКА, ТРАЕКТОРИЯ — КВАДРАТИЧНАЯ БЕЗЬЕ ===
+// === ОТРИСОВКА БЕЗ ГРАФИКА (С ФИКСИРОВАННЫМ МАСШТАБОМ) ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
 
-  const paddingL = 40, paddingR = 40, paddingT = 40, paddingB = 40;
-  const startX = paddingL;
-  const startY = H - paddingB;
-  const endX = W - paddingR;
-  const endY = paddingT;
+  const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
+  const drawW = W - paddingL - paddingR;
+  const drawH = H - paddingT - paddingB;
 
-  if (status === 'flying' || status === 'crashed') {
-    // t от 0 (старт) до 1 (максимум). Медленный рост в начале, ускорение к концу.
-    const t = Math.min(1, Math.log(Math.max(1, currentMult)) / Math.log(1000));
+  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
+    const lastX = graphPoints[graphPoints.length - 1].x;
+    const maxX = Math.max(6, lastX); // Фиксированный минимум по X
+    const maxY = Math.max(3, currentMult * 1.2); // Фиксированный минимум по Y
 
-    // Квадратичная кривая Безье. Контрольная точка задаёт форму:
-    // почти у правого края и почти на уровне старта — тогда ракета сначала летит "вправо",
-    // а потом плавно уходит вверх в правый верхний угол.
-    const ctrlX = startX + (endX - startX) * 0.85;
-    const ctrlY = startY - (startY - endY) * 0.05;
-
-    const oneMinusT = 1 - t;
-    const bx = oneMinusT * oneMinusT * startX + 2 * oneMinusT * t * ctrlX + t * t * endX;
-    const by = oneMinusT * oneMinusT * startY + 2 * oneMinusT * t * ctrlY + t * t * endY;
-
-    // Производная по t (для угла наклона)
-    const dx = 2 * oneMinusT * (ctrlX - startX) + 2 * t * (endX - ctrlX);
-    const dy = 2 * oneMinusT * (ctrlY - startY) + 2 * t * (endY - ctrlY);
-    let angle = Math.atan2(dy, dx);
-
-    // После 1.20x плавно задираем нос вверх
-    if (currentMult >= 1.20) {
-      const k = Math.min(1, (currentMult - 1.20) / 0.5);
-      const target = -Math.PI / 2;
-      angle = angle + (target - angle) * k;
-    }
+    const lastP = graphPoints[graphPoints.length - 1];
+    const lx = paddingL + (lastP.x / maxX) * drawW;
+    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
 
     // Ракета
     if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
+      let angle;
+      if (currentMult < 1.05) {
+        angle = -Math.PI / 4; // Фиксированный наклон на старте
+      } else if (currentMult < 1.20) {
+        const t = (currentMult - 1.05) / (1.20 - 1.05);
+        const startAngle = -Math.PI / 4;
+        const endAngle = -Math.PI / 2;
+        angle = startAngle + (endAngle - startAngle) * t; // Плавный поворот
+      } else {
+        angle = -Math.PI / 2; // Строго вверх после 1.20x
+      }
       const ROCKET_SIZE = 100;
-      const BASE_ANGLE = Math.PI / 4; // поправка под исходный поворот картинки
+      const BASE_ANGLE = Math.PI / 4; // Поправка на исходный поворот картинки
       ctx.save();
-      ctx.translate(bx, by);
+      ctx.translate(lx, ly);
       ctx.rotate(angle + BASE_ANGLE);
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = 'rgba(0,229,255,0.8)';
+      ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,229,255,0.8)';
       ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
       ctx.restore();
     }
 
-    // Взрыв
-    if (status === 'crashed' && !explosionTriggered) {
-      spawnExplosion(bx, by);
-      explosionTriggered = true;
+    if (status === 'crashed') {
+      if (!explosionTriggered) { spawnExplosion(lx, ly); explosionTriggered = true; }
     }
-  } else if (status === 'crashed' && !explosionTriggered) {
-    // Если краш моментальный (t=0) — взрыв в стартовой точке
-    spawnExplosion(startX, startY);
-    explosionTriggered = true;
+  } else if (status === 'crashed' && graphPoints.length <= 1) {
+    if (!explosionTriggered) {
+      const lastP = graphPoints[0] || { x: 0, y: 1 };
+      const lx = paddingL + (lastP.x / Math.max(6, lastP.x)) * drawW;
+      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(3, currentMult * 1.2)) * drawH;
+      spawnExplosion(lx, ly); explosionTriggered = true;
+    }
   }
 
   updateParticles();
