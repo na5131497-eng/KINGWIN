@@ -16,16 +16,21 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; background: var(--bg-main); color: var(--text-main); }
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  
+  /* Топбар и Меню */
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
   .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
+
   .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; flex-shrink: 0; z-index: 100; }
   .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   .top-actions { display: flex; align-items: center; gap: 10px; }
   .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
   .btn-help { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 36px; display: flex; align-items: center; }
+
+  /* Основная область */
   .main-body { display: flex; flex: 1; overflow: hidden; }
   .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
   .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
@@ -34,41 +39,51 @@
   .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
   .quick-bets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
   .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
-  .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
   .mines-grid { display: flex; gap: 4px; margin-bottom: 20px; }
   .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
-  .mine-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
   .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
   .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; }
-  .btn-start:hover { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
   .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: auto; flex-shrink: 0; }
   .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
   .btn-cashout strong { font-size: 20px; font-weight: 900; }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
+
+  /* Игровое поле */
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); }
   .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 6px; z-index: 2; position: relative; }
   .level-row { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 850px; margin-bottom: 2px; }
   .mult-badge { width: 65px; flex-shrink: 0; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
   .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+  
   .grid-row { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; flex: 1; }
   .cell { aspect-ratio: 1; background: #1a1f2b; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: inset 0 0 5px rgba(0,229,255,0.1); }
   .cell:hover:not(:disabled) { background: rgba(0,229,255,0.15); border-color: var(--accent); transform: scale(1.1); z-index: 2; }
-  .cell:disabled { cursor: not-allowed; }
-  .cell.current { background: #1a2c3a; border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
+  .cell.current { background: #1a2c3a; border-color: var(--accent); animation: pulse 1.5s infinite; }
   .cell.safe { background: rgba(0,255,136,0.15); border-color: var(--accent-green); }
   .cell.mine { background: rgba(255,77,77,0.15); border-color: var(--red); }
   .cell.dimmed { opacity: 0.2; background: #111; border-color: rgba(255,255,255,0.05); }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 4px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
+
   .icon { width: 80%; height: 80%; display: flex; align-items: center; justify-content: center; }
   .icon svg { width: 100%; height: 100%; }
+
+  /* Тосты (вместо alert) */
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; color: #fff; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: var(--accent-green); }
+  .toast.error { border-left-color: var(--red); }
+
+  /* Модалка "Как играть" */
   .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
   .howto-backdrop.show { display: flex; }
-  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
+  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
   .howto-modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 16px; text-align: center; color: var(--accent); }
   .howto-modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; line-height: 1.6; }
   .howto-modal b { color: #fff; }
   .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+
   @media (max-width: 900px) {
     .main-body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
@@ -82,10 +97,15 @@
     .mult-badge { width: 45px; font-size: 10px; height: 22px; }
     .grid-row { gap: 2px; }
     .icon { width: 90%; height: 90%; }
+    .toast-container { top: 60px; right: 10px; left: 10px; }
+    .toast { width: 100%; min-width: 0; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
   }
 </style>
 </head>
 <body>
+
+<div class="toast-container" id="toastContainer"></div>
 
 <button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
 <div class="float-menu" id="floatMenu">
@@ -168,6 +188,7 @@ let currentBet = 25;
 let busy = false;
 let stepsData = [];
 
+// Точные множители (выровнены под прогрессию)
 const MULT_TABLE = {
   1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
   2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
@@ -182,65 +203,44 @@ const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id
 
 const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
-// 1. ПРАВИЛЬНАЯ ЗАГРУЗКА ID ИЗ ВСЕХ ВОЗМОЖНЫХ МЕСТ
+// Утилита для тостов
+function showToast(text, type='success') {
+  const container = $('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = text;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { 
+    toast.classList.remove('show'); 
+    setTimeout(() => toast.remove(), 300); 
+  }, 3000);
+}
+
 function loadMe() {
   try {
-    // Проверяем URL (?id=...)
     const urlParams = new URLSearchParams(window.location.search);
     const urlId = urlParams.get('id');
-    if (urlId) {
-      localStorage.setItem('kingwin_guest_id', urlId); // Синхронизируем
-      return { guestId: String(urlId), name: '' };
-    }
-
-    // Проверяем kingwin_guest (объект)
+    if (urlId) { localStorage.setItem('kingwin_guest_id', urlId); return { guestId: String(urlId), name: '' }; }
     const raw = localStorage.getItem('kingwin_guest');
-    if (raw) {
-      const g = JSON.parse(raw);
-      if (g && g.id) {
-        localStorage.setItem('kingwin_guest_id', g.id); // Синхронизируем
-        return { guestId: String(g.id), name: String(g.name || '') };
-      }
-    }
-
-    // Проверяем kingwin_guest_id (строку)
+    if (raw) { const g = JSON.parse(raw); if (g && g.id) return { guestId: String(g.id), name: String(g.name || '') }; }
     const savedId = localStorage.getItem('kingwin_guest_id');
-    if (savedId) {
-      return { guestId: String(savedId), name: '' };
-    }
-  } catch(e) { console.error('Ошибка localStorage:', e); return null; }
+    if (savedId) return { guestId: String(savedId), name: '' };
+  } catch(e) { console.error('Ошибка localStorage:', e); }
   return null;
 }
 
-// 2. ПРАВИЛЬНЫЙ ЗАПРОС БАЛАНСА (как на index.html)
 async function refreshBalance() {
   if (!currentPlayer) return;
-  
   try {
-    // Используем /api/guest/me, как на главной
     const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.guestId));
-    if (!r.ok) {
-      console.warn('Ошибка API баланса:', r.status);
-      return;
-    }
-    
+    if (!r.ok) return;
     const data = await r.json();
     if (data.guest) {
-      const dep = parseFloat(data.guest.deposit_balance) || 0;
-      const bon = parseFloat(data.guest.bonus_balance) || 0;
-      balance = dep + bon;
-      
-      const balEl = document.getElementById('balanceVal');
-      if (balEl) balEl.textContent = balance.toFixed(2);
-      
-      // Обновляем имя (если его не было)
-      if (!currentPlayer.name && data.guest.name) {
-        currentPlayer.name = data.guest.name;
-      }
+      balance = (parseFloat(data.guest.deposit_balance) || 0) + (parseFloat(data.guest.bonus_balance) || 0);
+      $('balanceVal').textContent = balance.toFixed(2);
     }
-  } catch(e) {
-    console.error('Ошибка загрузки баланса:', e);
-  }
+  } catch(e) { console.error('Ошибка загрузки баланса:', e); }
 }
 
 function setBet(val) {
@@ -259,7 +259,7 @@ function setMines(val) {
   if (!sessionId) renderBoard(); 
 }
 
-function renderBoard() {
+function renderBoard(revealCurrentMines = false) {
   const scroll = $('ladderScroll');
   scroll.innerHTML = '';
 
@@ -284,17 +284,20 @@ function renderBoard() {
       const isPassed = (i < currentStep);
       const isCurrent = (i === currentStep);
 
-      if (isPassed) {
+      if (isPassed || (isCurrent && revealCurrentMines)) {
+        // Показываем корону, если это безопасная клетка
         if (stepsData[i] && stepsData[i].safe.includes(c)) {
           cell.classList.add('safe');
           cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
-        } else if (stepsData[i] && stepsData[i].mines.includes(c)) {
+        } 
+        // Показываем сломанную корону, если это мина
+        else if (stepsData[i] && stepsData[i].mines.includes(c)) {
           cell.classList.add('mine');
           cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
         } else {
           cell.classList.add('dimmed');
         }
-      } else if (isCurrent) {
+      } else if (isCurrent && !revealCurrentMines) {
         cell.classList.add('current');
         cell.onclick = () => clickCell(i, c);
       } else {
@@ -311,15 +314,15 @@ function renderBoard() {
 
 async function startGame() {
   if (busy || sessionId) return;
-  if (!currentPlayer) { alert('Войдите в аккаунт'); return; }
+  if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
   
   currentBet = parseFloat($('betAmount').value) || 0;
-  if (currentBet < 10) { alert('Мин. ставка 10 ₽'); return; }
+  if (currentBet < 10) { showToast('Мин. ставка 10 ₽', 'error'); return; }
   
   await refreshBalance();
   
   if (balance < currentBet) { 
-    alert(`Недостаточно средств! Ваш баланс: ${balance.toFixed(2)} ₽`); 
+    showToast(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`, 'error'); 
     return; 
   }
 
@@ -333,7 +336,7 @@ async function startGame() {
       body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, mines: minesCount })
     });
     const d = await r.json();
-    if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; return; }
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; $('btnStart').disabled = false; return; }
 
     sessionId = d.session_id;
     stepsData = d.ladder.map(level => {
@@ -354,7 +357,7 @@ async function startGame() {
     renderBoard();
     await refreshBalance();
   } catch(e) {
-    alert('Ошибка соединения');
+    showToast('Ошибка соединения', 'error');
   }
   busy = false;
 }
@@ -370,7 +373,7 @@ async function clickCell(stepIdx, cellIdx) {
       body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId, cell: cellIdx })
     });
     const d = await r.json();
-    if (!r.ok) { alert(d.error); busy = false; return; }
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; return; }
 
     if (d.result === 'safe') {
       currentStep = d.next_step;
@@ -381,21 +384,18 @@ async function clickCell(stepIdx, cellIdx) {
       const nextWin = currentBet * multArr[currentStep - 1];
       $('cashoutAmount').textContent = nextWin.toFixed(2) + ' ₽';
     } else if (d.result === 'lose') {
-      stepsData[currentStep] = { 
-        safe: [], 
-        mines: d.correct_cells 
-      };
-      renderBoard();
+      // Показываем игроку, где были мины
+      renderBoard(true); 
       setTimeout(() => {
-        alert('Вы попали на сломанную корону! Ставка сгорела.');
+        showToast('Вы попали на сломанную корону! Ставка сгорела.', 'error');
         resetGame();
-      }, 600);
+      }, 800);
     } else if (d.result === 'win') {
-      alert(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`);
+      showToast(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`, 'success');
       resetGame();
     }
   } catch(e) {
-    alert('Ошибка соединения');
+    showToast('Ошибка соединения', 'error');
   }
   busy = false;
 }
@@ -412,12 +412,12 @@ async function cashout() {
       body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId })
     });
     const d = await r.json();
-    if (!r.ok) { alert(d.error); busy = false; return; }
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; return; }
     
-    alert(`Вы забрали ${d.win.toFixed(2)} ₽!`);
+    showToast(`Вы забрали ${d.win.toFixed(2)} ₽!`, 'success');
     resetGame();
   } catch(e) {
-    alert('Ошибка соединения');
+    showToast('Ошибка соединения', 'error');
   }
   busy = false;
 }
@@ -440,11 +440,11 @@ window.onload = () => {
   currentPlayer = loadMe();
   if (currentPlayer) {
     refreshBalance();
-    setInterval(refreshBalance, 3000); // Обновляем каждые 3 сек
+    setInterval(refreshBalance, 3000);
     renderBoard();
   } else {
-    alert('Сессия не найдена. Пожалуйста, войдите в аккаунт на главной странице.');
-    window.location.href = '/';
+    showToast('Войдите в аккаунт на главной странице', 'error');
+    setTimeout(() => { window.location.href = '/'; }, 1500);
   }
 };
 </script>
