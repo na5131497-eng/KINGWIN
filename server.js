@@ -29,9 +29,9 @@ pool.on('error', (err) => console.error('PG Pool error:', err.message));
 
 const POINTS_PER_RUB = 0.2;
 const RANKS = {
-  Bronze:   { min: 0, gift: 0 }, Silver: { min: 100, gift: 50 },
-  Gold:     { min: 300, gift: 200 }, Platinum: { min: 600, gift: 500 },
-  Diamond:  { min: 1000, gift: 1000 }, VIP: { min: 1500, gift: 3000 }
+  Bronze:   { min: 0, gift: 0 }, Silver: { min: 100, gift: 0 },
+  Gold:     { min: 300, gift: 0 }, Platinum: { min: 600, gift: 0 },
+  Diamond:  { min: 1000, gift: 0 }, VIP: { min: 1500, gift: 0 }
 };
 const RANK_ORDER = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
 const RANK_INDEX = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
@@ -453,15 +453,21 @@ async function accruePointsByNick(nick, rubAmount, source){
   const newPoints = (guest.points || 0) + addPoints;
   const prevRank = guest.rank || 'Bronze';
   const newRank = rankByPoints(newPoints);
-  let giftMoney = 0; let giftText = guest.bonus_text || ''; let giftCode = guest.bonus_code || '';
+  
+  // Подарки за ранг отключены
+  let giftMoney = 0; 
+  let giftText = guest.bonus_text || ''; 
+  let giftCode = guest.bonus_code || '';
+  
   const prevIdx = RANK_ORDER.indexOf(prevRank);
   const newIdx = RANK_ORDER.indexOf(newRank);
   if (newIdx > prevIdx){
-    for (let i = prevIdx + 1; i <= newIdx; i++){ giftMoney += RANKS[RANK_ORDER[i]].gift; }
-    giftText = `Поздравляем с достижением ранга ${newRank}! Вам подарок ${giftMoney} бонусных рублей.`;
-    giftCode = `GIFT-${newRank.toUpperCase()}-${Math.floor(Math.random()*9000+1000)}`;
+    // Текст поздравления без денег
+    giftText = `Поздравляем с достижением ранга ${newRank}!`;
+    giftCode = `RANK-${newRank.toUpperCase()}`;
   }
-  const addWagerReqRank = giftMoney * 5;
+  const addWagerReqRank = 0;
+  
   await pool.query(`UPDATE guests SET points = $1, rank = $2, last_rank = $3, bonus_text = $4, bonus_code = $5, bonus_balance = bonus_balance + $6, wagering_required = wagering_required + $7 WHERE id = $8`, [newPoints, newRank, newRank, giftText, giftCode, giftMoney, addWagerReqRank, guest.id]);
   await pool.query(`UPDATE guests SET wagering_done = wagering_done + $1 WHERE id=$2`, [rubAmount, guest.id]);
   try {
