@@ -7,6 +7,7 @@
 <title>KINGWIN — Ladder</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+  /* Вставь сюда весь CSS из предыдущего сообщения, он не менялся */
   :root {
     --bg-main: #090a10; --bg-panel: #151922; --bg-dark: #11121a;
     --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
@@ -15,117 +16,53 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; background: var(--bg-main); color: var(--text-main); }
-  
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-
-  /* Меню (Три палки) */
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
   .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
-  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
-
-  /* Топбар */
   .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; flex-shrink: 0; z-index: 100; }
   .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   .top-actions { display: flex; align-items: center; gap: 10px; }
   .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
   .btn-help { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 36px; display: flex; align-items: center; }
-  .btn-help:hover { background: rgba(0,229,255,0.2); }
-
-  /* Основная область */
   .main-body { display: flex; flex: 1; overflow: hidden; }
-
-  /* ЛЕВАЯ ПАНЕЛЬ */
   .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
   .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
-  
   .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
   .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
   .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
-
   .quick-bets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
   .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
-
   .mines-grid { display: flex; gap: 4px; margin-bottom: 20px; }
   .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
   .mine-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
   .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
-
   .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; }
   .btn-start:hover { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
-
   .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: auto; flex-shrink: 0; }
   .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
   .btn-cashout strong { font-size: 20px; font-weight: 900; }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
-
-  /* ИГРОВОЕ ПОЛЕ */
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); }
-  
   .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 6px; z-index: 2; position: relative; }
-  
   .level-row { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 850px; margin-bottom: 2px; }
-  
   .mult-badge { width: 65px; flex-shrink: 0; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
   .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
-
   .grid-row { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; flex: 1; }
-  
-  .cell { 
-    aspect-ratio: 1; 
-    background: #1a1f2b; 
-    border: 1px solid rgba(0, 229, 255, 0.4); 
-    border-radius: 4px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer; 
-    transition: 0.2s; 
-    box-shadow: inset 0 0 5px rgba(0,229,255,0.1);
-  }
-  
-  .cell:hover:not(:disabled) { 
-    background: rgba(0,229,255,0.15); 
-    border-color: var(--accent); 
-    transform: scale(1.1); 
-    z-index: 2;
-  }
-  
+  .cell { aspect-ratio: 1; background: #1a1f2b; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: inset 0 0 5px rgba(0,229,255,0.1); }
+  .cell:hover:not(:disabled) { background: rgba(0,229,255,0.15); border-color: var(--accent); transform: scale(1.1); z-index: 2; }
   .cell:disabled { cursor: not-allowed; }
-  
-  .cell.current { 
-    background: #1a2c3a; 
-    border-color: var(--accent); 
-    animation: pulse 1.5s infinite; 
-    cursor: pointer; 
-  }
-  
-  .cell.safe { 
-    background: rgba(0,255,136,0.15); 
-    border-color: var(--accent-green); 
-  }
-  
-  .cell.mine { 
-    background: rgba(255,77,77,0.15); 
-    border-color: var(--red); 
-  }
-  
-  .cell.dimmed { 
-    opacity: 0.2; 
-    background: #111; 
-    border-color: rgba(255,255,255,0.05); 
-  }
-
+  .cell.current { background: #1a2c3a; border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
+  .cell.safe { background: rgba(0,255,136,0.15); border-color: var(--accent-green); }
+  .cell.mine { background: rgba(255,77,77,0.15); border-color: var(--red); }
+  .cell.dimmed { opacity: 0.2; background: #111; border-color: rgba(255,255,255,0.05); }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 4px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
-
   .icon { width: 80%; height: 80%; display: flex; align-items: center; justify-content: center; }
   .icon svg { width: 100%; height: 100%; }
-
-  /* Модалка */
   .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
   .howto-backdrop.show { display: flex; }
   .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -133,8 +70,6 @@
   .howto-modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; line-height: 1.6; }
   .howto-modal b { color: #fff; }
   .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
-
-  /* Мобильная адаптация */
   @media (max-width: 900px) {
     .main-body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
@@ -143,8 +78,6 @@
     .quick-bets { margin-bottom: 0; flex: 2; min-width: 200px; }
     .mines-grid { margin-bottom: 0; flex: 2; min-width: 200px; }
     .btn-start, .btn-cashout { width: auto; min-width: 120px; margin-top: 0; flex: 1; padding: 10px; }
-    
-    .game-area { flex-direction: column; justify-content: flex-end; }
     .ladder-scroll { padding: 10px; gap: 4px; }
     .level-row { gap: 6px; max-width: 100%; }
     .mult-badge { width: 45px; font-size: 10px; height: 22px; }
@@ -236,41 +169,53 @@ let currentBet = 25;
 let busy = false;
 let stepsData = [];
 
-// ПРАВИЛЬНАЯ ПРОГРЕССИЯ МНОЖИТЕЛЕЙ
-// Чем больше камней (мин), тем выше X
 const MULT_TABLE = {
-  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55], // 1 камень
-  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74], // 2 камня
-  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20], // 3 камня
-  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56], // 4 камня
-  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21], // 5 камней
-  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20], // 6 камней (как на скрине x1.56, x2.43...)
-  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]  // 7 камней (джекпот)
+  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
+  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
+  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20],
+  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56],
+  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21],
+  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20],
+  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
 };
 
 const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
 
 const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
+// ФУНКЦИЯ ЗАГРУЗКИ ПОЛЬЗОВАТЕЛЯ (ИСПРАВЛЕНА)
 function loadMe() {
   try {
+    // 1. Пытаемся взять полный объект гостя (так сохраняет index.html)
     const raw = localStorage.getItem('kingwin_guest');
-    if (!raw) return null;
-    const g = JSON.parse(raw);
-    if (!g || !g.id) return null;
-    return { guestId: String(g.id), name: String(g.name || '') };
+    if (raw) {
+      const g = JSON.parse(raw);
+      if (g && g.id) return { guestId: String(g.id), name: String(g.name || '') };
+    }
+    // 2. Если не вышло, пробуем старый ключ (ID)
+    const id = localStorage.getItem('kingwin_guest_id');
+    if (id) {
+      return { guestId: String(id), name: '' };
+    }
   } catch(e) { return null; }
+  return null;
 }
 
 async function refreshBalance() {
   if (!currentPlayer) return;
   try {
+    // ИСПОЛЬЗУЕМ ТОТ ЖЕ ЭНДПОИНТ, ЧТО И НА ГЛАВНОЙ
     const r = await fetch('/api/guest/summary?id=' + encodeURIComponent(currentPlayer.guestId));
-    if (!r.ok) return;
+    if (!r.ok) {
+        console.warn('Ошибка загрузки баланса, статус:', r.status);
+        return;
+    }
     const d = await r.json();
     balance = (parseFloat(d.deposit_balance) || 0) + (parseFloat(d.bonus_balance) || 0);
     $('balanceVal').textContent = balance.toFixed(2);
-  } catch(e) {}
+  } catch(e) {
+    console.error('Ошибка при получении баланса:', e);
+  }
 }
 
 function setBet(val) {
@@ -286,11 +231,7 @@ function setMines(val) {
   minesCount = val;
   document.querySelectorAll('#minesGrid button').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  
-  // Перерисовываем доску, чтобы обновить множители при смене камней!
-  if (!sessionId) {
-    renderBoard(); 
-  }
+  if (!sessionId) renderBoard(); 
 }
 
 function renderBoard() {
@@ -350,6 +291,7 @@ async function startGame() {
   currentBet = parseFloat($('betAmount').value) || 0;
   if (currentBet < 10) { alert('Мин. ставка 10 ₽'); return; }
   
+  // Принудительно обновляем баланс перед стартом
   await refreshBalance();
   
   if (balance < currentBet) { 
@@ -474,10 +416,10 @@ window.onload = () => {
   currentPlayer = loadMe();
   if (currentPlayer) {
     refreshBalance();
-    setInterval(refreshBalance, 5000);
+    setInterval(refreshBalance, 3000); // Обновляем каждые 3 секунды для надежности
     renderBoard();
   } else {
-    alert('Войдите в аккаунт на главной странице');
+    alert('Сессия не найдена. Пожалуйста, войдите в аккаунт на главной странице.');
     window.location.href = '/';
   }
 };
