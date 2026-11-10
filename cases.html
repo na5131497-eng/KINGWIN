@@ -15,151 +15,71 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
-
-  .bg-glow {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-    background: radial-gradient(circle at 10% 20%, rgba(0,229,255,0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(241,196,15,0.08) 0%, transparent 40%);
-  }
-  .bg-grid {
-    position: absolute; inset: 0; opacity: 0.1;
-    background-image: linear-gradient(rgba(0,229,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.3) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(circle at center, black, transparent 80%);
-    -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
-  }
-  .floating-coin {
-    position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff8b0, #f1c40f 40%, #b8860b);
-    box-shadow: 0 0 15px rgba(241,196,15,0.5), inset -2px -2px 5px rgba(0,0,0,0.5);
-    display: flex; align-items: center; justify-content: center;
-    animation: floatCoin linear infinite;
-  }
+  .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background: radial-gradient(circle at 10% 20%, rgba(0,229,255,0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(241,196,15,0.08) 0%, transparent 40%); }
+  .bg-grid { position: absolute; inset: 0; opacity: 0.1; background-image: linear-gradient(rgba(0,229,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.3) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black, transparent 80%); -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%); }
+  .floating-coin { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff8b0, #f1c40f 40%, #b8860b); box-shadow: 0 0 15px rgba(241,196,15,0.5), inset -2px -2px 5px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; animation: floatCoin linear infinite; }
   .floating-coin::after { content: '👑'; font-size: 60%; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
-  @keyframes floatCoin {
-    0% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-30px) rotate(180deg); }
-    100% { transform: translateY(0) rotate(360deg); }
-  }
-
+  @keyframes floatCoin { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
   .topbar { height: 60px; background: rgba(21,25,34,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: 0.2s; }
   .back-btn:hover { border-color: var(--accent); color: var(--accent); }
   .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
-
   .layout { max-width: 1400px; margin: 0 auto; padding: 20px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 20px; z-index: 1; position: relative; }
-
-  .cases-list {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;
-  }
-  .case-card {
-    background: linear-gradient(180deg, rgba(26,31,43,0.9), rgba(10,13,20,0.9));
-    border: 1px solid rgba(0,229,255,0.2); border-radius: 20px;
-    padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;
-    cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
-  }
-  .case-card::before {
-    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(0,229,255,0.1), transparent, rgba(241,196,15,0.1), transparent);
-    animation: rotateGlow 6s linear infinite; z-index: -1;
-  }
+  .cases-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .case-card { background: linear-gradient(180deg, rgba(26,31,43,0.9), rgba(10,13,20,0.9)); border: 1px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
+  .case-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, rgba(0,229,255,0.1), transparent, rgba(241,196,15,0.1), transparent); animation: rotateGlow 6s linear infinite; z-index: -1; }
   @keyframes rotateGlow { 100% { transform: rotate(360deg); } }
   .case-card:hover { transform: translateY(-5px); border-color: rgba(0,229,255,0.6); box-shadow: 0 10px 40px rgba(0,229,255,0.2), inset 0 0 30px rgba(0,229,255,0.1); }
   .case-card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
   .case-card.locked:hover { transform: none; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); border-color: rgba(0,229,255,0.2); }
   .case-card.locked::after { content: 'НУЖЕН РАНГ'; position: absolute; top: 15px; right: 15px; background: var(--red); color: #fff; font-size: 10px; font-weight: 900; letter-spacing: 1px; padding: 4px 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(255,77,77,0.5); }
-
-  .case-box-img {
-    width: 120px; height: 120px; position: relative;
-    display: flex; align-items: center; justify-content: center;
-    filter: drop-shadow(0 0 20px rgba(0,229,255,0.4));
-  }
+  .case-box-img { width: 120px; height: 120px; position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 20px rgba(0,229,255,0.4)); }
   .case-box-img svg { width: 100%; height: 100%; }
-  
   .case-name { font-size: 18px; font-weight: 900; letter-spacing: 1px; text-align: center; color: #fff; text-shadow: 0 0 10px rgba(0,229,255,0.5); }
   .case-quote { font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; min-height: 30px; line-height: 1.4; }
   .case-price { font-size: 16px; color: var(--gold); font-weight: 900; text-shadow: 0 0 10px rgba(241,196,15,0.5); }
-
-  .open-area {
-    background: linear-gradient(180deg, rgba(21,25,34,0.95), rgba(9,10,16,0.95));
-    border: 1px solid rgba(0,229,255,0.3); border-radius: 24px;
-    padding: 25px; display: flex; flex-direction: column; gap: 20px;
-    box-shadow: 0 0 50px rgba(0,229,255,0.1), inset 0 0 50px rgba(0,0,0,0.8);
-  }
+  .open-area { background: linear-gradient(180deg, rgba(21,25,34,0.95), rgba(9,10,16,0.95)); border: 1px solid rgba(0,229,255,0.3); border-radius: 24px; padding: 25px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 50px rgba(0,229,255,0.1), inset 0 0 50px rgba(0,0,0,0.8); }
   .open-title { font-size: 22px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
   .open-title .price-tag { font-size: 18px; color: var(--gold); font-weight: 900; background: rgba(241,196,15,0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(241,196,15,0.3); }
-
-  /* ВАЖНО: фиксированная высота обёртки */
-  .roulette-wrap {
-    position: relative; height: 160px; overflow: hidden; border-radius: 16px;
-    background: linear-gradient(180deg, #0a0d14, #05070a);
-    border: 1px solid rgba(0,229,255,0.2);
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
-    width: 100%;
-  }
-  .roulette-wrap::before, .roulette-wrap::after {
-    content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 5; pointer-events: none;
-  }
+  .roulette-wrap { position: relative; height: 160px; overflow: hidden; border-radius: 16px; background: linear-gradient(180deg, #0a0d14, #05070a); border: 1px solid rgba(0,229,255,0.2); box-shadow: inset 0 0 30px rgba(0,0,0,0.9); width: 100%; }
+  .roulette-wrap::before, .roulette-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 5; pointer-events: none; }
   .roulette-wrap::before { left: 0; background: linear-gradient(90deg, #090a10, transparent); }
   .roulette-wrap::after { right: 0; background: linear-gradient(-90deg, #090a10, transparent); }
-  
-  .roulette-pointer {
-    position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--gold);
-    transform: translateX(-50%); z-index: 6; box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(241,196,15,0.8);
-  }
-  .roulette-pointer::before, .roulette-pointer::after {
-    content: ''; position: absolute; left: 50%; transform: translateX(-50%);
-    border-left: 10px solid transparent; border-right: 10px solid transparent;
-  }
+  .roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--gold); transform: translateX(-50%); z-index: 6; box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(241,196,15,0.8); }
+  .roulette-pointer::before, .roulette-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; }
   .roulette-pointer::before { top: -2px; border-top: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
   .roulette-pointer::after { bottom: -2px; border-bottom: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
-
-  /* ВАЖНО: display: inline-flex, чтобы трек не растягивался */
+  
+  /* ЖЁСТКО: flex с фиксированной шириной */
   .roulette-track {
-    display: inline-flex; height: 100%; align-items: center; gap: 15px;
-    position: absolute; top: 0; left: 0; padding: 0 15px;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0 15px;
     will-change: transform;
-    min-width: max-content;
+    white-space: nowrap;
   }
-  .roulette-item {
-    width: 120px; height: 120px; flex-shrink: 0; border-radius: 16px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    background: linear-gradient(145deg, #1a2a4a, #0a1a3a); border: 2px solid rgba(0,229,255,0.3);
-    font-weight: 900; position: relative; transition: 0.3s;
-    box-shadow: inset 0 0 20px rgba(0,229,255,0.1);
-  }
+  .roulette-item { width: 120px; height: 120px; flex-shrink: 0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a2a4a, #0a1a3a); border: 2px solid rgba(0,229,255,0.3); font-weight: 900; position: relative; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,229,255,0.1); }
   .roulette-item .emoji { font-size: 32px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
   .roulette-item .val { font-size: 14px; color: #fff; }
-  
-  .roulette-item.win {
-    background: linear-gradient(145deg, rgba(241,196,15,0.3), rgba(241,196,15,0.05));
-    border-color: var(--gold); box-shadow: 0 0 30px rgba(241,196,15,0.6), inset 0 0 20px rgba(241,196,15,0.3);
-    transform: scale(1.05); z-index: 2;
-  }
+  .roulette-item.win { background: linear-gradient(145deg, rgba(241,196,15,0.3), rgba(241,196,15,0.05)); border-color: var(--gold); box-shadow: 0 0 30px rgba(241,196,15,0.6), inset 0 0 20px rgba(241,196,15,0.3); transform: scale(1.05); z-index: 2; }
   .roulette-item.win .val { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-
   .open-controls { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
-  .btn-open {
-    background: linear-gradient(135deg, var(--accent), #0077ff); color: #000;
-    border: none; border-radius: 14px; padding: 18px 50px;
-    font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; font-family: inherit; transition: 0.3s;
-    box-shadow: 0 0 30px rgba(0,229,255,0.4);
-    min-width: 280px;
-  }
+  .btn-open { background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 14px; padding: 18px 50px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); min-width: 280px; }
   .btn-open:hover:not(:disabled) { box-shadow: 0 0 60px rgba(0,229,255,0.8); transform: translateY(-3px) scale(1.02); }
   .btn-open:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; background: #333; }
-
   .open-result { text-align: center; font-size: 20px; font-weight: 900; min-height: 30px; letter-spacing: 1px; }
-
   .toast-container { position: fixed; top: 70px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; color: #fff; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
   .toast.info { border-left-color: var(--gold); }
-
   @media (max-width: 600px) {
     .layout { padding: 12px; gap: 15px; }
     .cases-list { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -180,9 +100,7 @@
 </head>
 <body>
 
-<div class="bg-glow">
-  <div class="bg-grid"></div>
-</div>
+<div class="bg-glow"><div class="bg-grid"></div></div>
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="topbar">
@@ -195,11 +113,9 @@
 
 <div class="layout">
   <div class="section-title" style="font-size: 24px; font-weight: 900; margin-bottom: 4px; text-shadow: 0 0 15px rgba(0,229,255,0.4);">🎁 Кейсы</div>
-  
   <div class="cases-list" id="casesList">
     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">Загрузка кейсов...</div>
   </div>
-
   <div class="open-area" id="openArea" style="display: none;">
     <div class="open-title">
       <span id="openTitle">Открыть кейс</span>
@@ -242,17 +158,13 @@ const CASE_SVG = {
 };
 
 function initBackgroundCoins() {
-  const bg = document.querySelector('.bg-glow');
-  if (!bg) return;
+  const bg = document.querySelector('.bg-glow'); if (!bg) return;
   const count = window.matchMedia('(max-width: 600px)').matches ? 5 : 10;
   for (let i = 0; i < count; i++) {
-    const el = document.createElement('div');
-    el.className = 'floating-coin';
+    const el = document.createElement('div'); el.className = 'floating-coin';
     const size = 15 + Math.random() * 25;
-    el.style.width = size + 'px';
-    el.style.height = size + 'px';
-    el.style.left = (Math.random() * 90) + '%';
-    el.style.top = (Math.random() * 90) + '%';
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    el.style.left = (Math.random() * 90) + '%'; el.style.top = (Math.random() * 90) + '%';
     el.style.animationDuration = (10 + Math.random() * 15) + 's';
     el.style.animationDelay = (-Math.random() * 15) + 's';
     bg.appendChild(el);
@@ -265,30 +177,22 @@ function playTone(freq, dur, type) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type || 'sine';
-    osc.frequency.setValueAtTime(freq, now);
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type || 'sine'; osc.frequency.setValueAtTime(freq, now);
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
     osc.connect(gain).connect(audioCtx.destination);
-    osc.start(now);
-    osc.stop(now + dur);
+    osc.start(now); osc.stop(now + dur);
   } catch(e) {}
 }
 function soundTick() { playTone(1400 + Math.random() * 600, 0.05, 'square'); }
-function soundWin() {
-  [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.35, 'triangle'), i * 100));
-}
+function soundWin() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.35, 'triangle'), i * 100)); }
 
 function showToast(text, type='success') {
   const c = $('toastContainer'); if (!c) return;
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.textContent = text;
-  c.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 10);
+  const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = text;
+  c.appendChild(t); setTimeout(() => t.classList.add('show'), 10);
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
@@ -327,10 +231,7 @@ async function loadCases() {
 
 function renderCases() {
   const wrap = $('casesList');
-  if (!allCases.length) {
-    wrap.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Кейсы пока недоступны</div>';
-    return;
-  }
+  if (!allCases.length) { wrap.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Кейсы пока недоступны</div>'; return; }
   wrap.innerHTML = allCases.map(c => {
     const locked = !c.available;
     const svg = CASE_SVG[c.name] || CASE_SVG['Новичок'];
@@ -392,35 +293,24 @@ async function doOpen() {
       body: JSON.stringify({ guest_id: currentPlayer.guestId, case_name: selectedCase.name })
     });
     res = await r.json();
-    if (!r.ok) {
-      showToast(res.error || 'Ошибка', 'error');
-      busy = false;
-      $('btnOpen').disabled = false;
-      return;
-    }
-  } catch(e) {
-    showToast('Ошибка соединения', 'error');
-    busy = false;
-    $('btnOpen').disabled = false;
-    return;
-  }
+    if (!r.ok) { showToast(res.error || 'Ошибка', 'error'); busy = false; $('btnOpen').disabled = false; return; }
+  } catch(e) { showToast('Ошибка соединения', 'error'); busy = false; $('btnOpen').disabled = false; return; }
 
   const track = $('rouletteTrack');
   const wrap = $('rouletteWrap');
   const c = selectedCase;
-  
-  // Генерируем 40 элементов с выигрышем на позиции 35
   const totalItems = 40;
   const winIndex = 35;
+
   const items = [];
   for (let i = 0; i < totalItems; i++) {
     if (i === winIndex) items.push({ val: res.prize, win: true });
     else items.push({ val: c.prizes[Math.floor(Math.random() * c.prizes.length)], win: false });
   }
 
+  // ОБНУЛЯЕМ состояние, ставим БЕЗ transition
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
-  track.style.width = 'max-content'; // гарантируем ширину
   track.innerHTML = items.map(it => `
     <div class="roulette-item ${it.win ? 'win' : ''}">
       <div class="emoji">${it.val >= 1000 ? '👑' : it.val >= 100 ? '💎' : '⭐'}</div>
@@ -428,21 +318,25 @@ async function doOpen() {
     </div>
   `).join('');
 
-  // Ждём 2 кадра, чтобы браузер точно отрисовал элементы
+  // Двойной RAF + микро-задержка, чтобы DOM точно был отрисован
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 60));
 
-  // Считаем позицию. Важно: каждый элемент + gap = 120 + 15 = 135
-  const itemFullW = 135;
-  // Отступ слева (padding) = 15
-  const padLeft = 15;
-  // Центр видимой области — это 50% ширины обёртки
+  // Считаем геометрию ПОСЛЕ отрисовки
   const wrapRect = wrap.getBoundingClientRect();
-  const wrapCenter = wrapRect.width / 2;
-  // Центр 35-го элемента = padLeft + 35 * 135 + 60 (половина ширины элемента)
-  const winCenter = padLeft + winIndex * itemFullW + 60;
-  // Смещение, чтобы winCenter оказался в центре wrap
-  const targetX = -(winCenter - wrapCenter);
+  const wrapW = wrapRect.width;
+  const wrapCenter = wrapW / 2;
+
+  const firstItem = track.querySelector('.roulette-item');
+  const itemRect = firstItem.getBoundingClientRect();
+  const itemW = itemRect.width;       // 120 или 100 на мобиле
+  const itemGap = 15;                 // gap из CSS
+  const padLeft = 15;                 // padding-left у .roulette-track
+
+  // Центр выигрышного элемента:
+  const winCenter = padLeft + winIndex * (itemW + itemGap) + itemW / 2;
+  // Смещение, чтобы он оказался ровно в центре wrap
+  const targetX = wrapCenter - winCenter;
 
   const duration = 5000;
   requestAnimationFrame(() => {
@@ -450,12 +344,11 @@ async function doOpen() {
     track.style.transform = `translateX(${targetX}px)`;
   });
 
+  // Звук
   let tickIdx = 0;
-  const totalTicks = 45;
   const tickTimer = setInterval(() => {
-    if (tickIdx > totalTicks) { clearInterval(tickTimer); return; }
-    soundTick();
-    tickIdx++;
+    if (tickIdx > 45) { clearInterval(tickTimer); return; }
+    soundTick(); tickIdx++;
   }, 95);
 
   setTimeout(async () => {
