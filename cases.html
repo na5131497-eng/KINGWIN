@@ -90,11 +90,13 @@
   .open-title { font-size: 22px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
   .open-title .price-tag { font-size: 18px; color: var(--gold); font-weight: 900; background: rgba(241,196,15,0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(241,196,15,0.3); }
 
+  /* ВАЖНО: фиксированная высота обёртки */
   .roulette-wrap {
     position: relative; height: 160px; overflow: hidden; border-radius: 16px;
     background: linear-gradient(180deg, #0a0d14, #05070a);
     border: 1px solid rgba(0,229,255,0.2);
     box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+    width: 100%;
   }
   .roulette-wrap::before, .roulette-wrap::after {
     content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 5; pointer-events: none;
@@ -113,11 +115,12 @@
   .roulette-pointer::before { top: -2px; border-top: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
   .roulette-pointer::after { bottom: -2px; border-bottom: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
 
+  /* ВАЖНО: display: inline-flex, чтобы трек не растягивался */
   .roulette-track {
-    display: flex; height: 100%; align-items: center; gap: 15px;
+    display: inline-flex; height: 100%; align-items: center; gap: 15px;
     position: absolute; top: 0; left: 0; padding: 0 15px;
-    transition: transform 0.05s linear;
     will-change: transform;
+    min-width: max-content;
   }
   .roulette-item {
     width: 120px; height: 120px; flex-shrink: 0; border-radius: 16px;
@@ -202,7 +205,7 @@
       <span id="openTitle">Открыть кейс</span>
       <span class="price-tag" id="openPrice">—</span>
     </div>
-    <div class="roulette-wrap">
+    <div class="roulette-wrap" id="rouletteWrap">
       <div class="roulette-pointer"></div>
       <div class="roulette-track" id="rouletteTrack"></div>
     </div>
@@ -403,10 +406,12 @@ async function doOpen() {
   }
 
   const track = $('rouletteTrack');
+  const wrap = $('rouletteWrap');
   const c = selectedCase;
-  const totalItems = 40;       // Всегда 40 элементов
-  const winIndex = 35;         // Реальный выигрыш — на 35-м
-
+  
+  // Генерируем 40 элементов с выигрышем на позиции 35
+  const totalItems = 40;
+  const winIndex = 35;
   const items = [];
   for (let i = 0; i < totalItems; i++) {
     if (i === winIndex) items.push({ val: res.prize, win: true });
@@ -415,6 +420,7 @@ async function doOpen() {
 
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
+  track.style.width = 'max-content'; // гарантируем ширину
   track.innerHTML = items.map(it => `
     <div class="roulette-item ${it.win ? 'win' : ''}">
       <div class="emoji">${it.val >= 1000 ? '👑' : it.val >= 100 ? '💎' : '⭐'}</div>
@@ -422,14 +428,21 @@ async function doOpen() {
     </div>
   `).join('');
 
-  // Даём браузеру отрисовать DOM перед стартом анимации
+  // Ждём 2 кадра, чтобы браузер точно отрисовал элементы
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 50));
 
-  const wrapW = track.parentElement.clientWidth;
-  const itemW = 120 + 15;     // width + gap
-  const padding = 15;
-  const centerOffset = wrapW / 2 - 120 / 2;
-  const targetX = -(winIndex * itemW + padding - centerOffset);
+  // Считаем позицию. Важно: каждый элемент + gap = 120 + 15 = 135
+  const itemFullW = 135;
+  // Отступ слева (padding) = 15
+  const padLeft = 15;
+  // Центр видимой области — это 50% ширины обёртки
+  const wrapRect = wrap.getBoundingClientRect();
+  const wrapCenter = wrapRect.width / 2;
+  // Центр 35-го элемента = padLeft + 35 * 135 + 60 (половина ширины элемента)
+  const winCenter = padLeft + winIndex * itemFullW + 60;
+  // Смещение, чтобы winCenter оказался в центре wrap
+  const targetX = -(winCenter - wrapCenter);
 
   const duration = 5000;
   requestAnimationFrame(() => {
@@ -437,7 +450,6 @@ async function doOpen() {
     track.style.transform = `translateX(${targetX}px)`;
   });
 
-  // Звук на протяжении
   let tickIdx = 0;
   const totalTicks = 45;
   const tickTimer = setInterval(() => {
