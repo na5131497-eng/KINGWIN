@@ -310,24 +310,15 @@ const MAX_BET = 200;
 const MIN_BET = 1;
 const POLL_MS = 300;
 
-// --- УМНАЯ ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
+// --- ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
 const rocketImg = new Image();
-// Пробуем три варианта пути (если один не сработает, загрузится следующий)
-const rocketPaths = ['/rocket.png', '/assets/crash-rocket.png', '/crash-rocket.png'];
-let currentPathIdx = 0;
-
+rocketImg.src = '/rocket.png';
 rocketImg.onload = () => { 
-  console.log('✅ Ракета успешно загружена:', rocketImg.src); 
+  console.log('✅ Ракета успешно загружена:', rocketImg.src, 'размер:', rocketImg.naturalWidth + 'x' + rocketImg.naturalHeight); 
 };
-rocketImg.onerror = () => {
-  if (currentPathIdx < rocketPaths.length - 1) {
-    currentPathIdx++;
-    rocketImg.src = rocketPaths[currentPathIdx];
-  } else {
-    console.warn('❌ Ракета не найдена ни по одному пути:', rocketPaths.join(', '));
-  }
+rocketImg.onerror = () => { 
+  console.error('❌ ОШИБКА: Ракета не найдена по пути:', rocketImg.src); 
 };
-rocketImg.src = rocketPaths[currentPathIdx];
 
 // --- СИСТЕМА ЧАСТИЦ ВЗРЫВА ---
 let particles = [];
@@ -733,8 +724,11 @@ function drawGraph(currentMult, status) {
     // --- ОТРИСОВКА РАКЕТЫ (100x100) ---
     if (status === 'flying') {
       if (rocketImg.complete && rocketImg.naturalWidth > 0) {
-        let angle = -45;
-        if (graphPoints.length >= 2) {
+        let angle = -Math.PI / 4; // Угол по умолчанию 45 градусов вверх-вправо
+        if (currentMult >= 1.20) {
+          angle = -Math.PI / 2; // После 1.20х летим строго вверх
+        } else if (graphPoints.length >= 2) {
+          // Пока меньше 1.20х — летим по траектории
           const p1 = graphPoints[graphPoints.length - 2];
           const p2 = graphPoints[graphPoints.length - 1];
           const p1x = paddingL + (p1.x / maxX) * drawW;
@@ -745,11 +739,14 @@ function drawGraph(currentMult, status) {
         }
 
         const ROCKET_SIZE = 100;
-        const vibration = Math.sin(Date.now() / 50) * 2;
+        
+        // Поправка на изначальный поворот картинки (если ракета на картинке смотрит вправо, то +Math.PI/4)
+        // Если она смотрит вправо-вверх, то нужен +0. Здесь мы делаем +Math.PI/4, чтобы совпало с наклоном при старте.
+        const BASE_ANGLE = Math.PI / 4; 
 
         ctx.save();
-        ctx.translate(lx + vibration, ly + vibration); 
-        ctx.rotate(angle + Math.PI / 4); 
+        ctx.translate(lx, ly); // Убрали vibration
+        ctx.rotate(angle + BASE_ANGLE); 
         
         ctx.shadowBlur = 20;
         ctx.shadowColor = 'rgba(0,229,255,0.8)';
