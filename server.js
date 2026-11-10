@@ -126,6 +126,7 @@ function pickPrize(prizes) {
 
 /* ============================================================
    ЕДИНАЯ ЛОГИКА НАЧИСЛЕНИЯ
+   debitBet теперь возвращает fromBonus/fromDeposit
    ============================================================ */
 
 async function debitBet(guestId, amount) {
@@ -135,11 +136,16 @@ async function debitBet(guestId, amount) {
   let dep = parseFloat(r.rows[0].deposit_balance) || 0;
   const total = bonus + dep;
   if (total < amount) return null;
+
   let rem = amount;
-  if (bonus >= rem) { bonus -= rem; rem = 0; }
-  else { rem -= bonus; bonus = 0; dep -= rem; }
+  let fromBonus = 0;
+  let fromDeposit = 0;
+
+  if (bonus >= rem) { fromBonus = rem; bonus -= rem; rem = 0; }
+  else { fromBonus = bonus; rem -= bonus; bonus = 0; fromDeposit = rem; dep -= rem; }
+
   await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
-  return { bonus, deposit: dep };
+  return { bonus, deposit: dep, fromBonus, fromDeposit };
 }
 
 async function creditWin(guestId, winAmount, betAmount) {
@@ -178,12 +184,25 @@ async function getBalance(guestId) {
 }
 
 /* ============================================================
-   КАССА КАЗИНО — целевой RTP (базовая цель 60% = казино 40%)
+   КАССА КАЗИНО — целевой RTP (базовая цель 60%)
+   getCasinoStats игнорирует всё, что не реальный доход
    ============================================================ */
 
 async function getCasinoStats(period = 'all') {
   try {
-    let where = `WHERE note NOT ILIKE '%бонус%' AND note NOT ILIKE '%ранг%' AND note NOT ILIKE '%daily%' AND note NOT ILIKE '%подарок%'`;
+    let where = `WHERE
+      note NOT ILIKE '%бонус%'
+      AND note NOT ILIKE '%bonus%'
+      AND note NOT ILIKE '%ранг%'
+      AND note NOT ILIKE '%rank%'
+      AND note NOT ILIKE '%daily%'
+      AND note NOT ILIKE '%подарок%'
+      AND note NOT ILIKE '%gift%'
+      AND note NOT ILIKE '%admin%'
+      AND note NOT ILIKE '%refuse%'
+      AND note NOT ILIKE '%cancel%'
+      AND note NOT ILIKE '%withdraw request%'
+      AND note NOT ILIKE '%withdraw reject%'`;
     const params = [];
     if (period === 'today') { where += ` AND date = $1`; params.push(todayStr()); }
     const r = await pool.query(`
@@ -383,7 +402,8 @@ async function crashStartWaiting() {
           const guest = guestRes.rows[0];
           const s = String(guest.id);
           const maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••';
-          await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount) VALUES ($1,$2,$3,$4,$5)`, [crashState.roundId, q.player_id, maskName, guest.rank || 'Bronze', q.amount]);
+          const isBonus = debited.fromBonus > 0 && debited.fromDeposit === 0;
+          await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount, is_bonus) VALUES ($1,$2,$3,$4,$5,$6)`, [crashState.roundId, q.player_id, maskName, guest.rank || 'Bronze', q.amount, isBonus]);
           crashState.hasRealBet = true;
         } catch(e){}
       }
@@ -438,9 +458,10 @@ async function crashEndRound() {
     const endTime = Date.now();
     try { await pool.query(`UPDATE crash_rounds SET status='crashed', end_time=$1, crash_point=$2 WHERE id=$3`, [endTime, crashState.crashPoint, crashState.roundId]); } catch(e) {}
     try {
-      const betsRes = await pool.query(`SELECT amount, cashout_mult, cashed_out FROM crash_bets WHERE round_id = $1 AND (player_id IS NULL OR player_id NOT LIKE 'BOT%')`, [crashState.roundId]);
+      const betsRes = await pool.query(`SELECT amount, cashout_mult, cashed_out, is_bonus FROM crash_bets WHERE round_id = $1 AND (player_id IS NULL OR player_id NOT LIKE 'BOT%')`, [crashState.roundId]);
       let totalBet = 0, totalWin = 0;
       for (const bet of betsRes.rows) {
+        if (bet.is_bonus) continue;
         const amt = parseFloat(bet.amount) || 0;
         totalBet += amt;
         if (bet.cashed_out) totalWin += amt * (parseFloat(bet.cashout_mult) || 0);
@@ -502,6 +523,7 @@ async function initDB() {
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS pending_bonus NUMERIC DEFAULT 0`,
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_visit TIMESTAMP DEFAULT NOW()`,
       `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS player_rank TEXT DEFAULT 'Bronze'`,
+      `ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS is_bonus BOOLEAN DEFAULT FALSE`,
       `ALTER TABLE deposits ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE`,
       `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS card TEXT`,
       `ALTER TABLE dealer_withdrawals ADD COLUMN IF NOT EXISTS fee NUMERIC DEFAULT 0`,
@@ -627,7 +649,6 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // ===== ОЧИСТКА ВСЕГО =====
     if (url === '/api/admin/clear-all' && method === 'POST') {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
@@ -681,7 +702,10 @@ const server = http.createServer(async (req, res) => {
       if (op === 'add') next = cur + amount;
       else { next = cur - amount; if (next < 0) return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${cur.toFixed(2)} ₽` }); }
       await pool.query(`UPDATE guests SET ${col}=$1 WHERE id=$2`, [next, id]);
-      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), op === 'add' ? 'расход' : 'доход', amount, `Admin ${op} ${type} ${g.name} (#${id})`]); } catch(e) {}
+      // В кассу пишем только реальные деньги. Бонусы — не доход/расход казино.
+      if (type === 'deposit') {
+        try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), op === 'add' ? 'расход' : 'доход', amount, `Admin ${op} deposit ${g.name} (#${id})`]); } catch(e) {}
+      }
       const bal = await getBalance(id);
       return sendJSON(res, 200, { ok: true, balance: bal });
     }
@@ -809,6 +833,7 @@ const server = http.createServer(async (req, res) => {
       if (rankIdx < c.minRank) return sendJSON(res, 403, { error: 'Кейс недоступен' });
       const debited = await debitBet(guest.id, c.price);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      const isBonusGame = debited.fromBonus > 0 && debited.fromDeposit === 0;
       const targetRTP = await getTargetRTP(guest.id);
       const ratio = targetRTP / 0.99;
       const adjustedPrizes = c.prizes.map(p => {
@@ -827,8 +852,11 @@ const server = http.createServer(async (req, res) => {
       await creditWin(guest.id, prize, c.price);
       await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`, [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
       await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1, $2, $3, $4, NOW(), $5)`, ['cases', guest.name, c.price, prize, guest.id]);
-      const net = c.price - prize;
-      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
+      // В кассу пишем только реальные деньги
+      if (!isBonusGame) {
+        const net = c.price - prize;
+        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
+      }
       const bal = await getBalance(guest.id);
       return sendJSON(res, 200, { ok: true, prize, new_balance: bal.total, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, case_name, price: c.price, wagering: bal.wagering });
     }
@@ -853,7 +881,7 @@ const server = http.createServer(async (req, res) => {
       const mineSet = new Set();
       while (mineSet.size < mines) mineSet.add(Math.floor(Math.random() * TOTAL));
       const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-      minerSessions[sessionId] = { guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now() };
+      minerSessions[sessionId] = { guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now(), debitResult: debited };
       for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: 5, mines, revealed: [], multiplier: 1.0, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
@@ -880,11 +908,12 @@ const server = http.createServer(async (req, res) => {
           forceLose = (fr.rows.length && String(fr.rows[0].value) === '1');
         } catch(e) {}
       }
+      const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
       if (forceLose) {
         sess.finished = true;
         const forcedMines = [cell];
         try {
-          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (forced) (${guestId})`]);
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', isBonusGame ? 0 : sess.bet, `Miner LOSS (forced)${isBonusGame ? ' (bonus)' : ''} (${guestId})`]);
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, forcedMines.length, sess.revealed.length + 1, 0, 'lose', guestId]);
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
@@ -896,7 +925,7 @@ const server = http.createServer(async (req, res) => {
       if (sess.mines.includes(cell)) {
         sess.finished = true;
         try {
-          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (${guestId})`]);
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', isBonusGame ? 0 : sess.bet, `Miner LOSS${isBonusGame ? ' (bonus)' : ''} (${guestId})`]);
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length, 0, 'lose', guestId]);
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
@@ -919,8 +948,10 @@ const server = http.createServer(async (req, res) => {
         await creditWin(guestId, winAmount, sess.bet);
         try {
           await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
-          const net = sess.bet - winAmount;
-          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+          if (!isBonusGame) {
+            const net = sess.bet - winAmount;
+            await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+          }
         } catch(e) {}
         delete minerSessions[sessionId];
         const bal = await getBalance(guestId);
@@ -957,10 +988,13 @@ const server = http.createServer(async (req, res) => {
       const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
       sess.finished = true;
       await creditWin(guestId, winAmount, sess.bet);
+      const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
       try {
         await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
-        const net = sess.bet - winAmount;
-        await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+        if (!isBonusGame) {
+          const net = sess.bet - winAmount;
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]);
+        }
       } catch(e) {}
       const bal = await getBalance(guestId);
       const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering };
@@ -1003,10 +1037,11 @@ const server = http.createServer(async (req, res) => {
         queuedBets.push({ player_id: String(b.player_id), amount: amt, queued_at: Date.now() });
         return sendJSON(res, 200, { ok: true, queued: true, amount: amt, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       }
-      let maskName = '••••', playerRank = 'Bronze';
+      let maskName = '••••', playerRank = 'Bronze', isBonus = false;
       if (b.player_id) {
         const debited = await debitBet(String(b.player_id), amt);
         if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+        isBonus = debited.fromBonus > 0 && debited.fromDeposit === 0;
         const gRes = await pool.query(`SELECT id, rank FROM guests WHERE id=$1`, [String(b.player_id)]);
         if (gRes.rows.length > 0) {
           const s = String(gRes.rows[0].id);
@@ -1014,7 +1049,7 @@ const server = http.createServer(async (req, res) => {
           playerRank = gRes.rows[0].rank || 'Bronze';
         }
       }
-      const r = await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [crashState.roundId, b.player_id || null, maskName, playerRank, amt]);
+      const r = await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount, is_bonus) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [crashState.roundId, b.player_id || null, maskName, playerRank, amt, isBonus]);
       if (b.player_id) crashState.hasRealBet = true;
       tryStartFlightCountdown();
       if (b.player_id) { try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]); if (gRes.rows.length > 0) await accruePointsByNick(gRes.rows[0].name, amt, 'crash'); } catch(e){} }
