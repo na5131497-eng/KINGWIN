@@ -49,10 +49,6 @@
   .btn-cashout strong { font-size: 20px; font-weight: 900; }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
 
-  .btn-sell { width: 100%; background: rgba(255,77,77,0.15); border: 1px solid rgba(255,77,77,0.5); color: var(--red); border-radius: 10px; padding: 12px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; margin-top: 8px; flex-shrink: 0; }
-  .btn-sell:hover:not(:disabled) { background: rgba(255,77,77,0.25); border-color: var(--red); }
-  .btn-sell:disabled { opacity: 0.4; cursor: not-allowed; }
-
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); padding: 20px; }
   .mult-display { text-align: center; margin-bottom: 16px; flex-shrink: 0; }
   .mult-display .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 6px; }
@@ -87,7 +83,7 @@
     .input-group { margin-bottom: 0; flex: 1; min-width: 110px; }
     .quick-bets { margin-bottom: 0; flex: 2; min-width: 180px; }
     .mines-grid { margin-bottom: 0; flex: 2; min-width: 180px; }
-    .btn-start, .btn-cashout, .btn-sell { width: auto; min-width: 110px; margin-top: 0; flex: 1; padding: 10px; }
+    .btn-start, .btn-cashout { width: auto; min-width: 110px; margin-top: 0; flex: 1; padding: 10px; }
     .game-area { padding: 10px; }
     .mult-display .value { font-size: 28px; }
     .grid { gap: 6px; max-width: 100%; }
@@ -148,8 +144,6 @@
         <span>Забрать</span>
         <strong id="cashoutAmount">0 ₽</strong>
       </button>
-
-      <button class="btn-sell" id="btnSell" onclick="sellAll()" style="display:none;">Слить всё</button>
     </div>
 
     <div class="game-area">
@@ -257,25 +251,9 @@ function renderGrid() {
   }
 }
 
-function revealAllMines(minesArr, clickedIdx) {
-  const grid = $('grid');
-  const cells = grid.children;
-  minesArr.forEach(idx => {
-    const cell = cells[idx];
-    if (!cell) return;
-    cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
-    cell.classList.add('mine');
-    cell.classList.remove('opened', 'dimmed');
-    cell.onclick = null;
-    if (idx === clickedIdx) cell.classList.add('clicked-mine');
-  });
-  // Остальные неоткрытые клетки приглушаем
-  for (let i = 0; i < cells.length; i++) {
-    if (!minesArr.includes(i) && !revealed.includes(i)) {
-      cells[i].classList.add('dimmed');
-      cells[i].onclick = null;
-    }
-  }
+// Ищем клетку по dataset.idx, а не по позиции в children
+function findCellByIndex(idx) {
+  return $('grid').querySelector(`.cell[data-idx="${idx}"]`);
 }
 
 async function startGame() {
@@ -303,7 +281,6 @@ async function startGame() {
     $('btnStart').style.display = 'none';
     $('btnCashout').style.display = 'flex';
     $('btnCashout').disabled = true;
-    $('btnSell').style.display = 'block';
     $('cashoutAmount').textContent = '0 ₽';
     $('multVal').textContent = 'x1.00';
     renderGrid();
@@ -328,18 +305,29 @@ async function openCell(idx) {
     applyBalanceFromResponse(d);
 
     if (d.mine) {
-      // Показать ВСЕ мины на их реальных позициях
-      revealAllMines(d.mines, idx);
+      // Показываем ТОЛЬКО ту клетку, куда нажал игрок (или первую из d.mines).
+      // Никаких «все мины разом» — игрок не должен понимать, что это был слив.
+      const mineIdx = (Array.isArray(d.mines) && d.mines.length > 0) ? d.mines[0] : idx;
+      const cell = findCellByIndex(mineIdx);
+      if (cell) {
+        cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
+        cell.classList.add('mine', 'clicked-mine');
+        cell.classList.remove('opened', 'dimmed');
+        cell.onclick = null;
+      }
+      // Все остальные клетки просто блокируем, БЕЗ раскрытия мин
+      $('grid').querySelectorAll('.cell').forEach(c => { c.onclick = null; });
+
       gameActive = false;
       $('btnCashout').style.display = 'none';
-      $('btnSell').style.display = 'none';
+
       setTimeout(() => {
         showToast('Вы попали на сломанную корону! Ставка сгорела.', 'error');
         resetGame();
-      }, 1800);
+      }, 1400);
     } else {
       revealed = d.revealed;
-      const cell = $('grid').children[idx];
+      const cell = findCellByIndex(idx);
       if (cell) {
         cell.classList.add('opened');
         cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
@@ -352,7 +340,6 @@ async function openCell(idx) {
       if (d.auto_cashout) {
         gameActive = false;
         $('btnCashout').style.display = 'none';
-        $('btnSell').style.display = 'none';
         showToast(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`, 'success');
         setTimeout(resetGame, 1200);
       }
@@ -379,36 +366,7 @@ async function cashout() {
     showToast(`Вы забрали ${d.win.toFixed(2)} ₽!`, 'success');
     gameActive = false;
     $('btnCashout').style.display = 'none';
-    $('btnSell').style.display = 'none';
     resetGame();
-  } catch(e) {
-    showToast('Ошибка соединения', 'error');
-  }
-  busy = false;
-}
-
-async function sellAll() {
-  if (busy || !sessionId || !gameActive) return;
-  if (!confirm('Слить всё? Ставка сгорит, вы увидите, где были мины.')) return;
-  busy = true;
-  $('btnSell').disabled = true;
-  try {
-    const r = await fetch('/api/miner/force-lose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId })
-    });
-    const d = await r.json();
-    if (!r.ok) { showToast(d.error || 'Ошибка', 'error'); busy = false; $('btnSell').disabled = false; return; }
-    applyBalanceFromResponse(d);
-    revealAllMines(d.mines, null);
-    gameActive = false;
-    $('btnCashout').style.display = 'none';
-    $('btnSell').style.display = 'none';
-    setTimeout(() => {
-      showToast('Вы слили сессию. Ставка сгорела.', 'error');
-      resetGame();
-    }, 1800);
   } catch(e) {
     showToast('Ошибка соединения', 'error');
   }
@@ -422,8 +380,6 @@ function resetGame() {
   $('btnStart').style.display = 'block';
   $('btnStart').disabled = false;
   $('btnCashout').style.display = 'none';
-  $('btnSell').style.display = 'none';
-  $('btnSell').disabled = false;
   $('multVal').textContent = 'x1.00';
   renderGrid();
   refreshBalance();
