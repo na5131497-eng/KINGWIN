@@ -18,8 +18,17 @@
   
   .app { display: flex; height: 100vh; height: 100dvh; }
 
+  /* Меню (Три палки) */
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
+  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
   /* ЛЕВАЯ ПАНЕЛЬ */
-  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
+  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
   .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
   
   .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
@@ -31,6 +40,7 @@
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
 
+  /* Выбор сломанных корон (1-7) */
   .mines-grid { display: flex; gap: 4px; margin-bottom: 20px; }
   .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
   .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
@@ -39,34 +49,29 @@
   .btn-start:hover { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
 
   .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: auto; flex-shrink: 0; }
-  .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; }
+  .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
   .btn-cashout strong { font-size: 20px; font-weight: 900; }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
 
+  .link-bottom { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+  .link-bottom:hover { color: #fff; }
+
   /* ПРАВАЯ ПАНЕЛЬ (ИГРА) */
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #1a2332, #090a10 80%); }
-  
   .game-area::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
 
-  /* Панель множителей сверху (для мобильных) */
-  .multiplier-bar { display: none; }
-
-  /* Контейнер для сетки */
-  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 8px; z-index: 2; position: relative; scrollbar-width: thin; }
+  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 6px; z-index: 2; position: relative; scrollbar-width: thin; }
   
-  .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 600px; }
+  .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 800px; }
   
-  /* Множитель слева */
-  .mult-badge { width: 70px; flex-shrink: 0; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
+  .mult-badge { width: 75px; flex-shrink: 0; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
   .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
 
-  /* Сама сетка клеток */
-  .grid-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; flex: 1; }
+  .grid-row { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; flex: 1; }
   .cell { height: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
   
   .cell:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: var(--accent); }
   .cell:disabled { cursor: not-allowed; }
-  
   .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
   .cell.safe { background: rgba(0,255,136,0.1); border-color: var(--accent-green); }
   .cell.mine { background: rgba(255,77,77,0.1); border-color: var(--red); }
@@ -74,14 +79,22 @@
 
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 6px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
 
-  /* Иконки внутри клеток */
   .icon { width: 70%; height: 70%; display: flex; align-items: center; justify-content: center; }
   .icon svg { width: 100%; height: 100%; }
+
+  /* Модалка */
+  .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
+  .howto-backdrop.show { display: flex; }
+  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
+  .howto-modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 16px; text-align: center; color: var(--accent); }
+  .howto-modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; line-height: 1.6; }
+  .howto-modal b { color: #fff; }
+  .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
 
   /* Мобильная адаптация */
   @media (max-width: 900px) {
     .app { flex-direction: column; }
-    .sidebar { width: 100%; height: 200px; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; padding-top: 65px; align-items: center; justify-content: space-between; gap: 10px; }
     .sidebar h3 { display: none; }
     .input-group { margin-bottom: 0; flex: 1; min-width: 120px; }
     .quick-bets { margin-bottom: 0; flex: 2; min-width: 200px; }
@@ -90,19 +103,27 @@
     .link-bottom { display: none; }
     
     .game-area { flex-direction: column; justify-content: flex-end; }
-    .ladder-scroll { padding: 10px; gap: 6px; }
-    .level-row { gap: 5px; }
-    .mult-badge { width: 45px; font-size: 10px; height: 24px; }
-    .grid-row { gap: 3px; }
-    .cell { height: 24px; border-radius: 3px; }
+    .ladder-scroll { padding: 10px; gap: 4px; }
+    .level-row { gap: 5px; max-width: 100%; }
+    .mult-badge { width: 50px; font-size: 10px; height: 22px; }
+    .grid-row { gap: 2px; }
+    .cell { height: 20px; border-radius: 2px; }
     .icon { width: 60%; height: 60%; }
   }
 </style>
 </head>
 <body>
 
+<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
+<div class="float-menu" id="floatMenu">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
+  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
+  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Miner</a>
+  <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 20h16V4H4v16zm2-2V6h12v12H6z"/></svg> Ladder</a>
+</div>
+
 <div class="app">
-  <!-- ЛЕВАЯ ПАНЕЛЬ -->
   <div class="sidebar">
     <h3>Сумма ставки</h3>
     <div class="input-group">
@@ -117,12 +138,14 @@
       <button onclick="setBet(100)">100</button>
     </div>
 
-    <h3>Количество мин</h3>
+    <h3>Сложность (кол-во мин)</h3>
     <div class="mines-grid" id="minesGrid">
+      <button class="mine-btn active" onclick="setMines(1)">1</button>
+      <button class="mine-btn" onclick="setMines(2)">2</button>
       <button class="mine-btn" onclick="setMines(3)">3</button>
       <button class="mine-btn" onclick="setMines(4)">4</button>
       <button class="mine-btn" onclick="setMines(5)">5</button>
-      <button class="mine-btn active" onclick="setMines(6)">6</button>
+      <button class="mine-btn" onclick="setMines(6)">6</button>
       <button class="mine-btn" onclick="setMines(7)">7</button>
     </div>
 
@@ -133,12 +156,22 @@
       <strong id="cashoutAmount">0 ₽</strong>
     </button>
 
-    <div class="link-bottom" onclick="alert('Правила: На каждом уровне 10 клеток, из них несколько мин. Выбирай клетку с короной, чтобы подняться выше. Чем выше — тем больше множитель.')">Как играть?</div>
+    <div class="link-bottom" onclick="openHowTo()">Как играть?</div>
   </div>
 
-  <!-- ПРАВАЯ ПАНЕЛЬ -->
   <div class="game-area">
     <div class="ladder-scroll" id="ladderScroll"></div>
+  </div>
+</div>
+
+<div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
+  <div class="howto-modal">
+    <h2>🪜 Как играть в Ladder</h2>
+    <p>Ваша цель — подняться по лестнице как можно выше, забирая растущий множитель.</p>
+    <p>На каждом уровне расположено <b>20 клеток</b>. В начале игры вы выбираете количество сломанных корон (мин) — от 1 до 7. Чем больше мин, тем выше множитель, но и больше шанс взорваться.</p>
+    <p>Нажимайте на клетки. Если попали на <b>корону (👑)</b> — поднимаетесь на уровень выше. Если на <b>сломанную корону (💥)</b> — ставка сгорает.</p>
+    <p>В любой момент нажмите <b>«Забрать»</b>, чтобы сохранить текущий выигрыш.</p>
+    <button class="howto-close" onclick="closeHowTo()">Понятно</button>
   </div>
 </div>
 
@@ -148,25 +181,27 @@ let currentPlayer = null;
 let balance = 0;
 let sessionId = null;
 let currentStep = 0;
-let totalSteps = 6;
+let maxSteps = 9; // Максимум 9 уровней (как на фото)
+let minesCount = 1; 
 let currentBet = 25;
 let busy = false;
-let stepsData = [];
+let stepsData = []; // [{ safe: [idx1, idx2], mines: [idx1, idx2] }]
 
-// Множители для 3-9 ступеней
+// Сетка множителей: [уровень][количество мин (1-7)]
+// Сделано так, чтобы при 1 мине на первом шаге был x1.24, при 7 минах — x2.32
 const MULT_TABLE = {
-  3: [1.24, 1.70, 2.36],
-  4: [1.24, 1.70, 2.36, 3.30],
-  5: [1.24, 1.70, 2.36, 3.30, 4.78],
-  6: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21],
-  7: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50],
-  8: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47],
-  9: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95]
+  1: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95],
+  2: [1.50, 2.30, 3.50, 5.50, 8.80, 14.00, 22.00, 36.00, 60.00],
+  3: [1.88, 3.10, 5.20, 8.80, 15.00, 26.00, 45.00, 78.00, 135.00],
+  4: [2.35, 4.20, 7.50, 13.50, 24.00, 43.00, 78.00, 140.00, 250.00],
+  5: [2.94, 5.70, 11.00, 21.00, 40.00, 78.00, 150.00, 290.00, 550.00],
+  6: [3.67, 7.70, 16.00, 33.00, 68.00, 140.00, 290.00, 600.00, 1200.00],
+  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00] // Начинается с 2.32
 };
 
-// SVG Иконки
 const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
-const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/></svg>`;
+
+const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="26" r="1.5" fill="#fff" opacity="0.6"/><circle cx="46" cy="38" r="1.5" fill="#fff" opacity="0.6"/></svg>`;
 
 function loadMe() {
   try {
@@ -198,20 +233,18 @@ function setBet(val) {
 
 function setMines(val) {
   if (sessionId) return;
-  totalSteps = val;
+  minesCount = val;
   document.querySelectorAll('#minesGrid button').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  renderBoard();
 }
 
-// Рендер сетки
 function renderBoard() {
   const scroll = $('ladderScroll');
   scroll.innerHTML = '';
 
-  const multArr = MULT_TABLE[totalSteps] || MULT_TABLE[6];
+  const multArr = MULT_TABLE[minesCount];
 
-  for (let i = totalSteps - 1; i >= 0; i--) {
+  for (let i = maxSteps - 1; i >= 0; i--) {
     const row = document.createElement('div');
     row.className = 'level-row';
 
@@ -223,29 +256,27 @@ function renderBoard() {
     const grid = document.createElement('div');
     grid.className = 'grid-row';
 
-    // В каждом ряду 10 клеток
-    for (let c = 0; c < 10; c++) {
+    for (let c = 0; c < 20; c++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
 
-      const stepInfo = stepsData[i];
       const isPassed = (i < currentStep);
       const isCurrent = (i === currentStep);
 
       if (isPassed) {
-        // Прошедшие — показываем корону, если тут была безопасная клетка
-        if (stepInfo && stepInfo.safe === c) {
+        if (stepsData[i] && stepsData[i].safe.includes(c)) {
           cell.classList.add('safe');
           cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
+        } else if (stepsData[i] && stepsData[i].mines.includes(c)) {
+          cell.classList.add('mine');
+          cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
         } else {
           cell.classList.add('dimmed');
         }
       } else if (isCurrent) {
-        // Текущий уровень — клетки кликабельны
         cell.classList.add('current');
         cell.onclick = () => clickCell(i, c);
       } else {
-        // Будущие — скрыты
         cell.classList.add('dimmed');
       }
       grid.appendChild(cell);
@@ -274,13 +305,13 @@ async function startGame() {
     const r = await fetch('/api/ladder/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, steps: totalSteps })
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, mines: minesCount })
     });
     const d = await r.json();
     if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; return; }
 
     sessionId = d.session_id;
-    stepsData = d.ladder; // [{ safe: 0 }, ...]
+    stepsData = d.ladder; 
     currentStep = 0;
     
     $('btnStart').style.display = 'none';
@@ -313,16 +344,17 @@ async function clickCell(stepIdx, cellIdx) {
       currentStep = d.next_step;
       renderBoard();
       $('btnCashout').disabled = false;
-      const multArr = MULT_TABLE[totalSteps] || MULT_TABLE[6];
+      
+      const multArr = MULT_TABLE[minesCount];
       const nextWin = currentBet * multArr[currentStep - 1];
       $('cashoutAmount').textContent = nextWin.toFixed(2) + ' ₽';
     } else if (d.result === 'lose') {
-      stepsData[currentStep] = { safe: d.correct_cell };
+      stepsData[currentStep] = { safe: d.correct_cells, mines: d.all_mines };
       renderBoard();
       setTimeout(() => {
         alert('Вы попали на сломанную корону! Ставка сгорела.');
         resetGame();
-      }, 500);
+      }, 600);
     } else if (d.result === 'win') {
       alert(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`);
       resetGame();
@@ -350,6 +382,9 @@ function resetGame() {
   renderBoard();
   refreshBalance();
 }
+
+function openHowTo() { $('howtoModal').classList.add('show'); }
+function closeHowTo() { $('howtoModal').classList.remove('show'); }
 
 window.onload = () => {
   currentPlayer = loadMe();
