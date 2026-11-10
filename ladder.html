@@ -7,7 +7,6 @@
 <title>KINGWIN — Ladder</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  /* Вставь сюда весь CSS из предыдущего сообщения, он не менялся */
   :root {
     --bg-main: #090a10; --bg-panel: #151922; --bg-dark: #11121a;
     --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
@@ -183,38 +182,64 @@ const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id
 
 const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
-// ФУНКЦИЯ ЗАГРУЗКИ ПОЛЬЗОВАТЕЛЯ (ИСПРАВЛЕНА)
+// 1. ПРАВИЛЬНАЯ ЗАГРУЗКА ID ИЗ ВСЕХ ВОЗМОЖНЫХ МЕСТ
 function loadMe() {
   try {
-    // 1. Пытаемся взять полный объект гостя (так сохраняет index.html)
+    // Проверяем URL (?id=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlId = urlParams.get('id');
+    if (urlId) {
+      localStorage.setItem('kingwin_guest_id', urlId); // Синхронизируем
+      return { guestId: String(urlId), name: '' };
+    }
+
+    // Проверяем kingwin_guest (объект)
     const raw = localStorage.getItem('kingwin_guest');
     if (raw) {
       const g = JSON.parse(raw);
-      if (g && g.id) return { guestId: String(g.id), name: String(g.name || '') };
+      if (g && g.id) {
+        localStorage.setItem('kingwin_guest_id', g.id); // Синхронизируем
+        return { guestId: String(g.id), name: String(g.name || '') };
+      }
     }
-    // 2. Если не вышло, пробуем старый ключ (ID)
-    const id = localStorage.getItem('kingwin_guest_id');
-    if (id) {
-      return { guestId: String(id), name: '' };
+
+    // Проверяем kingwin_guest_id (строку)
+    const savedId = localStorage.getItem('kingwin_guest_id');
+    if (savedId) {
+      return { guestId: String(savedId), name: '' };
     }
-  } catch(e) { return null; }
+  } catch(e) { console.error('Ошибка localStorage:', e); return null; }
   return null;
 }
 
+// 2. ПРАВИЛЬНЫЙ ЗАПРОС БАЛАНСА (как на index.html)
 async function refreshBalance() {
   if (!currentPlayer) return;
+  
   try {
-    // ИСПОЛЬЗУЕМ ТОТ ЖЕ ЭНДПОИНТ, ЧТО И НА ГЛАВНОЙ
-    const r = await fetch('/api/guest/summary?id=' + encodeURIComponent(currentPlayer.guestId));
+    // Используем /api/guest/me, как на главной
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.guestId));
     if (!r.ok) {
-        console.warn('Ошибка загрузки баланса, статус:', r.status);
-        return;
+      console.warn('Ошибка API баланса:', r.status);
+      return;
     }
-    const d = await r.json();
-    balance = (parseFloat(d.deposit_balance) || 0) + (parseFloat(d.bonus_balance) || 0);
-    $('balanceVal').textContent = balance.toFixed(2);
+    
+    const data = await r.json();
+    if (data.guest) {
+      const dep = parseFloat(data.guest.deposit_balance) || 0;
+      const bon = parseFloat(data.guest.bonus_balance) || 0;
+      balance = dep + bon;
+      
+      const balEl = document.getElementById('balanceVal');
+      if (balEl) balEl.textContent = balance.toFixed(2);
+      
+      // Обновляем имя (если его не было)
+      if (!currentPlayer.name && data.guest.name) {
+        currentPlayer.name = data.guest.name;
+      }
+    }
   } catch(e) {
-    console.error('Ошибка при получении баланса:', e);
+    console.error('Ошибка загрузки баланса:', e);
   }
 }
 
@@ -291,7 +316,6 @@ async function startGame() {
   currentBet = parseFloat($('betAmount').value) || 0;
   if (currentBet < 10) { alert('Мин. ставка 10 ₽'); return; }
   
-  // Принудительно обновляем баланс перед стартом
   await refreshBalance();
   
   if (balance < currentBet) { 
@@ -416,7 +440,7 @@ window.onload = () => {
   currentPlayer = loadMe();
   if (currentPlayer) {
     refreshBalance();
-    setInterval(refreshBalance, 3000); // Обновляем каждые 3 секунды для надежности
+    setInterval(refreshBalance, 3000); // Обновляем каждые 3 сек
     renderBoard();
   } else {
     alert('Сессия не найдена. Пожалуйста, войдите в аккаунт на главной странице.');
