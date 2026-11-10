@@ -50,25 +50,24 @@
   .roulette-pointer::before, .roulette-pointer::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; }
   .roulette-pointer::before { top: -2px; border-top: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
   .roulette-pointer::after { bottom: -2px; border-bottom: 12px solid var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
-  
-  /* ЖЁСТКО: flex с фиксированной шириной */
-  .roulette-track {
-    display: flex;
-    height: 100%;
-    align-items: center;
-    gap: 15px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 0 15px;
-    will-change: transform;
-    white-space: nowrap;
-  }
+  .roulette-track { display: flex; height: 100%; align-items: center; gap: 15px; position: absolute; top: 0; left: 0; padding: 0 15px; will-change: transform; white-space: nowrap; }
   .roulette-item { width: 120px; height: 120px; flex-shrink: 0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a2a4a, #0a1a3a); border: 2px solid rgba(0,229,255,0.3); font-weight: 900; position: relative; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,229,255,0.1); }
   .roulette-item .emoji { font-size: 32px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
   .roulette-item .val { font-size: 14px; color: #fff; }
-  .roulette-item.win { background: linear-gradient(145deg, rgba(241,196,15,0.3), rgba(241,196,15,0.05)); border-color: var(--gold); box-shadow: 0 0 30px rgba(241,196,15,0.6), inset 0 0 20px rgba(241,196,15,0.3); transform: scale(1.05); z-index: 2; }
-  .roulette-item.win .val { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+  
+  /* ===== ЗОЛОТАЯ ПОДСВЕТКА ДЛЯ БОЛЬШИХ ПРИЗОВ ===== */
+  .roulette-item.golden {
+    background: linear-gradient(145deg, rgba(241,196,15,0.15), rgba(241,196,15,0.02));
+    border-color: rgba(241,196,15,0.55);
+    box-shadow: 0 0 12px rgba(241,196,15,0.35), inset 0 0 15px rgba(241,196,15,0.1);
+  }
+  .roulette-item.golden .val { color: var(--gold); text-shadow: 0 0 8px rgba(241,196,15,0.5); }
+  
+  /* ===== РЕАЛЬНЫЙ ВЫИГРЫШ — БЕЗ ДОПОЛНИТЕЛЬНОГО СВЕЧЕНИЯ ===== */
+  .roulette-item.win {
+    /* Никаких изменений — просто останавливается под стрелкой */
+  }
+  
   .open-controls { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
   .btn-open { background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 14px; padding: 18px 50px; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.3s; box-shadow: 0 0 30px rgba(0,229,255,0.4); min-width: 280px; }
   .btn-open:hover:not(:disabled) { box-shadow: 0 0 60px rgba(0,229,255,0.8); transform: translateY(-3px) scale(1.02); }
@@ -259,6 +258,13 @@ function selectCase(name) {
   $('openArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// Вспомогательная функция: определить "золотой" ли приз
+function isGoldenPrize(val, c) {
+  // Золотые — те, что больше или равны 500 (можно настроить)
+  const threshold = 500;
+  return val >= threshold;
+}
+
 function renderRoulettePreview(c) {
   const track = $('rouletteTrack');
   const items = [];
@@ -268,12 +274,13 @@ function renderRoulettePreview(c) {
   }
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
-  track.innerHTML = items.map(v => `
-    <div class="roulette-item">
+  track.innerHTML = items.map(v => {
+    const golden = isGoldenPrize(v, c);
+    return `<div class="roulette-item ${golden ? 'golden' : ''}">
       <div class="emoji">${v >= 1000 ? '👑' : v >= 100 ? '💎' : '⭐'}</div>
       <div class="val">${fmt(v)} ₽</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 async function doOpen() {
@@ -308,34 +315,30 @@ async function doOpen() {
     else items.push({ val: c.prizes[Math.floor(Math.random() * c.prizes.length)], win: false });
   }
 
-  // ОБНУЛЯЕМ состояние, ставим БЕЗ transition
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
-  track.innerHTML = items.map(it => `
-    <div class="roulette-item ${it.win ? 'win' : ''}">
+  track.innerHTML = items.map(it => {
+    const golden = isGoldenPrize(it.val, c);
+    return `<div class="roulette-item ${golden ? 'golden' : ''} ${it.win ? 'win' : ''}">
       <div class="emoji">${it.val >= 1000 ? '👑' : it.val >= 100 ? '💎' : '⭐'}</div>
       <div class="val">${fmt(it.val)} ₽</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
-  // Двойной RAF + микро-задержка, чтобы DOM точно был отрисован
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 60));
 
-  // Считаем геометрию ПОСЛЕ отрисовки
   const wrapRect = wrap.getBoundingClientRect();
   const wrapW = wrapRect.width;
   const wrapCenter = wrapW / 2;
 
   const firstItem = track.querySelector('.roulette-item');
   const itemRect = firstItem.getBoundingClientRect();
-  const itemW = itemRect.width;       // 120 или 100 на мобиле
-  const itemGap = 15;                 // gap из CSS
-  const padLeft = 15;                 // padding-left у .roulette-track
+  const itemW = itemRect.width;
+  const itemGap = 15;
+  const padLeft = 15;
 
-  // Центр выигрышного элемента:
   const winCenter = padLeft + winIndex * (itemW + itemGap) + itemW / 2;
-  // Смещение, чтобы он оказался ровно в центре wrap
   const targetX = wrapCenter - winCenter;
 
   const duration = 5000;
@@ -344,7 +347,6 @@ async function doOpen() {
     track.style.transform = `translateX(${targetX}px)`;
   });
 
-  // Звук
   let tickIdx = 0;
   const tickTimer = setInterval(() => {
     if (tickIdx > 45) { clearInterval(tickTimer); return; }
