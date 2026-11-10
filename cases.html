@@ -140,18 +140,6 @@
   }
   .roulette-item.win .val { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
-  /* БАЙТ (крупный приз, на котором делаем паузу) */
-  .roulette-item.bait {
-    background: linear-gradient(145deg, rgba(241,196,15,0.15), rgba(241,196,15,0.02));
-    border-color: rgba(241,196,15,0.6);
-    box-shadow: 0 0 15px rgba(241,196,15,0.4), inset 0 0 15px rgba(241,196,15,0.15);
-    animation: baitPulse 0.6s ease-in-out infinite alternate;
-  }
-  @keyframes baitPulse {
-    0% { box-shadow: 0 0 15px rgba(241,196,15,0.4), inset 0 0 15px rgba(241,196,15,0.15); }
-    100% { box-shadow: 0 0 30px rgba(241,196,15,0.8), inset 0 0 25px rgba(241,196,15,0.3); }
-  }
-
   .open-controls { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
   .btn-open {
     background: linear-gradient(135deg, var(--accent), #0077ff); color: #000;
@@ -420,83 +408,55 @@ async function doOpen() {
 
   const track = $('rouletteTrack');
   const c = selectedCase;
-  const totalItems = 100;      // Больше элементов для длинной прокрутки
-  const winIndex = 85;         // Реальный выигрыш — в конце
-  const baitIndex = 25;        // Байт — на "крупном" призе в середине
+  const totalItems = 60;       // длина ленты
+  const winIndex = 55;         // реальный выигрыш ближе к концу
 
-  // Найдём самый крупный приз из списка, чтобы поставить его на позицию байта
-  const maxPrize = Math.max(...c.prizes);
-  
   const items = [];
   for (let i = 0; i < totalItems; i++) {
-    if (i === winIndex) items.push({ val: res.prize, win: true });              // РЕАЛЬНЫЙ ВЫИГРЫШ
-    else if (i === baitIndex) items.push({ val: maxPrize, bait: true });        // БАЙТ (крупный приз)
+    if (i === winIndex) items.push({ val: res.prize, win: true });
     else items.push({ val: c.prizes[Math.floor(Math.random() * c.prizes.length)], win: false });
   }
 
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   track.innerHTML = items.map(it => `
-    <div class="roulette-item ${it.win ? 'win' : ''} ${it.bait ? 'bait' : ''}">
+    <div class="roulette-item ${it.win ? 'win' : ''}">
       <div class="emoji">${it.val >= 1000 ? '👑' : it.val >= 100 ? '💎' : '⭐'}</div>
       <div class="val">${fmt(it.val)} ₽</div>
     </div>
   `).join('');
 
-  // Позиции
+  // Расчёт позиции для центрирования выигрышного элемента
   const wrapW = track.parentElement.clientWidth;
   const itemW = 120 + 15; // width + gap
   const padding = 15;
   const centerOffset = wrapW / 2 - 120 / 2;
-  
-  // Первая остановка — на байте
-  const targetX1 = -(baitIndex * itemW + padding - centerOffset);
-  // Вторая остановка — на реальном призе
-  const targetX2 = -(winIndex * itemW + padding - centerOffset);
+  const targetX = -(winIndex * itemW + padding - centerOffset);
 
-  // Фаза 1: долгий разгон с торможением на байте
-  const phase1Duration = 3500;
+  const duration = 5000;
   requestAnimationFrame(() => {
-    track.style.transition = `transform ${phase1Duration}ms cubic-bezier(0.15, 0.9, 0.25, 1)`;
-    track.style.transform = `translateX(${targetX1}px)`;
+    track.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.2, 1)`;
+    track.style.transform = `translateX(${targetX}px)`;
   });
 
-  // Звук тикает на фазе 1
+  // Звук
   let tickIdx = 0;
-  const tickTimer1 = setInterval(() => {
-    if (tickIdx > 30) { clearInterval(tickTimer1); return; }
+  const totalTicks = 45;
+  const tickTimer = setInterval(() => {
+    if (tickIdx > totalTicks) { clearInterval(tickTimer); return; }
     soundTick();
     tickIdx++;
-  }, 100);
+  }, 95);
 
-  // Пауза на байте (1 сек), затем резкий рывок до финального приза
-  setTimeout(() => {
-    clearInterval(tickTimer1);
-
-    // Фаза 2: быстрый рывок к реальному призу
-    const phase2Duration = 1500;
-    track.style.transition = `transform ${phase2Duration}ms cubic-bezier(0.4, 0.0, 0.3, 1)`;
-    track.style.transform = `translateX(${targetX2}px)`;
-
-    // Звук тикает на фазе 2
-    let tickIdx2 = 0;
-    const tickTimer2 = setInterval(() => {
-      if (tickIdx2 > 15) { clearInterval(tickTimer2); return; }
-      soundTick();
-      tickIdx2++;
-    }, 100);
-
-    // Завершение
-    setTimeout(async () => {
-      clearInterval(tickTimer2);
-      soundWin();
-      $('openResult').innerHTML = `🎉 Выпало: <b style="color:var(--gold);">${fmt(res.prize)} ₽</b>`;
-      $('openResult').style.color = 'var(--accent-green)';
-      await refreshBalance();
-      busy = false;
-      $('btnOpen').disabled = false;
-    }, phase2Duration + 200);
-  }, phase1Duration + 1000); // Пауза на байте 1 сек
+  setTimeout(async () => {
+    clearInterval(tickTimer);
+    soundWin();
+    $('openResult').innerHTML = `🎉 Выпало: <b style="color:var(--gold);">${fmt(res.prize)} ₽</b>`;
+    $('openResult').style.color = 'var(--accent-green)';
+    await refreshBalance();
+    busy = false;
+    $('btnOpen').disabled = false;
+  }, duration + 200);
 }
 
 window.onload = () => {
