@@ -155,8 +155,8 @@ async function addDealerBalance(dealerId, amount){
 }
 
 const CRASH_WAIT_AFTER_FIRST_BET = 11000;
-const CRASH_CRASH_PAUSE = 2500;
-const CRASH_BETTING_WINDOW = 12000;
+const CRASH_CRASH_PAUSE = 1500;
+const CRASH_BETTING_WINDOW = 10000;
 const BOT_COUNT = 11;
 let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false, forcedStop: false, plannedCrashPoint: 1, startWaitingAt: 0 };
 let crashTimeouts = [];
