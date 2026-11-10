@@ -16,7 +16,6 @@
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-  /* ФОН В СТИЛЕ CRASH */
   .bg-glow {
     position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     background: radial-gradient(circle at 10% 20%, rgba(0,229,255,0.08) 0%, transparent 40%),
@@ -50,7 +49,6 @@
 
   .layout { max-width: 1400px; margin: 0 auto; padding: 20px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 20px; z-index: 1; position: relative; }
 
-  /* КАРТОЧКИ КЕЙСОВ */
   .cases-list {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;
   }
@@ -83,7 +81,6 @@
   .case-quote { font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; min-height: 30px; line-height: 1.4; }
   .case-price { font-size: 16px; color: var(--gold); font-weight: 900; text-shadow: 0 0 10px rgba(241,196,15,0.5); }
 
-  /* РУЛЕТКА */
   .open-area {
     background: linear-gradient(180deg, rgba(21,25,34,0.95), rgba(9,10,16,0.95));
     border: 1px solid rgba(0,229,255,0.3); border-radius: 24px;
@@ -132,7 +129,6 @@
   .roulette-item .emoji { font-size: 32px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
   .roulette-item .val { font-size: 14px; color: #fff; }
   
-  /* ВЫИГРЫШНЫЙ ЭЛЕМЕНТ */
   .roulette-item.win {
     background: linear-gradient(145deg, rgba(241,196,15,0.3), rgba(241,196,15,0.05));
     border-color: var(--gold); box-shadow: 0 0 30px rgba(241,196,15,0.6), inset 0 0 20px rgba(241,196,15,0.3);
@@ -408,8 +404,8 @@ async function doOpen() {
 
   const track = $('rouletteTrack');
   const c = selectedCase;
-  const totalItems = 60;       // длина ленты
-  const winIndex = 55;         // реальный выигрыш ближе к концу
+  const totalItems = 40;       // Всегда 40 элементов
+  const winIndex = 35;         // Реальный выигрыш — на 35-м
 
   const items = [];
   for (let i = 0; i < totalItems; i++) {
@@ -426,9 +422,11 @@ async function doOpen() {
     </div>
   `).join('');
 
-  // Расчёт позиции для центрирования выигрышного элемента
+  // Даём браузеру отрисовать DOM перед стартом анимации
+  await new Promise(r => setTimeout(r, 50));
+
   const wrapW = track.parentElement.clientWidth;
-  const itemW = 120 + 15; // width + gap
+  const itemW = 120 + 15;     // width + gap
   const padding = 15;
   const centerOffset = wrapW / 2 - 120 / 2;
   const targetX = -(winIndex * itemW + padding - centerOffset);
@@ -439,7 +437,7 @@ async function doOpen() {
     track.style.transform = `translateX(${targetX}px)`;
   });
 
-  // Звук
+  // Звук на протяжении
   let tickIdx = 0;
   const totalTicks = 45;
   const tickTimer = setInterval(() => {
