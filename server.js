@@ -209,10 +209,8 @@ async function getPlayerTodayProfit(guestId) {
     const miner = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='miner' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     const cases = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='cases' AND player_name=$1 AND created_at::date = $2::date`, [name, today]);
     return (
-      (parseFloat(bj.rows[0].p) || 0) +
-      (parseFloat(bac.rows[0].s) || 0) +
-      (parseFloat(miner.rows[0].p) || 0) +
-      (parseFloat(cases.rows[0].p) || 0)
+      (parseFloat(bj.rows[0].p) || 0) + (parseFloat(bac.rows[0].s) || 0) +
+      (parseFloat(miner.rows[0].p) || 0) + (parseFloat(cases.rows[0].p) || 0)
     );
   } catch (e) { return 0; }
 }
@@ -543,18 +541,10 @@ const MIME = {
   '.js': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.mp3': 'audio/mpeg',
-  '.wav': 'audio/wav',
-  '.mp4': 'video/mp4',
-  '.wasm': 'application/wasm'
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+  '.woff': 'font/woff', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav', '.mp4': 'video/mp4', '.wasm': 'application/wasm'
 };
 function sendJSON(res, code, data) { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); }
 function parseBody(req){ return new Promise((resolve)=>{ let body = ''; req.on('data', chunk => body += chunk); req.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch(e){ resolve({}); } }); }); }
@@ -635,6 +625,40 @@ const server = http.createServer(async (req, res) => {
         houseEdge_pct: Math.round((1 - targetRTP) * 100),
         label: targetRTP < 0.45 ? 'жёсткий режим' : targetRTP < 0.60 ? 'слив' : targetRTP < 0.75 ? 'базовый RTP (60%)' : targetRTP < 0.90 ? 'щедрый режим' : 'раздача'
       });
+    }
+
+    // ===== ОЧИСТКА ВСЕГО =====
+    if (url === '/api/admin/clear-all' && method === 'POST') {
+      const b = await parseBody(req);
+      if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
+      try {
+        await pool.query('DELETE FROM sessions');
+        await pool.query('DELETE FROM baccarat');
+        await pool.query('DELETE FROM deposits');
+        await pool.query('DELETE FROM withdrawals');
+        await pool.query('DELETE FROM payouts');
+        await pool.query('DELETE FROM online');
+        await pool.query('DELETE FROM audit');
+        await pool.query('DELETE FROM guests');
+        await pool.query('DELETE FROM crash_bets');
+        await pool.query('DELETE FROM crash_rounds');
+        await pool.query('DELETE FROM cases_log');
+        await pool.query('DELETE FROM game_history');
+        await pool.query('DELETE FROM dealer_reviews');
+        await pool.query('DELETE FROM news');
+        await pool.query('DELETE FROM promo_uses');
+        await pool.query('DELETE FROM promo_codes');
+        await pool.query('DELETE FROM cash_safe');
+        await pool.query('DELETE FROM dealer_tasks');
+        await pool.query('DELETE FROM dealer_daily');
+        await pool.query('DELETE FROM dealer_balance');
+        await pool.query('DELETE FROM dealer_withdrawals');
+        await pool.query('DELETE FROM miner_force_lose_players');
+        queuedBets = [];
+        return sendJSON(res, 200, { ok: true });
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
     }
 
     if (url === '/api/admin/guests/balance' && method === 'POST') {
@@ -728,7 +752,6 @@ const server = http.createServer(async (req, res) => {
       });
       return sendJSON(res, 200, list);
     }
-
     if (url === '/api/admin/miner/players' && method === 'GET') {
       try {
         const r = await pool.query(`
@@ -746,7 +769,6 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, list);
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
-
     if (url === '/api/admin/miner/player-force' && method === 'POST') {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
@@ -785,11 +807,8 @@ const server = http.createServer(async (req, res) => {
       const guest = g.rows[0];
       const rankIdx = RANK_INDEX[guest.rank] || 0;
       if (rankIdx < c.minRank) return sendJSON(res, 403, { error: 'Кейс недоступен' });
-
       const debited = await debitBet(guest.id, c.price);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-
-      // RTP корректирует веса призов
       const targetRTP = await getTargetRTP(guest.id);
       const ratio = targetRTP / 0.99;
       const adjustedPrizes = c.prizes.map(p => {
@@ -806,12 +825,10 @@ const server = http.createServer(async (req, res) => {
       });
       const prize = pickPrize(adjustedPrizes);
       await creditWin(guest.id, prize, c.price);
-
       await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`, [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
       await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1, $2, $3, $4, NOW(), $5)`, ['cases', guest.name, c.price, prize, guest.id]);
       const net = c.price - prize;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
-
       const bal = await getBalance(guest.id);
       return sendJSON(res, 200, { ok: true, prize, new_balance: bal.total, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, case_name, price: c.price, wagering: bal.wagering });
     }
@@ -830,17 +847,14 @@ const server = http.createServer(async (req, res) => {
       if (mines > 24) mines = 24;
       if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
       if (bet < 5) return sendJSON(res, 400, { error: 'Мин. ставка 5 ₽' });
-
       const debited = await debitBet(guestId, bet);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-
       const TOTAL = 25;
       const mineSet = new Set();
       while (mineSet.size < mines) mineSet.add(Math.floor(Math.random() * TOTAL));
       const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       minerSessions[sessionId] = { guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now() };
       for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
-
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: 5, mines, revealed: [], multiplier: 1.0, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
@@ -855,7 +869,6 @@ const server = http.createServer(async (req, res) => {
       if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
       if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
-
       let forceLose = false;
       try {
         const fp = await pool.query(`SELECT 1 FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]);
@@ -867,7 +880,6 @@ const server = http.createServer(async (req, res) => {
           forceLose = (fr.rows.length && String(fr.rows[0].value) === '1');
         } catch(e) {}
       }
-
       if (forceLose) {
         sess.finished = true;
         const forcedMines = [cell];
@@ -881,7 +893,6 @@ const server = http.createServer(async (req, res) => {
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
-
       if (sess.mines.includes(cell)) {
         sess.finished = true;
         try {
@@ -1091,7 +1102,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`UPDATE guests SET bonus_balance = 0, bonus_text = '', bonus_code = '', wagering_required = 0, wagering_done = 0 WHERE id = $1`, [id]);
       return sendJSON(res, 200, { ok: true, refunded: bonusBal });
     }
-
     if (url === '/api/guest/withdraw-real' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.id || '').trim();
@@ -1116,7 +1126,6 @@ const server = http.createServer(async (req, res) => {
       try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', sum, `Withdraw request (${g.name})`]); } catch(e) {}
       return sendJSON(res, 200, { ok: true, withdrawal: r.rows[0], fee, net, balance: dep - sum, deposit_balance: dep - sum, bonus_balance: bon });
     }
-
     if (url === '/api/guest/cancel-withdrawal' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.id || '').trim();
@@ -1174,11 +1183,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM deposits WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    // ===== ВЫВОД (АДМИН) =====
-    if(url === '/api/withdrawals' && method === 'GET'){
-      const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC');
-      return sendJSON(res, 200, r.rows);
-    }
+    if(url === '/api/withdrawals' && method === 'GET'){ const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/withdrawals' && method === 'POST'){
       const w = await parseBody(req);
       const nick = String(w.nick || '').trim();
@@ -1286,14 +1291,11 @@ const server = http.createServer(async (req, res) => {
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
-
     if (!filePath.startsWith(__dirname)) { res.writeHead(403); res.end('Forbidden'); return; }
-
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
       if (/\.(png|jpg|jpeg|webp|svg|gif|mp3|wav)$/i.test(safeRelative)) console.log(`[404] Статика не найдена: ${safeRelative}`);
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Not found'); return;
     }
-
     const ext = path.extname(filePath).toLowerCase();
     const mime = MIME[ext] || 'application/octet-stream';
     const headers = { 'Content-Type': mime };
