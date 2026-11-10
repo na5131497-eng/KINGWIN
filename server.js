@@ -171,7 +171,7 @@ function crashClearTimers() {
 
 const CRASH_HOUSE_EDGE = 0.0605;
 const CRASH_INSTA_PROB = 1 / 33;
-const CRASH_MAX_MULT    = 1000;
+const CRASH_MAX_MULT    = 99.99;
 
 function crashGeneratePoint() {
   const r = Math.random();
