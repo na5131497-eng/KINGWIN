@@ -19,48 +19,50 @@
   .app { display: flex; height: 100vh; height: 100dvh; }
 
   /* ЛЕВАЯ ПАНЕЛЬ */
-  .sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; }
+  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
   .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
   
-  .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-  .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
+  .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
   .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
 
-  .quick-bets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
-  .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 5px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+  .quick-bets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
 
-  .mines-grid { display: flex; gap: 6px; margin-bottom: 30px; }
-  .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-  .mine-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); box-shadow: 0 0 10px rgba(0,229,255,0.2); }
+  .mines-grid { display: flex; gap: 4px; margin-bottom: 20px; }
+  .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+  .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
 
-  .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; }
+  .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; }
   .btn-start:hover { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
 
-  .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 12px; padding: 14px 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin-top: auto; }
-  .btn-cashout span { font-size: 11px; font-weight: 800; opacity: 0.8; }
-  .btn-cashout strong { font-size: 22px; font-weight: 900; }
-  .btn-cashout:hover:not(:disabled) { box-shadow: 0 0 25px rgba(0,255,136,0.5); }
+  .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: auto; flex-shrink: 0; }
+  .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; }
+  .btn-cashout strong { font-size: 20px; font-weight: 900; }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
 
-  .link-bottom { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 15px; cursor: pointer; }
-  .link-bottom:hover { color: #fff; }
-
   /* ПРАВАЯ ПАНЕЛЬ (ИГРА) */
-  .game-area { flex: 1; display: flex; position: relative; overflow: hidden; background: radial-gradient(circle at center, #1a2332, #090a10 80%); }
+  .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #1a2332, #090a10 80%); }
   
   .game-area::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
 
-  .multiplier-column { width: 80px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 40px; gap: 10px; z-index: 2; padding-right: 10px; }
-  .mult-item { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 8px; transition: 0.3s; }
-  .mult-item.active { background: #102a3d; color: #fff; border: 1px solid var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+  /* Панель множителей сверху (для мобильных) */
+  .multiplier-bar { display: none; }
 
-  .ladder-container { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 40px; gap: 10px; z-index: 2; position: relative; overflow-y: auto; }
+  /* Контейнер для сетки */
+  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 8px; z-index: 2; position: relative; scrollbar-width: thin; }
   
-  .step-row { display: flex; gap: 15px; }
-  .cell { width: 60px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+  .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 600px; }
+  
+  /* Множитель слева */
+  .mult-badge { width: 70px; flex-shrink: 0; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
+  .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+
+  /* Сама сетка клеток */
+  .grid-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; flex: 1; }
+  .cell { height: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
   
   .cell:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: var(--accent); }
   .cell:disabled { cursor: not-allowed; }
@@ -68,24 +70,32 @@
   .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
   .cell.safe { background: rgba(0,255,136,0.1); border-color: var(--accent-green); }
   .cell.mine { background: rgba(255,77,77,0.1); border-color: var(--red); }
-  .cell.dimmed { opacity: 0.2; background: rgba(255,255,255,0.02); }
+  .cell.dimmed { opacity: 0.15; background: rgba(255,255,255,0.02); border-color: transparent; }
 
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 6px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
 
-  .icon { width: 60%; height: 60%; display: flex; align-items: center; justify-content: center; }
+  /* Иконки внутри клеток */
+  .icon { width: 70%; height: 70%; display: flex; align-items: center; justify-content: center; }
   .icon svg { width: 100%; height: 100%; }
 
   /* Мобильная адаптация */
   @media (max-width: 900px) {
     .app { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
-    .btn-start, .btn-cashout { margin-top: 15px; }
-    .game-area { flex-direction: column; justify-content: flex-end; padding: 10px 0; }
-    .multiplier-column { flex-direction: row; width: 100%; justify-content: center; padding-bottom: 10px; gap: 5px; padding-right: 0; }
-    .mult-item { width: 60px; height: auto; padding: 8px 0; font-size: 10px; }
-    .ladder-container { padding-bottom: 10px; gap: 6px; }
-    .cell { width: 50px; height: 45px; }
-    .step-row { gap: 10px; }
+    .sidebar { width: 100%; height: 200px; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
+    .sidebar h3 { display: none; }
+    .input-group { margin-bottom: 0; flex: 1; min-width: 120px; }
+    .quick-bets { margin-bottom: 0; flex: 2; min-width: 200px; }
+    .mines-grid { margin-bottom: 0; flex: 2; min-width: 200px; }
+    .btn-start, .btn-cashout { width: auto; min-width: 120px; margin-top: 0; flex: 1; padding: 10px; }
+    .link-bottom { display: none; }
+    
+    .game-area { flex-direction: column; justify-content: flex-end; }
+    .ladder-scroll { padding: 10px; gap: 6px; }
+    .level-row { gap: 5px; }
+    .mult-badge { width: 45px; font-size: 10px; height: 24px; }
+    .grid-row { gap: 3px; }
+    .cell { height: 24px; border-radius: 3px; }
+    .icon { width: 60%; height: 60%; }
   }
 </style>
 </head>
@@ -107,7 +117,7 @@
       <button onclick="setBet(100)">100</button>
     </div>
 
-    <h3>Количество камней</h3>
+    <h3>Количество мин</h3>
     <div class="mines-grid" id="minesGrid">
       <button class="mine-btn" onclick="setMines(3)">3</button>
       <button class="mine-btn" onclick="setMines(4)">4</button>
@@ -123,13 +133,12 @@
       <strong id="cashoutAmount">0 ₽</strong>
     </button>
 
-    <div class="link-bottom" onclick="alert('Правила: угадай безопасную клетку с короной, чтобы подняться выше. Попал на сломанную — проиграл.')">Как играть?</div>
+    <div class="link-bottom" onclick="alert('Правила: На каждом уровне 10 клеток, из них несколько мин. Выбирай клетку с короной, чтобы подняться выше. Чем выше — тем больше множитель.')">Как играть?</div>
   </div>
 
   <!-- ПРАВАЯ ПАНЕЛЬ -->
   <div class="game-area">
-    <div class="multiplier-column" id="multipliers"></div>
-    <div class="ladder-container" id="ladder"></div>
+    <div class="ladder-scroll" id="ladderScroll"></div>
   </div>
 </div>
 
@@ -144,7 +153,7 @@ let currentBet = 25;
 let busy = false;
 let stepsData = [];
 
-// Множители для 3-9 ступеней (примерно как на скрине)
+// Множители для 3-9 ступеней
 const MULT_TABLE = {
   3: [1.24, 1.70, 2.36],
   4: [1.24, 1.70, 2.36, 3.30],
@@ -155,9 +164,9 @@ const MULT_TABLE = {
   9: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95]
 };
 
-// SVG Короны из Miner
+// SVG Иконки
 const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
-const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="30" cy="20" r="1.5" fill="#ff9b9b"/><circle cx="38" cy="26" r="1.5" fill="#ff9b9b"/><circle cx="42" cy="18" r="1.5" fill="#ff9b9b"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/></svg>`;
 
 function loadMe() {
   try {
@@ -192,56 +201,61 @@ function setMines(val) {
   totalSteps = val;
   document.querySelectorAll('#minesGrid button').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  renderBoard(); // Обновить превью
+  renderBoard();
 }
 
+// Рендер сетки
 function renderBoard() {
-  const ladder = $('ladder');
-  const mults = $('multipliers');
-  ladder.innerHTML = '';
-  mults.innerHTML = '';
+  const scroll = $('ladderScroll');
+  scroll.innerHTML = '';
 
   const multArr = MULT_TABLE[totalSteps] || MULT_TABLE[6];
 
   for (let i = totalSteps - 1; i >= 0; i--) {
     const row = document.createElement('div');
-    row.className = 'step-row';
-    
-    for (let side = 0; side < 2; side++) {
+    row.className = 'level-row';
+
+    const mBadge = document.createElement('div');
+    mBadge.className = 'mult-badge' + (i === currentStep ? ' active' : '');
+    mBadge.textContent = 'x' + multArr[i].toFixed(2);
+    row.appendChild(mBadge);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid-row';
+
+    // В каждом ряду 10 клеток
+    for (let c = 0; c < 10; c++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
-      
-      const stepInfo = stepsData[i] || { safe: -1 };
+
+      const stepInfo = stepsData[i];
       const isPassed = (i < currentStep);
       const isCurrent = (i === currentStep);
-      
+
       if (isPassed) {
-        if (stepInfo.safe === side) {
+        // Прошедшие — показываем корону, если тут была безопасная клетка
+        if (stepInfo && stepInfo.safe === c) {
           cell.classList.add('safe');
           cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
         } else {
           cell.classList.add('dimmed');
         }
       } else if (isCurrent) {
+        // Текущий уровень — клетки кликабельны
         cell.classList.add('current');
-        cell.onclick = () => clickCell(i, side);
+        cell.onclick = () => clickCell(i, c);
       } else {
+        // Будущие — скрыты
         cell.classList.add('dimmed');
       }
-      
-      row.appendChild(cell);
+      grid.appendChild(cell);
     }
-    ladder.appendChild(row);
-
-    const mEl = document.createElement('div');
-    mEl.className = 'mult-item' + (i === currentStep ? ' active' : '');
-    mEl.textContent = 'x' + multArr[i].toFixed(2);
-    mults.appendChild(mEl);
+    row.appendChild(grid);
+    scroll.appendChild(row);
   }
 
   setTimeout(() => {
-    const activeMult = mults.querySelector('.active');
-    if (activeMult) activeMult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    scroll.scrollTop = scroll.scrollHeight;
   }, 50);
 }
 
@@ -255,7 +269,6 @@ async function startGame() {
 
   busy = true;
   $('btnStart').disabled = true;
-  $('btnStart').textContent = 'Загрузка...';
 
   try {
     const r = await fetch('/api/ladder/start', {
@@ -264,10 +277,10 @@ async function startGame() {
       body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, steps: totalSteps })
     });
     const d = await r.json();
-    if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; $('btnStart').textContent = 'Играть'; return; }
+    if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; return; }
 
     sessionId = d.session_id;
-    stepsData = d.ladder; // [{ safe: 0, mine: 1 }, ...]
+    stepsData = d.ladder; // [{ safe: 0 }, ...]
     currentStep = 0;
     
     $('btnStart').style.display = 'none';
@@ -279,12 +292,11 @@ async function startGame() {
     refreshBalance();
   } catch(e) {
     alert('Ошибка соединения');
-    $('btnStart').disabled = false; $('btnStart').textContent = 'Играть';
   }
   busy = false;
 }
 
-async function clickCell(stepIdx, side) {
+async function clickCell(stepIdx, cellIdx) {
   if (busy || !sessionId || stepIdx !== currentStep) return;
   busy = true;
 
@@ -292,7 +304,7 @@ async function clickCell(stepIdx, side) {
     const r = await fetch('/api/ladder/step', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId, cell: side })
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId, cell: cellIdx })
     });
     const d = await r.json();
     if (!r.ok) { alert(d.error); busy = false; return; }
@@ -324,7 +336,6 @@ async function clickCell(stepIdx, side) {
 
 async function cashout() {
   if (busy || !sessionId || currentStep === 0) return;
-  // Временное решение для UI, серверный кешаут нужно дописать в server.js
   alert('Вы забрали выигрыш!');
   resetGame();
 }
@@ -335,7 +346,6 @@ function resetGame() {
   stepsData = [];
   $('btnStart').style.display = 'block';
   $('btnStart').disabled = false;
-  $('btnStart').textContent = 'Играть';
   $('btnCashout').style.display = 'none';
   renderBoard();
   refreshBalance();
@@ -346,7 +356,7 @@ window.onload = () => {
   if (currentPlayer) {
     refreshBalance();
     setInterval(refreshBalance, 5000);
-    renderBoard(); // Показать превью
+    renderBoard();
   } else {
     alert('Войдите в аккаунт на главной странице');
     window.location.href = '/';
