@@ -16,7 +16,7 @@
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-  /* ФОН КАК НА КАРТИНКЕ */
+  /* ФОН В СТИЛЕ CRASH */
   .bg-glow {
     position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     background: radial-gradient(circle at 10% 20%, rgba(0,229,255,0.08) 0%, transparent 40%),
@@ -50,7 +50,7 @@
 
   .layout { max-width: 1400px; margin: 0 auto; padding: 20px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 20px; z-index: 1; position: relative; }
 
-  /* КАРТОЧКИ КЕЙСОВ В СТИЛЕ CRASH */
+  /* КАРТОЧКИ КЕЙСОВ */
   .cases-list {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;
   }
@@ -226,8 +226,6 @@ let allCases = [];
 let busy = false;
 let audioCtx = null;
 
-// Дропы, если сервер вернёт старые (можно переопределить тут)
-// Но правильнее поменять в server.js, я покажу ниже.
 const CASE_QUOTES = {
   'Новичок': 'С чего-то надо начинать.',
   'Сильвер': 'Серебро — это уже статус.',
@@ -236,7 +234,6 @@ const CASE_QUOTES = {
   'Королевский': 'Только для настоящих королей.'
 };
 
-// Визуал кейсов (SVG)
 const CASE_SVG = {
   'Новичок': `<svg viewBox="0 0 100 100"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0077ff"/></linearGradient></defs><rect x="20" y="30" width="60" height="50" rx="8" fill="#151922" stroke="url(#g1)" stroke-width="3"/><rect x="15" y="45" width="70" height="8" fill="url(#g1)"/><circle cx="50" cy="55" r="8" fill="#f1c40f" stroke="#fff" stroke-width="2"/><path d="M50 20 L55 30 L65 30 L57 37 L60 47 L50 41 L40 47 L43 37 L35 30 L45 30 Z" fill="#f1c40f" opacity="0.8"/></svg>`,
   'Сильвер': `<svg viewBox="0 0 100 100"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0e0e0"/><stop offset="1" stop-color="#888"/></linearGradient></defs><rect x="20" y="30" width="60" height="50" rx="8" fill="#151922" stroke="url(#g2)" stroke-width="3"/><rect x="15" y="45" width="70" height="8" fill="url(#g2)"/><circle cx="50" cy="55" r="8" fill="#f1c40f" stroke="#fff" stroke-width="2"/><path d="M50 20 L55 30 L65 30 L57 37 L60 47 L50 41 L40 47 L43 37 L35 30 L45 30 Z" fill="#f1c40f" opacity="0.8"/></svg>`,
@@ -246,8 +243,6 @@ const CASE_SVG = {
 };
 
 function initBackgroundCoins() {
-  const c = $('bgGlow');
-  // Коины добавляем в фон
   const bg = document.querySelector('.bg-glow');
   if (!bg) return;
   const count = window.matchMedia('(max-width: 600px)').matches ? 5 : 10;
@@ -341,9 +336,6 @@ function renderCases() {
     const locked = !c.available;
     const svg = CASE_SVG[c.name] || CASE_SVG['Новичок'];
     const quote = CASE_QUOTES[c.name] || 'Испытай удачу.';
-    
-    // Сортируем и берём топ-3 приза для мини-отображения (убрал, чтобы не загромождать)
-    
     return `<div class="case-card ${locked?'locked':''}" onclick="selectCase('${c.name.replace(/'/g,"\\'")}')">
       <div class="case-box-img">${svg}</div>
       <div class="case-name">${c.name}</div>
@@ -414,14 +406,15 @@ async function doOpen() {
     return;
   }
 
-  // Строим рулетку
+  // Строим рулетку: 30 слева, выигрыш, 30 справа.
+  // ВАЖНО: выигрышный элемент берётся СТРОГО из res.prize (ответ сервера)
   const track = $('rouletteTrack');
   const c = selectedCase;
   const totalItems = 60;
   const winIndex = 30;
   const items = [];
   for (let i = 0; i < totalItems; i++) {
-    if (i === winIndex) items.push({ val: res.prize, win: true });
+    if (i === winIndex) items.push({ val: res.prize, win: true }); // <-- ЖЁСТКО ПРИЗ С СЕРВЕРА
     else items.push({ val: c.prizes[Math.floor(Math.random() * c.prizes.length)], win: false });
   }
   
