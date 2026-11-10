@@ -454,7 +454,7 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-// === ОТРИСОВКА БЕЗ ГРАФИКА, НО ПО ТРАЕКТОРИИ ЛИНИИ ===
+// === ОТРИСОВКА БЕЗ ГРАФИКА (С ФИКСИРОВАННЫМ МАСШТАБОМ) ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
@@ -466,27 +466,28 @@ function drawGraph(currentMult, status) {
 
   if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
     const lastX = graphPoints[graphPoints.length - 1].x;
-    const maxX = Math.max(3, lastX);
-    const maxY = Math.max(currentMult * 1.15, 1.5);
+    const maxX = Math.max(6, lastX); // Фиксированный минимум по X
+    const maxY = Math.max(3, currentMult * 1.2); // Фиксированный минимум по Y
+
     const lastP = graphPoints[graphPoints.length - 1];
     const lx = paddingL + (lastP.x / maxX) * drawW;
     const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
 
     // Ракета
     if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
-      let angle = -Math.PI / 4;
-      if (currentMult >= 1.20) angle = -Math.PI / 2;
-      else if (graphPoints.length >= 2) {
-        const p1 = graphPoints[graphPoints.length - 2];
-        const p2 = graphPoints[graphPoints.length - 1];
-        const p1x = paddingL + (p1.x / maxX) * drawW;
-        const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
-        const p2x = paddingL + (p2.x / maxX) * drawW;
-        const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
-        angle = Math.atan2(p2y - p1y, p2x - p1x);
+      let angle;
+      if (currentMult < 1.05) {
+        angle = -Math.PI / 4; // Фиксированный наклон на старте
+      } else if (currentMult < 1.20) {
+        const t = (currentMult - 1.05) / (1.20 - 1.05);
+        const startAngle = -Math.PI / 4;
+        const endAngle = -Math.PI / 2;
+        angle = startAngle + (endAngle - startAngle) * t; // Плавный поворот
+      } else {
+        angle = -Math.PI / 2; // Строго вверх после 1.20x
       }
       const ROCKET_SIZE = 100;
-      const BASE_ANGLE = Math.PI / 4;
+      const BASE_ANGLE = Math.PI / 4; // Поправка на исходный поворот картинки
       ctx.save();
       ctx.translate(lx, ly);
       ctx.rotate(angle + BASE_ANGLE);
@@ -501,8 +502,8 @@ function drawGraph(currentMult, status) {
   } else if (status === 'crashed' && graphPoints.length <= 1) {
     if (!explosionTriggered) {
       const lastP = graphPoints[0] || { x: 0, y: 1 };
-      const lx = paddingL + (lastP.x / Math.max(3, lastP.x)) * drawW;
-      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(currentMult * 1.15, 1.5)) * drawH;
+      const lx = paddingL + (lastP.x / Math.max(6, lastP.x)) * drawW;
+      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(3, currentMult * 1.2)) * drawH;
       spawnExplosion(lx, ly); explosionTriggered = true;
     }
   }
