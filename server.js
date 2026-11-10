@@ -126,7 +126,6 @@ function pickPrize(prizes) {
 
 /* ============================================================
    ЕДИНАЯ ЛОГИКА НАЧИСЛЕНИЯ
-   debitBet теперь возвращает fromBonus/fromDeposit
    ============================================================ */
 
 async function debitBet(guestId, amount) {
@@ -185,7 +184,6 @@ async function getBalance(guestId) {
 
 /* ============================================================
    КАССА КАЗИНО — целевой RTP (базовая цель 60%)
-   getCasinoStats игнорирует всё, что не реальный доход
    ============================================================ */
 
 async function getCasinoStats(period = 'all') {
@@ -256,7 +254,7 @@ async function getTargetRTP(guestId) {
     else if (p < -3000) rtp += Math.min(0.10, (-p - 3000) / 20000);
   }
   rtp *= 0.97 + Math.random() * 0.06;
-  return Math.max(0.30, Math.min(0.85, rtp));
+  return Math.max(0.55, Math.min(0.85, rtp));
 }
 
 const DEALER_TASKS_BJ = [
@@ -319,15 +317,16 @@ function crashGeneratePoint() {
   return Math.max(1.00, crash);
 }
 
+// === ФИКС: мгновенный краш всегда 5%, средний краш масштабируется через RTP ===
 async function crashGeneratePointAsync(guestId) {
   const targetRTP = await getTargetRTP(guestId);
-  const instaProb = 1 - targetRTP;
+  const instaProb = 0.05; // 5% мгновенных крашей — как в реальном Crash
   const r = Math.random();
   if (r < instaProb) return 1.00;
   const p = (r - instaProb) / (1 - instaProb);
   let crash = Math.floor((100 * targetRTP) / (1 - p)) / 100;
   if (crash > CRASH_MAX_MULT) crash = CRASH_MAX_MULT;
-  return Math.max(1.00, Math.round(crash * 100) / 100);
+  return Math.max(1.01, Math.round(crash * 100) / 100);
 }
 
 let bots = [];
@@ -375,6 +374,16 @@ async function crashStartWaiting() {
         } else { cp = await crashGeneratePointAsync(null); }
       } else { cp = await crashGeneratePointAsync(null); }
     } catch(e) { cp = crashGeneratePoint(); }
+
+    // === ФИКС: защита от серии x1.00 ===
+    try {
+      const recent = await pool.query(`SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 3`);
+      const lastThree = recent.rows.map(r => parseFloat(r.crash_point));
+      if (lastThree.length === 3 && lastThree.every(c => c <= 1.01)) {
+        cp = Math.round((1.5 + Math.random() * 1.5) * 100) / 100;
+      }
+    } catch(e) {}
+
     try { await pool.query(`UPDATE crash_rounds SET status='crashed' WHERE status IN ('waiting', 'flying')`); } catch(e) {}
     const r = await pool.query(`INSERT INTO crash_rounds (crash_point, status) VALUES ($1, 'waiting') RETURNING id`, [cp]);
     crashState.roundId = r.rows[0].id;
@@ -702,7 +711,6 @@ const server = http.createServer(async (req, res) => {
       if (op === 'add') next = cur + amount;
       else { next = cur - amount; if (next < 0) return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${cur.toFixed(2)} ₽` }); }
       await pool.query(`UPDATE guests SET ${col}=$1 WHERE id=$2`, [next, id]);
-      // В кассу пишем только реальные деньги. Бонусы — не доход/расход казино.
       if (type === 'deposit') {
         try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), op === 'add' ? 'расход' : 'доход', amount, `Admin ${op} deposit ${g.name} (#${id})`]); } catch(e) {}
       }
@@ -852,7 +860,6 @@ const server = http.createServer(async (req, res) => {
       await creditWin(guest.id, prize, c.price);
       await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`, [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
       await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1, $2, $3, $4, NOW(), $5)`, ['cases', guest.name, c.price, prize, guest.id]);
-      // В кассу пишем только реальные деньги
       if (!isBonusGame) {
         const net = c.price - prize;
         await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
@@ -865,7 +872,7 @@ const server = http.createServer(async (req, res) => {
       catch(e) { return sendJSON(res, 200, []); }
     }
 
-    // ===== МИНЕР =====
+    // ===== МИНЕР (множитель без RTP — RTP через добавление мин) =====
     if (url === '/api/miner/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -897,6 +904,7 @@ const server = http.createServer(async (req, res) => {
       if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
       if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
+
       let forceLose = false;
       try {
         const fp = await pool.query(`SELECT 1 FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]);
@@ -908,7 +916,9 @@ const server = http.createServer(async (req, res) => {
           forceLose = (fr.rows.length && String(fr.rows[0].value) === '1');
         } catch(e) {}
       }
+
       const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+
       if (forceLose) {
         sess.finished = true;
         const forcedMines = [cell];
@@ -922,7 +932,20 @@ const server = http.createServer(async (req, res) => {
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
-      if (sess.mines.includes(cell)) {
+
+      // Проверка мины с добавлением "фальшивых" мин при низком RTP
+      let isMine = sess.mines.includes(cell);
+      if (!isMine) {
+        const targetRTP = await getTargetRTP(guestId);
+        const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
+        const effectiveCheat = cheatChance * 0.35;
+        if (Math.random() < effectiveCheat) {
+          isMine = true;
+          sess.mines.push(cell);
+        }
+      }
+
+      if (isMine) {
         sess.finished = true;
         try {
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', isBonusGame ? 0 : sess.bet, `Miner LOSS${isBonusGame ? ' (bonus)' : ''} (${guestId})`]);
@@ -934,13 +957,14 @@ const server = http.createServer(async (req, res) => {
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
+
       sess.revealed.push(cell);
       const safeOpened = sess.revealed.length;
       const safeTotal = 25 - sess.mines.length;
       let surviveProb = 1;
       for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
-      const targetRTP = await getTargetRTP(guestId);
-      const multiplier = Math.round((1 / surviveProb) * targetRTP * 100) / 100;
+      // Честный множитель БЕЗ RTP
+      const multiplier = Math.round((1 / surviveProb) * 100) / 100;
       const result = { ok: true, mine: false, cell, revealed: sess.revealed, multiplier, bet: sess.bet, potential_win: Math.round(sess.bet * multiplier * 100) / 100 };
       if (sess.revealed.length >= safeTotal) {
         const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
@@ -983,8 +1007,8 @@ const server = http.createServer(async (req, res) => {
       const safeTotal = 25 - sess.mines.length;
       let surviveProb = 1;
       for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
-      const targetRTP = await getTargetRTP(guestId);
-      const multiplier = Math.round((1 / surviveProb) * targetRTP * 100) / 100;
+      // Честный множитель БЕЗ RTP
+      const multiplier = Math.round((1 / surviveProb) * 100) / 100;
       const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
       sess.finished = true;
       await creditWin(guestId, winAmount, sess.bet);
@@ -1096,7 +1120,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query('UPDATE guests SET bonus_balance = GREATEST(0, bonus_balance - $1) WHERE id=$2', [parseFloat(sum) || 0, id]);
       return sendJSON(res, 200, { ok: true });
     }
-
     if(url === '/api/guest/login' && method === 'POST'){
       const { id, pass } = await parseBody(req);
       if(!id || !pass) return sendJSON(res, 400, { error: 'Введите номер карты и пароль' });
@@ -1179,7 +1202,6 @@ const server = http.createServer(async (req, res) => {
       try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', parseFloat(w.sum) || 0, `Withdraw cancelled (${g.name})`]); } catch(e) {}
       return sendJSON(res, 200, { ok: true, refunded: parseFloat(w.sum) || 0 });
     }
-
     if(url === '/api/deposits' && method === 'GET'){ const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/deposits' && method === 'POST'){
       const d = await parseBody(req);
@@ -1217,7 +1239,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM deposits WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/withdrawals' && method === 'GET'){ const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/withdrawals' && method === 'POST'){
       const w = await parseBody(req);
@@ -1261,7 +1282,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true });
     }
     if(url.startsWith('/api/withdrawals/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM withdrawals WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/payouts' && method === 'POST'){
       const p = await parseBody(req);
@@ -1269,14 +1289,12 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, payout: r.rows[0] });
     }
     if(url.startsWith('/api/payouts/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM payouts WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/players' && method === 'GET'){ const r = await pool.query('SELECT * FROM players ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/players' && method === 'POST'){
       const p = await parseBody(req);
       const r = await pool.query(`INSERT INTO players (nick,vip,blocked) VALUES ($1,$2,$3) ON CONFLICT (nick) DO UPDATE SET vip=EXCLUDED.vip, blocked=EXCLUDED.blocked RETURNING *`, [p.nick,p.vip||false,p.blocked||false]);
       return sendJSON(res, 200, { ok: true, player: r.rows[0] });
     }
-
     if(url === '/api/audit' && method === 'GET'){ const r = await pool.query('SELECT * FROM audit ORDER BY id DESC LIMIT 500'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/audit' && method === 'POST'){
       const a = await parseBody(req);
@@ -1284,7 +1302,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, audit: r.rows[0] });
     }
     if(url === '/api/audit' && method === 'DELETE'){ await pool.query('DELETE FROM audit'); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/employees' && method === 'GET'){ const r = await pool.query('SELECT id,name,login,role FROM employees ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/employees' && method === 'POST'){
       const e = await parseBody(req);
@@ -1292,7 +1309,6 @@ const server = http.createServer(async (req, res) => {
       catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
     if(url.startsWith('/api/employees/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM employees WHERE id=$1 AND role!=$2', [id, 'owner']); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/dealers' && method === 'GET'){ const r = await pool.query('SELECT id,name,login FROM dealers ORDER BY id'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/dealers' && method === 'POST'){
       const d = await parseBody(req);
@@ -1300,7 +1316,6 @@ const server = http.createServer(async (req, res) => {
       catch(err){ return sendJSON(res, 400, { error: 'Логин занят' }); }
     }
     if(url.startsWith('/api/dealers/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM dealers WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/online' && method === 'GET'){ const r = await pool.query('SELECT * FROM online ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/online' && method === 'POST'){
       const o = await parseBody(req);
@@ -1308,7 +1323,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, online: r.rows[0] });
     }
     if(url.startsWith('/api/online/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM online WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
-
     if(url === '/api/login' && method === 'POST'){
       const { login, pass, type } = await parseBody(req);
       if(type === 'dealer'){
@@ -1322,7 +1336,6 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { ok: true, employee: { id: r.rows[0].id, name: r.rows[0].name, role: r.rows[0].role } });
       }
     }
-
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
@@ -1338,7 +1351,6 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
     return;
-
   } catch (e) {
     console.error('Ошибка сервера:', e.message);
     try { sendJSON(res, 500, { error: e.message }); } catch(err) {}
