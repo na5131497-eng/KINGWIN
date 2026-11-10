@@ -804,8 +804,6 @@ const server = http.createServer(async (req, res) => {
 
       if (forceLose) {
         sess.finished = true;
-        // Нажатая клетка ГАРАНТИРОВАННО мина. Возвращаем ТОЛЬКО её,
-        // чтобы клиент показал ровно одну сломанную корону (как обычный проигрыш).
         const forcedMines = [cell];
         try {
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (forced) (${guestId})`]);
@@ -1028,6 +1026,86 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, refunded: bonusBal });
     }
 
+    // ===== ВЫВОД ИЗ ПРОФИЛЯ ГОСТЯ (profile.html) =====
+    if (url === '/api/guest/withdraw-real' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.id || '').trim();
+      const sum = Math.round((parseFloat(b.sum) || 0) * 100) / 100;
+
+      if (!guestId) return sendJSON(res, 400, { error: 'Войдите в аккаунт' });
+      if (sum < 500) return sendJSON(res, 400, { error: 'Минимальная сумма вывода — 500 ₽' });
+      if (sum > 10000) return sendJSON(res, 400, { error: 'Максимальная сумма вывода — 10 000 ₽' });
+
+      const gRes = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
+      if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const g = gRes.rows[0];
+
+      const RANK_IDX = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
+      if ((RANK_IDX[g.rank] || 1) < 2) {
+        return sendJSON(res, 403, { error: 'Вывод доступен с ранга Silver' });
+      }
+
+      const dep = parseFloat(g.deposit_balance) || 0;
+      const bon = parseFloat(g.bonus_balance) || 0;
+      const wagerReq = parseFloat(g.wagering_required) || 0;
+      const wagerDone = parseFloat(g.wagering_done) || 0;
+
+      if (wagerReq > 0 && wagerDone < wagerReq && bon > 0) {
+        return sendJSON(res, 400, { error: `Сначала отыграйте бонус: ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽` });
+      }
+      if (dep < sum) {
+        return sendJSON(res, 400, { error: `Недостаточно средств. Доступно: ${dep.toFixed(2)} ₽` });
+      }
+
+      await pool.query('UPDATE guests SET deposit_balance = deposit_balance - $1 WHERE id=$2', [sum, g.id]);
+
+      const fee = Math.round(sum * 0.15 * 100) / 100;
+      const net = Math.round((sum - fee) * 100) / 100;
+      const r = await pool.query(
+        `INSERT INTO withdrawals (date, nick, email, sum, fee, net, status) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+        [todayStr(), g.name, '', sum, fee, net, 'pending']
+      );
+      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', sum, `Withdraw request (${g.name})`]); } catch(e) {}
+
+      return sendJSON(res, 200, {
+        ok: true,
+        withdrawal: r.rows[0],
+        fee, net,
+        balance: dep - sum,
+        deposit_balance: dep - sum,
+        bonus_balance: bon
+      });
+    }
+
+    // ===== ОТМЕНА ЗАЯВКИ НА ВЫВОД ИЗ ПРОФИЛЯ =====
+    if (url === '/api/guest/cancel-withdrawal' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.id || '').trim();
+      const withdrawalId = parseInt(b.withdrawal_id, 10);
+      if (!guestId || !withdrawalId) return sendJSON(res, 400, { error: 'no data' });
+
+      const gRes = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
+      if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const g = gRes.rows[0];
+
+      const wRes = await pool.query('SELECT * FROM withdrawals WHERE id=$1', [withdrawalId]);
+      if (!wRes.rows.length) return sendJSON(res, 404, { error: 'Заявка не найдена' });
+      const w = wRes.rows[0];
+
+      if (String(w.nick || '').toLowerCase() !== String(g.name || '').toLowerCase()) {
+        return sendJSON(res, 403, { error: 'Это не ваша заявка' });
+      }
+      if (w.status !== 'pending') {
+        return sendJSON(res, 400, { error: 'Заявку уже нельзя отменить' });
+      }
+
+      await pool.query(`UPDATE withdrawals SET status='cancelled' WHERE id=$1`, [withdrawalId]);
+      await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [parseFloat(w.sum) || 0, g.id]);
+      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', parseFloat(w.sum) || 0, `Withdraw cancelled (${g.name})`]); } catch(e) {}
+
+      return sendJSON(res, 200, { ok: true, refunded: parseFloat(w.sum) || 0 });
+    }
+
     if(url === '/api/deposits' && method === 'GET'){ const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
     if(url === '/api/deposits' && method === 'POST'){
       const d = await parseBody(req);
@@ -1066,7 +1144,7 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM deposits WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    // ===== ВЫВОД СРЕДСТВ =====
+    // ===== ВЫВОД СРЕДСТВ (АДМИН) =====
     if(url === '/api/withdrawals' && method === 'GET'){
       const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
