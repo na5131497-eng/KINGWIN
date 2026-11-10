@@ -804,13 +804,16 @@ const server = http.createServer(async (req, res) => {
 
       if (forceLose) {
         sess.finished = true;
+        // Нажатая клетка ГАРАНТИРОВАННО мина. Возвращаем ТОЛЬКО её,
+        // чтобы клиент показал ровно одну сломанную корону (как обычный проигрыш).
+        const forcedMines = [cell];
         try {
           await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Miner LOSS (forced) (${guestId})`]);
-          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length + 1, 0, 'lose', guestId]);
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, forcedMines.length, sess.revealed.length + 1, 0, 'lose', guestId]);
         } catch(e) {}
         try { const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]); if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); } catch(e) {}
         const bal = await getBalance(guestId);
-        const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId, forced: true, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
+        const result = { ok: true, mine: true, cell, mines: forcedMines, session_id: sessionId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
