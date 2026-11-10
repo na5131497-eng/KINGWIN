@@ -362,7 +362,6 @@
       <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
     </div>
 
-    <!-- Пароль-гейт -->
     <div id="crashGate" style="display:none;">
       <div class="panel" style="max-width:420px; margin:40px auto; text-align:center;">
         <h3 style="margin-bottom:14px;">Введите пароль</h3>
@@ -393,9 +392,9 @@
 
       <div class="crash-force-block">
         <h3>🎯 Контроль следующего краша</h3>
-        <div class="hint">Введи коэффициент — следующий раунд крашнется именно на нём. Диапазон: 1.00 – 1000.</div>
+        <div class="hint">Введи коэффициент — следующий раунд крашнется именно на нём. Диапазон: 1.00 – 100.</div>
         <div class="crash-force-row">
-          <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="1000" placeholder="2.5"></label>
+          <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="100" placeholder="2.5"></label>
           <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
           <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
         </div>
@@ -427,7 +426,7 @@
   <div class="page" id="page-miner">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
       <div><h1>🎮 Минер</h1><div class="sub">Активные игры и история</div></div>
-      <button class="ghost" onclick="loadMinerAdmin()">🔄 Обновить</button>
+      <button class="ghost" onclick="loadMinerAdmin(); loadMinerPlayers()">🔄 Обновить</button>
     </div>
     <div class="cards" id="minerCards"></div>
 
@@ -444,6 +443,27 @@
         </label>
         <span id="minerForceStatus" class="miner-force-status"></span>
       </div>
+    </div>
+
+    <div class="miner-force-block" style="border-color:var(--amber);">
+      <h3 style="color:var(--amber);">🎯 Слив конкретных игроков</h3>
+      <div class="hint">
+        Включи «слив» у конкретного игрока — он будет проигрывать на первом же клике в Miner.<br>
+        Выключи — играет нормально, даже если глобальный «Сливать каждый клик» выключен.
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+        <input type="text" id="minerPlayerSearch" placeholder="Поиск по нику или ID..." oninput="renderMinerPlayers()" style="flex:1; min-width:220px; background:rgba(0,0,0,.3); border:1px solid var(--line); color:#fff; padding:10px 12px; border-radius:8px; font-family:inherit;">
+        <button class="ghost" onclick="loadMinerPlayers()">🔄 Обновить</button>
+      </div>
+      <div class="wrap" style="max-height:340px;">
+        <table>
+          <thead>
+            <tr><th>Игрок</th><th>ID</th><th>Последняя игра</th><th>Слив</th></tr>
+          </thead>
+          <tbody id="minerPlayersBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="minerPlayersEmpty">Пока никто не играл в Miner</div>
     </div>
 
     <div class="panel">
@@ -608,8 +628,8 @@ let editGuestId = null;
 let guestBalanceId = null;
 let liveCrashInterval = null;
 let minerInterval = null;
+let minerPlayersCache = [];
 
-/* ===== ПАРОЛЬ ДЛЯ CRASH ===== */
 const CRASH_PASS = '56UpahoS';
 let crashGateUnlocked = false;
 
@@ -725,13 +745,12 @@ function switchPage(page){
     stopLiveCrashPoll();
   }
 
-  if (page==='miner'){ startMinerPoll(); loadMinerForceLose(); }
+  if (page==='miner'){ startMinerPoll(); loadMinerForceLose(); loadMinerPlayers(); }
   else { stopMinerPoll(); }
 
   if (window.innerWidth <= 900) toggleMenu();
 }
 
-/* ===== CRASH GATE ===== */
 function submitCrashGate(){
   const pass = $('crashGatePass').value;
   const err = $('crashGateErr');
@@ -847,7 +866,6 @@ async function confirmPass(){
 }
 $('passInput').addEventListener('keypress', e=>{ if(e.key==='Enter') confirmPass(); });
 
-/* ===== GUEST BALANCE ===== */
 function openGuestBalance(id){
   const g = db.guests.find(x => String(x.id) === String(id));
   if(!g){ showInfo('Ошибка','Гость не найден'); return; }
@@ -1180,9 +1198,7 @@ function renderPlayers(){
 }
 async function toggleVIP(nick,val){ await apiPost('/api/players',{nick,vip:val}); await audit('vip_toggle',nick); await loadDB(); renderPlayers(); }
 
-/* ===== ONLINE ===== */
 function renderOnline(){
-  // Только реальные игроки: cashed_out = true, player_id не BOT, есть player_name
   const cash = db.crash_bets.filter(b =>
     b.cashed_out === true &&
     b.player_id &&
@@ -1240,7 +1256,7 @@ async function loadCrashForceStatus(){
 }
 async function setCrashForce(){
   const val = parseFloat($('crashForceInput').value);
-  if(!isFinite(val) || val<1 || val>1000){ alert('1.00–1000'); return; }
+  if(!isFinite(val) || val<1 || val>100){ alert('1.00–100'); return; }
   try {
     const r = await fetch('/api/admin/crash/force-next',{
       method:'POST',
@@ -1320,7 +1336,6 @@ async function doCrashStop(){
   } catch(e){ alert('Ошибка соединения'); }
 }
 
-/* ===== MINER ===== */
 async function loadMinerForceLose(){
   try {
     const r = await fetch('/api/admin/miner/force-lose');
@@ -1441,6 +1456,10 @@ async function loadMinerAdmin(){
   } catch(e) {
     console.error('loadMinerAdmin', e);
   }
+  if (!loadMinerPlayers._last || Date.now() - loadMinerPlayers._last > 30000) {
+    loadMinerPlayers._last = Date.now();
+    loadMinerPlayers();
+  }
 }
 function startMinerPoll(){
   stopMinerPoll();
@@ -1451,7 +1470,74 @@ function stopMinerPoll(){
   if (minerInterval) { clearInterval(minerInterval); minerInterval = null; }
 }
 
-/* ===== NEWS ===== */
+async function loadMinerPlayers(){
+  try {
+    const r = await fetch('/api/admin/miner/players', { cache: 'no-store' });
+    const d = await r.json();
+    minerPlayersCache = Array.isArray(d) ? d : [];
+    renderMinerPlayers();
+  } catch(e) {
+    console.error('loadMinerPlayers', e);
+  }
+}
+
+function renderMinerPlayers(){
+  const body = $('minerPlayersBody');
+  const empty = $('minerPlayersEmpty');
+  if (!body) return;
+  const q = (($('minerPlayerSearch')?.value) || '').trim().toLowerCase();
+  const list = minerPlayersCache.filter(p => {
+    if (!q) return true;
+    return (p.guest_id || '').toLowerCase().includes(q) || (p.guest_name || '').toLowerCase().includes(q);
+  });
+  if (list.length === 0) {
+    body.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  body.innerHTML = list.map(p => {
+    const name = p.guest_name || '—';
+    const id = p.guest_id || '—';
+    const last = p.last_played ? formatTime(p.last_played) : '—';
+    const checked = p.forced ? 'checked' : '';
+    return `<tr>
+      <td><b>${escHtml(name)}</b></td>
+      <td style="font-family:'Courier New',monospace; color:var(--muted); font-size:12px;">${escHtml(id)}</td>
+      <td style="color:var(--muted); font-size:12px;">${escHtml(last)}</td>
+      <td>
+        <label class="miner-force-toggle" style="padding:6px 12px;">
+          <input type="checkbox" ${checked} onchange="toggleMinerPlayer('${escHtml(id).replace(/'/g, "\\'")}', '${escHtml(name).replace(/'/g, "\\'")}', this.checked)">
+          <span style="font-size:12px;">${p.forced ? '⚠ Слив' : 'Играет'}</span>
+        </label>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleMinerPlayer(guestId, guestName, enabled){
+  try {
+    const r = await fetch('/api/admin/miner/player-force', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: guestId, guest_name: guestName, enabled, pass: CRASH_PASS })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      alert(d.error || 'Ошибка');
+      await loadMinerPlayers();
+      return;
+    }
+    const p = minerPlayersCache.find(x => x.guest_id === guestId);
+    if (p) p.forced = !!enabled;
+    renderMinerPlayers();
+    await audit('miner_player_force', `${guestName || guestId} → ${enabled ? 'ON' : 'OFF'}`);
+  } catch(e) {
+    alert('Ошибка соединения');
+    await loadMinerPlayers();
+  }
+}
+
 function renderNewsAdmin(){
   const wrap = $('newsList'); const empty = $('newsEmpty');
   if(!wrap) return;
