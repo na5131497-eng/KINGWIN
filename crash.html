@@ -82,7 +82,7 @@
   .amount-input-wrap button:hover { background: rgba(255,255,255,0.1); }
   .amount-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 800; outline: none; font-family: inherit; }
   .amount-input-wrap input:disabled { opacity: 0.6; cursor: not-allowed; }
-  
+
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; min-width: 0; padding: 8px 10px; }
   .btn-action .subtext { font-size: 11px; font-weight: 600; opacity: 0.9; margin-top: 3px; }
   .btn-bet { background: var(--yellow); color: #000; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
@@ -252,7 +252,6 @@
   </div>
 </div>
 
-<!-- МОДАЛКА "КАК ИГРАТЬ" -->
 <div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
   <div class="howto-modal">
     <h2>🎮 Как играть в Crash</h2>
@@ -383,8 +382,6 @@ let myBetId = null;
 let myCashed = false;
 let queuedBet = null;
 let round = { id: null, status: 'waiting', startTime: 0, crashPoint: 1, serverMult: 1, bets: [], history: [], hasRealBet: false };
-let graphPoints = [];
-let lastGraphRoundId = null;
 let lastBetsSig = '';
 let lastHistorySig = '';
 let localCrashed = false;
@@ -417,15 +414,13 @@ window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200)
 resizeCanvas();
 
 function historyColorClass(mult) { if (mult >= 10) return 'gold'; if (mult >= 4) return 'purple'; if (mult > 1.50) return 'blue'; return 'red'; }
-function resetLocalCrash() { localCrashed = false; localCrashMult = 1; crashedRoundId = null; graphPoints = []; prevMult = 1; explosionTriggered = false; particles = []; shockwaves = []; flash.active = false; }
+function resetLocalCrash() { localCrashed = false; localCrashMult = 1; crashedRoundId = null; explosionTriggered = false; particles = []; shockwaves = []; flash.active = false; }
 
 async function loadBalance() { if (!playerId) { document.getElementById('balanceVal').textContent = '0.00 ₽'; return; } try { const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId)); const d = await r.json(); if (r.ok && d.guest) { const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0); playerBalance = total; document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽'; } } catch(e) {} }
 loadBalance();
 setInterval(loadBalance, 5000);
 
 function currentLocalMultiplier() { if (localCrashed && crashedRoundId !== round.id) resetLocalCrash(); if (round.status === 'waiting') return 1; if (round.status === 'crashed' || localCrashed) return localCrashMult; if (round.status === 'flying' && round.startTime) { const elapsed = Date.now() - round.startTime - timeOffset; if (elapsed <= 0) return 1; return Math.pow(1.00006, elapsed); } return 1; }
-
-function rebuildGraphFromStart() { graphPoints = []; if (!round.startTime) return; const elapsedMs = Date.now() - round.startTime - timeOffset; if (elapsedMs <= 0) { graphPoints.push({ x: 0, y: 1 }); return; } const stepMs = 80; const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id); const capMult = isCrashed ? round.crashPoint : Infinity; for (let t = 0; t <= elapsedMs; t += stepMs) { let m = Math.pow(1.00006, t); if (isCrashed && m >= round.crashPoint) { const crashMs = Math.log(round.crashPoint) / Math.log(1.00006); graphPoints.push({ x: crashMs / 1000, y: round.crashPoint }); return; } graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) }); } const lastT = elapsedMs / 1000; const lastM = currentLocalMultiplier(); const last = graphPoints[graphPoints.length - 1]; if (!last || last.x < lastT) graphPoints.push({ x: lastT, y: lastM }); else if (last) last.y = lastM; }
 
 async function pollRound() { try { const r = await fetch('/api/crash/current'); const d = await r.json(); applyServerState(d); } catch(e) {} }
 
@@ -444,7 +439,6 @@ function applyServerState(d) {
   round.bets = d.bets || []; round.history = d.history || []; round.hasRealBet = d.hasRealBet || false;
   restoreMyBetFromServer(round.bets);
   if (d.status === 'crashed' && !localCrashed) { localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id; playCrashSound(); }
-  if (roundChanged) { lastGraphRoundId = d.roundId; graphPoints = []; if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) rebuildGraphFromStart(); }
   renderBets(round.bets); renderHistory(round.history); updateBetButtons();
   if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) { lastWaitingRoundId = d.roundId; startCountdownSound(); }
   if (d.status === 'flying' || d.status === 'crashed') { stopCountdownSound(); }
@@ -459,73 +453,144 @@ function frame() {
   if (effStatus === 'waiting') {
     multValueEl.classList.remove('crashed', 'golden'); multValueEl.style.opacity = '0.3'; multValueEl.textContent = '1.00x';
     if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...'; else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...'; else multLabelEl.textContent = 'Приём ставок...';
-    graphPoints = [];
   } else if (effStatus === 'flying') {
     multValueEl.classList.remove('crashed'); multValueEl.style.opacity = '1'; multLabelEl.textContent = '';
     if (mult < 1) multValueEl.textContent = '1.00x';
     if (mult >= 10) multValueEl.classList.add('golden'); else multValueEl.classList.remove('golden');
-    if (round.startTime) { const t = (Date.now() - round.startTime - timeOffset) / 1000; const last = graphPoints[graphPoints.length - 1]; if (!last || t > last.x + 0.001) { graphPoints.push({ x: t, y: mult }); if (graphPoints.length > 2000) graphPoints.shift(); } else if (last) last.y = mult; }
   } else if (effStatus === 'crashed') {
     multValueEl.classList.add('crashed'); multValueEl.style.opacity = '1'; multLabelEl.textContent = '';
-    if (round.startTime) { const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000; const last = graphPoints[graphPoints.length - 1]; if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) graphPoints.push({ x: crashSec, y: round.crashPoint }); }
   }
   drawGraph(mult, effStatus);
   updateBetButtonsLive(mult, effStatus);
   requestAnimationFrame(frame);
 }
 
-// === ОТРИСОВКА БЕЗ ГРАФИКА, ТРАЕКТОРИЯ — КВАДРАТИЧНАЯ БЕЗЬЕ ===
+// === ГРАФИК-ЭКСПОНЕНТА + РАКЕТА СМОТРИТ ВПРАВО (angle) ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
 
-  const paddingL = 40, paddingR = 40, paddingT = 40, paddingB = 40;
+  const paddingL = 50, paddingR = 50, paddingT = 40, paddingB = 50;
   const startX = paddingL;
   const startY = H - paddingB;
   const endX = W - paddingR;
   const endY = paddingT;
+  const plotW = endX - startX;
+  const plotH = startY - endY;
+
+  ctx.strokeStyle = 'rgba(0,229,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i++) {
+    const x = startX + (plotW / 6) * i;
+    ctx.beginPath(); ctx.moveTo(x, startY); ctx.lineTo(x, endY); ctx.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const y = startY - (plotH / 5) * i;
+    ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(endX, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(139,146,165,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(endX, startY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(startX, endY); ctx.stroke();
+
+  ctx.fillStyle = 'rgba(139,146,165,0.6)';
+  ctx.font = '10px Montserrat, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('1.00x', startX - 8, startY + 4);
+
+  if (status === 'waiting') {
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(0,229,255,${0.4 + pulse * 0.4})`;
+    ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+    ctx.arc(startX, startY, 4 + pulse * 2, 0, Math.PI * 2);
+    ctx.fill(); ctx.shadowBlur = 0;
+    return;
+  }
 
   if (status === 'flying' || status === 'crashed') {
-    // t от 0 (старт) до 1 (максимум). Медленный рост в начале, ускорение к концу.
-    const t = Math.min(1, Math.log(Math.max(1, currentMult)) / Math.log(100));
+    const maxLog = Math.log(100);
+    const curLog = Math.min(maxLog, Math.log(Math.max(1, currentMult)));
+    const tProgress = curLog / maxLog;
+    const k = 3;
+    const expDenom = Math.exp(k) - 1;
+    const points = [];
+    const STEPS = 80;
 
-    const ctrlX = startX + (endX - startX) * 0.85;
-    const ctrlY = startY - (startY - endY) * 0.05;
-
-    const oneMinusT = 1 - t;
-    const bx = oneMinusT * oneMinusT * startX + 2 * oneMinusT * t * ctrlX + t * t * endX;
-    const by = oneMinusT * oneMinusT * startY + 2 * oneMinusT * t * ctrlY + t * t * endY;
-
-    const dx = 2 * oneMinusT * (ctrlX - startX) + 2 * t * (endX - ctrlX);
-    const dy = 2 * oneMinusT * (ctrlY - startY) + 2 * t * (endY - ctrlY);
-    let angle = Math.atan2(dy, dx);
-
-    if (currentMult >= 1.20) {
-      const k = Math.min(1, (currentMult - 1.20) / 0.5);
-      const target = -Math.PI / 2;
-      angle = angle + (target - angle) * k;
+    for (let i = 0; i <= STEPS; i++) {
+      const ti = (i / STEPS) * tProgress;
+      const ei = (Math.exp(ti * k) - 1) / expDenom;
+      points.push({ x: startX + ti * plotW, y: startY - ei * plotH });
     }
 
-    if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
-      const ROCKET_SIZE = 100;
-      const BASE_ANGLE = Math.PI / 4;
-      ctx.save();
-      ctx.translate(bx, by);
-      ctx.rotate(angle + BASE_ANGLE);
+    if (points.length < 2) {
+      ctx.beginPath();
+      ctx.fillStyle = '#00e5ff';
+      ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+      ctx.arc(startX, startY, 5, 0, Math.PI * 2);
+      ctx.fill(); ctx.shadowBlur = 0;
+    } else {
+      const grad = ctx.createLinearGradient(0, endY, 0, startY);
+      grad.addColorStop(0, 'rgba(0,229,255,0.35)');
+      grad.addColorStop(1, 'rgba(0,229,255,0)');
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(points[points.length - 1].x, startY);
+      ctx.lineTo(points[0].x, startY);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.strokeStyle = status === 'crashed' ? '#ff4d4d' : '#00e5ff';
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
       ctx.shadowBlur = 20;
-      ctx.shadowColor = 'rgba(0,229,255,0.8)';
-      ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
-      ctx.restore();
-    }
+      ctx.shadowColor = status === 'crashed' ? 'rgba(255,77,77,0.8)' : 'rgba(0,229,255,0.8)';
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
 
-    if (status === 'crashed' && !explosionTriggered) {
-      spawnExplosion(bx, by);
-      explosionTriggered = true;
+      const last = points[points.length - 1];
+      const prev = points[points.length - 2] || last;
+      const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
+
+      if (status === 'flying') {
+        if (rocketImg.complete && rocketImg.naturalWidth > 0) {
+          const ROCKET_SIZE = 60;
+          ctx.save();
+          ctx.translate(last.x, last.y);
+          ctx.rotate(angle);
+          ctx.shadowBlur = 25; ctx.shadowColor = 'rgba(0,229,255,0.9)';
+          ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
+          ctx.restore();
+        } else {
+          ctx.beginPath();
+          ctx.fillStyle = '#00e5ff';
+          ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,229,255,0.9)';
+          ctx.arc(last.x, last.y, 8, 0, Math.PI * 2);
+          ctx.fill(); ctx.shadowBlur = 0;
+        }
+      }
+
+      if (status === 'crashed' && !explosionTriggered) {
+        spawnExplosion(last.x, last.y);
+        explosionTriggered = true;
+      }
+
+      if (status === 'crashed') {
+        ctx.beginPath();
+        ctx.fillStyle = '#ff4d4d';
+        ctx.arc(last.x, last.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-  } else if (status === 'crashed' && !explosionTriggered) {
-    spawnExplosion(startX, startY);
-    explosionTriggered = true;
   }
 
   updateParticles();
