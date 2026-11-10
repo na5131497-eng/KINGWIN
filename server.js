@@ -102,19 +102,19 @@ const CASES = {
   ]},
   'Сильвер': { price: 199, minRank: 2, prizes: [
     { v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },
-    { v:300,w:200 },{ v:500,w:100 },{ v:1000,w:50 },{ v:1500,w:30 },{ v:3000,w:15 },{ v:5000,w:5 }
+    { v:300,w:200 },{ v:500,w:100 },{ v:1000,w:50 },{ v:1500,w:30 },{ v:2000,w:15 }
   ]},
   'Голд': { price: 399, minRank: 3, prizes: [
     { v:20,w:1500 },{ v:50,w:2000 },{ v:100,w:2500 },{ v:150,w:2000 },{ v:250,w:1000 },{ v:400,w:600 },
-    { v:600,w:200 },{ v:1000,w:100 },{ v:2000,w:50 },{ v:3000,w:30 },{ v:5000,w:15 },{ v:10000,w:5 }
+    { v:600,w:200 },{ v:1000,w:100 },{ v:2000,w:50 },{ v:3000,w:15 }
   ]},
   'Платина': { price: 899, minRank: 4, prizes: [
     { v:50,w:1500 },{ v:100,w:2000 },{ v:200,w:2500 },{ v:350,w:2000 },{ v:500,w:1000 },{ v:900,w:600 },
-    { v:1500,w:200 },{ v:2500,w:100 },{ v:4000,w:50 },{ v:7500,w:30 },{ v:15000,w:15 },{ v:30000,w:5 }
+    { v:1500,w:200 },{ v:2500,w:100 },{ v:4000,w:50 }
   ]},
   'Королевский': { price: 4999, minRank: 6, prizes: [
     { v:200,w:1500 },{ v:500,w:2000 },{ v:1000,w:2500 },{ v:2000,w:2000 },{ v:3500,w:1000 },{ v:5000,w:600 },
-    { v:7500,w:200 },{ v:15000,w:100 },{ v:25000,w:50 },{ v:50000,w:30 },{ v:100000,w:15 },{ v:250000,w:5 }
+    { v:6000,w:200 }
   ]}
 };
 function pickPrize(prizes) {
@@ -124,22 +124,10 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-// ===== LADDER: синхронизировано с клиентом =====
-const LADDER_MULTS = {
-  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
-  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
-  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20],
-  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56],
-  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21],
-  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20],
-  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
-};
-
 /* ============================================================
    ЕДИНАЯ ЛОГИКА НАЧИСЛЕНИЯ (используется во ВСЕХ играх)
    ============================================================ */
 
-// Списать ставку. Возвращает { ok, bonus, deposit } после списания, или null если не хватило.
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
@@ -154,7 +142,6 @@ async function debitBet(guestId, amount) {
   return { bonus, deposit: dep };
 }
 
-// Начислить выигрыш с учётом отыгрыша. betAmount засчитывается в wagering_done.
 async function creditWin(guestId, winAmount, betAmount) {
   if (winAmount <= 0) return;
   try {
@@ -186,7 +173,6 @@ async function creditWin(guestId, winAmount, betAmount) {
   } catch (e) { console.error('creditWin error:', e.message); }
 }
 
-// Вернуть актуальный баланс с сервера (для ответов клиенту)
 async function getBalance(guestId) {
   const r = await pool.query('SELECT deposit_balance, bonus_balance, wagering_required, wagering_done FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return { total: 0, deposit: 0, bonus: 0, wagering: { required: 0, done: 0, left: 0 } };
@@ -243,7 +229,6 @@ let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', w
 let crashTimeouts = [];
 let queuedBets = [];
 const minerSessions = {};
-const ladderSessions = {};
 
 function crashClearTimers() {
   crashTimeouts.forEach(t => clearTimeout(t));
@@ -720,107 +705,6 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    // ===== ЛЕСТНИЦА (LADDER) =====
-    if (url === '/api/ladder/start' && method === 'POST') {
-      const b = await parseBody(req);
-      const guestId = String(b.guest_id || '').trim();
-      const bet = parseFloat(b.bet) || 0;
-      const minesCount = parseInt(b.mines, 10) || 1;
-
-      if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
-      if (bet < 10) return sendJSON(res, 400, { error: 'Мин. ставка 10 ₽' });
-      if (bet > 1000) return sendJSON(res, 400, { error: 'Макс. ставка 1000 ₽' });
-      if (minesCount < 1 || minesCount > 7) return sendJSON(res, 400, { error: 'Камней от 1 до 7' });
-
-      const debited = await debitBet(guestId, bet);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-
-      const levelsCount = 9;
-      const cellsCount = 20;
-      const ladder = [];
-      for (let i = 0; i < levelsCount; i++) {
-        const mines = [];
-        while (mines.length < minesCount) {
-          const r = Math.floor(Math.random() * cellsCount);
-          if (!mines.includes(r)) mines.push(r);
-        }
-        ladder.push({ mines });
-      }
-
-      const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-      ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, createdAt: Date.now() };
-
-      const bal = await getBalance(guestId);
-      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
-    }
-
-    if (url === '/api/ladder/step' && method === 'POST') {
-      const b = await parseBody(req);
-      const guestId = String(b.guest_id || '').trim();
-      const sessionId = String(b.session_id || '').trim();
-      const cellIdx = parseInt(b.cell, 10);
-
-      if (!sessionId || !ladderSessions[sessionId]) {
-        return sendJSON(res, 404, { error: 'Сессия не найдена' });
-      }
-
-      const sess = ladderSessions[sessionId];
-      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
-      if (sess.currentStep >= 9) return sendJSON(res, 400, { error: 'Игра уже завершена' });
-
-      const currentLevel = sess.ladder[sess.currentStep];
-      const isMine = currentLevel.mines.includes(cellIdx);
-
-      if (!isMine) {
-        sess.currentStep++;
-        if (sess.currentStep >= 9) {
-          const mults = LADDER_MULTS[sess.minesCount];
-          const winMult = mults[8];
-          const winAmount = Math.round(sess.bet * winMult * 100) / 100;
-          await creditWin(guestId, winAmount, sess.bet);
-          try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
-          try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]); } catch(e){}
-          const bal = await getBalance(guestId);
-          delete ladderSessions[sessionId];
-          return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
-        }
-        const bal = await getBalance(guestId);
-        return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
-      } else {
-        delete ladderSessions[sessionId];
-        try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]); } catch(e){}
-        const bal = await getBalance(guestId);
-        return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
-      }
-    }
-
-    if (url === '/api/ladder/cashout' && method === 'POST') {
-      const b = await parseBody(req);
-      const guestId = String(b.guest_id || '').trim();
-      const sessionId = String(b.session_id || '').trim();
-
-      if (!sessionId || !ladderSessions[sessionId]) {
-        return sendJSON(res, 404, { error: 'Сессия не найдена' });
-      }
-
-      const sess = ladderSessions[sessionId];
-      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
-      if (sess.currentStep === 0) return sendJSON(res, 400, { error: 'Нет пройденных уровней' });
-
-      const mults = LADDER_MULTS[sess.minesCount];
-      const winMult = mults[sess.currentStep - 1];
-      const winAmount = Math.round(sess.bet * winMult * 100) / 100;
-
-      await creditWin(guestId, winAmount, sess.bet);
-
-      try { await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at) VALUES ($1,$2,$3,$4,NOW())`, ['ladder', guestId, sess.bet, winMult]); } catch(e){}
-      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guestId})`]); } catch(e){}
-
-      const bal = await getBalance(guestId);
-      delete ladderSessions[sessionId];
-      return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
-    }
-
     // ===== КЕЙСЫ =====
     if (url === '/api/cases/last-drops' && method === 'GET') {
       try { const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`); return sendJSON(res, 200, r.rows); }
@@ -860,6 +744,7 @@ const server = http.createServer(async (req, res) => {
       const bal = await getBalance(guest.id);
       return sendJSON(res, 200, {
         ok: true, prize, new_balance: bal.total,
+        balance: bal.total,
         deposit_balance: bal.deposit, bonus_balance: bal.bonus,
         case_name, price: c.price, wagering: bal.wagering
       });
@@ -1178,13 +1063,74 @@ const server = http.createServer(async (req, res) => {
     }
     if(url.startsWith('/api/deposits/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM deposits WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
-    if(url === '/api/withdrawals' && method === 'GET'){ const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
+    // ===== ВЫВОД СРЕДСТВ =====
+    if(url === '/api/withdrawals' && method === 'GET'){
+      const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC');
+      return sendJSON(res, 200, r.rows);
+    }
     if(url === '/api/withdrawals' && method === 'POST'){
       const w = await parseBody(req);
-      const r = await pool.query(`INSERT INTO withdrawals (date,nick,email,sum,fee,net,status) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`, [w.date,w.nick,w.email,w.sum,w.fee,w.net,w.status||'pending']);
-      return sendJSON(res, 200, { ok: true, withdrawal: r.rows[0] });
+      const nick = String(w.nick || '').trim();
+      const email = String(w.email || '').trim();
+      const sum = Math.round((parseFloat(w.sum) || 0) * 100) / 100;
+      if (!nick) return sendJSON(res, 400, { error: 'Укажите ник' });
+      if (!email) return sendJSON(res, 400, { error: 'Укажите email' });
+      if (sum < 100) return sendJSON(res, 400, { error: 'Минимальная сумма вывода — 100 ₽' });
+
+      const gRes = await pool.query(`SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [nick]);
+      if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок с таким ником не найден' });
+      const g = gRes.rows[0];
+
+      const dep = parseFloat(g.deposit_balance) || 0;
+      const bon = parseFloat(g.bonus_balance) || 0;
+      const wagerReq = parseFloat(g.wagering_required) || 0;
+      const wagerDone = parseFloat(g.wagering_done) || 0;
+
+      if (wagerReq > 0 && wagerDone < wagerReq && bon > 0) {
+        return sendJSON(res, 400, { error: `Сначала отыграйте бонус: ${wagerDone.toFixed(0)} / ${wagerReq.toFixed(0)} ₽` });
+      }
+      if (dep < sum) {
+        return sendJSON(res, 400, { error: `Недостаточно средств. Доступно на вывод: ${dep.toFixed(2)} ₽` });
+      }
+
+      await pool.query(`UPDATE guests SET deposit_balance = deposit_balance - $1 WHERE id=$2`, [sum, g.id]);
+
+      const fee = Math.round(sum * 0.05 * 100) / 100;
+      const net = Math.round((sum - fee) * 100) / 100;
+      const r = await pool.query(
+        `INSERT INTO withdrawals (date, nick, email, sum, fee, net, status) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+        [w.date || todayStr(), nick, email, sum, fee, net, 'pending']
+      );
+      try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', sum, `Withdraw request (${nick})`]); } catch(e) {}
+
+      const bal = await getBalance(g.id);
+      return sendJSON(res, 200, {
+        ok: true,
+        withdrawal: r.rows[0],
+        balance: bal.total,
+        deposit_balance: bal.deposit,
+        bonus_balance: bal.bonus
+      });
     }
-    if(url.startsWith('/api/withdrawals/') && method === 'PUT'){ const id = url.split('/')[3]; const w = await parseBody(req); await pool.query('UPDATE withdrawals SET status=$1 WHERE id=$2', [w.status, id]); return sendJSON(res, 200, { ok: true }); }
+    if(url.startsWith('/api/withdrawals/') && method === 'PUT'){
+      const id = url.split('/')[3];
+      const w = await parseBody(req);
+      const beforeRes = await pool.query('SELECT * FROM withdrawals WHERE id=$1', [id]);
+      if(!beforeRes.rows.length) return sendJSON(res, 404, { error: 'not found' });
+      const wd = beforeRes.rows[0];
+      await pool.query('UPDATE withdrawals SET status=$1 WHERE id=$2', [w.status, id]);
+
+      // При отклонении — вернуть сумму обратно на депозит
+      if (w.status === 'rejected' && wd.status !== 'rejected') {
+        const g = await pool.query('SELECT id FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1', [wd.nick]);
+        if (g.rows.length) {
+          await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [parseFloat(wd.sum) || 0, g.rows[0].id]);
+          try { await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', parseFloat(wd.sum) || 0, `Withdraw rejected (${wd.nick})`]); } catch(e) {}
+        }
+      }
+      // При approved — деньги уже списаны, ничего не делаем
+      return sendJSON(res, 200, { ok: true });
+    }
     if(url.startsWith('/api/withdrawals/') && method === 'DELETE'){ const id = url.split('/')[3]; await pool.query('DELETE FROM withdrawals WHERE id=$1', [id]); return sendJSON(res, 200, { ok: true }); }
 
     if(url === '/api/payouts' && method === 'GET'){ const r = await pool.query('SELECT * FROM payouts ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
@@ -1518,6 +1464,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Crash:   /crash.html');
   console.log('  Cases:   /cases.html');
   console.log('  Miner:   /miner.html');
-  console.log('  Ladder:  /ladder.html');
   console.log('');
 });
