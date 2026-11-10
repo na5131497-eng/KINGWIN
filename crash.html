@@ -10,7 +10,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
@@ -18,20 +17,14 @@
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
   .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
-
   .how-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; color: #00e5ff; height: 44px; padding: 0 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; font-family: inherit; }
   .how-btn:hover { background: rgba(0,229,255,0.2); transform: scale(1.03); }
-  @media (max-width: 600px) {
-    .how-btn { top: 10px; right: 10px; height: 40px; padding: 0 12px; font-size: 11px; }
-    .how-btn .label { display: none; }
-  }
-
+  @media (max-width: 600px) { .how-btn { top: 10px; right: 10px; height: 40px; padding: 0 12px; font-size: 11px; } .how-btn .label { display: none; } }
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; padding-right: 160px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
   .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
   .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
-
   .crash-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
   .tabs { display: flex; padding: 12px; gap: 8px; border-bottom: 1px solid var(--border); background: var(--bg-dark); }
@@ -51,7 +44,6 @@
   .bet-mult { display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-size: 11px; text-align: center; }
   .bet-mult.win { background: rgba(63,191,127,0.2); color: var(--accent-green); }
   .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); font-size: 11px; }
-
   .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; flex-shrink: 0; }
   .history-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-right: 6px; flex-shrink: 0; }
@@ -61,7 +53,6 @@
   .history-item.blue { background: rgba(0,119,255,0.2); color: #66b3ff; border: 1px solid rgba(0,119,255,0.45); }
   .history-item.purple { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.45); }
   .history-item.gold { background: rgba(241,196,15,0.2); color: #ffe066; border: 1px solid rgba(241,196,15,0.55); box-shadow: 0 0 10px rgba(241,196,15,0.35); }
-
   .canvas-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 200px; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .multiplier-display { position: absolute; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
@@ -69,20 +60,17 @@
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.4); }
   .mult-value.golden { color: var(--gold); text-shadow: 0 5px 30px rgba(255,215,0,0.6); }
   .mult-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; font-weight: 700; min-height: 16px; }
-
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; justify-content: center; }
   .bet-box { width: 100%; max-width: 520px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
   .bet-box.queued { border-color: rgba(0,229,255,0.4); box-shadow: 0 0 18px rgba(0,229,255,0.12); }
   .queue-badge { display: none; position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 10px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 12px rgba(0,229,255,0.5); }
   .bet-box.queued .queue-badge { display: block; }
-
   .amount-row { display: flex; gap: 8px; }
   .amount-input-wrap { flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 4px; min-width: 0; }
   .amount-input-wrap button { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 18px; cursor: pointer; font-weight: 700; transition: 0.2s; flex-shrink: 0; }
   .amount-input-wrap button:hover { background: rgba(255,255,255,0.1); }
   .amount-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 800; outline: none; font-family: inherit; }
   .amount-input-wrap input:disabled { opacity: 0.6; cursor: not-allowed; }
-  
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; min-width: 0; padding: 8px 10px; }
   .btn-action .subtext { font-size: 11px; font-weight: 600; opacity: 0.9; margin-top: 3px; }
   .btn-bet { background: var(--yellow); color: #000; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
@@ -90,31 +78,20 @@
   .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   .btn-cancel { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(255,77,77,0.2); }
   .btn-cancel:hover { background: #ff3333; }
-
-  .btn-cashout {
-    background: linear-gradient(135deg, #0a1a3a 0%, #1a3a6b 50%, #0a1a3a 100%);
-    color: #00e5ff; border: 2px solid #00e5ff;
-    box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08);
-    text-shadow: 0 0 10px rgba(0,229,255,0.7);
-    animation: cashoutPulse 1.6s ease-in-out infinite;
-    position: relative; overflow: hidden;
-  }
+  .btn-cashout { background: linear-gradient(135deg, #0a1a3a 0%, #1a3a6b 50%, #0a1a3a 100%); color: #00e5ff; border: 2px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08); text-shadow: 0 0 10px rgba(0,229,255,0.7); animation: cashoutPulse 1.6s ease-in-out infinite; position: relative; overflow: hidden; }
   .btn-cashout::before { content: ''; position: absolute; top: -50%; left: -100%; width: 50%; height: 200%; background: linear-gradient(90deg, transparent, rgba(0,229,255,0.35), transparent); transform: skewX(-25deg); animation: cashoutShine 2.4s ease-in-out infinite; }
   .btn-cashout:hover { background: linear-gradient(135deg, #102a5a 0%, #2a5a9b 50%, #102a5a 100%); border-color: #33ebff; color: #33ebff; box-shadow: 0 0 25px rgba(0,229,255,0.7), 0 0 50px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); }
   @keyframes cashoutPulse { 0%, 100% { box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08); } 50% { box-shadow: 0 0 25px rgba(0,229,255,0.75), 0 0 45px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); } }
   @keyframes cashoutShine { 0% { left: -100%; } 60%, 100% { left: 150%; } }
-
   .quick-bets { display: flex; gap: 6px; }
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button:disabled { opacity: 0.4; cursor: not-allowed; }
-
   .toast-container { position: fixed; top: 60px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
-
   .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; overflow-y: auto; }
   .howto-backdrop.show { display: flex; }
   .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 520px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -129,7 +106,6 @@
   .howto-tips b { color: var(--yellow); }
   .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.2s; }
   .howto-close:hover { box-shadow: 0 0 20px rgba(0,229,255,0.5); }
-
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
@@ -151,7 +127,6 @@
     .toast { min-width: 0; width: 100%; transform: translateY(-120%); }
     .toast.show { transform: translateY(0); }
   }
-
   @media (max-width: 480px) {
     .crash-layout { padding: 8px; gap: 8px; }
     .canvas-container { height: 38vh; min-height: 200px; max-height: 300px; }
@@ -262,7 +237,6 @@
   <div class="howto-modal">
     <h2>🎮 Как играть в Crash</h2>
     <div class="howto-sub">Просто. Быстро. Честно.</div>
-
     <div class="howto-step">
       <div class="howto-step-num">1</div>
       <div class="howto-step-body">
@@ -270,7 +244,6 @@
         <div class="howto-step-text">Введи сумму и нажми <b style="color:var(--yellow)">«Ставка»</b>. Деньги спишутся с баланса.</div>
       </div>
     </div>
-
     <div class="howto-step">
       <div class="howto-step-num">2</div>
       <div class="howto-step-body">
@@ -278,7 +251,6 @@
         <div class="howto-step-text">После приёма ставок начнётся полёт. Множитель <b>X</b> начнёт расти с <b style="color:var(--accent)">1.00x</b>.</div>
       </div>
     </div>
-
     <div class="howto-step">
       <div class="howto-step-num">3</div>
       <div class="howto-step-body">
@@ -286,7 +258,6 @@
         <div class="howto-step-text">Нажми <b style="color:var(--accent)">«Забрать»</b> до краша. Выигрыш = <b>ставка × X</b>.</div>
       </div>
     </div>
-
     <div class="howto-step">
       <div class="howto-step-num">4</div>
       <div class="howto-step-body">
@@ -294,12 +265,10 @@
         <div class="howto-step-text">Если раунд крашнется раньше, чем ты забрал — ставка <b style="color:var(--red)">сгорает</b>.</div>
       </div>
     </div>
-
     <div class="howto-tips">
       <b>Совет:</b> чем выше X, тем больше выигрыш, но и риск краша растёт. <br><br>
       <b>Пример:</b> поставил 100 ₽, забрал на <b>x2.50</b> → получил <b style="color:var(--accent-green)">250 ₽</b>. Забрал на x1.80 → 180 ₽.
     </div>
-
     <button class="howto-close" onclick="closeHowTo()">Понятно, играю</button>
   </div>
 </div>
@@ -310,17 +279,11 @@ const MAX_BET = 200;
 const MIN_BET = 1;
 const POLL_MS = 300;
 
-// --- ЗАГРУЗКА КАРТИНКИ РАКЕТЫ ---
 const rocketImg = new Image();
 rocketImg.src = '/rocket.png';
-rocketImg.onload = () => { 
-  console.log('✅ Ракета успешно загружена:', rocketImg.src, 'размер:', rocketImg.naturalWidth + 'x' + rocketImg.naturalHeight); 
-};
-rocketImg.onerror = () => { 
-  console.error('❌ ОШИБКА: Ракета не найдена по пути:', rocketImg.src); 
-};
+rocketImg.onload = () => { console.log('✅ Ракета загружена:', rocketImg.src); };
+rocketImg.onerror = () => { console.error('❌ Ракета не найдена:', rocketImg.src); };
 
-// --- СИСТЕМА ЧАСТИЦ ВЗРЫВА ---
 let particles = [];
 let shockwaves = [];
 let flash = { active: false, alpha: 0, x: 0, y: 0, radius: 0 };
@@ -330,66 +293,38 @@ function spawnExplosion(x, y) {
   particles = [];
   shockwaves = [];
   flash = { active: true, alpha: 1, x: x, y: y, radius: 20 };
-
   const fireColors = ['#fff3b0', '#ffcc00', '#ff9900', '#ff6600', '#ff3300', '#cc0000'];
   for (let i = 0; i < 80; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 3 + Math.random() * 10;
-    particles.push({
-      x: x, y: y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      size: 3 + Math.random() * 6,
-      life: 1,
-      decay: 0.02 + Math.random() * 0.02,
-      color: fireColors[Math.floor(Math.random() * fireColors.length)],
-      isSmoke: false
-    });
+    particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: 3 + Math.random() * 6, life: 1, decay: 0.02 + Math.random() * 0.02, color: fireColors[Math.floor(Math.random() * fireColors.length)], isSmoke: false });
   }
-
   for (let i = 0; i < 25; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 1 + Math.random() * 4;
-    particles.push({
-      x: x, y: y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 0.5,
-      size: 6 + Math.random() * 10,
-      life: 1,
-      decay: 0.01 + Math.random() * 0.01,
-      color: '#333333',
-      isSmoke: true
-    });
+    particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 0.5, size: 6 + Math.random() * 10, life: 1, decay: 0.01 + Math.random() * 0.01, color: '#333333', isSmoke: true });
   }
-
   shockwaves.push({ x, y, radius: 0, maxRadius: 200, speed: 10, life: 1 });
   shockwaves.push({ x, y, radius: 0, maxRadius: 140, speed: 7, life: 1 });
-
   playCrashSound();
 }
 
 function updateParticles() {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vx *= 0.94;
-    p.vy *= 0.94;
+    p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.94; p.vy *= 0.94;
     p.vy += p.isSmoke ? -0.02 : 0.25;
     p.life -= p.decay;
     if (p.life <= 0) particles.splice(i, 1);
   }
-
   for (let i = shockwaves.length - 1; i >= 0; i--) {
     const s = shockwaves[i];
-    s.radius += s.speed;
-    s.life -= 0.025;
+    s.radius += s.speed; s.life -= 0.025;
     if (s.life <= 0 || s.radius > s.maxRadius) shockwaves.splice(i, 1);
   }
-
   if (flash.active) {
-    flash.radius += 15;
-    flash.alpha -= 0.05;
+    flash.radius += 15; flash.alpha -= 0.05;
     if (flash.alpha <= 0) flash.active = false;
   }
 }
@@ -402,34 +337,23 @@ function drawParticles() {
     g.addColorStop(0.5, `rgba(255, 150, 0, ${flash.alpha * 0.9})`);
     g.addColorStop(1, 'rgba(255, 50, 0, 0)');
     ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(flash.x, flash.y, flash.radius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(flash.x, flash.y, flash.radius, 0, Math.PI * 2); ctx.fill();
   }
-
   shockwaves.forEach(s => {
     ctx.beginPath();
     ctx.strokeStyle = `rgba(255, 120, 0, ${s.life})`;
     ctx.lineWidth = 5 * s.life;
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = 'rgba(255, 100, 0, 0.9)';
+    ctx.shadowBlur = 25; ctx.shadowColor = 'rgba(255, 100, 0, 0.9)';
     ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.stroke(); ctx.shadowBlur = 0;
   });
-
   particles.forEach(p => {
     ctx.beginPath();
     ctx.fillStyle = p.color;
     ctx.globalAlpha = p.isSmoke ? p.life * 0.5 : p.life;
-    if (!p.isSmoke) {
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = p.color;
-    }
+    if (!p.isSmoke) { ctx.shadowBlur = 15; ctx.shadowColor = p.color; }
     ctx.arc(p.x, p.y, p.size * (p.isSmoke ? 1 : p.life), 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1;
+    ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
   });
 }
 
@@ -438,12 +362,7 @@ let playerBalance = 0;
 let myBetId = null;
 let myCashed = false;
 let queuedBet = null;
-
-let round = {
-  id: null, status: 'waiting', startTime: 0, crashPoint: 1,
-  serverMult: 1, bets: [], history: [], hasRealBet: false
-};
-
+let round = { id: null, status: 'waiting', startTime: 0, crashPoint: 1, serverMult: 1, bets: [], history: [], hasRealBet: false };
 let graphPoints = [];
 let lastGraphRoundId = null;
 let lastBetsSig = '';
@@ -453,220 +372,62 @@ let localCrashMult = 1;
 let crashedRoundId = null;
 let timeOffset = 0;
 
-/* ===== ЗВУК ОТСЧЁТА ===== */
 let countdownAudio = null;
 let lastWaitingRoundId = null;
-function startCountdownSound() {
-  stopCountdownSound();
-  try {
-    if (!countdownAudio) { countdownAudio = new Audio('/countdown.mp3'); countdownAudio.volume = 0.6; }
-    countdownAudio.currentTime = 0;
-    const p = countdownAudio.play();
-    if (p && p.catch) p.catch(() => {});
-  } catch(e) {}
-}
-function stopCountdownSound() {
-  if (countdownAudio) { try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {} }
-}
+function startCountdownSound() { stopCountdownSound(); try { if (!countdownAudio) { countdownAudio = new Audio('/countdown.mp3'); countdownAudio.volume = 0.6; } countdownAudio.currentTime = 0; const p = countdownAudio.play(); if (p && p.catch) p.catch(() => {}); } catch(e) {} }
+function stopCountdownSound() { if (countdownAudio) { try { countdownAudio.pause(); countdownAudio.currentTime = 0; } catch(e) {} } }
 
-/* ===== ЗВУКИ ===== */
 let audioCtx = null;
 function initAudio() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { audioCtx = null; } }
-function playBetSound() {
-  initAudio(); if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-  osc.type = 'triangle'; osc.frequency.setValueAtTime(880, now); osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
-  gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-  osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15);
-}
-function playCrashSound() {
-  initAudio(); if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-  const boom = audioCtx.createOscillator(); const boomGain = audioCtx.createGain();
-  boom.type = 'sine'; boom.frequency.setValueAtTime(80, now); boom.frequency.exponentialRampToValueAtTime(20, now + 0.6);
-  boomGain.gain.setValueAtTime(0.6, now); boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
-  boom.connect(boomGain); boomGain.connect(audioCtx.destination); boom.start(now); boom.stop(now + 0.9);
-  const noiseSize = audioCtx.sampleRate * 1.2;
-  const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < noiseSize; i++) data[i] = Math.random() * 2 - 1;
-  const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-  const noiseGain = audioCtx.createGain(); noiseGain.gain.setValueAtTime(0.35, now); noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-  const noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.setValueAtTime(800, now); noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
-  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noise.start(now);
-}
-function playCashoutSound() {
-  initAudio(); if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-  [880, 1320].forEach((f, idx) => {
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.type = 'sine'; osc.frequency.setValueAtTime(f, now + idx * 0.08);
-    gain.gain.setValueAtTime(0.0001, now + idx * 0.08); gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
-    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.3);
-  });
-}
+function playBetSound() { initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(880, now); osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08); gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15); }
+function playCrashSound() { initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime; const boom = audioCtx.createOscillator(); const boomGain = audioCtx.createGain(); boom.type = 'sine'; boom.frequency.setValueAtTime(80, now); boom.frequency.exponentialRampToValueAtTime(20, now + 0.6); boomGain.gain.setValueAtTime(0.6, now); boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8); boom.connect(boomGain); boomGain.connect(audioCtx.destination); boom.start(now); boom.stop(now + 0.9); const noiseSize = audioCtx.sampleRate * 1.2; const buffer = audioCtx.createBuffer(1, noiseSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < noiseSize; i++) data[i] = Math.random() * 2 - 1; const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const noiseGain = audioCtx.createGain(); noiseGain.gain.setValueAtTime(0.35, now); noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2); const noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.setValueAtTime(800, now); noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2); noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noise.start(now); }
+function playCashoutSound() { initAudio(); if (!audioCtx) return; const now = audioCtx.currentTime; [880, 1320].forEach((f, idx) => { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(f, now + idx * 0.08); gain.gain.setValueAtTime(0.0001, now + idx * 0.08); gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.01); gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.3); }); }
 
-/* ===== "КАК ИГРАТЬ" ===== */
-function openHowTo() {
-  document.getElementById('howtoModal').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-function closeHowTo() {
-  document.getElementById('howtoModal').classList.remove('show');
-  document.body.style.overflow = '';
-}
+function openHowTo() { document.getElementById('howtoModal').classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeHowTo() { document.getElementById('howtoModal').classList.remove('show'); document.body.style.overflow = ''; }
 
-/* ===== CANVAS ===== */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const multValueEl = document.getElementById('multValue');
 const multLabelEl = document.getElementById('multLabel');
 
-function resizeCanvas() {
-  const p = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = p.clientWidth * dpr;
-  canvas.height = p.clientHeight * dpr;
-  canvas.style.width = p.clientWidth + 'px';
-  canvas.style.height = p.clientHeight + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
+function resizeCanvas() { const p = canvas.parentElement; const dpr = window.devicePixelRatio || 1; canvas.width = p.clientWidth * dpr; canvas.height = p.clientHeight * dpr; canvas.style.width = p.clientWidth + 'px'; canvas.style.height = p.clientHeight + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
 window.addEventListener('resize', resizeCanvas);
 window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 resizeCanvas();
 
-function historyColorClass(mult) {
-  if (mult >= 10) return 'gold';
-  if (mult >= 4) return 'purple';
-  if (mult > 1.50) return 'blue';
-  return 'red';
-}
-function resetLocalCrash() {
-  localCrashed = false; localCrashMult = 1; crashedRoundId = null;
-  graphPoints = []; prevMult = 1;
-  explosionTriggered = false;
-  particles = [];
-  shockwaves = [];
-  flash.active = false;
-}
+function historyColorClass(mult) { if (mult >= 10) return 'gold'; if (mult >= 4) return 'purple'; if (mult > 1.50) return 'blue'; return 'red'; }
+function resetLocalCrash() { localCrashed = false; localCrashMult = 1; crashedRoundId = null; graphPoints = []; prevMult = 1; explosionTriggered = false; particles = []; shockwaves = []; flash.active = false; }
 
-async function loadBalance() {
-  if (!playerId) { document.getElementById('balanceVal').textContent = '0.00 ₽'; return; }
-  try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-    const d = await r.json();
-    if (r.ok && d.guest) {
-      const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-      playerBalance = total;
-      document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽';
-    }
-  } catch(e) {}
-}
+async function loadBalance() { if (!playerId) { document.getElementById('balanceVal').textContent = '0.00 ₽'; return; } try { const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId)); const d = await r.json(); if (r.ok && d.guest) { const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0); playerBalance = total; document.getElementById('balanceVal').textContent = playerBalance.toFixed(2) + ' ₽'; } } catch(e) {} }
 loadBalance();
 setInterval(loadBalance, 5000);
 
-function currentLocalMultiplier() {
-  if (localCrashed && crashedRoundId !== round.id) resetLocalCrash();
-  if (round.status === 'waiting') return 1;
-  if (round.status === 'crashed' || localCrashed) return localCrashMult;
-  if (round.status === 'flying' && round.startTime) {
-    const elapsed = Date.now() - round.startTime - timeOffset;
-    if (elapsed <= 0) return 1;
-    return Math.pow(1.00006, elapsed);
-  }
-  return 1;
-}
+function currentLocalMultiplier() { if (localCrashed && crashedRoundId !== round.id) resetLocalCrash(); if (round.status === 'waiting') return 1; if (round.status === 'crashed' || localCrashed) return localCrashMult; if (round.status === 'flying' && round.startTime) { const elapsed = Date.now() - round.startTime - timeOffset; if (elapsed <= 0) return 1; return Math.pow(1.00006, elapsed); } return 1; }
 
-function rebuildGraphFromStart() {
-  graphPoints = [];
-  if (!round.startTime) return;
-  const elapsedMs = Date.now() - round.startTime - timeOffset;
-  if (elapsedMs <= 0) { graphPoints.push({ x: 0, y: 1 }); return; }
-  const stepMs = 80;
-  const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id);
-  const capMult = isCrashed ? round.crashPoint : Infinity;
-  for (let t = 0; t <= elapsedMs; t += stepMs) {
-    let m = Math.pow(1.00006, t);
-    if (isCrashed && m >= round.crashPoint) {
-      const crashMs = Math.log(round.crashPoint) / Math.log(1.00006);
-      graphPoints.push({ x: crashMs / 1000, y: round.crashPoint });
-      return;
-    }
-    graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) });
-  }
-  const lastT = elapsedMs / 1000;
-  const lastM = currentLocalMultiplier();
-  const last = graphPoints[graphPoints.length - 1];
-  if (!last || last.x < lastT) graphPoints.push({ x: lastT, y: lastM });
-  else if (last) last.y = lastM;
-}
+function rebuildGraphFromStart() { graphPoints = []; if (!round.startTime) return; const elapsedMs = Date.now() - round.startTime - timeOffset; if (elapsedMs <= 0) { graphPoints.push({ x: 0, y: 1 }); return; } const stepMs = 80; const isCrashed = (round.status === 'crashed') || (localCrashed && crashedRoundId === round.id); const capMult = isCrashed ? round.crashPoint : Infinity; for (let t = 0; t <= elapsedMs; t += stepMs) { let m = Math.pow(1.00006, t); if (isCrashed && m >= round.crashPoint) { const crashMs = Math.log(round.crashPoint) / Math.log(1.00006); graphPoints.push({ x: crashMs / 1000, y: round.crashPoint }); return; } graphPoints.push({ x: t / 1000, y: Math.min(m, capMult) }); } const lastT = elapsedMs / 1000; const lastM = currentLocalMultiplier(); const last = graphPoints[graphPoints.length - 1]; if (!last || last.x < lastT) graphPoints.push({ x: lastT, y: lastM }); else if (last) last.y = lastM; }
 
-async function pollRound() {
-  try {
-    const r = await fetch('/api/crash/current');
-    const d = await r.json();
-    applyServerState(d);
-  } catch(e) {}
-}
+async function pollRound() { try { const r = await fetch('/api/crash/current'); const d = await r.json(); applyServerState(d); } catch(e) {} }
 
-function restoreMyBetFromServer(serverBets) {
-  if (!playerId || !Array.isArray(serverBets)) return;
-  const myActive = serverBets.filter(b =>
-    b.player_id && String(b.player_id) === String(playerId) && !String(b.player_id).startsWith('BOT')
-  );
-  const mine = myActive.length > 0 ? myActive[myActive.length - 1] : null;
-  if (mine) {
-    if (queuedBet && !myBetId) queuedBet = null;
-    if (myBetId !== mine.id) { myBetId = mine.id; updateBetButtons(); }
-    if (!!mine.cashed_out !== myCashed) { myCashed = !!mine.cashed_out; updateBetButtons(); }
-  } else {
-    if (myBetId && myBetId !== 'queued') { myBetId = null; myCashed = false; updateBetButtons(); }
-  }
-}
+function restoreMyBetFromServer(serverBets) { if (!playerId || !Array.isArray(serverBets)) return; const myActive = serverBets.filter(b => b.player_id && String(b.player_id) === String(playerId) && !String(b.player_id).startsWith('BOT')); const mine = myActive.length > 0 ? myActive[myActive.length - 1] : null; if (mine) { if (queuedBet && !myBetId) queuedBet = null; if (myBetId !== mine.id) { myBetId = mine.id; updateBetButtons(); } if (!!mine.cashed_out !== myCashed) { myCashed = !!mine.cashed_out; updateBetButtons(); } } else { if (myBetId && myBetId !== 'queued') { myBetId = null; myCashed = false; updateBetButtons(); } } }
 
 function applyServerState(d) {
-  if (d.status === 'flying' && d.startTime) {
-    const serverElapsed = parseFloat(d.multiplier) > 1 ? Math.log(parseFloat(d.multiplier)) / Math.log(1.00006) : 0;
-    const clientElapsed = Date.now() - d.startTime;
-    if (clientElapsed > 0) timeOffset = timeOffset * 0.8 + (clientElapsed - serverElapsed) * 0.2;
-  }
+  if (d.status === 'flying' && d.startTime) { const serverElapsed = parseFloat(d.multiplier) > 1 ? Math.log(parseFloat(d.multiplier)) / Math.log(1.00006) : 0; const clientElapsed = Date.now() - d.startTime; if (clientElapsed > 0) timeOffset = timeOffset * 0.8 + (clientElapsed - serverElapsed) * 0.2; }
   const isNewRound = round.id !== null && d.roundId !== round.id;
   const roundChanged = round.id !== d.roundId;
-  if (isNewRound || roundChanged) {
-    myBetId = null; myCashed = false;
-    resetLocalCrash();
-    loadBalance();
-  }
+  if (isNewRound || roundChanged) { myBetId = null; myCashed = false; resetLocalCrash(); loadBalance(); }
   const prevStatus = round.status;
   if (prevStatus === 'crashed' && d.status !== 'crashed') resetLocalCrash();
   round.id = d.roundId; round.status = d.status; round.startTime = d.startTime || 0;
   round.crashPoint = d.crashPoint || round.crashPoint || 1;
   round.serverMult = parseFloat(d.multiplier) || 1;
-  round.bets = d.bets || []; round.history = d.history || [];
-  round.hasRealBet = d.hasRealBet || false;
-
+  round.bets = d.bets || []; round.history = d.history || []; round.hasRealBet = d.hasRealBet || false;
   restoreMyBetFromServer(round.bets);
-
-  if (d.status === 'crashed' && !localCrashed) {
-    localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id;
-    playCrashSound();
-  }
-  if (roundChanged) {
-    lastGraphRoundId = d.roundId; graphPoints = [];
-    if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) rebuildGraphFromStart();
-  }
-  renderBets(round.bets);
-  renderHistory(round.history);
-  updateBetButtons();
-
-  if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) {
-    lastWaitingRoundId = d.roundId;
-    startCountdownSound();
-  }
-  if (d.status === 'flying' || d.status === 'crashed') {
-    stopCountdownSound();
-  }
+  if (d.status === 'crashed' && !localCrashed) { localCrashed = true; localCrashMult = round.crashPoint; crashedRoundId = round.id; playCrashSound(); }
+  if (roundChanged) { lastGraphRoundId = d.roundId; graphPoints = []; if ((d.status === 'flying' || d.status === 'crashed') && d.startTime) rebuildGraphFromStart(); }
+  renderBets(round.bets); renderHistory(round.history); updateBetButtons();
+  if (d.status === 'waiting' && d.roundId !== lastWaitingRoundId) { lastWaitingRoundId = d.roundId; startCountdownSound(); }
+  if (d.status === 'flying' || d.status === 'crashed') { stopCountdownSound(); }
 }
 
 let prevMult = 1;
@@ -675,253 +436,114 @@ function frame() {
   const mult = currentLocalMultiplier();
   if (Math.abs(mult - prevMult) > 0.001) { multValueEl.textContent = mult.toFixed(2) + 'x'; prevMult = mult; }
   const effStatus = localCrashed ? 'crashed' : round.status;
-
   if (effStatus === 'waiting') {
-    multValueEl.classList.remove('crashed', 'golden');
-    multValueEl.style.opacity = '0.3';
-    multValueEl.textContent = '1.00x';
-    if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...';
-    else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...';
-    else multLabelEl.textContent = 'Приём ставок...';
+    multValueEl.classList.remove('crashed', 'golden'); multValueEl.style.opacity = '0.3'; multValueEl.textContent = '1.00x';
+    if (round.status === 'crashed') multLabelEl.textContent = 'Готовимся к вылету...'; else if (!round.hasRealBet) multLabelEl.textContent = 'Ожидание первой ставки...'; else multLabelEl.textContent = 'Приём ставок...';
     graphPoints = [];
   } else if (effStatus === 'flying') {
-    multValueEl.classList.remove('crashed');
-    multValueEl.style.opacity = '1';
-    multLabelEl.textContent = '';
+    multValueEl.classList.remove('crashed'); multValueEl.style.opacity = '1'; multLabelEl.textContent = '';
     if (mult < 1) multValueEl.textContent = '1.00x';
-    if (mult >= 10) multValueEl.classList.add('golden');
-    else multValueEl.classList.remove('golden');
-    if (round.startTime) {
-      const t = (Date.now() - round.startTime - timeOffset) / 1000;
-      const last = graphPoints[graphPoints.length - 1];
-      if (!last || t > last.x + 0.001) { graphPoints.push({ x: t, y: mult }); if (graphPoints.length > 2000) graphPoints.shift(); }
-      else if (last) last.y = mult;
-    }
+    if (mult >= 10) multValueEl.classList.add('golden'); else multValueEl.classList.remove('golden');
+    if (round.startTime) { const t = (Date.now() - round.startTime - timeOffset) / 1000; const last = graphPoints[graphPoints.length - 1]; if (!last || t > last.x + 0.001) { graphPoints.push({ x: t, y: mult }); if (graphPoints.length > 2000) graphPoints.shift(); } else if (last) last.y = mult; }
   } else if (effStatus === 'crashed') {
-    multValueEl.classList.add('crashed');
-    multValueEl.style.opacity = '1';
-    multLabelEl.textContent = '';
-    if (round.startTime) {
-      const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000;
-      const last = graphPoints[graphPoints.length - 1];
-      if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) graphPoints.push({ x: crashSec, y: round.crashPoint });
-    }
+    multValueEl.classList.add('crashed'); multValueEl.style.opacity = '1'; multLabelEl.textContent = '';
+    if (round.startTime) { const crashSec = Math.log(round.crashPoint) / Math.log(1.00006) / 1000; const last = graphPoints[graphPoints.length - 1]; if (!last || last.y < round.crashPoint - 0.001 || last.x < crashSec - 0.001) graphPoints.push({ x: crashSec, y: round.crashPoint }); }
   }
   drawGraph(mult, effStatus);
   updateBetButtonsLive(mult, effStatus);
   requestAnimationFrame(frame);
 }
 
-// === ОТРИСОВКА БЕЗ ГРАФИКА ===
+// === ОТРИСОВКА БЕЗ ГРАФИКА, НО ПО ТРАЕКТОРИИ ЛИНИИ ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
 
-  // Рисуем ракету
-  if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
-    // Ракета летит с левого-нижнего в центр-верх
-    // t = 0 (старт) -> t = 1 (условный потолок)
-    const maxMult = 100; // при 100x ракета долетит до верха
-    const t = Math.min(1, Math.log(currentMult) / Math.log(maxMult));
+  const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
+  const drawW = W - paddingL - paddingR;
+  const drawH = H - paddingT - paddingB;
 
-    const paddingL = 60, paddingR = 80, paddingT = 80, paddingB = 80;
-    const drawW = W - paddingL - paddingR;
-    const drawH = H - paddingT - paddingB;
+  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
+    const lastX = graphPoints[graphPoints.length - 1].x;
+    const maxX = Math.max(3, lastX);
+    const maxY = Math.max(currentMult * 1.15, 1.5);
+    const lastP = graphPoints[graphPoints.length - 1];
+    const lx = paddingL + (lastP.x / maxX) * drawW;
+    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
 
-    // Старт в левом-нижнем, финиш в правом-верхнем (но летит вверх)
-    const startX = paddingL;
-    const startY = H - paddingB;
-    const endX = paddingL + drawW * 0.8; // немного правее
-    const endY = paddingT;
-
-    const lx = startX + (endX - startX) * t;
-    const ly = startY + (endY - startY) * t;
-
-    let angle = -Math.PI / 4;
-    if (currentMult >= 1.20) {
-      angle = -Math.PI / 2; // Строго вверх
-    } else {
-      // Наклон по траектории
-      angle = Math.atan2(endY - startY, endX - startX); // примерно 45 градусов
+    // Ракета
+    if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
+      let angle = -Math.PI / 4;
+      if (currentMult >= 1.20) angle = -Math.PI / 2;
+      else if (graphPoints.length >= 2) {
+        const p1 = graphPoints[graphPoints.length - 2];
+        const p2 = graphPoints[graphPoints.length - 1];
+        const p1x = paddingL + (p1.x / maxX) * drawW;
+        const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
+        const p2x = paddingL + (p2.x / maxX) * drawW;
+        const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
+        angle = Math.atan2(p2y - p1y, p2x - p1x);
+      }
+      const ROCKET_SIZE = 100;
+      const BASE_ANGLE = Math.PI / 4;
+      ctx.save();
+      ctx.translate(lx, ly);
+      ctx.rotate(angle + BASE_ANGLE);
+      ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+      ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
+      ctx.restore();
     }
 
-    const ROCKET_SIZE = 100;
-    const BASE_ANGLE = Math.PI / 4;
-
-    ctx.save();
-    ctx.translate(lx, ly);
-    ctx.rotate(angle + BASE_ANGLE);
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = 'rgba(0,229,255,0.9)';
-    ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
-    ctx.restore();
-
-    // Взрыв
-    if (status === 'crashed' && !explosionTriggered) {
-      spawnExplosion(lx, ly);
-      explosionTriggered = true;
+    if (status === 'crashed') {
+      if (!explosionTriggered) { spawnExplosion(lx, ly); explosionTriggered = true; }
     }
-  } else if (status === 'crashed' && !explosionTriggered) {
-    // Если краш случился моментально, без полёта
-    spawnExplosion(W / 2, H / 2);
-    explosionTriggered = true;
+  } else if (status === 'crashed' && graphPoints.length <= 1) {
+    if (!explosionTriggered) {
+      const lastP = graphPoints[0] || { x: 0, y: 1 };
+      const lx = paddingL + (lastP.x / Math.max(3, lastP.x)) * drawW;
+      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(currentMult * 1.15, 1.5)) * drawH;
+      spawnExplosion(lx, ly); explosionTriggered = true;
+    }
   }
 
   updateParticles();
   drawParticles();
 }
 
-function renderBets(bets) {
-  const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|');
-  if (sig === lastBetsSig) return;
-  lastBetsSig = sig;
-  const list = document.getElementById('betsList');
-  if (!bets || !bets.length) { list.innerHTML = ''; return; }
-  list.innerHTML = bets.map(b => {
-    const isMine = b.player_id && String(b.player_id) === String(playerId);
-    const masked = b.player_name || '••••';
-    const rank = b.player_rank || '';
-    const label = (isMine ? '★ ' : '') + masked;
-    let multHtml = '--', winHtml = '--';
-    if (b.cashed_out) {
-      const m = parseFloat(b.cashout_mult); const w = parseFloat(b.amount) * m;
-      multHtml = `<span class="bet-mult win">${m.toFixed(2)}x</span>`;
-      winHtml = `${w.toFixed(2)} ₽`;
-    }
-    return `<div class="bet-row">
-        <div class="bet-user">
-          <div class="user-avatar">KW</div>
-          <div class="user-meta">
-            <div class="user-name">${label}</div>
-            ${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}
-          </div>
-        </div>
-        <div class="bet-amount">${parseFloat(b.amount).toFixed(2)} ₽</div>
-        <div>${multHtml}</div>
-        <div class="bet-cashout">${winHtml}</div>
-      </div>`;
-  }).join('');
-}
+function renderBets(bets) { const sig = (bets || []).map(b => `${b.id}:${b.cashed_out ? b.cashout_mult : 'p'}`).join('|'); if (sig === lastBetsSig) return; lastBetsSig = sig; const list = document.getElementById('betsList'); if (!bets || !bets.length) { list.innerHTML = ''; return; } list.innerHTML = bets.map(b => { const isMine = b.player_id && String(b.player_id) === String(playerId); const masked = b.player_name || '••••'; const rank = b.player_rank || ''; const label = (isMine ? '★ ' : '') + masked; let multHtml = '--', winHtml = '--'; if (b.cashed_out) { const m = parseFloat(b.cashout_mult); const w = parseFloat(b.amount) * m; multHtml = `<span class="bet-mult win">${m.toFixed(2)}x</span>`; winHtml = `${w.toFixed(2)} ₽`; } return `<div class="bet-row"><div class="bet-user"><div class="user-avatar">KW</div><div class="user-meta"><div class="user-name">${label}</div>${rank ? `<div class="user-rank ${rank}">${rank}</div>` : ''}</div></div><div class="bet-amount">${parseFloat(b.amount).toFixed(2)} ₽</div><div>${multHtml}</div><div class="bet-cashout">${winHtml}</div></div>`; }).join(''); }
 
-function renderHistory(history) {
-  const sig = (history || []).join('|');
-  if (sig === lastHistorySig) return;
-  lastHistorySig = sig;
-  const list = document.getElementById('historyList');
-  if (!history || !history.length) { list.innerHTML = ''; return; }
-  list.innerHTML = history.map(m => {
-    const val = parseFloat(m) || 1;
-    const display = val <= 1.00 ? 0.00 : val;
-    const cls = display <= 1.00 ? 'red' : historyColorClass(display);
-    return `<div class="history-item ${cls}">${display.toFixed(2)}x</div>`;
-  }).join('');
-}
+function renderHistory(history) { const sig = (history || []).join('|'); if (sig === lastHistorySig) return; lastHistorySig = sig; const list = document.getElementById('historyList'); if (!history || !history.length) { list.innerHTML = ''; return; } list.innerHTML = history.map(m => { const val = parseFloat(m) || 1; const display = val <= 1.00 ? 0.00 : val; const cls = display <= 1.00 ? 'red' : historyColorClass(display); return `<div class="history-item ${cls}">${display.toFixed(2)}x</div>`; }).join(''); }
 
 function updateBetButtons() {
   const effStatus = localCrashed ? 'crashed' : round.status;
-  const btn = document.getElementById('btnBet1');
-  const box = document.getElementById('betBox1');
-  const betAmountInput = document.getElementById('betAmount1');
-  const btnMinus = document.getElementById('btnMinus1');
-  const btnPlus = document.getElementById('btnPlus1');
-  const quickBtns = [document.getElementById('quick1_1'), document.getElementById('quick1_2'), document.getElementById('quick1_3'), document.getElementById('quick1_4')];
+  const btn = document.getElementById('btnBet1'); const box = document.getElementById('betBox1'); const betAmountInput = document.getElementById('betAmount1'); const btnMinus = document.getElementById('btnMinus1'); const btnPlus = document.getElementById('btnPlus1'); const quickBtns = [document.getElementById('quick1_1'), document.getElementById('quick1_2'), document.getElementById('quick1_3'), document.getElementById('quick1_4')];
   const queued = queuedBet && queuedBet.amount > 0;
   const settingsLocked = (myBetId !== null && myBetId !== 'queued' && !myCashed) || queued;
-  betAmountInput.disabled = settingsLocked;
-  btnMinus.disabled = settingsLocked;
-  btnPlus.disabled = settingsLocked;
+  betAmountInput.disabled = settingsLocked; btnMinus.disabled = settingsLocked; btnPlus.disabled = settingsLocked;
   quickBtns.forEach(b => { if(b) b.disabled = settingsLocked; });
   if (queued) box.classList.add('queued'); else box.classList.remove('queued');
-  if (queued) {
-    btn.className = 'btn-action btn-bet';
-    btn.innerHTML = `В очереди <div class="subtext">${queuedBet.amount} ₽</div>`;
-    btn.disabled = false; btn.onclick = () => cancelQueue(); return;
-  }
+  if (queued) { btn.className = 'btn-action btn-bet'; btn.innerHTML = `В очереди <div class="subtext">${queuedBet.amount} ₽</div>`; btn.disabled = false; btn.onclick = () => cancelQueue(); return; }
   if (effStatus === 'waiting') {
-    if (myBetId) {
-      btn.className = 'btn-action btn-cancel';
-      btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`;
-      btn.disabled = false; btn.onclick = () => placeBet();
-    } else {
-      const amt = parseInt(betAmountInput.value) || MIN_BET;
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = false; btn.onclick = () => placeBet();
-    }
+    if (myBetId) { btn.className = 'btn-action btn-cancel'; btn.innerHTML = `Отмена <div class="subtext">Ожидание...</div>`; btn.disabled = false; btn.onclick = () => placeBet(); }
+    else { const amt = parseInt(betAmountInput.value) || MIN_BET; btn.className = 'btn-action btn-bet'; btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`; btn.disabled = false; btn.onclick = () => placeBet(); }
   } else if (effStatus === 'flying') {
-    if (myBetId && myBetId !== 'queued' && !myCashed) {
-      btn.className = 'btn-action btn-cashout';
-      btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(myBetId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`;
-      btn.disabled = false; btn.onclick = () => doCashout();
-    } else if (myCashed) {
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Выведено <div class="subtext">✓</div>`;
-      btn.disabled = true;
-    } else {
-      const amt = parseInt(betAmountInput.value) || MIN_BET;
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = false; btn.onclick = () => placeBet();
-    }
+    if (myBetId && myBetId !== 'queued' && !myCashed) { btn.className = 'btn-action btn-cashout'; btn.innerHTML = `Забрать <div class="subtext">${(getBetAmountById(myBetId, round.bets) * currentLocalMultiplier()).toFixed(2)} ₽</div>`; btn.disabled = false; btn.onclick = () => doCashout(); }
+    else if (myCashed) { btn.className = 'btn-action btn-bet'; btn.innerHTML = `Выведено <div class="subtext">✓</div>`; btn.disabled = true; }
+    else { const amt = parseInt(betAmountInput.value) || MIN_BET; btn.className = 'btn-action btn-bet'; btn.innerHTML = `На след. раунд <div class="subtext">${amt} ₽</div>`; btn.disabled = false; btn.onclick = () => placeBet(); }
   } else {
-    if (myBetId && myBetId !== 'queued' && !myCashed) {
-      const amt = getBetAmountById(myBetId, round.bets);
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = true;
-    } else {
-      const amt = parseInt(betAmountInput.value) || MIN_BET;
-      btn.className = 'btn-action btn-bet';
-      btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`;
-      btn.disabled = false; btn.onclick = () => placeBet();
-    }
+    if (myBetId && myBetId !== 'queued' && !myCashed) { const amt = getBetAmountById(myBetId, round.bets); btn.className = 'btn-action btn-bet'; btn.innerHTML = `Проигрыш <div class="subtext">${amt} ₽</div>`; btn.disabled = true; }
+    else { const amt = parseInt(betAmountInput.value) || MIN_BET; btn.className = 'btn-action btn-bet'; btn.innerHTML = `Ставка <div class="subtext">${amt} ₽</div>`; btn.disabled = false; btn.onclick = () => placeBet(); }
   }
 }
 
-function updateBetButtonsLive(mult, effStatus) {
-  if (effStatus === 'flying' && myBetId && myBetId !== 'queued' && !myCashed) {
-    const btn = document.getElementById('btnBet1');
-    const amt = getBetAmountById(myBetId, round.bets);
-    if (amt > 0) {
-      const val = (amt * mult).toFixed(2);
-      const html = `Забрать <div class="subtext">${val} ₽</div>`;
-      if (btn.innerHTML !== html) btn.innerHTML = html;
-    } else {
-      myBetId = null; myCashed = false; updateBetButtons();
-    }
-  }
-}
+function updateBetButtonsLive(mult, effStatus) { if (effStatus === 'flying' && myBetId && myBetId !== 'queued' && !myCashed) { const btn = document.getElementById('btnBet1'); const amt = getBetAmountById(myBetId, round.bets); if (amt > 0) { const val = (amt * mult).toFixed(2); const html = `Забрать <div class="subtext">${val} ₽</div>`; if (btn.innerHTML !== html) btn.innerHTML = html; } else { myBetId = null; myCashed = false; updateBetButtons(); } } }
 
 function getBetAmountById(betId, bets) { if (!bets) return 0; const b = bets.find(x => x.id === betId); return b ? parseFloat(b.amount) : 0; }
 
-function changeAmount(diff) {
-  if (myBetId || queuedBet) return;
-  const input = document.getElementById('betAmount1');
-  let val = parseInt(input.value) || MIN_BET;
-  val += diff;
-  if (val < MIN_BET) val = MIN_BET;
-  if (val > MAX_BET) val = MAX_BET;
-  input.value = val;
-  document.getElementById('subtext1').textContent = val + ' ₽';
-  updateBetButtons();
-}
-
-function setAmount(val) {
-  if (myBetId || queuedBet) return;
-  if (val < MIN_BET) val = MIN_BET;
-  if (val > MAX_BET) val = MAX_BET;
-  document.getElementById('betAmount1').value = val;
-  document.getElementById('subtext1').textContent = val + ' ₽';
-  updateBetButtons();
-}
-
-async function cancelQueue() {
-  if (!queuedBet) return;
-  queuedBet = null;
-  showToast('Ставка снята с очереди', 'info');
-  updateBetButtons();
-}
+function changeAmount(diff) { if (myBetId || queuedBet) return; const input = document.getElementById('betAmount1'); let val = parseInt(input.value) || MIN_BET; val += diff; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; input.value = val; document.getElementById('subtext1').textContent = val + ' ₽'; updateBetButtons(); }
+function setAmount(val) { if (myBetId || queuedBet) return; if (val < MIN_BET) val = MIN_BET; if (val > MAX_BET) val = MAX_BET; document.getElementById('betAmount1').value = val; document.getElementById('subtext1').textContent = val + ' ₽'; updateBetButtons(); }
+async function cancelQueue() { if (!queuedBet) return; queuedBet = null; showToast('Ставка снята с очереди', 'info'); updateBetButtons(); }
 
 async function placeBet() {
   if (myBetId && round.status === 'waiting') { showToast('Ставка уже принята', 'error'); return; }
@@ -947,36 +569,19 @@ async function placeBet() {
 async function doCashout() {
   if (!myBetId || myCashed || myBetId === 'queued') return;
   const amt = getBetAmountById(myBetId, round.bets);
-  if (amt <= 0) {
-    myBetId = null; myCashed = false; updateBetButtons(); pollRound();
-    showToast('Ставка не найдена, обновляю...', 'error'); return;
-  }
+  if (amt <= 0) { myBetId = null; myCashed = false; updateBetButtons(); pollRound(); showToast('Ставка не найдена, обновляю...', 'error'); return; }
   const betId = myBetId; myCashed = true;
   try {
     const r = await fetch('/api/crash/cashout', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ bet_id: betId }) });
     const d = await r.json();
-    if (!r.ok) {
-      showToast(d.error || 'Ошибка вывода', 'error');
-      myCashed = false; myBetId = null; pollRound(); return;
-    }
+    if (!r.ok) { showToast(d.error || 'Ошибка вывода', 'error'); myCashed = false; myBetId = null; pollRound(); return; }
     playCashoutSound();
     showToast(`Выведено ${d.win.toFixed(2)} ₽ (x${d.mult.toFixed(2)})`, 'success');
     loadBalance(); pollRound();
-  } catch(e) {
-    showToast('Ошибка соединения', 'error');
-    myCashed = false;
-  }
+  } catch(e) { showToast('Ошибка соединения', 'error'); myCashed = false; }
 }
 
-function showToast(text, type='success') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div style="font-size:13px;font-weight:600;color:#fff">${text}</div>`;
-  c.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
-}
+function showToast(text, type='success') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<div style="font-size:13px;font-weight:600;color:#fff">${text}</div>`; c.appendChild(t); setTimeout(() => t.classList.add('show'), 10); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000); }
 
 pollRound();
 setInterval(pollRound, POLL_MS);
