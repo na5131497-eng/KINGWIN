@@ -207,7 +207,6 @@
       <div class="game-info"><div class="game-title">Crash</div><div class="game-sub">Успей забрать</div></div>
     </a>
     
-    <!-- РАЗБЛОКИРОВАННЫЕ КЕЙСЫ -->
     <a href="/cases.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/cases_card.jpg" alt="Cases" onerror="this.style.display='none'"></div>
       <div class="game-info"><div class="game-title">Cases</div><div class="game-sub">Открывай кейсы</div></div>
@@ -217,10 +216,13 @@
       <div class="game-img-wrap"><img src="/miner_card.jpg" alt="Miner"></div>
       <div class="game-info"><div class="game-title">Miner</div><div class="game-sub">Минное поле</div></div>
     </a>
-    <div class="game-card coming-soon" onclick="showComingSoon('Ladder')">
-      <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder"></div>
-      <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Скоро</div></div>
-    </div>
+
+    <!-- РАЗБЛОКИРОВАННАЯ ЛЕСТНИЦА -->
+    <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)">
+      <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder" onerror="this.style.display='none'"></div>
+      <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Испытай удачу</div></div>
+    </a>
+
     <div class="game-card coming-soon" onclick="showComingSoon('Plinko')">
       <div class="game-img-wrap"><img src="/plinko_card.jpg" alt="Plinko"></div>
       <div class="game-info"><div class="game-title">Plinko</div><div class="game-sub">Скоро</div></div>
