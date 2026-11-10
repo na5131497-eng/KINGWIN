@@ -10,21 +10,28 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   html, body { height: 100%; }
   body { background: var(--bg-main); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid #00e5ff; color: #00e5ff; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
   .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: rgba(0,229,255,0.3); }
-  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; }
+  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
   .how-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; color: #00e5ff; height: 44px; padding: 0 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; font-family: inherit; }
   .how-btn:hover { background: rgba(0,229,255,0.2); transform: scale(1.03); }
-  @media (max-width: 600px) { .how-btn { top: 10px; right: 10px; height: 40px; padding: 0 12px; font-size: 11px; } .how-btn .label { display: none; } }
+  @media (max-width: 600px) {
+    .how-btn { top: 10px; right: 10px; height: 40px; padding: 0 12px; font-size: 11px; }
+    .how-btn .label { display: none; }
+  }
+
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-left: 70px; padding-right: 160px; background: var(--bg-panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
   .topbar-logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
   .balance-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,229,255,0.35); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
   .balance-badge .lbl { color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
   .balance-badge .val { color: var(--accent); font-weight: 900; font-size: 13px; }
+
   .crash-layout { display: flex; width: 100%; flex: 1; min-height: 0; padding: 16px; gap: 16px; max-width: 1400px; margin: 0 auto; overflow: hidden; }
   .sidebar-bets { width: 320px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
   .tabs { display: flex; padding: 12px; gap: 8px; border-bottom: 1px solid var(--border); background: var(--bg-dark); }
@@ -44,6 +51,7 @@
   .bet-mult { display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-size: 11px; text-align: center; }
   .bet-mult.win { background: rgba(63,191,127,0.2); color: var(--accent-green); }
   .bet-cashout { text-align: right; font-weight: 800; color: var(--accent-green); font-size: 11px; }
+
   .game-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
   .history-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 10px 16px; flex-shrink: 0; }
   .history-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-right: 6px; flex-shrink: 0; }
@@ -53,6 +61,7 @@
   .history-item.blue { background: rgba(0,119,255,0.2); color: #66b3ff; border: 1px solid rgba(0,119,255,0.45); }
   .history-item.purple { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.45); }
   .history-item.gold { background: rgba(241,196,15,0.2); color: #ffe066; border: 1px solid rgba(241,196,15,0.55); box-shadow: 0 0 10px rgba(241,196,15,0.35); }
+
   .canvas-container { flex: 1; background: linear-gradient(180deg, #131624, #090a10); border: 1px solid var(--border); border-radius: 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); min-height: 200px; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .multiplier-display { position: absolute; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
@@ -60,17 +69,20 @@
   .mult-value.crashed { color: var(--red); text-shadow: 0 5px 30px rgba(255,77,77,0.4); }
   .mult-value.golden { color: var(--gold); text-shadow: 0 5px 30px rgba(255,215,0,0.6); }
   .mult-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; font-weight: 700; min-height: 16px; }
+
   .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; gap: 16px; flex-shrink: 0; justify-content: center; }
   .bet-box { width: 100%; max-width: 520px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
   .bet-box.queued { border-color: rgba(0,229,255,0.4); box-shadow: 0 0 18px rgba(0,229,255,0.12); }
   .queue-badge { display: none; position: absolute; top: -10px; right: 12px; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 10px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 12px rgba(0,229,255,0.5); }
   .bet-box.queued .queue-badge { display: block; }
+
   .amount-row { display: flex; gap: 8px; }
   .amount-input-wrap { flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 4px; min-width: 0; }
   .amount-input-wrap button { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.05); border: none; color: #fff; font-size: 18px; cursor: pointer; font-weight: 700; transition: 0.2s; flex-shrink: 0; }
   .amount-input-wrap button:hover { background: rgba(255,255,255,0.1); }
   .amount-input-wrap input { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; text-align: center; font-size: 18px; font-weight: 800; outline: none; font-family: inherit; }
   .amount-input-wrap input:disabled { opacity: 0.6; cursor: not-allowed; }
+  
   .btn-action { flex: 1; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; min-width: 0; padding: 8px 10px; }
   .btn-action .subtext { font-size: 11px; font-weight: 600; opacity: 0.9; margin-top: 3px; }
   .btn-bet { background: var(--yellow); color: #000; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
@@ -78,20 +90,24 @@
   .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   .btn-cancel { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(255,77,77,0.2); }
   .btn-cancel:hover { background: #ff3333; }
+
   .btn-cashout { background: linear-gradient(135deg, #0a1a3a 0%, #1a3a6b 50%, #0a1a3a 100%); color: #00e5ff; border: 2px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08); text-shadow: 0 0 10px rgba(0,229,255,0.7); animation: cashoutPulse 1.6s ease-in-out infinite; position: relative; overflow: hidden; }
   .btn-cashout::before { content: ''; position: absolute; top: -50%; left: -100%; width: 50%; height: 200%; background: linear-gradient(90deg, transparent, rgba(0,229,255,0.35), transparent); transform: skewX(-25deg); animation: cashoutShine 2.4s ease-in-out infinite; }
   .btn-cashout:hover { background: linear-gradient(135deg, #102a5a 0%, #2a5a9b 50%, #102a5a 100%); border-color: #33ebff; color: #33ebff; box-shadow: 0 0 25px rgba(0,229,255,0.7), 0 0 50px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); }
   @keyframes cashoutPulse { 0%, 100% { box-shadow: 0 0 15px rgba(0,229,255,0.45), 0 0 30px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,229,255,0.08); } 50% { box-shadow: 0 0 25px rgba(0,229,255,0.75), 0 0 45px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.15); } }
   @keyframes cashoutShine { 0% { left: -100%; } 60%, 100% { left: 150%; } }
+
   .quick-bets { display: flex; gap: 6px; }
   .quick-bets button { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button:disabled { opacity: 0.4; cursor: not-allowed; }
+
   .toast-container { position: fixed; top: 60px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 220px; transform: translateX(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
+
   .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; overflow-y: auto; }
   .howto-backdrop.show { display: flex; }
   .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 520px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -106,6 +122,7 @@
   .howto-tips b { color: var(--yellow); }
   .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; transition: 0.2s; }
   .howto-close:hover { box-shadow: 0 0 20px rgba(0,229,255,0.5); }
+
   @media (max-width: 900px) {
     html, body { height: auto; min-height: 100%; overflow: auto; }
     body { height: auto; min-height: 100dvh; overflow-y: auto; display: block; }
@@ -127,6 +144,7 @@
     .toast { min-width: 0; width: 100%; transform: translateY(-120%); }
     .toast.show { transform: translateY(0); }
   }
+
   @media (max-width: 480px) {
     .crash-layout { padding: 8px; gap: 8px; }
     .canvas-container { height: 38vh; min-height: 200px; max-height: 300px; }
@@ -160,6 +178,8 @@
 <div class="float-menu" id="floatMenu">
   <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
   <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
+  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
+  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Miner</a>
 </div>
 
 <button class="how-btn" onclick="openHowTo()">
@@ -454,58 +474,58 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-// === ОТРИСОВКА БЕЗ ГРАФИКА (С ФИКСИРОВАННЫМ МАСШТАБОМ) ===
+// === ОТРИСОВКА БЕЗ ГРАФИКА, ТРАЕКТОРИЯ — КВАДРАТИЧНАЯ БЕЗЬЕ ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
 
-  const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
-  const drawW = W - paddingL - paddingR;
-  const drawH = H - paddingT - paddingB;
+  const paddingL = 40, paddingR = 40, paddingT = 40, paddingB = 40;
+  const startX = paddingL;
+  const startY = H - paddingB;
+  const endX = W - paddingR;
+  const endY = paddingT;
 
-  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
-    const lastX = graphPoints[graphPoints.length - 1].x;
-    const maxX = Math.max(6, lastX); // Фиксированный минимум по X
-    const maxY = Math.max(3, currentMult * 1.2); // Фиксированный минимум по Y
+  if (status === 'flying' || status === 'crashed') {
+    // t от 0 (старт) до 1 (максимум). Медленный рост в начале, ускорение к концу.
+    const t = Math.min(1, Math.log(Math.max(1, currentMult)) / Math.log(100));
 
-    const lastP = graphPoints[graphPoints.length - 1];
-    const lx = paddingL + (lastP.x / maxX) * drawW;
-    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
+    const ctrlX = startX + (endX - startX) * 0.85;
+    const ctrlY = startY - (startY - endY) * 0.05;
 
-    // Ракета
+    const oneMinusT = 1 - t;
+    const bx = oneMinusT * oneMinusT * startX + 2 * oneMinusT * t * ctrlX + t * t * endX;
+    const by = oneMinusT * oneMinusT * startY + 2 * oneMinusT * t * ctrlY + t * t * endY;
+
+    const dx = 2 * oneMinusT * (ctrlX - startX) + 2 * t * (endX - ctrlX);
+    const dy = 2 * oneMinusT * (ctrlY - startY) + 2 * t * (endY - ctrlY);
+    let angle = Math.atan2(dy, dx);
+
+    if (currentMult >= 1.20) {
+      const k = Math.min(1, (currentMult - 1.20) / 0.5);
+      const target = -Math.PI / 2;
+      angle = angle + (target - angle) * k;
+    }
+
     if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
-      let angle;
-      if (currentMult < 1.05) {
-        angle = -Math.PI / 4; // Фиксированный наклон на старте
-      } else if (currentMult < 1.20) {
-        const t = (currentMult - 1.05) / (1.20 - 1.05);
-        const startAngle = -Math.PI / 4;
-        const endAngle = -Math.PI / 2;
-        angle = startAngle + (endAngle - startAngle) * t; // Плавный поворот
-      } else {
-        angle = -Math.PI / 2; // Строго вверх после 1.20x
-      }
       const ROCKET_SIZE = 100;
-      const BASE_ANGLE = Math.PI / 4; // Поправка на исходный поворот картинки
+      const BASE_ANGLE = Math.PI / 4;
       ctx.save();
-      ctx.translate(lx, ly);
+      ctx.translate(bx, by);
       ctx.rotate(angle + BASE_ANGLE);
-      ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,229,255,0.8)';
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(0,229,255,0.8)';
       ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
       ctx.restore();
     }
 
-    if (status === 'crashed') {
-      if (!explosionTriggered) { spawnExplosion(lx, ly); explosionTriggered = true; }
+    if (status === 'crashed' && !explosionTriggered) {
+      spawnExplosion(bx, by);
+      explosionTriggered = true;
     }
-  } else if (status === 'crashed' && graphPoints.length <= 1) {
-    if (!explosionTriggered) {
-      const lastP = graphPoints[0] || { x: 0, y: 1 };
-      const lx = paddingL + (lastP.x / Math.max(6, lastP.x)) * drawW;
-      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(3, currentMult * 1.2)) * drawH;
-      spawnExplosion(lx, ly); explosionTriggered = true;
-    }
+  } else if (status === 'crashed' && !explosionTriggered) {
+    spawnExplosion(startX, startY);
+    explosionTriggered = true;
   }
 
   updateParticles();
