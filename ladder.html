@@ -5,144 +5,133 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0e14">
 <title>KINGWIN — Ladder</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-main: #090a10; --bg-panel: #151922; --bg-card: #1a1f2b;
     --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
     --text-main: #fff; --text-muted: #8b92a5;
     --border: rgba(255,255,255,0.06); --red: #ff4d4d;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow: hidden; }
-  body { 
-    background: radial-gradient(circle at top, #1a2332, #090a10 80%); 
-    color: var(--text-main); 
-    height: 100vh; height: 100dvh; 
-    display: flex; flex-direction: column; 
-    padding-top: var(--safe-top); 
-    padding-bottom: var(--safe-bottom);
-  }
-
-  /* Меню */
-  .float-menu-btn { position: fixed; top: calc(15px + var(--safe-top)); left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
-  .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
-  .float-menu { position: fixed; top: calc(15px + var(--safe-top)); left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
-  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
-  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
-  .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
-  .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
-
-  /* Топбар */
-  .topbar { height: 60px; flex-shrink: 0; background: rgba(21,25,34,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 15px 0 70px; z-index: 100; }
-  .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-  .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 14px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
-
-  /* Игровое поле */
-  .layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 10px; gap: 10px; max-width: 800px; margin: 0 auto; width: 100%; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg-main); color: var(--text-main); }
   
-  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding-bottom: 10px; }
-  
-  .step-row { display: flex; gap: 8px; justify-content: center; align-items: center; flex-shrink: 0; }
-  
-  /* Клетки */
-  .step-box { flex: 1; max-width: 180px; height: 55px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
-  .step-box:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.2); }
-  .step-box:disabled { cursor: not-allowed; }
-  
-  .step-box.safe { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.3); }
-  .step-box.mine { background: rgba(255,77,77,0.05); border-color: rgba(255,77,77,0.3); }
-  .step-box.current { border-color: var(--gold); box-shadow: 0 0 15px rgba(241,196,15,0.3); background: rgba(241,196,15,0.05); cursor: pointer; }
-  .step-box.dimmed { opacity: 0.4; }
+  .app { display: flex; height: 100vh; height: 100dvh; }
 
-  /* Множитель */
-  .step-mult { width: 60px; flex-shrink: 0; text-align: center; font-size: 13px; font-weight: 800; color: var(--text-muted); }
-  .step-mult.active { color: var(--gold); text-shadow: 0 0 10px rgba(241,196,15,0.5); }
-
-  /* Иконки внутри клеток */
-  .icon-wrap { width: 45%; height: 45%; display: flex; align-items: center; justify-content: center; }
-  .icon-wrap svg { width: 100%; height: 100%; }
-
-  /* Панель управления */
-  .control-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -5px 20px rgba(0,0,0,0.4); flex-shrink: 0; }
+  /* ЛЕВАЯ ПАНЕЛЬ */
+  .sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; }
+  .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
   
-  .setup-row { display: flex; gap: 10px; }
-  .setup-row label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; }
-  .setup-row input { background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 900; text-align: center; outline: none; font-family: inherit; }
-  .setup-row input:focus { border-color: var(--accent); }
-  
-  .btn-play { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
-  .btn-play:hover:not(:disabled) { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
-  .btn-play:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
+  .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
+  .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
 
-  .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 0 20px; height: 55px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+  .quick-bets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
+  .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 5px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+  .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
+
+  .mines-grid { display: flex; gap: 6px; margin-bottom: 30px; }
+  .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+  .mine-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); box-shadow: 0 0 10px rgba(0,229,255,0.2); }
+
+  .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 12px; padding: 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; }
+  .btn-start:hover { box-shadow: 0 0 25px rgba(0,229,255,0.5); }
+
+  .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 12px; padding: 14px 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin-top: auto; }
+  .btn-cashout span { font-size: 11px; font-weight: 800; opacity: 0.8; }
+  .btn-cashout strong { font-size: 22px; font-weight: 900; }
   .btn-cashout:hover:not(:disabled) { box-shadow: 0 0 25px rgba(0,255,136,0.5); }
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
-  .cashout-val { font-size: 20px; }
 
-  .status { text-align: center; font-size: 12px; font-weight: 700; min-height: 18px; color: var(--text-muted); }
-  .status.err { color: var(--red); }
-  .status.ok { color: var(--accent-green); }
+  .link-bottom { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 15px; cursor: pointer; }
+  .link-bottom:hover { color: #fff; }
 
-  .toast-container { position: fixed; top: 70px; right: 15px; left: 15px; z-index: 999999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; align-items: center; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateY(-120%); transition: 0.3s; font-weight: 600; font-size: 13px; color: #fff; pointer-events: auto; max-width: 400px; text-align: center; }
-  .toast.show { transform: translateY(0); }
-  .toast.success { border-left-color: var(--accent-green); }
-  .toast.error { border-left-color: var(--red); }
+  /* ПРАВАЯ ПАНЕЛЬ (ИГРА) */
+  .game-area { flex: 1; display: flex; position: relative; overflow: hidden; background: radial-gradient(circle at center, #1a2332, #090a10 80%); }
+  
+  .game-area::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
 
-  @media (min-width: 600px) {
-    .step-box { height: 65px; max-width: 220px; font-size: 16px; }
-    .step-mult { font-size: 15px; width: 70px; }
-    .control-panel { padding: 20px; }
+  .multiplier-column { width: 80px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 40px; gap: 10px; z-index: 2; padding-right: 10px; }
+  .mult-item { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 8px; transition: 0.3s; }
+  .mult-item.active { background: #102a3d; color: #fff; border: 1px solid var(--accent); box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+
+  .ladder-container { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 40px; gap: 10px; z-index: 2; position: relative; overflow-y: auto; }
+  
+  .step-row { display: flex; gap: 15px; }
+  .cell { width: 60px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+  
+  .cell:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+  .cell:disabled { cursor: not-allowed; }
+  
+  .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
+  .cell.safe { background: rgba(0,255,136,0.1); border-color: var(--accent-green); }
+  .cell.mine { background: rgba(255,77,77,0.1); border-color: var(--red); }
+  .cell.dimmed { opacity: 0.2; background: rgba(255,255,255,0.02); }
+
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
+
+  .icon { width: 60%; height: 60%; display: flex; align-items: center; justify-content: center; }
+  .icon svg { width: 100%; height: 100%; }
+
+  /* Мобильная адаптация */
+  @media (max-width: 900px) {
+    .app { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
+    .btn-start, .btn-cashout { margin-top: 15px; }
+    .game-area { flex-direction: column; justify-content: flex-end; padding: 10px 0; }
+    .multiplier-column { flex-direction: row; width: 100%; justify-content: center; padding-bottom: 10px; gap: 5px; padding-right: 0; }
+    .mult-item { width: 60px; height: auto; padding: 8px 0; font-size: 10px; }
+    .ladder-container { padding-bottom: 10px; gap: 6px; }
+    .cell { width: 50px; height: 45px; }
+    .step-row { gap: 10px; }
   }
 </style>
 </head>
 <body>
 
-<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
-<div class="float-menu" id="floatMenu">
-  <a href="/"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
-  <a href="/crash.html"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Crash</a>
-  <a href="/cases.html"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Cases</a>
-  <a href="/miner.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Miner</a>
-  <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 20h16V4H4v16zm2-2V6h12v12H6z"/></svg> Ladder</a>
-</div>
-
-<div class="topbar">
-  <a href="/" class="logo">KINGWIN</a>
-  <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
-</div>
-
-<div class="layout">
-  <div class="ladder-scroll" id="ladderScroll">
-    <!-- Ступени -->
-  </div>
-
-  <div class="control-panel" id="setupPanel">
-    <div class="setup-row">
-      <label>Ставка (₽)
-        <input type="number" id="betAmount" value="10" min="10" max="1000" step="10">
-      </label>
-      <label>Ступеней
-        <input type="number" id="stepsCount" value="5" min="3" max="9">
-      </label>
+<div class="app">
+  <!-- ЛЕВАЯ ПАНЕЛЬ -->
+  <div class="sidebar">
+    <h3>Сумма ставки</h3>
+    <div class="input-group">
+      <input type="number" id="betAmount" value="25.00" min="10" max="1000" step="1">
+      <span class="currency">₽</span>
     </div>
-    <button class="btn-play" id="btnStart" onclick="startGame()">Начать подъём</button>
-    <div class="status" id="status">Введите ставку и количество ступеней</div>
+    
+    <div class="quick-bets" id="quickBets">
+      <button onclick="setBet(10)">10</button>
+      <button onclick="setBet(25)" class="active">25</button>
+      <button onclick="setBet(50)">50</button>
+      <button onclick="setBet(100)">100</button>
+    </div>
+
+    <h3>Количество камней</h3>
+    <div class="mines-grid" id="minesGrid">
+      <button class="mine-btn" onclick="setMines(3)">3</button>
+      <button class="mine-btn" onclick="setMines(4)">4</button>
+      <button class="mine-btn" onclick="setMines(5)">5</button>
+      <button class="mine-btn active" onclick="setMines(6)">6</button>
+      <button class="mine-btn" onclick="setMines(7)">7</button>
+    </div>
+
+    <button class="btn-start" id="btnStart" onclick="startGame()">Играть</button>
+    
+    <button class="btn-cashout" id="btnCashout" onclick="cashout()" style="display:none;">
+      <span>Забрать</span>
+      <strong id="cashoutAmount">0 ₽</strong>
+    </button>
+
+    <div class="link-bottom" onclick="alert('Правила: угадай безопасную клетку с короной, чтобы подняться выше. Попал на сломанную — проиграл.')">Как играть?</div>
   </div>
 
-  <div class="control-panel" id="playPanel" style="display:none;">
-    <button class="btn-cashout" id="btnCashout" onclick="cashout()" disabled>
-      <span>Забрать</span>
-      <span class="cashout-val" id="cashoutAmount">0 ₽</span>
-    </button>
-    <div class="status" id="playStatus">Выберите безопасную клетку</div>
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
+  <div class="game-area">
+    <div class="multiplier-column" id="multipliers"></div>
+    <div class="ladder-container" id="ladder"></div>
   </div>
 </div>
-
-<div class="toast-container" id="toastContainer"></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -150,42 +139,25 @@ let currentPlayer = null;
 let balance = 0;
 let sessionId = null;
 let currentStep = 0;
-let totalSteps = 5;
-let currentBet = 10;
+let totalSteps = 6;
+let currentBet = 25;
 let busy = false;
 let stepsData = [];
-let audioCtx = null;
 
-// Таблица множителей (чем выше, тем больше)
-const MULTIPLIERS = [1.5, 2.2, 3.3, 5.0, 7.5, 11.0, 16.0, 23.0, 33.0];
+// Множители для 3-9 ступеней (примерно как на скрине)
+const MULT_TABLE = {
+  3: [1.24, 1.70, 2.36],
+  4: [1.24, 1.70, 2.36, 3.30],
+  5: [1.24, 1.70, 2.36, 3.30, 4.78],
+  6: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21],
+  7: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50],
+  8: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47],
+  9: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95]
+};
 
-// SVG иконки из Miner
+// SVG Короны из Miner
 const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
 const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="30" cy="20" r="1.5" fill="#ff9b9b"/><circle cx="38" cy="26" r="1.5" fill="#ff9b9b"/><circle cx="42" cy="18" r="1.5" fill="#ff9b9b"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-
-function playTone(freq, dur, type) {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.type = type || 'sine'; osc.frequency.setValueAtTime(freq, now);
-    gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-    osc.connect(gain).connect(audioCtx.destination); osc.start(now); osc.stop(now + dur);
-  } catch(e) {}
-}
-function soundWin() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.35, 'triangle'), i * 90)); }
-function soundLose() { [300, 200, 100].forEach((f, i) => setTimeout(() => playTone(f, 0.4, 'sawtooth'), i * 100)); }
-
-function showToast(text, type='success') {
-  const c = $('toastContainer'); if (!c) return;
-  const t = document.createElement('div');
-  t.className = `toast ${type}`; t.textContent = text;
-  c.appendChild(t); setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
-}
-function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
 
 function loadMe() {
   try {
@@ -204,201 +176,168 @@ async function refreshBalance() {
     if (!r.ok) return;
     const d = await r.json();
     balance = (parseFloat(d.deposit_balance) || 0) + (parseFloat(d.bonus_balance) || 0);
-    $('balanceVal').textContent = fmt(balance);
   } catch(e) {}
 }
 
-function renderLadder() {
-  const scroll = $('ladderScroll');
-  scroll.innerHTML = '';
-  
+function setBet(val) {
+  if (sessionId) return;
+  currentBet = val;
+  $('betAmount').value = val.toFixed(2);
+  document.querySelectorAll('#quickBets button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function setMines(val) {
+  if (sessionId) return;
+  totalSteps = val;
+  document.querySelectorAll('#minesGrid button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderBoard(); // Обновить превью
+}
+
+function renderBoard() {
+  const ladder = $('ladder');
+  const mults = $('multipliers');
+  ladder.innerHTML = '';
+  mults.innerHTML = '';
+
+  const multArr = MULT_TABLE[totalSteps] || MULT_TABLE[6];
+
   for (let i = totalSteps - 1; i >= 0; i--) {
     const row = document.createElement('div');
     row.className = 'step-row';
-
-    // Клетки
-    const leftBox = document.createElement('div');
-    leftBox.className = 'step-box';
-    const rightBox = document.createElement('div');
-    rightBox.className = 'step-box';
-
-    const stepInfo = stepsData[i] || { safe: -1, mine: -1 };
-    const isPassed = (i < currentStep);
-    const isCurrent = (i === currentStep);
-    const isNext = (i === currentStep && currentStep < totalSteps);
-
-    // Логика отображения
-    if (isPassed) {
-      // Прошедшие — показываем корону
-      if (stepInfo.safe === 0) { leftBox.classList.add('safe'); leftBox.innerHTML = `<div class="icon-wrap">${SVG_CROWN}</div>`; }
-      if (stepInfo.safe === 1) { rightBox.classList.add('safe'); rightBox.innerHTML = `<div class="icon-wrap">${SVG_CROWN}</div>`; }
-      leftBox.classList.add('dimmed');
-      rightBox.classList.add('dimmed');
-    } else if (isCurrent) {
-      // Текущая — кликабельная (если это НЕ шаг после нажатия, а выбор)
-      if (isNext) {
-        leftBox.classList.add('current');
-        rightBox.classList.add('current');
-        leftBox.onclick = () => openCell(i, 0);
-        rightBox.onclick = () => openCell(i, 1);
+    
+    for (let side = 0; side < 2; side++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      
+      const stepInfo = stepsData[i] || { safe: -1 };
+      const isPassed = (i < currentStep);
+      const isCurrent = (i === currentStep);
+      
+      if (isPassed) {
+        if (stepInfo.safe === side) {
+          cell.classList.add('safe');
+          cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
+        } else {
+          cell.classList.add('dimmed');
+        }
+      } else if (isCurrent) {
+        cell.classList.add('current');
+        cell.onclick = () => clickCell(i, side);
       } else {
-        // Тут произошёл клик, показываем что было
-        if (stepInfo.safe === 0) { leftBox.classList.add('safe'); leftBox.innerHTML = `<div class="icon-wrap">${SVG_CROWN}</div>`; }
-        if (stepInfo.mine === 0) { leftBox.classList.add('mine'); leftBox.innerHTML = `<div class="icon-wrap">${SVG_BROKEN}</div>`; }
-        if (stepInfo.safe === 1) { rightBox.classList.add('safe'); rightBox.innerHTML = `<div class="icon-wrap">${SVG_CROWN}</div>`; }
-        if (stepInfo.mine === 1) { rightBox.classList.add('mine'); rightBox.innerHTML = `<div class="icon-wrap">${SVG_BROKEN}</div>`; }
+        cell.classList.add('dimmed');
       }
-    } else {
-      // Будущие — просто пустые
-      leftBox.classList.add('dimmed');
-      rightBox.classList.add('dimmed');
+      
+      row.appendChild(cell);
     }
+    ladder.appendChild(row);
 
-    row.appendChild(leftBox);
-    row.appendChild(rightBox);
-
-    // Множитель
-    const multEl = document.createElement('div');
-    multEl.className = 'step-mult' + (isPassed || isCurrent ? ' active' : '');
-    multEl.textContent = 'x' + MULTIPLIERS[i].toFixed(1);
-    row.appendChild(multEl);
-
-    scroll.appendChild(row);
+    const mEl = document.createElement('div');
+    mEl.className = 'mult-item' + (i === currentStep ? ' active' : '');
+    mEl.textContent = 'x' + multArr[i].toFixed(2);
+    mults.appendChild(mEl);
   }
-  
-  // Прокрутка вниз к текущей ступени
+
   setTimeout(() => {
-    if (scroll.scrollHeight > scroll.clientHeight) {
-      scroll.scrollTop = scroll.scrollHeight;
-    }
+    const activeMult = mults.querySelector('.active');
+    if (activeMult) activeMult.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 50);
 }
 
-function startGame() {
+async function startGame() {
   if (busy || sessionId) return;
-  if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  if (!currentPlayer) { alert('Войдите в аккаунт'); return; }
   
-  currentBet = parseInt($('betAmount').value, 10) || 10;
-  totalSteps = parseInt($('stepsCount').value, 10) || 5;
-  
-  if (currentBet < 10) { showToast('Мин. ставка 10 ₽', 'error'); return; }
-  if (currentBet > 1000) { showToast('Макс. ставка 1000 ₽', 'error'); return; }
-  if (balance < currentBet) { showToast('Недостаточно средств', 'error'); return; }
-
-  // Стартуем
-  sessionId = 'ladder_' + Date.now();
-  currentStep = 0;
-  stepsData = Array(totalSteps).fill(0).map(() => ({
-    safe: Math.floor(Math.random() * 2),
-    mine: -1
-  }));
-  stepsData.forEach((s, i) => {
-    s.mine = s.safe === 0 ? 1 : 0;
-  });
+  currentBet = parseFloat($('betAmount').value) || 0;
+  if (currentBet < 10) { alert('Мин. ставка 10 ₽'); return; }
+  if (balance < currentBet) { alert('Недостаточно средств'); return; }
 
   busy = true;
-  $('betAmount').disabled = true;
-  $('stepsCount').disabled = true;
   $('btnStart').disabled = true;
-  $('setupPanel').style.display = 'none';
-  $('playPanel').style.display = 'flex';
-  $('btnCashout').disabled = true;
-  $('cashoutAmount').textContent = fmt(currentBet * MULTIPLIERS[0]) + ' ₽';
-  $('playStatus').textContent = 'Нажмите на левую или правую клетку';
-  $('playStatus').className = 'status';
-  
-  renderLadder();
+  $('btnStart').textContent = 'Загрузка...';
+
+  try {
+    const r = await fetch('/api/ladder/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, steps: totalSteps })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; $('btnStart').textContent = 'Играть'; return; }
+
+    sessionId = d.session_id;
+    stepsData = d.ladder; // [{ safe: 0, mine: 1 }, ...]
+    currentStep = 0;
+    
+    $('btnStart').style.display = 'none';
+    $('btnCashout').style.display = 'flex';
+    $('btnCashout').disabled = true;
+    $('cashoutAmount').textContent = '0 ₽';
+    
+    renderBoard();
+    refreshBalance();
+  } catch(e) {
+    alert('Ошибка соединения');
+    $('btnStart').disabled = false; $('btnStart').textContent = 'Играть';
+  }
   busy = false;
 }
 
-function openCell(stepIdx, side) {
-  if (busy || sessionId === null) return;
-  if (stepIdx !== currentStep) return;
-  
+async function clickCell(stepIdx, side) {
+  if (busy || !sessionId || stepIdx !== currentStep) return;
   busy = true;
-  const step = stepsData[stepIdx];
-  
-  // Запоминаем, что выпало
-  if (step.safe === side) {
-    // Победа на шаге
-    playTone(800, 0.1, 'sine');
-    currentStep++;
-    
-    if (currentStep >= totalSteps) {
-      // Прошли всё!
-      finishGame(true);
-      return;
+
+  try {
+    const r = await fetch('/api/ladder/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId, cell: side })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); busy = false; return; }
+
+    if (d.result === 'safe') {
+      currentStep = d.next_step;
+      renderBoard();
+      $('btnCashout').disabled = false;
+      const multArr = MULT_TABLE[totalSteps] || MULT_TABLE[6];
+      const nextWin = currentBet * multArr[currentStep - 1];
+      $('cashoutAmount').textContent = nextWin.toFixed(2) + ' ₽';
+    } else if (d.result === 'lose') {
+      stepsData[currentStep] = { safe: d.correct_cell };
+      renderBoard();
+      setTimeout(() => {
+        alert('Вы попали на сломанную корону! Ставка сгорела.');
+        resetGame();
+      }, 500);
+    } else if (d.result === 'win') {
+      alert(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`);
+      resetGame();
+      refreshBalance();
     }
-    
-    // Обновляем интерфейс
-    renderLadder();
-    $('cashoutAmount').textContent = fmt(currentBet * MULTIPLIERS[currentStep]) + ' ₽';
-    $('btnCashout').disabled = false;
-    $('playStatus').textContent = `Корона! Вы на ${currentStep} уровне. Множитель x${MULTIPLIERS[currentStep]}`;
-    $('playStatus').className = 'status ok';
-    busy = false;
-  } else {
-    // Взрыв
-    playLoseSound = soundLose();
-    $('playStatus').textContent = '💥 Сломанная корона! Вы проиграли.';
-    $('playStatus').className = 'status err';
-    finishGame(false);
+  } catch(e) {
+    alert('Ошибка соединения');
   }
+  busy = false;
 }
 
-function finishGame(isWin) {
-  busy = true;
-  $('btnCashout').disabled = true;
-  
-  let winAmount = 0;
-  if (isWin) {
-    winAmount = currentBet * MULTIPLIERS[totalSteps - 1];
-    soundWin();
-    showToast(`Победа! Вы дошли до конца и забрали ${fmt(winAmount)} ₽`, 'success');
-  } else {
-    winAmount = 0;
-    showToast('Взрыв! Ставка сгорела.', 'error');
-  }
-  
-  // Отображаем финальный результат в клетках
-  renderLadder();
-  
-  setTimeout(() => {
-    $('setupPanel').style.display = 'flex';
-    $('playPanel').style.display = 'none';
-    $('betAmount').disabled = false;
-    $('stepsCount').disabled = false;
-    $('btnStart').disabled = false;
-    sessionId = null;
-    currentStep = 0;
-    stepsData = [];
-    busy = false;
-    refreshBalance();
-  }, 2000);
-}
-
-function cashout() {
+async function cashout() {
   if (busy || !sessionId || currentStep === 0) return;
-  
-  busy = true;
-  $('btnCashout').disabled = true;
-  
-  const winAmount = currentBet * MULTIPLIERS[currentStep - 1];
-  soundWin();
-  showToast(`Вы забрали ${fmt(winAmount)} ₽ на множителе x${MULTIPLIERS[currentStep - 1]}`, 'success');
-  
-  // Скрываем игру
-  $('setupPanel').style.display = 'flex';
-  $('playPanel').style.display = 'none';
-  $('betAmount').disabled = false;
-  $('stepsCount').disabled = false;
-  $('btnStart').disabled = false;
-  
+  // Временное решение для UI, серверный кешаут нужно дописать в server.js
+  alert('Вы забрали выигрыш!');
+  resetGame();
+}
+
+function resetGame() {
   sessionId = null;
   currentStep = 0;
   stepsData = [];
-  busy = false;
-  
+  $('btnStart').style.display = 'block';
+  $('btnStart').disabled = false;
+  $('btnStart').textContent = 'Играть';
+  $('btnCashout').style.display = 'none';
+  renderBoard();
   refreshBalance();
 }
 
@@ -407,9 +346,10 @@ window.onload = () => {
   if (currentPlayer) {
     refreshBalance();
     setInterval(refreshBalance, 5000);
+    renderBoard(); // Показать превью
   } else {
-    showToast('Войдите в аккаунт на главной', 'error');
-    setTimeout(() => window.location.href = '/', 2000);
+    alert('Войдите в аккаунт на главной странице');
+    window.location.href = '/';
   }
 };
 </script>
