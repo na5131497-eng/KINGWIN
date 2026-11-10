@@ -195,7 +195,10 @@
 
     <!-- РАЗБЛОКИРОВАННАЯ ЛЕСТНИЦА -->
     <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder" onerror="this.style.display='none'"></div>
+      <!-- Добавлен ?v=1 чтобы браузер не кешировал старую пустую картинку -->
+      <div class="game-img-wrap">
+        <img src="/ladder_card.jpg?v=1" alt="Ladder" onerror="this.style.display='none'">
+      </div>
       <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Испытай удачу</div></div>
     </a>
 
