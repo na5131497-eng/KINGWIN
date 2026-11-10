@@ -93,10 +93,20 @@ async function getActualJackpot() {
   } catch (e) { console.error('getActualJackpot error:', e.message); return 0; }
 }
 
+/* ============ КЕЙСЫ (RTP ≈ 92% для Новичка) ============ */
 const CASES = {
   'Новичок': { price: 39.99, minRank: 0, prizes: [
-    { v:2,w:1500 },{ v:5,w:2000 },{ v:10,w:2500 },{ v:15,w:2000 },{ v:25,w:1000 },{ v:50,w:600 },
-    { v:75,w:200 },{ v:100,w:100 },{ v:200,w:50 },{ v:500,w:30 },{ v:750,w:15 },{ v:1000,w:5 }
+    { v:10,   w:37500 },
+    { v:15,   w:25000 },
+    { v:25,   w:13000 },
+    { v:50,   w:10000 },
+    { v:100,  w:7000  },
+    { v:115,  w:3500  },
+    { v:200,  w:2250  },
+    { v:250,  w:1000  },
+    { v:500,  w:350   },
+    { v:650,  w:100   },
+    { v:1000, w:50    }
   ]},
   'Сильвер': { price: 199, minRank: 2, prizes: [
     { v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },
@@ -1858,7 +1868,6 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 200, { exists: false }); }
     }
 
-    // ============ СТАТИЧЕСКИЕ ФАЙЛЫ ============
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
@@ -2134,5 +2143,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Админ:   /admin.html');
   console.log('  Профиль: /profile.html');
   console.log('  Crash:   /crash.html');
+  console.log('  Cases:   /cases.html');
   console.log('');
 });
