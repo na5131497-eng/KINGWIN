@@ -251,7 +251,6 @@ function renderGrid() {
   }
 }
 
-// Ищем клетку по dataset.idx, а не по позиции в children
 function findCellByIndex(idx) {
   return $('grid').querySelector(`.cell[data-idx="${idx}"]`);
 }
@@ -305,18 +304,29 @@ async function openCell(idx) {
     applyBalanceFromResponse(d);
 
     if (d.mine) {
-      // Показываем ТОЛЬКО ту клетку, куда нажал игрок (или первую из d.mines).
-      // Никаких «все мины разом» — игрок не должен понимать, что это был слив.
-      const mineIdx = (Array.isArray(d.mines) && d.mines.length > 0) ? d.mines[0] : idx;
-      const cell = findCellByIndex(mineIdx);
-      if (cell) {
-        cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
-        cell.classList.add('mine', 'clicked-mine');
-        cell.classList.remove('opened', 'dimmed');
-        cell.onclick = null;
+      const grid = $('grid');
+      if (d.forced) {
+        // РЕЖИМ СЛИВА — показываем ТОЛЬКО нажатую клетку (незаметно)
+        const cell = findCellByIndex(idx);
+        if (cell) {
+          cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
+          cell.classList.add('mine', 'clicked-mine');
+          cell.classList.remove('opened', 'dimmed');
+        }
+      } else {
+        // ЧЕСТНЫЙ ПРОИГРЫШ — показываем ВСЕ мины (5, 7, 10 — сколько выбрал)
+        const minesArr = Array.isArray(d.mines) ? d.mines : [];
+        minesArr.forEach(mIdx => {
+          const cell = findCellByIndex(mIdx);
+          if (!cell) return;
+          cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
+          cell.classList.add('mine');
+          cell.classList.remove('opened', 'dimmed');
+          if (mIdx === idx) cell.classList.add('clicked-mine');
+        });
       }
-      // Все остальные клетки просто блокируем, БЕЗ раскрытия мин
-      $('grid').querySelectorAll('.cell').forEach(c => { c.onclick = null; });
+      // Все остальные неоткрытые клетки блокируем
+      grid.querySelectorAll('.cell').forEach(c => { c.onclick = null; });
 
       gameActive = false;
       $('btnCashout').style.display = 'none';
