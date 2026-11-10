@@ -155,8 +155,8 @@ async function addDealerBalance(dealerId, amount){
 }
 
 const CRASH_WAIT_AFTER_FIRST_BET = 11000;
-const CRASH_CRASH_PAUSE = 1500;
-const CRASH_BETTING_WINDOW = 10000;
+const CRASH_CRASH_PAUSE = 2500;
+const CRASH_BETTING_WINDOW = 12000;
 const BOT_COUNT = 11;
 let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', waitTimer: null, hasRealBet: false, forcedStop: false, plannedCrashPoint: 1, startWaitingAt: 0 };
 let crashTimeouts = [];
@@ -171,7 +171,7 @@ function crashClearTimers() {
 
 const CRASH_HOUSE_EDGE = 0.0605;
 const CRASH_INSTA_PROB = 1 / 33;
-const CRASH_MAX_MULT    = 99.99;
+const CRASH_MAX_MULT    = 100;
 
 function crashGeneratePoint() {
   const r = Math.random();
@@ -221,7 +221,7 @@ async function crashStartWaiting() {
       const forceRes = await pool.query(`SELECT value FROM settings WHERE key='crash_force_next'`);
       if (forceRes.rows.length && forceRes.rows[0].value) {
         const forced = parseFloat(forceRes.rows[0].value);
-        if (isFinite(forced) && forced >= 1.0 && forced <= 1000) {
+        if (isFinite(forced) && forced >= 1.0 && forced <= 100) {
           cp = forced;
           await pool.query(`UPDATE settings SET value='' WHERE key='crash_force_next'`);
         } else { cp = crashGeneratePoint(); }
@@ -364,6 +364,7 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS cash_safe (id SERIAL PRIMARY KEY, dealer_id INTEGER, dealer_name TEXT, guest_id TEXT, guest_name TEXT, sum NUMERIC DEFAULT 0, type TEXT DEFAULT 'in', status TEXT DEFAULT 'open', date TEXT, handed_at TIMESTAMP, accepted_at TIMESTAMP, real_sum NUMERIC DEFAULT 0, diff NUMERIC DEFAULT 0, created_at TIMESTAMP DEFAULT NOW());
       CREATE TABLE IF NOT EXISTS promo_codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE NOT NULL, type TEXT DEFAULT 'fixed', value NUMERIC DEFAULT 0, max_uses INT DEFAULT 0, used_count INT DEFAULT 0, min_deposit NUMERIC DEFAULT 0, expires_at TIMESTAMP, active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW());
       CREATE TABLE IF NOT EXISTS promo_uses (id SERIAL PRIMARY KEY, promo_id INT, guest_id TEXT, guest_name TEXT, amount NUMERIC DEFAULT 0, used_at TIMESTAMP DEFAULT NOW());
+      CREATE TABLE IF NOT EXISTS miner_force_lose_players (guest_id TEXT PRIMARY KEY, guest_name TEXT, updated_at TIMESTAMP DEFAULT NOW());
     `);
     const cols = [
       `ALTER TABLE guests ADD COLUMN IF NOT EXISTS pass TEXT DEFAULT '1234'`,
@@ -541,7 +542,7 @@ const server = http.createServer(async (req, res) => {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
       const val = parseFloat(b.value);
-      if (!isFinite(val) || val < 1.0 || val > 1000) return sendJSON(res, 400, { error: 'Коэффициент должен быть от 1.00 до 1000' });
+      if (!isFinite(val) || val < 1.0 || val > 100) return sendJSON(res, 400, { error: 'Коэффициент должен быть от 1.00 до 100' });
       await pool.query(`INSERT INTO settings (key, value) VALUES ('crash_force_next', $1) ON CONFLICT (key) DO UPDATE SET value = $1`, [String(val)]);
       return sendJSON(res, 200, { ok: true, value: val });
     }
@@ -600,6 +601,57 @@ const server = http.createServer(async (req, res) => {
         return { session_id: sid, guest_id: s.guestId, bet: s.bet, mines: s.mines.length, revealed: s.revealed.length, started_at: new Date(s.createdAt).toISOString(), elapsed_sec: Math.round((now - s.createdAt) / 1000) };
       });
       return sendJSON(res, 200, list);
+    }
+
+    // ===== ИНДИВИДУАЛЬНЫЙ СЛИВ В МИНЕРЕ =====
+    if (url === '/api/admin/miner/players' && method === 'GET') {
+      try {
+        const r = await pool.query(`
+          SELECT DISTINCT
+            COALESCE(gh.guest_id, gh.player_name) AS guest_id,
+            gh.player_name AS guest_name,
+            MAX(gh.created_at) AS last_played
+          FROM game_history gh
+          WHERE gh.game = 'miner'
+          GROUP BY COALESCE(gh.guest_id, gh.player_name), gh.player_name
+        `);
+        const forced = await pool.query(`SELECT guest_id FROM miner_force_lose_players`);
+        const forcedSet = new Set(forced.rows.map(x => String(x.guest_id)));
+        const list = r.rows.map(row => ({
+          guest_id: String(row.guest_id),
+          guest_name: row.guest_name || '',
+          last_played: row.last_played,
+          forced: forcedSet.has(String(row.guest_id))
+        }));
+        for (const f of forced.rows) {
+          if (!list.find(x => x.guest_id === String(f.guest_id))) {
+            list.push({ guest_id: String(f.guest_id), guest_name: '', last_played: null, forced: true });
+          }
+        }
+        list.sort((a, b) => new Date(b.last_played || 0) - new Date(a.last_played || 0));
+        return sendJSON(res, 200, list);
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url === '/api/admin/miner/player-force' && method === 'POST') {
+      const b = await parseBody(req);
+      if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль owner' });
+      const guestId = String(b.guest_id || '').trim();
+      const guestName = String(b.guest_name || '').trim();
+      const enabled = b.enabled === true || b.enabled === '1';
+      if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+      try {
+        if (enabled) {
+          await pool.query(
+            `INSERT INTO miner_force_lose_players (guest_id, guest_name) VALUES ($1,$2)
+             ON CONFLICT (guest_id) DO UPDATE SET guest_name=$2, updated_at=NOW()`,
+            [guestId, guestName]
+          );
+        } else {
+          await pool.query(`DELETE FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]);
+        }
+        return sendJSON(res, 200, { ok: true, guest_id: guestId, enabled });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     if (url === '/api/admin/promos' && method === 'GET') {
@@ -1042,7 +1094,16 @@ const server = http.createServer(async (req, res) => {
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
 
       let forceLose = false;
-      try { const fr = await pool.query(`SELECT value FROM settings WHERE key='miner_force_lose'`); forceLose = (fr.rows.length && String(fr.rows[0].value) === '1'); } catch(e) {}
+      try {
+        const fp = await pool.query(`SELECT 1 FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]);
+        if (fp.rows.length > 0) forceLose = true;
+      } catch(e) {}
+      if (!forceLose) {
+        try {
+          const fr = await pool.query(`SELECT value FROM settings WHERE key='miner_force_lose'`);
+          forceLose = (fr.rows.length && String(fr.rows[0].value) === '1');
+        } catch(e) {}
+      }
 
       if (forceLose) {
         sess.finished = true;
@@ -1797,10 +1858,8 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 200, { exists: false }); }
     }
 
-    // ============ СТАТИЧЕСКИЕ ФАЙЛЫ (HTML, PNG, MP3 и т.д.) ============
+    // ============ СТАТИЧЕСКИЕ ФАЙЛЫ ============
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
-    
-    // Защита от path traversal: убираем всё, что пытается выйти за пределы папки
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
 
@@ -1809,25 +1868,21 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-      // Логируем 404 для картинок, чтобы было видно в консоли сервера
       if (/\.(png|jpg|jpeg|webp|svg|gif|mp3|wav)$/i.test(safeRelative)) {
         console.log(`[404] Статика не найдена: ${safeRelative}`);
       }
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); 
-      res.end('Not found'); 
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found');
       return;
     }
 
     const ext = path.extname(filePath).toLowerCase();
     const mime = MIME[ext] || 'application/octet-stream';
-    
-    // Для картинок — кеш на 1 час (чтобы браузер не дёргал постоянно)
     const headers = { 'Content-Type': mime };
     if (/^image\//.test(mime)) {
       headers['Cache-Control'] = 'public, max-age=3600';
       console.log(`[STATIC] ${safeRelative} → ${mime}`);
     }
-
     res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
     return;
