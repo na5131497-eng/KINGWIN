@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #090a10; --bg-panel: #151922; --bg-card: #1a1f2b;
+    --bg-main: #090a10; --bg-panel: #151922;
     --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
     --text-main: #fff; --text-muted: #8b92a5;
     --border: rgba(255,255,255,0.06); --red: #ff4d4d;
@@ -16,9 +16,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; background: var(--bg-main); color: var(--text-main); }
   
-  .app { display: flex; height: 100vh; height: 100dvh; }
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
 
-  /* Меню (Три палки) */
+  /* Меню и Топбар */
   .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
   .float-menu-btn:hover { background: rgba(0,229,255,0.1); transform: scale(1.05); }
   .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
@@ -27,8 +27,15 @@
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
   .float-menu a svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
 
+  .topbar { height: 60px; background: rgba(21,25,34,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+  .top-actions { display: flex; align-items: center; gap: 10px; }
+  .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
+  .btn-help { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 36px; display: flex; align-items: center; }
+  .btn-help:hover { background: rgba(0,229,255,0.2); }
+
   /* ЛЕВАЯ ПАНЕЛЬ */
-  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; padding-top: 70px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
+  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
   .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
   
   .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
@@ -40,7 +47,6 @@
   .quick-bets button:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
 
-  /* Выбор сломанных корон (1-7) */
   .mines-grid { display: flex; gap: 4px; margin-bottom: 20px; }
   .mine-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
   .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
@@ -54,14 +60,12 @@
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
 
   .link-bottom { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
-  .link-bottom:hover { color: #fff; }
 
-  /* ПРАВАЯ ПАНЕЛЬ (ИГРА) */
+  /* ИГРОВОЕ ПОЛЕ */
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #1a2332, #090a10 80%); }
   .game-area::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
 
   .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; gap: 6px; z-index: 2; position: relative; scrollbar-width: thin; }
-  
   .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 800px; }
   
   .mult-badge { width: 75px; flex-shrink: 0; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
@@ -69,7 +73,6 @@
 
   .grid-row { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; flex: 1; }
   .cell { height: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
-  
   .cell:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: var(--accent); }
   .cell:disabled { cursor: not-allowed; }
   .cell.current { background: rgba(0,229,255,0.1); border-color: var(--accent); animation: pulse 1.5s infinite; cursor: pointer; }
@@ -93,8 +96,7 @@
 
   /* Мобильная адаптация */
   @media (max-width: 900px) {
-    .app { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; padding-top: 65px; align-items: center; justify-content: space-between; gap: 10px; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
     .sidebar h3 { display: none; }
     .input-group { margin-bottom: 0; flex: 1; min-width: 120px; }
     .quick-bets { margin-bottom: 0; flex: 2; min-width: 200px; }
@@ -123,7 +125,18 @@
   <a href="/ladder.html"><svg viewBox="0 0 24 24"><path d="M4 20h16V4H4v16zm2-2V6h12v12H6z"/></svg> Ladder</a>
 </div>
 
-<div class="app">
+<div class="topbar">
+  <a href="/" class="logo">KINGWIN</a>
+  <div class="top-actions">
+    <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
+    <button class="btn-help" onclick="openHowTo()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right:4px;"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+      Как играть
+    </button>
+  </div>
+</div>
+
+<div class="app" style="padding-top: 60px;">
   <div class="sidebar">
     <h3>Сумма ставки</h3>
     <div class="input-group">
@@ -138,14 +151,14 @@
       <button onclick="setBet(100)">100</button>
     </div>
 
-    <h3>Сложность (кол-во мин)</h3>
+    <h3>Количество камней</h3>
     <div class="mines-grid" id="minesGrid">
-      <button class="mine-btn active" onclick="setMines(1)">1</button>
+      <button class="mine-btn" onclick="setMines(1)">1</button>
       <button class="mine-btn" onclick="setMines(2)">2</button>
       <button class="mine-btn" onclick="setMines(3)">3</button>
       <button class="mine-btn" onclick="setMines(4)">4</button>
       <button class="mine-btn" onclick="setMines(5)">5</button>
-      <button class="mine-btn" onclick="setMines(6)">6</button>
+      <button class="mine-btn active" onclick="setMines(6)">6</button>
       <button class="mine-btn" onclick="setMines(7)">7</button>
     </div>
 
@@ -155,8 +168,6 @@
       <span>Забрать</span>
       <strong id="cashoutAmount">0 ₽</strong>
     </button>
-
-    <div class="link-bottom" onclick="openHowTo()">Как играть?</div>
   </div>
 
   <div class="game-area">
@@ -181,14 +192,13 @@ let currentPlayer = null;
 let balance = 0;
 let sessionId = null;
 let currentStep = 0;
-let maxSteps = 9; // Максимум 9 уровней (как на фото)
-let minesCount = 1; 
+let maxSteps = 9;
+let minesCount = 6; 
 let currentBet = 25;
 let busy = false;
-let stepsData = []; // [{ safe: [idx1, idx2], mines: [idx1, idx2] }]
+let stepsData = [];
 
-// Сетка множителей: [уровень][количество мин (1-7)]
-// Сделано так, чтобы при 1 мине на первом шаге был x1.24, при 7 минах — x2.32
+// Множители
 const MULT_TABLE = {
   1: [1.24, 1.70, 2.36, 3.30, 4.78, 7.21, 11.50, 19.47, 37.95],
   2: [1.50, 2.30, 3.50, 5.50, 8.80, 14.00, 22.00, 36.00, 60.00],
@@ -196,12 +206,12 @@ const MULT_TABLE = {
   4: [2.35, 4.20, 7.50, 13.50, 24.00, 43.00, 78.00, 140.00, 250.00],
   5: [2.94, 5.70, 11.00, 21.00, 40.00, 78.00, 150.00, 290.00, 550.00],
   6: [3.67, 7.70, 16.00, 33.00, 68.00, 140.00, 290.00, 600.00, 1200.00],
-  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00] // Начинается с 2.32
+  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
 };
 
 const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
 
-const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="26" r="1.5" fill="#fff" opacity="0.6"/><circle cx="46" cy="38" r="1.5" fill="#fff" opacity="0.6"/></svg>`;
+const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
 function loadMe() {
   try {
@@ -220,6 +230,7 @@ async function refreshBalance() {
     if (!r.ok) return;
     const d = await r.json();
     balance = (parseFloat(d.deposit_balance) || 0) + (parseFloat(d.bonus_balance) || 0);
+    $('balanceVal').textContent = balance.toFixed(2);
   } catch(e) {}
 }
 
@@ -285,9 +296,7 @@ function renderBoard() {
     scroll.appendChild(row);
   }
 
-  setTimeout(() => {
-    scroll.scrollTop = scroll.scrollHeight;
-  }, 50);
+  setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 50);
 }
 
 async function startGame() {
@@ -296,7 +305,14 @@ async function startGame() {
   
   currentBet = parseFloat($('betAmount').value) || 0;
   if (currentBet < 10) { alert('Мин. ставка 10 ₽'); return; }
-  if (balance < currentBet) { alert('Недостаточно средств'); return; }
+  
+  // Принудительно обновляем баланс перед стартом
+  await refreshBalance();
+  
+  if (balance < currentBet) { 
+    alert(`Недостаточно средств! Ваш баланс: ${balance.toFixed(2)} ₽`); 
+    return; 
+  }
 
   busy = true;
   $('btnStart').disabled = true;
@@ -311,7 +327,15 @@ async function startGame() {
     if (!r.ok) { alert(d.error); busy = false; $('btnStart').disabled = false; return; }
 
     sessionId = d.session_id;
-    stepsData = d.ladder; 
+    // Преобразуем ответ сервера (там только мины) в удобный формат для фронта
+    stepsData = d.ladder.map(level => {
+      const safe = [];
+      for (let i = 0; i < 20; i++) {
+        if (!level.mines.includes(i)) safe.push(i);
+      }
+      return { mines: level.mines, safe };
+    });
+    
     currentStep = 0;
     
     $('btnStart').style.display = 'none';
@@ -320,7 +344,7 @@ async function startGame() {
     $('cashoutAmount').textContent = '0 ₽';
     
     renderBoard();
-    refreshBalance();
+    await refreshBalance();
   } catch(e) {
     alert('Ошибка соединения');
   }
@@ -349,7 +373,11 @@ async function clickCell(stepIdx, cellIdx) {
       const nextWin = currentBet * multArr[currentStep - 1];
       $('cashoutAmount').textContent = nextWin.toFixed(2) + ' ₽';
     } else if (d.result === 'lose') {
-      stepsData[currentStep] = { safe: d.correct_cells, mines: d.all_mines };
+      // Показываем, где были мины
+      stepsData[currentStep] = { 
+        safe: [], 
+        mines: d.correct_cells 
+      };
       renderBoard();
       setTimeout(() => {
         alert('Вы попали на сломанную корону! Ставка сгорела.');
@@ -358,7 +386,6 @@ async function clickCell(stepIdx, cellIdx) {
     } else if (d.result === 'win') {
       alert(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`);
       resetGame();
-      refreshBalance();
     }
   } catch(e) {
     alert('Ошибка соединения');
@@ -368,8 +395,24 @@ async function clickCell(stepIdx, cellIdx) {
 
 async function cashout() {
   if (busy || !sessionId || currentStep === 0) return;
-  alert('Вы забрали выигрыш!');
-  resetGame();
+  busy = true;
+  $('btnCashout').disabled = true;
+  
+  try {
+    const r = await fetch('/api/ladder/cashout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); busy = false; return; }
+    
+    alert(`Вы забрали ${d.win.toFixed(2)} ₽!`);
+    resetGame();
+  } catch(e) {
+    alert('Ошибка соединения');
+  }
+  busy = false;
 }
 
 function resetGame() {
