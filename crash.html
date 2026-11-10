@@ -329,78 +329,107 @@ let explosionTriggered = false;
 function spawnExplosion(x, y) {
   particles = [];
   shockwaves = [];
-  flash = { active: true, alpha: 1, x: x, y: y, radius: 10 };
-  
-  const colors = ['#00e5ff', '#f1c40f', '#ff4d4d', '#ffffff', '#00ff88'];
-  for (let i = 0; i < 50; i++) {
+  flash = { active: true, alpha: 1, x: x, y: y, radius: 20 };
+
+  const fireColors = ['#fff3b0', '#ffcc00', '#ff9900', '#ff6600', '#ff3300', '#cc0000'];
+  for (let i = 0; i < 80; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const speed = 2 + Math.random() * 8;
+    const speed = 3 + Math.random() * 10;
     particles.push({
       x: x, y: y,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      size: 2 + Math.random() * 4,
+      size: 3 + Math.random() * 6,
       life: 1,
-      decay: 0.015 + Math.random() * 0.02,
-      color: colors[Math.floor(Math.random() * colors.length)]
+      decay: 0.02 + Math.random() * 0.02,
+      color: fireColors[Math.floor(Math.random() * fireColors.length)],
+      isSmoke: false
     });
   }
-  
-  shockwaves.push({ x, y, radius: 0, maxRadius: 120, speed: 6, life: 1 });
-  shockwaves.push({ x, y, radius: 0, maxRadius: 80, speed: 4, life: 1 });
+
+  for (let i = 0; i < 25; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 4;
+    particles.push({
+      x: x, y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.5,
+      size: 6 + Math.random() * 10,
+      life: 1,
+      decay: 0.01 + Math.random() * 0.01,
+      color: '#333333',
+      isSmoke: true
+    });
+  }
+
+  shockwaves.push({ x, y, radius: 0, maxRadius: 200, speed: 10, life: 1 });
+  shockwaves.push({ x, y, radius: 0, maxRadius: 140, speed: 7, life: 1 });
+
+  playCrashSound();
 }
 
 function updateParticles() {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
-    p.x += p.vx; p.y += p.vy;
-    p.vx *= 0.96; p.vy *= 0.96;
-    p.vy += 0.15;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.94;
+    p.vy *= 0.94;
+    p.vy += p.isSmoke ? -0.02 : 0.25;
     p.life -= p.decay;
     if (p.life <= 0) particles.splice(i, 1);
   }
-  
+
   for (let i = shockwaves.length - 1; i >= 0; i--) {
     const s = shockwaves[i];
     s.radius += s.speed;
-    s.life -= 0.03;
+    s.life -= 0.025;
     if (s.life <= 0 || s.radius > s.maxRadius) shockwaves.splice(i, 1);
   }
-  
+
   if (flash.active) {
-    flash.radius += 8;
-    flash.alpha -= 0.06;
+    flash.radius += 15;
+    flash.alpha -= 0.05;
     if (flash.alpha <= 0) flash.active = false;
   }
 }
 
 function drawParticles() {
   if (flash.active && flash.alpha > 0) {
-    const gradient = ctx.createRadialGradient(flash.x, flash.y, 0, flash.x, flash.y, flash.radius);
-    gradient.addColorStop(0, `rgba(255, 255, 255, ${flash.alpha})`);
-    gradient.addColorStop(0.4, `rgba(241, 196, 15, ${flash.alpha * 0.8})`);
-    gradient.addColorStop(1, 'rgba(255, 77, 77, 0)');
-    ctx.fillStyle = gradient;
-    ctx.beginPath(); ctx.arc(flash.x, flash.y, flash.radius, 0, Math.PI * 2); ctx.fill();
+    const g = ctx.createRadialGradient(flash.x, flash.y, 0, flash.x, flash.y, flash.radius);
+    g.addColorStop(0, `rgba(255, 255, 255, ${flash.alpha})`);
+    g.addColorStop(0.2, `rgba(255, 240, 150, ${flash.alpha})`);
+    g.addColorStop(0.5, `rgba(255, 150, 0, ${flash.alpha * 0.9})`);
+    g.addColorStop(1, 'rgba(255, 50, 0, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(flash.x, flash.y, flash.radius, 0, Math.PI * 2);
+    ctx.fill();
   }
-  
+
   shockwaves.forEach(s => {
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(0, 229, 255, ${s.life})`;
-    ctx.lineWidth = 4 * s.life;
-    ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0, 229, 255, 0.8)';
+    ctx.strokeStyle = `rgba(255, 120, 0, ${s.life})`;
+    ctx.lineWidth = 5 * s.life;
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = 'rgba(255, 100, 0, 0.9)';
     ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-    ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
   });
-  
+
   particles.forEach(p => {
     ctx.beginPath();
     ctx.fillStyle = p.color;
-    ctx.globalAlpha = p.life;
-    ctx.shadowBlur = 10; ctx.shadowColor = p.color;
-    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.globalAlpha = p.isSmoke ? p.life * 0.5 : p.life;
+    if (!p.isSmoke) {
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = p.color;
+    }
+    ctx.arc(p.x, p.y, p.size * (p.isSmoke ? 1 : p.life), 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
   });
 }
 
@@ -683,105 +712,60 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
+// === ОТРИСОВКА БЕЗ ГРАФИКА ===
 function drawGraph(currentMult, status) {
   const W = canvas.width / (window.devicePixelRatio || 1);
   const H = canvas.height / (window.devicePixelRatio || 1);
   ctx.clearRect(0, 0, W, H);
-  
-  // Сетка
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
-  for (let i = 0; i < H; i += 60) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
-  for (let i = 0; i < W; i += 60) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
 
-  const paddingL = 30, paddingR = 20, paddingT = 30, paddingB = 30;
-  const drawW = W - paddingL - paddingR;
-  const drawH = H - paddingT - paddingB;
+  // Рисуем ракету
+  if (status === 'flying' && rocketImg.complete && rocketImg.naturalWidth > 0) {
+    // Ракета летит с левого-нижнего в центр-верх
+    // t = 0 (старт) -> t = 1 (условный потолок)
+    const maxMult = 100; // при 100x ракета долетит до верха
+    const t = Math.min(1, Math.log(currentMult) / Math.log(maxMult));
 
-  if ((status === 'flying' || status === 'crashed') && graphPoints.length > 1) {
-    const lastX = graphPoints[graphPoints.length - 1].x;
-    const maxX = Math.max(3, lastX);
-    const maxY = Math.max(currentMult * 1.15, 1.5);
+    const paddingL = 60, paddingR = 80, paddingT = 80, paddingB = 80;
+    const drawW = W - paddingL - paddingR;
+    const drawH = H - paddingT - paddingB;
 
-    let lineColor = '#00e5ff', shadowColor = 'rgba(0,229,255,0.5)';
-    if (status === 'crashed') { lineColor = '#ff4d4d'; shadowColor = 'rgba(255,77,77,0.5)'; }
-    else if (currentMult >= 10) { lineColor = '#ffd700'; shadowColor = 'rgba(255,215,0,0.6)'; }
+    // Старт в левом-нижнем, финиш в правом-верхнем (но летит вверх)
+    const startX = paddingL;
+    const startY = H - paddingB;
+    const endX = paddingL + drawW * 0.8; // немного правее
+    const endY = paddingT;
 
-    // Линия графика
-    ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineJoin = 'round';
-    ctx.shadowBlur = 10; ctx.shadowColor = shadowColor;
-    for (let i = 0; i < graphPoints.length; i++) {
-      const p = graphPoints[i];
-      const px = paddingL + (p.x / maxX) * drawW;
-      const py = paddingT + drawH - ((p.y - 1) / (maxY - 1)) * drawH;
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.stroke(); ctx.shadowBlur = 0;
+    const lx = startX + (endX - startX) * t;
+    const ly = startY + (endY - startY) * t;
 
-    const lastP = graphPoints[graphPoints.length - 1];
-    const lx = paddingL + (lastP.x / maxX) * drawW;
-    const ly = paddingT + drawH - ((lastP.y - 1) / (maxY - 1)) * drawH;
-
-    // --- ОТРИСОВКА РАКЕТЫ (100x100) ---
-    if (status === 'flying') {
-      if (rocketImg.complete && rocketImg.naturalWidth > 0) {
-        let angle = -Math.PI / 4; // Угол по умолчанию 45 градусов вверх-вправо
-        if (currentMult >= 1.20) {
-          angle = -Math.PI / 2; // После 1.20х летим строго вверх
-        } else if (graphPoints.length >= 2) {
-          // Пока меньше 1.20х — летим по траектории
-          const p1 = graphPoints[graphPoints.length - 2];
-          const p2 = graphPoints[graphPoints.length - 1];
-          const p1x = paddingL + (p1.x / maxX) * drawW;
-          const p1y = paddingT + drawH - ((p1.y - 1) / (maxY - 1)) * drawH;
-          const p2x = paddingL + (p2.x / maxX) * drawW;
-          const p2y = paddingT + drawH - ((p2.y - 1) / (maxY - 1)) * drawH;
-          angle = Math.atan2(p2y - p1y, p2x - p1x);
-        }
-
-        const ROCKET_SIZE = 100;
-        
-        // Поправка на изначальный поворот картинки (если ракета на картинке смотрит вправо, то +Math.PI/4)
-        // Если она смотрит вправо-вверх, то нужен +0. Здесь мы делаем +Math.PI/4, чтобы совпало с наклоном при старте.
-        const BASE_ANGLE = Math.PI / 4; 
-
-        ctx.save();
-        ctx.translate(lx, ly); // Убрали vibration
-        ctx.rotate(angle + BASE_ANGLE); 
-        
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = 'rgba(0,229,255,0.8)';
-        
-        ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
-        
-        ctx.restore();
-      } else {
-        // Если картинка не загрузилась — рисуем неоновую точку
-        ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 8, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
-        ctx.beginPath(); ctx.arc(lx, ly, 8, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
-      }
+    let angle = -Math.PI / 4;
+    if (currentMult >= 1.20) {
+      angle = -Math.PI / 2; // Строго вверх
     } else {
-      // Точка при краше
-      ctx.beginPath(); ctx.fillStyle = lineColor; ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur = 18; ctx.shadowColor = shadowColor;
-      ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+      // Наклон по траектории
+      angle = Math.atan2(endY - startY, endX - startX); // примерно 45 градусов
     }
 
-    // --- ВЗРЫВ ---
-    if (status === 'crashed') {
-      if (!explosionTriggered) {
-        spawnExplosion(lx, ly);
-        explosionTriggered = true;
-      }
-    }
-  } else if (status === 'crashed' && graphPoints.length <= 1) {
-    if (!explosionTriggered) {
-      const lastP = graphPoints[0] || { x: 0, y: 1 };
-      const lx = paddingL + (lastP.x / Math.max(3, lastP.x)) * drawW;
-      const ly = paddingT + drawH - ((lastP.y - 1) / Math.max(currentMult * 1.15, 1.5)) * drawH;
+    const ROCKET_SIZE = 100;
+    const BASE_ANGLE = Math.PI / 4;
+
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(angle + BASE_ANGLE);
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = 'rgba(0,229,255,0.9)';
+    ctx.drawImage(rocketImg, -ROCKET_SIZE / 2, -ROCKET_SIZE / 2, ROCKET_SIZE, ROCKET_SIZE);
+    ctx.restore();
+
+    // Взрыв
+    if (status === 'crashed' && !explosionTriggered) {
       spawnExplosion(lx, ly);
       explosionTriggered = true;
     }
+  } else if (status === 'crashed' && !explosionTriggered) {
+    // Если краш случился моментально, без полёта
+    spawnExplosion(W / 2, H / 2);
+    explosionTriggered = true;
   }
 
   updateParticles();
