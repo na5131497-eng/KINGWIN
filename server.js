@@ -124,9 +124,16 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-/* ============================================================
-   ЕДИНАЯ ЛОГИКА НАЧИСЛЕНИЯ
-   ============================================================ */
+/* LADDER_MULTS возвращены */
+const LADDER_MULTS = {
+  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
+  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
+  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20],
+  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56],
+  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21],
+  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20],
+  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
+};
 
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
@@ -182,10 +189,6 @@ async function getBalance(guestId) {
   return { total: dep + bon, deposit: dep, bonus: bon, wagering: { required: req_, done, left: Math.max(0, req_ - done) } };
 }
 
-/* ============================================================
-   КАССА КАЗИНО — целевой RTP (базовая цель 60%)
-   ============================================================ */
-
 async function getCasinoStats(period = 'all') {
   try {
     let where = `WHERE
@@ -232,29 +235,30 @@ async function getPlayerTodayProfit(guestId) {
   } catch (e) { return 0; }
 }
 
+// === RTP 80% (казино забирает 20%) ===
 async function getTargetRTP(guestId) {
-  let rtp = 0.60;
+  let rtp = 0.80;
   const today = await getCasinoStats('today');
   if (today.turnover >= 500) {
     const m = today.profit / today.turnover;
-    if (m < -0.10)      rtp -= 0.20;
-    else if (m < 0)     rtp -= 0.10;
-    else if (m > 0.40)  rtp += 0.15;
+    if (m < -0.10)      rtp -= 0.10;
+    else if (m < 0)     rtp -= 0.05;
+    else if (m > 0.40)  rtp += 0.10;
     else if (m > 0.20)  rtp += 0.05;
   }
   const all = await getCasinoStats('all');
   if (all.turnover >= 5000) {
     const m = all.profit / all.turnover;
-    if (m < -0.15)      rtp -= 0.10;
-    else if (m > 0.50)  rtp += 0.10;
+    if (m < -0.15)      rtp -= 0.05;
+    else if (m > 0.50)  rtp += 0.05;
   }
   if (guestId) {
     const p = await getPlayerTodayProfit(guestId);
-    if (p > 2000)       rtp -= Math.min(0.30, (p - 2000) / 10000);
-    else if (p < -3000) rtp += Math.min(0.10, (-p - 3000) / 20000);
+    if (p > 2000)       rtp -= Math.min(0.20, (p - 2000) / 15000);
+    else if (p < -3000) rtp += Math.min(0.05, (-p - 3000) / 30000);
   }
-  rtp *= 0.97 + Math.random() * 0.06;
-  return Math.max(0.55, Math.min(0.85, rtp));
+  rtp *= 0.98 + Math.random() * 0.04;
+  return Math.max(0.65, Math.min(0.92, rtp));
 }
 
 const DEALER_TASKS_BJ = [
@@ -297,6 +301,7 @@ let crashState = { roundId: null, crashPoint: 1, startTime: 0, status: 'idle', w
 let crashTimeouts = [];
 let queuedBets = [];
 const minerSessions = {};
+const ladderSessions = {};
 
 function crashClearTimers() {
   crashTimeouts.forEach(t => clearTimeout(t));
@@ -317,10 +322,9 @@ function crashGeneratePoint() {
   return Math.max(1.00, crash);
 }
 
-// === ФИКС: мгновенный краш всегда 5%, средний краш масштабируется через RTP ===
 async function crashGeneratePointAsync(guestId) {
   const targetRTP = await getTargetRTP(guestId);
-  const instaProb = 0.05; // 5% мгновенных крашей — как в реальном Crash
+  const instaProb = 0.05;
   const r = Math.random();
   if (r < instaProb) return 1.00;
   const p = (r - instaProb) / (1 - instaProb);
@@ -375,7 +379,6 @@ async function crashStartWaiting() {
       } else { cp = await crashGeneratePointAsync(null); }
     } catch(e) { cp = crashGeneratePoint(); }
 
-    // === ФИКС: защита от серии x1.00 ===
     try {
       const recent = await pool.query(`SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 3`);
       const lastThree = recent.rows.map(r => parseFloat(r.crash_point));
@@ -626,9 +629,6 @@ async function addBalanceByNick(nick, amount, isBonus = false){
 
 async function getGuestById(id){ const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id)]); return r.rows[0] || null; }
 
-/* ============================================================
-   СЕРВЕР
-   ============================================================ */
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
@@ -654,7 +654,7 @@ const server = http.createServer(async (req, res) => {
         all, today, targetRTP,
         targetRTP_pct: Math.round(targetRTP * 100),
         houseEdge_pct: Math.round((1 - targetRTP) * 100),
-        label: targetRTP < 0.45 ? 'жёсткий режим' : targetRTP < 0.60 ? 'слив' : targetRTP < 0.75 ? 'базовый RTP (60%)' : targetRTP < 0.90 ? 'щедрый режим' : 'раздача'
+        label: targetRTP < 0.65 ? 'жёсткий режим' : targetRTP < 0.80 ? 'слив' : targetRTP < 0.85 ? 'базовый RTP (80%)' : 'щедрый режим'
       });
     }
 
@@ -685,6 +685,7 @@ const server = http.createServer(async (req, res) => {
         await pool.query('DELETE FROM dealer_withdrawals');
         await pool.query('DELETE FROM miner_force_lose_players');
         queuedBets = [];
+        Object.keys(ladderSessions).forEach(k => delete ladderSessions[k]);
         return sendJSON(res, 200, { ok: true });
       } catch (e) {
         return sendJSON(res, 500, { error: e.message });
@@ -815,6 +816,108 @@ const server = http.createServer(async (req, res) => {
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
+    // ===== LADDER =====
+    if (url === '/api/ladder/start' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const bet = parseFloat(b.bet) || 0;
+      const minesCount = parseInt(b.mines, 10) || 1;
+      if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+      if (bet < 10) return sendJSON(res, 400, { error: 'Мин. ставка 10 ₽' });
+      if (bet > 1000) return sendJSON(res, 400, { error: 'Макс. ставка 1000 ₽' });
+      if (minesCount < 1 || minesCount > 7) return sendJSON(res, 400, { error: 'Камней от 1 до 7' });
+      const debited = await debitBet(guestId, bet);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      const levelsCount = 9, cellsCount = 20;
+      const ladder = [];
+      for (let i = 0; i < levelsCount; i++) {
+        const mines = [];
+        while (mines.length < minesCount) {
+          const r = Math.floor(Math.random() * cellsCount);
+          if (!mines.includes(r)) mines.push(r);
+        }
+        ladder.push({ mines });
+      }
+      const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, createdAt: Date.now(), debitResult: debited };
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+    }
+    if (url === '/api/ladder/step' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const sessionId = String(b.session_id || '').trim();
+      const cellIdx = parseInt(b.cell, 10);
+      if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+      const sess = ladderSessions[sessionId];
+      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (sess.currentStep >= 9) return sendJSON(res, 400, { error: 'Игра уже завершена' });
+      const currentLevel = sess.ladder[sess.currentStep];
+      let isMine = currentLevel.mines.includes(cellIdx);
+      if (!isMine) {
+        const targetRTP = await getTargetRTP(guestId);
+        const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
+        const effectiveCheat = cheatChance * 0.35;
+        if (Math.random() < effectiveCheat) {
+          isMine = true;
+          currentLevel.mines.push(cellIdx);
+        }
+      }
+      const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+      if (!isMine) {
+        sess.currentStep++;
+        if (sess.currentStep >= 9) {
+          const mults = LADDER_MULTS[sess.minesCount];
+          const winMult = mults[8];
+          const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+          await creditWin(guestId, winAmount, sess.bet);
+          try {
+            await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
+            if (!isBonusGame) {
+              await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]);
+            }
+          } catch(e){}
+          const bal = await getBalance(guestId);
+          delete ladderSessions[sessionId];
+          return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
+        }
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+      } else {
+        delete ladderSessions[sessionId];
+        try {
+          if (!isBonusGame) {
+            await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]);
+          }
+        } catch(e){}
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+      }
+    }
+    if (url === '/api/ladder/cashout' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const sessionId = String(b.session_id || '').trim();
+      if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+      const sess = ladderSessions[sessionId];
+      if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (sess.currentStep === 0) return sendJSON(res, 400, { error: 'Нет пройденных уровней' });
+      const mults = LADDER_MULTS[sess.minesCount];
+      const winMult = mults[sess.currentStep - 1];
+      const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+      await creditWin(guestId, winAmount, sess.bet);
+      const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+      try {
+        await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
+        if (!isBonusGame) {
+          await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guestId})`]);
+        }
+      } catch(e){}
+      const bal = await getBalance(guestId);
+      delete ladderSessions[sessionId];
+      return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
+    }
+
     // ===== КЕЙСЫ =====
     if (url === '/api/cases/last-drops' && method === 'GET') {
       try { const r = await pool.query(`SELECT guest_name, case_name, prize, created_at FROM cases_log WHERE prize > 0 ORDER BY id DESC LIMIT 20`); return sendJSON(res, 200, r.rows); }
@@ -872,7 +975,7 @@ const server = http.createServer(async (req, res) => {
       catch(e) { return sendJSON(res, 200, []); }
     }
 
-    // ===== МИНЕР (множитель без RTP — RTP через добавление мин) =====
+    // ===== МИНЕР =====
     if (url === '/api/miner/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -933,16 +1036,12 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, result);
       }
 
-      // Проверка мины с добавлением "фальшивых" мин при низком RTP
       let isMine = sess.mines.includes(cell);
       if (!isMine) {
         const targetRTP = await getTargetRTP(guestId);
         const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
         const effectiveCheat = cheatChance * 0.35;
-        if (Math.random() < effectiveCheat) {
-          isMine = true;
-          sess.mines.push(cell);
-        }
+        if (Math.random() < effectiveCheat) { isMine = true; sess.mines.push(cell); }
       }
 
       if (isMine) {
@@ -963,7 +1062,6 @@ const server = http.createServer(async (req, res) => {
       const safeTotal = 25 - sess.mines.length;
       let surviveProb = 1;
       for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
-      // Честный множитель БЕЗ RTP
       const multiplier = Math.round((1 / surviveProb) * 100) / 100;
       const result = { ok: true, mine: false, cell, revealed: sess.revealed, multiplier, bet: sess.bet, potential_win: Math.round(sess.bet * multiplier * 100) / 100 };
       if (sess.revealed.length >= safeTotal) {
@@ -1007,7 +1105,6 @@ const server = http.createServer(async (req, res) => {
       const safeTotal = 25 - sess.mines.length;
       let surviveProb = 1;
       for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
-      // Честный множитель БЕЗ RTP
       const multiplier = Math.round((1 / surviveProb) * 100) / 100;
       const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
       sess.finished = true;
@@ -1584,5 +1681,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Crash:   /crash.html');
   console.log('  Cases:   /cases.html');
   console.log('  Miner:   /miner.html');
+  console.log('  Ladder:  /ladder.html');
   console.log('');
 });
