@@ -124,15 +124,15 @@ function pickPrize(prizes) {
   return prizes[prizes.length - 1].v;
 }
 
-/* LADDER_MULTS возвращены */
+/* LADDER_MULTS: 13 уровней, обновленные честные коэффициенты */
 const LADDER_MULTS = {
-  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55],
-  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74],
-  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20],
-  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56],
-  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21],
-  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20],
-  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00]
+  1: [1.05, 1.10, 1.16, 1.22, 1.29, 1.36, 1.44, 1.53, 1.63, 1.74, 1.86, 2.00, 2.15],
+  2: [1.11, 1.25, 1.41, 1.59, 1.80, 2.04, 2.32, 2.65, 3.03, 3.49, 4.03, 4.68, 5.45],
+  3: [1.18, 1.42, 1.70, 2.06, 2.50, 3.06, 3.75, 4.62, 5.72, 7.14, 8.97, 11.34, 14.45],
+  4: [1.25, 1.61, 2.07, 2.70, 3.53, 4.66, 6.20, 8.33, 11.33, 15.61, 21.83, 30.98, 44.60],
+  5: [1.33, 1.82, 2.51, 3.50, 4.94, 7.07, 10.27, 15.16, 22.80, 35.04, 55.02, 88.34, 145.60],
+  6: [1.40, 2.05, 3.02, 4.51, 6.84, 10.57, 16.69, 27.04, 45.07, 77.79, 139.76, 263.78, 523.93],
+  7: [1.47, 2.32, 3.69, 5.96, 9.85, 16.78, 29.62, 54.58, 105.62, 216.05, 471.43, 1102.24, 2783.50]
 };
 
 async function debitBet(guestId, amount) {
@@ -828,21 +828,26 @@ const server = http.createServer(async (req, res) => {
       if (minesCount < 1 || minesCount > 7) return sendJSON(res, 400, { error: 'Камней от 1 до 7' });
       const debited = await debitBet(guestId, bet);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      const levelsCount = 9, cellsCount = 20;
+      
+      const levelsCount = 13;
+      const cellsCount = 20; // ТЕПЕРЬ ВСЕГДА 20 КЛЕТОК
       const ladder = [];
+      
       for (let i = 0; i < levelsCount; i++) {
         const mines = [];
         while (mines.length < minesCount) {
           const r = Math.floor(Math.random() * cellsCount);
           if (!mines.includes(r)) mines.push(r);
         }
-        ladder.push({ mines });
+        ladder.push({ cellsCount, mines });
       }
+      
       const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
       ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, createdAt: Date.now(), debitResult: debited };
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
+    
     if (url === '/api/ladder/step' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -851,9 +856,10 @@ const server = http.createServer(async (req, res) => {
       if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
       const sess = ladderSessions[sessionId];
       if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
-      if (sess.currentStep >= 9) return sendJSON(res, 400, { error: 'Игра уже завершена' });
+      if (sess.currentStep >= 13) return sendJSON(res, 400, { error: 'Игра уже завершена' });
       const currentLevel = sess.ladder[sess.currentStep];
       let isMine = currentLevel.mines.includes(cellIdx);
+      
       if (!isMine) {
         const targetRTP = await getTargetRTP(guestId);
         const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
@@ -864,11 +870,12 @@ const server = http.createServer(async (req, res) => {
         }
       }
       const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+      
       if (!isMine) {
         sess.currentStep++;
-        if (sess.currentStep >= 9) {
+        if (sess.currentStep >= 13) {
           const mults = LADDER_MULTS[sess.minesCount];
-          const winMult = mults[8];
+          const winMult = mults[12];
           const winAmount = Math.round(sess.bet * winMult * 100) / 100;
           await creditWin(guestId, winAmount, sess.bet);
           try {
@@ -894,6 +901,7 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       }
     }
+    
     if (url === '/api/ladder/cashout' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -1007,7 +1015,6 @@ const server = http.createServer(async (req, res) => {
       if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
       if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
       if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
-
       let forceLose = false;
       try {
         const fp = await pool.query(`SELECT 1 FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]);
@@ -1019,9 +1026,7 @@ const server = http.createServer(async (req, res) => {
           forceLose = (fr.rows.length && String(fr.rows[0].value) === '1');
         } catch(e) {}
       }
-
       const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
-
       if (forceLose) {
         sess.finished = true;
         const forcedMines = [cell];
@@ -1035,7 +1040,6 @@ const server = http.createServer(async (req, res) => {
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
-
       let isMine = sess.mines.includes(cell);
       if (!isMine) {
         const targetRTP = await getTargetRTP(guestId);
@@ -1043,7 +1047,6 @@ const server = http.createServer(async (req, res) => {
         const effectiveCheat = cheatChance * 0.35;
         if (Math.random() < effectiveCheat) { isMine = true; sess.mines.push(cell); }
       }
-
       if (isMine) {
         sess.finished = true;
         try {
@@ -1056,7 +1059,6 @@ const server = http.createServer(async (req, res) => {
         delete minerSessions[sessionId];
         return sendJSON(res, 200, result);
       }
-
       sess.revealed.push(cell);
       const safeOpened = sess.revealed.length;
       const safeTotal = 25 - sess.mines.length;
