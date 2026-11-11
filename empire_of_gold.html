@@ -104,8 +104,7 @@
   .paytable-item img { width: 30px; height: 30px; object-fit: contain; }
   .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
 
-  /* ===== АНИМАЦИИ БАРАБАНОВ ===== */
-  /* Размытие во время вращения */
+  /* Анимация вращения */
   .spinning .symbol img { 
     filter: blur(4px); 
     opacity: 0.9; 
@@ -246,7 +245,6 @@ function createSymbolHTML(sym) {
   return html;
 }
 
-// Отрисовка начального состояния
 function renderReelsRandom() {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
@@ -264,12 +262,10 @@ function renderReelsRandom() {
   }
 }
 
-// Красивая анимация выпадения результата
 function renderFinalBoard(board) {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
   
-  // Создаем колонки
   for (let i = 0; i < 6; i++) {
     const reel = document.createElement('div');
     reel.className = 'reel';
@@ -280,20 +276,17 @@ function renderFinalBoard(board) {
       el.className = 'symbol';
       el.innerHTML = createSymbolHTML(sym);
       
-      // Начальное положение (скрыто сверху)
       el.style.opacity = '0';
       el.style.transform = 'translateY(-40px)'; 
       
-      // Задержка для эффекта каскада (колонки падают по очереди)
-      // i * 0.1s означает, что каждая колонка ждет чуть дольше предыдущей
-      el.style.transition = `opacity 0.4s ease ${i * 0.1}s, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) ${i * 0.1}s`;
+      // Каскадный съезд (задержка 0.05с между колонками для быстроты)
+      el.style.transition = `opacity 0.3s ease ${i * 0.05}s, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1) ${i * 0.05}s`;
       
       reel.appendChild(el);
     }
     wrap.appendChild(reel);
   }
   
-  // Запускаем падение через 50мс (чтобы браузер успел применить начальное состояние)
   setTimeout(() => {
     const allSymbols = wrap.querySelectorAll('.symbol');
     allSymbols.forEach(el => {
@@ -372,17 +365,17 @@ async function spin() {
   const wrap = $('reelsWrap');
   wrap.classList.add('spinning');
   
-  // Анимация вращения (быстрая смена картинок)
+  // Вращение ровно 0.7 секунды (7 тиков по 100мс)
   let ticks = 0;
   const interval = setInterval(() => {
     renderReelsRandom();
     ticks++;
-    if (ticks > 20) { // ~1.6 секунды вращения
+    if (ticks >= 7) {
       clearInterval(interval);
       wrap.classList.remove('spinning');
       finishSpin();
     }
-  }, 80);
+  }, 100);
 }
 
 function finishSpin() {
@@ -411,7 +404,7 @@ function finishSpin() {
     
     isSpinning = false;
     $('btnSpin').disabled = false;
-  }, 1000); // Ждем завершения каскада (0.4 сек анимация + 0.6 сек пауза)
+  }, 800); // Ждем падения (0.3s анимация + 0.5s пауза)
 }
 
 window.onload = () => {
