@@ -9,7 +9,7 @@
 <style>
   :root {
     --bg-main: #090a10; --bg-panel: #151922;
-    --accent: #00e5ff; --accent-green: #00ff88;
+    --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
     --text-main: #fff; --text-muted: #8b92a5;
     --border: rgba(255,255,255,0.1); --red: #ff4d4d;
   }
@@ -27,17 +27,90 @@
   .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   .top-actions { display: flex; align-items: center; gap: 10px; }
   .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
+  .btn-help { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 36px; display: flex; align-items: center; }
 
-  .main-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(circle at center, #121826, #090a10 80%); }
-  .stub-card { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 460px; width: 100%; padding: 40px 30px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-  .stub-icon { font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0,229,255,0.4)); }
-  .stub-card h1 { font-size: 24px; font-weight: 900; margin-bottom: 14px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .stub-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
-  .stub-btn { display: inline-block; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 12px; padding: 14px 28px; font-size: 14px; font-weight: 900; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: 0.3s; }
-  .stub-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,229,255,0.4); }
+  .main-body { display: flex; flex: 1; overflow: hidden; }
+  .sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
+  .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
+  .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
+  .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
+  .quick-bets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
+  .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
+  .mines-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 20px; }
+  .mine-btn { flex: 1; min-width: 32px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
+  .mine-btn.active { border-color: var(--accent); color: #fff; background: rgba(0,229,255,0.1); }
+
+  .btn-start { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; }
+  .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-cashout { width: 100%; background: linear-gradient(135deg, var(--accent-green), #00b85c); color: #000; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 8px; flex-shrink: 0; }
+  .btn-cashout span { font-size: 10px; font-weight: 800; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .btn-cashout strong { font-size: 20px; font-weight: 900; }
+  .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
+
+  .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); }
+  
+  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px 10px; gap: 6px; z-index: 2; position: relative; }
+  
+  .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; }
+  .mult-badge { width: 55px; flex-shrink: 0; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
+  .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+  
+  /* Сетка растягивается, но клетки сохраняют пропорции (aspect-ratio) */
+  .grid-row { display: grid; flex: 1; gap: 4px; }
+  
+  .cell { aspect-ratio: 1; background: #1a1f2b; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: inset 0 0 5px rgba(0,229,255,0.1); }
+  .cell:hover:not(:disabled) { background: rgba(0,229,255,0.15); border-color: var(--accent); transform: scale(1.1); z-index: 2; }
+  .cell.current { background: #1a2c3a; border-color: var(--accent); animation: pulse 1.5s infinite; }
+  .cell.safe { background: rgba(0,255,136,0.15); border-color: var(--accent-green); }
+  .cell.mine { background: rgba(255,77,77,0.15); border-color: var(--red); }
+  .cell.dimmed { opacity: 0.2; background: #111; border-color: rgba(255,255,255,0.05); }
+  .cell:disabled { cursor: default; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); } 70% { box-shadow: 0 0 0 4px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
+
+  .icon { width: 85%; height: 85%; display: flex; align-items: center; justify-content: center; }
+  .icon svg { width: 100%; height: 100%; }
+
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; color: #fff; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: var(--accent-green); }
+  .toast.error { border-left-color: var(--red); }
+
+  .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
+  .howto-backdrop.show { display: flex; }
+  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+  .howto-modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 16px; text-align: center; color: var(--accent); }
+  .howto-modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; line-height: 1.6; }
+  .howto-modal b { color: #fff; }
+  .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .main-body { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 10px; }
+    .sidebar h3 { display: none; }
+    .input-group { margin-bottom: 0; flex: 1; min-width: 120px; }
+    .quick-bets { margin-bottom: 0; flex: 2; min-width: 200px; }
+    .mines-grid { margin-bottom: 0; flex: 2; min-width: 200px; }
+    .btn-start, .btn-cashout { width: auto; min-width: 120px; margin-top: 0; flex: 1; padding: 10px; }
+    
+    .ladder-scroll { padding: 10px 5px; gap: 4px; }
+    .level-row { gap: 6px; max-width: 100%; }
+    .mult-badge { width: 40px; font-size: 10px; height: 22px; }
+    .grid-row { gap: 2px; }
+    .icon { width: 100%; height: 100%; }
+    
+    .toast-container { top: 60px; right: 10px; left: 10px; }
+    .toast { width: 100%; min-width: 0; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
+
+<div class="toast-container" id="toastContainer"></div>
 
 <button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
 <div class="float-menu" id="floatMenu">
@@ -45,6 +118,7 @@
   <a href="/crash.html">Crash</a>
   <a href="/cases.html">Cases</a>
   <a href="/miner.html">Miner</a>
+  <a href="/ladder.html">Ladder</a>
 </div>
 
 <div class="app">
@@ -52,50 +126,326 @@
     <a href="/" class="logo">KINGWIN</a>
     <div class="top-actions">
       <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
+      <button class="btn-help" onclick="openHowTo()">Как играть</button>
     </div>
   </div>
 
   <div class="main-body">
-    <div class="stub-card">
-      <div class="stub-icon">🪜</div>
-      <h1>Ladder временно недоступен</h1>
-      <p>Игра «Лестница» находится на техническом обслуживании.<br>Скоро вернёмся — а пока загляните в другие игры KINGWIN.</p>
-      <a class="stub-btn" href="/">На главную</a>
+    <div class="sidebar">
+      <h3>Сумма ставки</h3>
+      <div class="input-group">
+        <input type="number" id="betAmount" value="25.00" min="10" max="1000" step="1">
+        <span class="currency">₽</span>
+      </div>
+      <div class="quick-bets" id="quickBets">
+        <button onclick="setBet(10)">10</button>
+        <button onclick="setBet(25)" class="active">25</button>
+        <button onclick="setBet(50)">50</button>
+        <button onclick="setBet(100)">100</button>
+      </div>
+      <h3>Количество камней</h3>
+      <div class="mines-grid" id="minesGrid">
+        <button class="mine-btn" onclick="setMines(1)">1</button>
+        <button class="mine-btn" onclick="setMines(2)">2</button>
+        <button class="mine-btn" onclick="setMines(3)">3</button>
+        <button class="mine-btn" onclick="setMines(4)">4</button>
+        <button class="mine-btn" onclick="setMines(5)">5</button>
+        <button class="mine-btn active" onclick="setMines(6)">6</button>
+        <button class="mine-btn" onclick="setMines(7)">7</button>
+      </div>
+      <button class="btn-start" id="btnStart" onclick="startGame()">Играть</button>
+      <button class="btn-cashout" id="btnCashout" onclick="cashout()" style="display:none;">
+        <span>Забрать</span>
+        <strong id="cashoutAmount">0 ₽</strong>
+      </button>
+    </div>
+
+    <div class="game-area">
+      <div class="ladder-scroll" id="ladderScroll"></div>
     </div>
   </div>
 </div>
 
+<div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
+  <div class="howto-modal">
+    <h2>🪜 Как играть в Ladder</h2>
+    <p>Ваша цель — подняться по лестнице как можно выше, забирая растущий множитель.</p>
+    <p>Каждый уровень имеет форму пирамиды: снизу 20 клеток, сверху 8. В начале игры вы выбираете количество сломанных корон (мин).</p>
+    <p>Нажимайте на клетки. Если попали на <b>корону (👑)</b> — поднимаетесь на уровень выше. Если на <b>сломанную корону (💥)</b> — ставка сгорает.</p>
+    <p>В любой момент нажмите <b>«Забрать»</b>, чтобы сохранить текущий выигрыш.</p>
+    <button class="howto-close" onclick="closeHowTo()">Понятно</button>
+  </div>
+</div>
+
 <script>
+const $ = id => document.getElementById(id);
+let currentPlayer = null;
+let balance = 0;
+let sessionId = null;
+let currentStep = 0;
+let maxSteps = 13;
+let minesCount = 6;
+let currentBet = 25;
+let busy = false;
+let stepsData = [];
+
+const MULT_TABLE = {
+  1: [1.05, 1.10, 1.16, 1.22, 1.28, 1.34, 1.41, 1.48, 1.55, 1.63, 1.71, 1.80, 1.89],
+  2: [1.12, 1.25, 1.40, 1.56, 1.75, 1.96, 2.19, 2.45, 2.74, 3.07, 3.43, 3.84, 4.30],
+  3: [1.20, 1.45, 1.74, 2.09, 2.51, 3.01, 3.61, 4.33, 5.20, 6.24, 7.48, 8.98, 10.78],
+  4: [1.30, 1.69, 2.19, 2.85, 3.70, 4.81, 6.25, 8.12, 10.56, 13.72, 17.84, 23.19, 30.15],
+  5: [1.42, 2.01, 2.85, 4.04, 5.73, 8.13, 11.53, 16.36, 23.21, 32.94, 46.74, 66.32, 94.11],
+  6: [1.56, 2.43, 3.78, 5.89, 9.18, 14.31, 22.30, 34.76, 54.20, 84.49, 131.71, 205.31, 320.03],
+  7: [2.32, 9.50, 22.00, 48.00, 105.00, 230.00, 500.00, 1100.00, 2500.00, 5500.00, 12100.00, 26600.00, 58500.00]
+};
+
+const SVG_CROWN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#crownGrad)" stroke="#fff8b0" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="32" cy="12" r="3.5" fill="#00e5ff" stroke="#fff" stroke-width="1"/><circle cx="56" cy="20" r="3" fill="#00e5ff" stroke="#fff" stroke-width="1"/><rect x="8" y="46" width="48" height="4" fill="#b8860b" stroke="#fff8b0" stroke-width="1"/></svg>`;
+
+const SVG_BROKEN = `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="brokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="0.5" stop-color="#ff4d4d"/><stop offset="1" stop-color="#8b0000"/></linearGradient><linearGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0055ff"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#brokenGrad)" stroke="#ff9b9b" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/><path d="M30 30 L34 36 L32 42 L36 48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="26" cy="24" r="2.5" fill="url(#gemGrad)" stroke="#fff" stroke-width="1"/><path d="M20 12 L22 16 M44 10 L46 14 M28 8 L28 12" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+function showToast(text, type='success') {
+  const container = $('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = text;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function applyBalanceFromResponse(d) {
+  if (!d) return;
+  if (typeof d.balance === 'number') balance = d.balance;
+  else if (typeof d.deposit_balance === 'number' || typeof d.bonus_balance === 'number') {
+    balance = (parseFloat(d.deposit_balance) || 0) + (parseFloat(d.bonus_balance) || 0);
+  } else return;
+  $('balanceVal').textContent = balance.toFixed(2);
+}
+
 function loadMe() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const urlId = urlParams.get('id');
-    if (urlId) { localStorage.setItem('kingwin_guest_id', urlId); return { guestId: String(urlId) }; }
+    if (urlId) { localStorage.setItem('kingwin_guest_id', urlId); return { guestId: String(urlId), name: '' }; }
     const raw = localStorage.getItem('kingwin_guest');
-    if (raw) { const g = JSON.parse(raw); if (g && g.id) return { guestId: String(g.id) }; }
+    if (raw) { const g = JSON.parse(raw); if (g && g.id) return { guestId: String(g.id), name: String(g.name || '') }; }
     const savedId = localStorage.getItem('kingwin_guest_id');
-    if (savedId) return { guestId: String(savedId) };
-  } catch(e) {}
+    if (savedId) return { guestId: String(savedId), name: '' };
+  } catch(e) { return null; }
   return null;
 }
 
 async function refreshBalance() {
-  const me = loadMe();
-  if (!me) return;
+  if (!currentPlayer) return;
   try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(me.guestId));
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.guestId));
     if (!r.ok) return;
     const data = await r.json();
-    const total = (data.balance && typeof data.balance.total === 'number')
-      ? data.balance.total
-      : ((parseFloat(data.guest?.deposit_balance) || 0) + (parseFloat(data.guest?.bonus_balance) || 0));
-    document.getElementById('balanceVal').textContent = total.toFixed(2);
+    if (data.balance && typeof data.balance.total === 'number') balance = data.balance.total;
+    else if (data.guest) balance = (parseFloat(data.guest.deposit_balance) || 0) + (parseFloat(data.guest.bonus_balance) || 0);
+    $('balanceVal').textContent = balance.toFixed(2);
   } catch(e) {}
 }
 
-window.onload = () => {
+function setBet(val) {
+  if (sessionId) return;
+  currentBet = val;
+  $('betAmount').value = val.toFixed(2);
+  document.querySelectorAll('#quickBets button').forEach(b => b.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+}
+
+function setMines(val) {
+  if (sessionId) return;
+  minesCount = val;
+  document.querySelectorAll('#minesGrid button').forEach(b => b.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  if (!sessionId) renderBoard();
+}
+
+function renderBoard(revealCurrentMines = false) {
+  const scroll = $('ladderScroll');
+  scroll.innerHTML = '';
+  const multArr = MULT_TABLE[minesCount];
+  
+  for (let i = maxSteps - 1; i >= 0; i--) {
+    const row = document.createElement('div');
+    row.className = 'level-row';
+    const mBadge = document.createElement('div');
+    mBadge.className = 'mult-badge' + (i === currentStep ? ' active' : '');
+    mBadge.textContent = 'x' + multArr[i].toFixed(2);
+    row.appendChild(mBadge);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid-row';
+    const cellsCount = 20 - i; // 20, 19, 18... 8
+    
+    // Устанавливаем количество колонок для сетки
+    grid.style.gridTemplateColumns = `repeat(${cellsCount}, 1fr)`;
+
+    for (let c = 0; c < cellsCount; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const isPassed = (i < currentStep);
+      const isCurrent = (i === currentStep);
+      if (isPassed || (isCurrent && revealCurrentMines)) {
+        if (stepsData[i] && stepsData[i].safe.includes(c)) {
+          cell.classList.add('safe');
+          cell.innerHTML = `<div class="icon">${SVG_CROWN}</div>`;
+        } else if (stepsData[i] && stepsData[i].mines.includes(c)) {
+          cell.classList.add('mine');
+          cell.innerHTML = `<div class="icon">${SVG_BROKEN}</div>`;
+        } else {
+          cell.classList.add('dimmed');
+        }
+      } else if (isCurrent && !revealCurrentMines) {
+        cell.classList.add('current');
+        cell.onclick = () => clickCell(i, c);
+      } else {
+        cell.classList.add('dimmed');
+      }
+      grid.appendChild(cell);
+    }
+    row.appendChild(grid);
+    scroll.appendChild(row);
+  }
+  setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 50);
+}
+
+async function startGame() {
+  if (busy || sessionId) return;
+  if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  currentBet = parseFloat($('betAmount').value) || 0;
+  if (currentBet < 10) { showToast('Мин. ставка 10 ₽', 'error'); return; }
+  await refreshBalance();
+  if (balance < currentBet) { showToast(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`, 'error'); return; }
+  busy = true;
+  $('btnStart').disabled = true;
+  try {
+    const r = await fetch('/api/ladder/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, mines: minesCount })
+    });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; $('btnStart').disabled = false; return; }
+    sessionId = d.session_id;
+    
+    // Сохраняем данные от сервера (клетки и мины)
+    stepsData = d.ladder.map(level => {
+      const safe = [];
+      for (let i = 0; i < level.cellsCount; i++) {
+        if (!level.mines.includes(i)) safe.push(i);
+      }
+      return { cellsCount: level.cellsCount, mines: level.mines, safe };
+    });
+    
+    currentStep = 0;
+    $('btnStart').style.display = 'none';
+    $('btnCashout').style.display = 'flex';
+    $('btnCashout').disabled = true;
+    $('cashoutAmount').textContent = '0 ₽';
+    renderBoard();
+    applyBalanceFromResponse(d);
+    await refreshBalance();
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+  }
+  busy = false;
+}
+
+async function clickCell(stepIdx, cellIdx) {
+  if (busy || !sessionId || stepIdx !== currentStep) return;
+  busy = true;
+  try {
+    const r = await fetch('/api/ladder/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId, cell: cellIdx })
+    });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; return; }
+    applyBalanceFromResponse(d);
+    if (d.result === 'safe') {
+      currentStep = d.next_step;
+      renderBoard();
+      $('btnCashout').disabled = false;
+      const multArr = MULT_TABLE[minesCount];
+      const nextWin = currentBet * multArr[currentStep - 1];
+      $('cashoutAmount').textContent = nextWin.toFixed(2) + ' ₽';
+    } else if (d.result === 'lose') {
+      // Открываем все бомбы на текущем уровне (сервер их возвращает в correct_cells)
+      if (Array.isArray(d.correct_cells)) {
+        const curLevel = stepsData[stepIdx];
+        if (curLevel) {
+          const merged = new Set([...(curLevel.mines || []), ...d.correct_cells]);
+          curLevel.mines = [...merged];
+          curLevel.safe = [];
+          for (let i = 0; i < curLevel.cellsCount; i++) {
+            if (!curLevel.mines.includes(i)) curLevel.safe.push(i);
+          }
+        }
+      }
+      renderBoard(true);
+      setTimeout(() => {
+        showToast('Вы попали на сломанную корону! Ставка сгорела.', 'error');
+        resetGame();
+      }, 1200);
+    } else if (d.result === 'win') {
+      showToast(`Победа! Вы забрали ${d.win.toFixed(2)} ₽`, 'success');
+      resetGame();
+    }
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+  }
+  busy = false;
+}
+
+async function cashout() {
+  if (busy || !sessionId || currentStep === 0) return;
+  busy = true;
+  $('btnCashout').disabled = true;
+  try {
+    const r = await fetch('/api/ladder/cashout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, session_id: sessionId })
+    });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); busy = false; return; }
+    applyBalanceFromResponse(d);
+    showToast(`Вы забрали ${d.win.toFixed(2)} ₽!`, 'success');
+    resetGame();
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+  }
+  busy = false;
+}
+
+function resetGame() {
+  sessionId = null;
+  currentStep = 0;
+  stepsData = [];
+  $('btnStart').style.display = 'block';
+  $('btnStart').disabled = false;
+  $('btnCashout').style.display = 'none';
+  renderBoard();
   refreshBalance();
-  setInterval(refreshBalance, 5000);
+}
+
+function openHowTo() { $('howtoModal').classList.add('show'); }
+function closeHowTo() { $('howtoModal').classList.remove('show'); }
+
+window.onload = () => {
+  currentPlayer = loadMe();
+  if (currentPlayer) {
+    refreshBalance();
+    setInterval(refreshBalance, 3000);
+    renderBoard();
+  } else {
+    showToast('Войдите в аккаунт на главной странице', 'error');
+    setTimeout(() => { window.location.href = '/'; }, 1500);
+  }
 };
 </script>
 </body>
