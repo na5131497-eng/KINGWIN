@@ -74,7 +74,8 @@
   .symbol { 
     width: 100%; height: 20%; padding: 2px; box-sizing: border-box;
     position: absolute; top: 0; left: 0;
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Замедляем анимацию до 0.7с */
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   
   .symbol-inner {
@@ -88,18 +89,8 @@
   
   .symbol-inner img { width: 85%; height: 85%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
   
-  /* Стили для надписей */
-  .sym-wild-text { 
-    position: absolute; bottom: 4px; width: 100%; text-align: center; 
-    font-weight: 900; font-size: 10px; color: #fff; 
-    text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; 
-  }
-  .sym-scatter-text { 
-    position: absolute; bottom: 4px; width: 100%; text-align: center; 
-    font-weight: 900; font-size: 10px; color: #ff4d4d; 
-    text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d; pointer-events: none; 
-    letter-spacing: 1px;
-  }
+  .sym-wild-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #fff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; }
+  .sym-scatter-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d; pointer-events: none; letter-spacing: 1px; }
 
   .symbol-inner.win-highlight {
     box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.9), 0 0 15px rgba(255, 215, 0, 0.8);
@@ -286,18 +277,10 @@ function getRandomSymbol() {
   return SYMBOLS['10'];
 }
 
-// ФУНКЦИЯ ОТРИСОВКИ СИМВОЛА (С ДОБАВЛЕННЫМ SCATTER)
 function createSymbolHTML(sym) {
   let html = `<img src="${sym.img}" alt="${sym.id}">`;
-  
-  if (sym.id === 'wild') {
-    html += `<div class="sym-wild-text">WILD</div>`;
-  }
-  
-  if (sym.id === 'scatter') {
-    html += `<div class="sym-scatter-text">SCATTER</div>`;
-  }
-  
+  if (sym.id === 'wild') html += `<div class="sym-wild-text">WILD</div>`;
+  if (sym.id === 'scatter') html += `<div class="sym-scatter-text">SCATTER</div>`;
   return html;
 }
 
@@ -461,7 +444,7 @@ async function processCascades(board, totalWinSoFar = 0) {
       }
     }
     
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 800)); // Увеличили до 0.8с (0.7 падение + пауза)
     await processCascades(newBoard, totalWinSoFar);
     
   } else {
@@ -509,24 +492,29 @@ async function spin() {
     wrap.appendChild(reel);
   }
   
-  await new Promise(r => setTimeout(r, 100));
+  // Даем 200 мс, чтобы пустые барабаны показались
+  await new Promise(r => setTimeout(r, 200));
   
   for (let i = 0; i < 6; i++) {
     const reel = document.getElementById(`reel-${i}`);
     for (let j = 0; j < 5; j++) {
       const el = document.createElement('div');
       el.className = 'symbol';
+      // Все начинают падать сверху
       el.style.transform = `translateY(${(j - 5) * 100}%)`;
       el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[i][j])}</div>`;
       reel.appendChild(el);
       
+      // Задержка вылета для каждой колонки и каждого ряда
+      const delay = 50 + (i * 100) + (j * 50);
       setTimeout(() => {
         el.style.transform = `translateY(${j * 100}%)`;
-      }, 20 + j * 30);
+      }, delay);
     }
   }
   
-  await new Promise(r => setTimeout(r, 700));
+  // Ждем завершения анимации: 0.7с + макс задержка (i=5, j=4 => 50 + 500 + 200 = 750)
+  await new Promise(r => setTimeout(r, 1800));
   await processCascades(board, 0);
 }
 
