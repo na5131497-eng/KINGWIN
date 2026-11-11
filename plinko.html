@@ -2,82 +2,526 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎯 PLINKO — KINGWIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<title>KINGWIN — Plinko</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: radial-gradient(circle at top center, #1a1c29 0%, #090a10 60%); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  
-  /* ТОПБАР */
-  .topbar { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(9,10,16,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
-  .back-btn { padding: 8px 16px; border-radius: 10px; background: #181a24; border: 1px solid rgba(255,255,255,0.06); color: #8b92a5; text-decoration: none; font-size: 13px; font-weight: 700; transition: 0.3s; }
-  .back-btn:hover { border-color: #00e5ff; color: #00e5ff; }
-  .balance-badge { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #181a24; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; font-size: 14px; font-weight: 700; }
-  .balance-badge .lbl { font-size: 10px; color: #8b92a5; text-transform: uppercase; }
-  .balance-badge .num { color: #00ff88; }
+  :root {
+    --bg-main: #090a10; --bg-panel: #151922;
+    --accent: #00e5ff; --accent-green: #00ff88; --gold: #f1c40f;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.1); --red: #ff4d4d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg-main); color: var(--text-main); }
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
 
-  /* КОНТЕНТ */
-  .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; position: relative; }
-  
-  /* ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ */
-  .glow { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); z-index: 0; }
-  
-  .icon-wrap { position: relative; z-index: 1; margin-bottom: 20px; }
-  .icon { font-size: 80px; filter: drop-shadow(0 0 20px rgba(0,229,255,0.6)); animation: float 3s ease-in-out infinite; }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  .float-menu-btn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: #181a24; border: 1px solid var(--accent); color: var(--accent); width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; }
+  .float-menu { position: fixed; top: 15px; left: 70px; z-index: 999; background: rgba(17,18,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform: translateX(-20px); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .float-menu.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
+  .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
 
-  h1 { font-size: 38px; font-weight: 900; letter-spacing: 4px; margin-bottom: 10px; z-index: 1; background: linear-gradient(135deg, #fff, #8b92a5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  p { font-size: 16px; color: #8b92a5; max-width: 500px; line-height: 1.6; margin-bottom: 30px; z-index: 1; font-weight: 500; }
+  .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; flex-shrink: 0; z-index: 100; }
+  .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+  .top-actions { display: flex; align-items: center; gap: 10px; }
+  .balance-pill { background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); color: var(--accent-green); padding: 8px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
+
+  .main-body { display: flex; flex: 1; overflow: hidden; }
+  .sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; z-index: 10; overflow-y: auto; }
+  .sidebar h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; margin-top: 5px; }
+  .input-group { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .input-group input { flex: 1; background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 900; outline: none; font-family: inherit; min-width: 0; }
+  .input-group .currency { color: var(--text-muted); font-size: 14px; font-weight: 700; }
   
-  .badge { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: #00e5ff; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; z-index: 1; box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+  .quick-bets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .quick-bets button { flex: 1; min-width: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; }
+  .quick-bets button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.1); }
+
+  .risk-grid { display: flex; gap: 6px; margin-bottom: 20px; }
+  .risk-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 0; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+  .risk-btn.active[data-risk="low"] { border-color: #3fbf7f; color: #3fbf7f; background: rgba(63,191,127,0.1); }
+  .risk-btn.active[data-risk="medium"] { border-color: #f1c40f; color: #f1c40f; background: rgba(241,196,15,0.1); }
+  .risk-btn.active[data-risk="high"] { border-color: #ff4d4d; color: #ff4d4d; background: rgba(255,77,77,0.1); }
+
+  .btn-play { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 16px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
+  .btn-play:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0,229,255,0.5); transform: translateY(-2px); }
+  .btn-play:disabled { opacity: 0.5; cursor: not-allowed; background: #333; color: #888; box-shadow: none; }
+
+  .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); padding: 20px; }
   
-  .btn { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; padding: 16px 40px; border-radius: 12px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; text-decoration: none; transition: 0.3s; box-shadow: 0 0 25px rgba(0,229,255,0.4); z-index: 1; text-transform: uppercase; letter-spacing: 1px; }
-  .btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 40px rgba(0,229,255,0.7); }
+  .canvas-wrap { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; color: #fff; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: var(--accent-green); }
+  .toast.error { border-left-color: var(--red); }
+
+  @media (max-width: 900px) {
+    .main-body { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 8px; }
+    .sidebar h3 { display: none; }
+    .input-group { margin-bottom: 0; flex: 1; min-width: 110px; }
+    .quick-bets { margin-bottom: 0; flex: 2; min-width: 180px; }
+    .risk-grid { margin-bottom: 0; flex: 1; min-width: 150px; }
+    .btn-play { width: auto; min-width: 110px; margin-top: 0; flex: 1; padding: 12px; font-size: 14px; }
+    .game-area { padding: 10px; }
+    .toast-container { top: 60px; right: 10px; left: 10px; }
+    .toast { width: 100%; min-width: 0; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="/" class="logo">KINGWIN</a>
-  <a href="/" class="back-btn">← На главную</a>
-  <div class="balance-badge">
-    <span class="lbl">Баланс</span>
-    <span class="num"><span id="bal">0</span> ₽</span>
-  </div>
+<div class="toast-container" id="toastContainer"></div>
+
+<button class="float-menu-btn" onclick="document.getElementById('floatMenu').classList.toggle('show')">☰</button>
+<div class="float-menu" id="floatMenu">
+  <a href="/">Главная</a>
+  <a href="/crash.html">Crash</a>
+  <a href="/cases.html">Cases</a>
+  <a href="/miner.html">Miner</a>
+  <a href="/ladder.html">Ladder</a>
 </div>
 
-<div class="content">
-  <div class="glow"></div>
-  
-  <div class="icon-wrap">
-    <div class="icon">🎯</div>
+<div class="app">
+  <div class="topbar">
+    <a href="/" class="logo">KINGWIN</a>
+    <div class="top-actions">
+      <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
+    </div>
   </div>
-  
-  <div class="badge">Скоро в эфире</div>
-  
-  <h1>PLINKO</h1>
-  <p>Мы уже настраиваем физику падения шариков и multipliers. Самая залипательная игра вернется на эту страницу совсем скоро!</p>
-  
-  <a href="/" class="btn">Вернуться на главную</a>
+
+  <div class="main-body">
+    <div class="sidebar">
+      <h3>Сумма ставки</h3>
+      <div class="input-group">
+        <input type="number" id="betAmount" value="10.00" min="1" step="1">
+        <span class="currency">₽</span>
+      </div>
+      <div class="quick-bets" id="quickBets">
+        <button onclick="setBet(10)" class="active">10</button>
+        <button onclick="setBet(25)">25</button>
+        <button onclick="setBet(50)">50</button>
+        <button onclick="setBet(100)">100</button>
+      </div>
+      
+      <h3>Уровень риска</h3>
+      <div class="risk-grid" id="riskGrid">
+        <button class="risk-btn active" data-risk="low" onclick="setRisk('low')">Низкий</button>
+        <button class="risk-btn" data-risk="medium" onclick="setRisk('medium')">Средний</button>
+        <button class="risk-btn" data-risk="high" onclick="setRisk('high')">Высокий</button>
+      </div>
+
+      <button class="btn-play" id="btnPlay" onclick="dropBall()">Играть</button>
+    </div>
+
+    <div class="game-area">
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-  async function loadBalance() {
-    const playerId = localStorage.getItem('kingwin_player_id');
-    if(!playerId) return;
-    try {
-      const r = await fetch('/api/guest/me?id=' + encodeURIComponent(playerId));
-      const d = await r.json();
-      if(r.ok && d.guest) {
-        const total = (parseFloat(d.guest.bonus_balance) || 0) + (parseFloat(d.guest.deposit_balance) || 0);
-        document.getElementById('bal').textContent = total.toFixed(2);
-      }
-    } catch(e) {}
+const $ = id => document.getElementById(id);
+let currentPlayer = null;
+let balance = 0;
+let busy = false;
+let currentBet = 10;
+let currentRisk = 'low';
+
+// Множители Plinko для 12 рядов (13 ячеек)
+const MULTIPLIERS = {
+  low:    [8.1, 3.0, 1.3, 0.7, 0.4, 0.2, 0.2, 0.2, 0.4, 0.7, 1.3, 3.0, 8.1],
+  medium: [24.0, 8.0, 3.0, 1.5, 0.7, 0.2, 0.2, 0.2, 0.7, 1.5, 3.0, 8.0, 24.0],
+  high:   [100.0, 30.0, 10.0, 3.0, 0.9, 0.2, 0.2, 0.2, 0.9, 3.0, 10.0, 30.0, 100.0]
+};
+
+const canvas = $('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, pegs = [], slots = [], cellW = 0, cellH = 0;
+const ROWS = 12;
+
+function resizeCanvas() {
+  const p = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  W = p.clientWidth;
+  H = p.clientHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  buildBoard();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function buildBoard() {
+  const padTop = 60;
+  const padBottom = 60;
+  const boardWidth = Math.min(W - 40, 700); // Ограничиваем макс ширину для ПК
+  const boardHeight = H - padTop - padBottom;
+  
+  const startX = (W - boardWidth) / 2;
+  const startY = padTop;
+  
+  const rowGap = boardHeight / ROWS;
+  pegs = [];
+  
+  // Генерация колышков (пирамида)
+  for (let r = 0; r < ROWS; r++) {
+    const count = r + 3; // 3 колышка в верхнем ряду, 14 в нижнем
+    const rowWidth = (count - 1) * (boardWidth / (ROWS + 2));
+    const rowStartX = W / 2 - rowWidth / 2;
+    
+    for (let c = 0; c < count; c++) {
+      pegs.push({
+        x: rowStartX + c * (boardWidth / (ROWS + 2)),
+        y: startY + r * rowGap,
+        r: 0,
+        row: r,
+        col: c
+      });
+    }
   }
-  loadBalance();
-  setInterval(loadBalance, 5000);
+  
+  // Генерация ячеек (слотов)
+  slots = [];
+  cellW = boardWidth / 13;
+  cellH = padBottom - 10;
+  
+  const bottomY = startY + ROWS * rowGap + 20;
+  const slotStartX = (W - boardWidth) / 2;
+  
+  for (let i = 0; i < 13; i++) {
+    slots.push({
+      x: slotStartX + i * cellW,
+      y: bottomY,
+      w: cellW - 4,
+      h: cellH,
+      index: i
+    });
+  }
+}
+
+function getSlotColor(mult, risk) {
+  if (risk === 'low') {
+    if (mult >= 3.0) return { bg: 'rgba(241,196,15,0.8)', text: '#000' }; // Золото
+    if (mult >= 1.0) return { bg: 'rgba(63,191,127,0.6)', text: '#fff' }; // Зелёный
+    return { bg: 'rgba(255,255,255,0.05)', text: '#8b92a5' }; // Серый
+  } else if (risk === 'medium') {
+    if (mult >= 8.0) return { bg: 'rgba(255,77,77,0.8)', text: '#fff' }; // Красный
+    if (mult >= 2.0) return { bg: 'rgba(241,196,15,0.8)', text: '#000' }; // Золото
+    return { bg: 'rgba(255,255,255,0.05)', text: '#8b92a5' };
+  } else {
+    if (mult >= 30.0) return { bg: 'rgba(168,85,247,0.8)', text: '#fff' }; // Фиолетовый
+    if (mult >= 5.0) return { bg: 'rgba(255,77,77,0.8)', text: '#fff' }; // Красный
+    return { bg: 'rgba(255,255,255,0.05)', text: '#8b92a5' };
+  }
+}
+
+function drawBoard() {
+  ctx.clearRect(0, 0, W, H);
+  
+  // Рисуем линии (сетку) от колышков к колышкам (опционально, для красоты)
+  // ctx.strokeStyle = 'rgba(0,229,255,0.05)';
+  // ...
+
+  // Рисуем колышки
+  pegs.forEach(peg => {
+    ctx.beginPath();
+    ctx.fillStyle = '#2a3441';
+    ctx.arc(peg.x, peg.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Блик
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.arc(peg.x - 1, peg.y - 1, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  
+  // Рисуем ячейки
+  const mults = MULTIPLIERS[currentRisk];
+  slots.forEach(slot => {
+    const mult = mults[slot.index];
+    const color = getSlotColor(mult, currentRisk);
+    
+    ctx.beginPath();
+    ctx.roundRect(slot.x, slot.y, slot.w, slot.h, [4, 4, 8, 8]);
+    ctx.fillStyle = color.bg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Текст множителя
+    ctx.fillStyle = color.text;
+    ctx.font = 'bold 11px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('x' + mult, slot.x + slot.w / 2, slot.y + slot.h / 2);
+  });
+  
+  // Рисуем шарики
+  balls.forEach(ball => {
+    ctx.beginPath();
+    ctx.fillStyle = '#00e5ff';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = 'rgba(0,229,255,0.8)';
+    ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    // Блик на шарике
+    ctx.beginPath();
+    ctx.fillStyle = '#fff';
+    ctx.arc(ball.x - 2, ball.y - 2, 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Анимация шариков
+let balls = [];
+let animFrame;
+
+function animate() {
+  drawBoard();
+  
+  for (let i = balls.length - 1; i >= 0; i--) {
+    const b = balls[i];
+    
+    if (b.state === 'falling') {
+      // Плавное падение вниз по y
+      b.y += b.speedY;
+      
+      // Плавное движение по x (к целевой x)
+      b.x += (b.targetX - b.x) * 0.15;
+      
+      // Достигли ли следующего ряда?
+      if (b.y >= b.nextPegY) {
+        b.y = b.nextPegY;
+        b.step++;
+        
+        if (b.step < b.path.length) {
+          // Вычисляем следующую цель
+          const nextPeg = getNextPegCoord(b.path, b.step);
+          b.targetX = nextPeg.x;
+          b.nextPegY = nextPeg.y;
+          
+          // Небольшая случайная задержка для реализма (хотя сервер уже решил)
+        } else {
+          // Долетел до конца — падает в слот
+          const slotX = slots[b.finalSlot].x + slots[b.finalSlot].w / 2;
+          b.targetX = slotX;
+          b.state = 'landing';
+          b.landY = slots[b.finalSlot].y;
+        }
+      }
+      
+    } else if (b.state === 'landing') {
+      b.y += b.speedY * 1.5;
+      b.x += (b.targetX - b.x) * 0.2;
+      
+      if (b.y >= b.landY) {
+        b.state = 'done';
+        
+        // Подсветка слота
+        highlightSlot(b.finalSlot);
+        
+        // Показываем результат
+        const win = currentBet * MULTIPLIERS[currentRisk][b.finalSlot];
+        showToast(`Выигрыш: x${MULTIPLIERS[currentRisk][b.finalSlot]} = ${win.toFixed(2)} ₽`, win > 0 ? 'success' : 'error');
+        
+        // Удаляем шарик через секунду
+        setTimeout(() => { 
+          balls = balls.filter(x => x.id !== b.id); 
+          busy = false; 
+          $('btnPlay').disabled = false;
+        }, 800);
+      }
+    }
+  }
+  
+  animFrame = requestAnimationFrame(animate);
+}
+
+// Вспомогательная функция для получения координат колышка по пути
+function getNextPegCoord(path, step) {
+  // path - массив 0 (влево) и 1 (вправо)
+  // Считаем позицию колышка для шага step
+  let pos = 0; // индекс от центра
+  let currentRow = step - 1;
+  
+  for (let i = 0; i < step - 1; i++) {
+    pos += (path[i] === 1 ? 1 : 0); 
+  }
+  
+  // Находим колышек в ряду currentRow
+  const rowPegs = pegs.filter(p => p.row === currentRow);
+  // pos может быть от 0 до currentRow+2 (в начале 3 колышка)
+  // Нам нужно сместить относительно центра
+  const centerOffset = Math.floor(rowPegs.length / 2);
+  
+  // Приводим к координатам (немного упрощённо)
+  let targetPeg;
+  if (step < ROWS) {
+    const count = step + 2;
+    const rowWidth = (count - 1) * (W - 40 > 700 ? 700/(ROWS+2) : (W-40)/(ROWS+2));
+    // Проще: высчитываем x по формуле
+    const boardWidth = Math.min(W - 40, 700);
+    const pegGap = boardWidth / (ROWS + 2);
+    const rowStartX = W/2 - ((count-1) * pegGap)/2;
+    
+    // Смещение влево/вправо от центра
+    let offset = 0;
+    for (let i = 0; i < step; i++) {
+      offset += (path[i] === 1 ? 1 : -1);
+    }
+    
+    // Позиция колышка для следующего шага
+    const targetCol = offset + Math.floor(count/2);
+    const clampedCol = Math.max(0, Math.min(count-1, targetCol));
+    
+    return {
+      x: rowStartX + clampedCol * pegGap,
+      y: 60 + (step-1) * ((H - 120) / ROWS)
+    };
+  }
+  
+  return { x: W/2, y: H - 60 };
+}
+
+function highlightSlot(idx) {
+  // Временная подсветка слота
+  const slot = slots[idx];
+  ctx.beginPath();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.roundRect(slot.x, slot.y, slot.w, slot.h, [4, 4, 8, 8]);
+  ctx.fill();
+}
+
+function showToast(text, type='success') {
+  const container = $('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = text;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function loadMe() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlId = urlParams.get('id');
+    if (urlId) { localStorage.setItem('kingwin_guest_id', urlId); return { guestId: String(urlId) }; }
+    const savedId = localStorage.getItem('kingwin_guest_id');
+    if (savedId) return { guestId: String(savedId) };
+  } catch(e) {}
+  return null;
+}
+
+async function refreshBalance() {
+  if (!currentPlayer) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.guestId));
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.balance && typeof data.balance.total === 'number') balance = data.balance.total;
+    else if (data.guest) balance = (parseFloat(data.guest.deposit_balance) || 0) + (parseFloat(data.guest.bonus_balance) || 0);
+    $('balanceVal').textContent = balance.toFixed(2);
+  } catch(e) {}
+}
+
+function setBet(v) {
+  if (busy) return;
+  currentBet = v;
+  $('betAmount').value = v.toFixed(2);
+  document.querySelectorAll('#quickBets button').forEach(b => b.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+}
+
+function setRisk(r) {
+  if (busy) return;
+  currentRisk = r;
+  document.querySelectorAll('#riskGrid button').forEach(b => b.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  drawBoard();
+}
+
+async function dropBall() {
+  if (busy) return;
+  if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  currentBet = parseFloat($('betAmount').value) || 0;
+  if (currentBet < 1) { showToast('Мин. ставка 1 ₽', 'error'); return; }
+  
+  await refreshBalance();
+  if (balance < currentBet) { showToast(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`, 'error'); return; }
+
+  busy = true;
+  $('btnPlay').disabled = true;
+
+  try {
+    const r = await fetch('/api/plinko/drop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: currentBet, risk: currentRisk })
+    });
+    const d = await r.json();
+    
+    if (!r.ok) {
+      showToast(d.error || 'Ошибка', 'error');
+      busy = false;
+      $('btnPlay').disabled = false;
+      return;
+    }
+    
+    // d.path - массив из 0 и 1 (влево/вправо)
+    // d.slot - индекс ячейки (0-12)
+    // d.mult - множитель
+    
+    const ball = {
+      id: Date.now(),
+      x: W / 2,
+      y: 40, // над верхним колышком
+      targetX: W / 2,
+      nextPegY: 60 + (H - 120) / ROWS,
+      speedY: 4,
+      path: d.path,
+      step: 0,
+      state: 'falling',
+      finalSlot: d.slot
+    };
+    
+    balls.push(ball);
+    refreshBalance();
+  } catch(e) {
+    showToast('Ошибка соединения', 'error');
+    busy = false;
+    $('btnPlay').disabled = false;
+  }
+}
+
+window.onload = () => {
+  currentPlayer = loadMe();
+  if (currentPlayer) {
+    refreshBalance();
+    setInterval(refreshBalance, 3000);
+  } else {
+    showToast('Войдите в аккаунт на главной странице', 'error');
+    setTimeout(() => { window.location.href = '/'; }, 1500);
+  }
+  
+  resizeCanvas();
+  animate();
+};
 </script>
 </body>
 </html>
