@@ -177,7 +177,7 @@
     Наши игры
   </div>
 
-  <div class="games-grid">
+  <div class="games-grid" style="margin-bottom: 40px;">
     <a href="/crash.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash"></div>
       <div class="game-info"><div class="game-title">Crash</div><div class="game-sub">Успей забрать</div></div>
@@ -198,12 +198,27 @@
       <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Испытай удачу</div></div>
     </a>
 
-    <!-- ОБНОВЛЕННЫЙ БЛОК ПЛИНКО -->
     <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/plinko_card.webp" alt="Plinko" onerror="this.src='/plinko_card.jpg'"></div>
       <div class="game-info"><div class="game-title">Plinko</div><div class="game-sub">Лови шарик</div></div>
     </a>
   </div>
+
+  <!-- ================= НАШИ СЛОТЫ ================= -->
+  <div class="section-title">
+    <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5S17.17 9 18 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+    Наши слоты
+  </div>
+  
+  <div class="games-grid">
+    <!-- ПРИМЕР СЛОТА. Скопируй этот блок и поменяй ссылку и картинку, чтобы добавить новый -->
+    <a href="/slots.html" class="game-card" onclick="return requireLogin(event)">
+      <div class="game-img-wrap"><img src="/slot_1.jpg" alt="Slot 1" onerror="this.src='https://via.placeholder.com/300x400/1a1f2b/00e5ff?text=SLOT+1'"></div>
+      <div class="game-info"><div class="game-title">Название слота</div><div class="game-sub">Скоро</div></div>
+    </a>
+  </div>
+  <!-- ============================================== -->
+
 </div>
 
 <!-- МОДАЛКА ВХОДА -->
