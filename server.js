@@ -134,12 +134,12 @@ const LADDER_MULTS = {
   7: [1.47, 2.32, 3.69, 5.96, 9.85, 16.78, 29.62, 54.58, 105.62, 216.05, 471.43, 1102.24, 2783.50]
 };
 
-// ===== PLINKO CONFIG =====
+// ===== PLINKO CONFIG (RTP 80%) =====
 const PLINKO_ROWS = 8;
 const PLINKO_MULTIPLIERS = {
-  low:    [5.3, 2.2, 1.1, 0.9, 0.5, 0.9, 1.1, 2.2, 5.3],
-  medium: [13, 3.1, 1.3, 0.6, 0.4, 0.6, 1.3, 3.1, 13],
-  high:   [24, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 24]
+  low:    [2.4, 1.5, 1.1, 0.9, 0.6, 0.9, 1.1, 1.5, 2.4],
+  medium: [7.0, 2.2, 1.0, 0.5, 0.25, 0.5, 1.0, 2.2, 7.0],
+  high:   [15.0, 3.5, 0.8, 0.25, 0.1, 0.25, 0.8, 3.5, 15.0]
 };
 
 async function debitBet(guestId, amount) {
@@ -225,6 +225,87 @@ async function getCasinoStats(period = 'all') {
   } catch (e) { return { income: 0, expense: 0, profit: 0, turnover: 0 }; }
 }
 
+// ===== ОБЩАЯ КАЗНА: жёсткий потолок RTP 80% (игроки 80 / казино 20) =====
+// Казна = таблица online (реальные игровые обороты без бонусов/админских).
+// Каждая игра спрашивает: сколько сейчас можно отдать, чтобы не превысить 80% от оборота.
+// Ответ ВСЕГДА в диапазоне 0.60..0.80. Никогда выше 0.80.
+let HOUSE_CACHE = { rtp: 0.80, ts: 0, treasury: 0, actualRTP: 0, mode: 'base' };
+const HOUSE_CACHE_MS = 4000;
+const HOUSE_RTP_CAP = 0.80;
+const HOUSE_RTP_FLOOR = 0.60;
+const HOUSE_TARGET = 0.80;
+
+async function getTreasury() {
+  try {
+    const r = await pool.query(`
+      SELECT
+        COALESCE(SUM(CASE WHEN type = 'доход' THEN sum ELSE 0 END), 0)::numeric AS income,
+        COALESCE(SUM(CASE WHEN type = 'расход' THEN sum ELSE 0 END), 0)::numeric AS expense
+      FROM online
+      WHERE note NOT ILIKE '%бонус%' AND note NOT ILIKE '%bonus%'
+        AND note NOT ILIKE '%ранг%' AND note NOT ILIKE '%rank%'
+        AND note NOT ILIKE '%daily%' AND note NOT ILIKE '%подарок%'
+        AND note NOT ILIKE '%gift%' AND note NOT ILIKE '%admin%'
+        AND note NOT ILIKE '%refuse%' AND note NOT ILIKE '%cancel%'
+        AND note NOT ILIKE '%withdraw request%' AND note NOT ILIKE '%withdraw reject%'
+    `);
+    const income = parseFloat(r.rows[0].income) || 0;
+    const expense = parseFloat(r.rows[0].expense) || 0;
+    return { income, expense, treasury: income - expense, turnover: income + expense };
+  } catch(e) {
+    return { income: 0, expense: 0, treasury: 0, turnover: 0 };
+  }
+}
+
+async function getHouseRTP() {
+  const now = Date.now();
+  if (now - HOUSE_CACHE.ts < HOUSE_CACHE_MS && HOUSE_CACHE.rtp) return HOUSE_CACHE;
+
+  const t = await getTreasury();
+  const today = await getCasinoStats('today');
+
+  const turnover = today.turnover || 0;
+  const paidOut = today.expense || 0;
+  const actualRTP = turnover > 0 ? paidOut / turnover : HOUSE_TARGET;
+
+  let rtp = HOUSE_TARGET;
+  let mode = 'base';
+
+  if (turnover >= 100) {
+    const overpay = actualRTP - HOUSE_TARGET;
+    if (overpay > 0) {
+      // Переплатили — жёстко режем пропорционально перерасходу
+      rtp = HOUSE_TARGET - Math.min(0.20, overpay * 2.5);
+      mode = 'drain';
+    } else if (overpay < -0.10) {
+      // Недоплатили сильно — можно чуть догнать, но не выше 80%
+      rtp = HOUSE_TARGET - Math.min(0.05, Math.abs(overpay) * 0.3);
+      mode = 'catchup';
+    } else {
+      rtp = HOUSE_TARGET;
+      mode = 'base';
+    }
+  }
+
+  if (t.treasury < -5000) {
+    rtp -= Math.min(0.10, Math.abs(t.treasury) / 50000);
+    mode = 'drain';
+  }
+
+  rtp *= 0.985 + Math.random() * 0.03;
+
+  // ЖЁСТКИЙ КЛАМП: никогда выше 80%
+  rtp = Math.max(HOUSE_RTP_FLOOR, Math.min(HOUSE_RTP_CAP, rtp));
+
+  HOUSE_CACHE = { rtp, ts: now, treasury: t.treasury, actualRTP, mode };
+  return HOUSE_CACHE;
+}
+
+async function getHousePayoutFactor() {
+  const h = await getHouseRTP();
+  return { factor: h.rtp / 0.80, rtp: h.rtp, treasury: h.treasury, actualRTP: h.actualRTP, mode: h.mode };
+}
+
 async function getPlayerTodayProfit(guestId) {
   try {
     const g = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
@@ -235,36 +316,27 @@ async function getPlayerTodayProfit(guestId) {
     const bac = await pool.query(`SELECT COALESCE(SUM(sum), 0)::numeric AS s FROM baccarat WHERE LOWER(player)=LOWER($1) AND date=$2`, [name, today]);
     const miner = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='miner' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     const cases = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='cases' AND player_name=$1 AND created_at::date = $2::date`, [name, today]);
+    const plinko = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='plinko' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
+    const ladder = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='ladder' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     return (
       (parseFloat(bj.rows[0].p) || 0) + (parseFloat(bac.rows[0].s) || 0) +
-      (parseFloat(miner.rows[0].p) || 0) + (parseFloat(cases.rows[0].p) || 0)
+      (parseFloat(miner.rows[0].p) || 0) + (parseFloat(cases.rows[0].p) || 0) +
+      (parseFloat(plinko.rows[0].p) || 0) + (parseFloat(ladder.rows[0].p) || 0)
     );
   } catch (e) { return 0; }
 }
 
 async function getTargetRTP(guestId) {
-  let rtp = 0.80;
-  const today = await getCasinoStats('today');
-  if (today.turnover >= 500) {
-    const m = today.profit / today.turnover;
-    if (m < -0.10)      rtp -= 0.10;
-    else if (m < 0)     rtp -= 0.05;
-    else if (m > 0.40)  rtp += 0.10;
-    else if (m > 0.20)  rtp += 0.05;
-  }
-  const all = await getCasinoStats('all');
-  if (all.turnover >= 5000) {
-    const m = all.profit / all.turnover;
-    if (m < -0.15)      rtp -= 0.05;
-    else if (m > 0.50)  rtp += 0.05;
-  }
+  const h = await getHouseRTP();
+  let rtp = h.rtp;
+
   if (guestId) {
-    const p = await getPlayerTodayProfit(guestId);
-    if (p > 2000)       rtp -= Math.min(0.20, (p - 2000) / 15000);
-    else if (p < -3000) rtp += Math.min(0.05, (-p - 3000) / 30000);
+    try {
+      const p = await getPlayerTodayProfit(guestId);
+      if (p > 2000) rtp -= Math.min(0.15, (p - 2000) / 20000);
+    } catch(e) {}
   }
-  rtp *= 0.98 + Math.random() * 0.04;
-  return Math.max(0.65, Math.min(0.92, rtp));
+  return Math.max(0.55, Math.min(HOUSE_RTP_CAP, rtp));
 }
 
 const DEALER_TASKS_BJ = [
@@ -655,12 +727,41 @@ const server = http.createServer(async (req, res) => {
     if (url === '/api/admin/house/stats' && method === 'GET') {
       const all = await getCasinoStats('all');
       const today = await getCasinoStats('today');
-      const targetRTP = await getTargetRTP(null);
+      const h = await getHouseRTP();
+      const t = await getTreasury();
       return sendJSON(res, 200, {
-        all, today, targetRTP,
-        targetRTP_pct: Math.round(targetRTP * 100),
-        houseEdge_pct: Math.round((1 - targetRTP) * 100),
-        label: targetRTP < 0.65 ? 'жёсткий режим' : targetRTP < 0.80 ? 'слив' : targetRTP < 0.85 ? 'базовый RTP (80%)' : 'щедрый режим'
+        all, today,
+        treasury: t.treasury,
+        income_total: t.income,
+        expense_total: t.expense,
+        actualRTP_today: h.actualRTP,
+        targetRTP: h.rtp,
+        targetRTP_pct: Math.round(h.rtp * 100),
+        houseEdge_pct: Math.round((1 - h.rtp) * 100),
+        mode: h.mode,
+        label: h.mode === 'drain' ? 'жёсткий (отыгрываем перерасход)'
+             : h.mode === 'catchup' ? 'догоняем до 80%'
+             : 'базовый (RTP 80%)'
+      });
+    }
+
+    if (url === '/api/admin/treasury/breakdown' && method === 'GET') {
+      const t = await getTreasury();
+      const today = await getCasinoStats('today');
+      const h = await getHouseRTP();
+      const turnover = today.turnover || 0;
+      const paid = today.expense || 0;
+      const houseCut = today.income || 0;
+      return sendJSON(res, 200, {
+        turnover_today: turnover,
+        paid_today: paid,
+        house_cut_today: houseCut,
+        actual_rtp_today: turnover > 0 ? paid / turnover : 0,
+        target_rtp: h.rtp,
+        treasury_all_time: t.treasury,
+        income_all_time: t.income,
+        expense_all_time: t.expense,
+        mode: h.mode
       });
     }
 
@@ -956,7 +1057,7 @@ const server = http.createServer(async (req, res) => {
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    // ===== PLINKO =====
+    // ===== PLINKO (RTP 80%, казна общая) =====
     if (url === '/api/plinko/drop' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -969,26 +1070,31 @@ const server = http.createServer(async (req, res) => {
 
       const debited = await debitBet(guestId, bet);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-
       const isBonusGame = debited.fromBonus > 0 && debited.fromDeposit === 0;
 
-      // Generate path: each row = left(0) or right(1)
       const path = [];
-      for (let i = 0; i < PLINKO_ROWS; i++) {
-        path.push(Math.random() < 0.5 ? 0 : 1);
-      }
+      for (let i = 0; i < PLINKO_ROWS; i++) path.push(Math.random() < 0.5 ? 0 : 1);
+      let slot = path.reduce((a, x) => a + x, 0);
 
-      // Final slot: sum of directions + start offset
-      let slot = 0;
-      for (const d of path) slot += d;
-      // slot is 0..8, which matches multipliers array length (9)
+      const h = await getHouseRTP();
+      const targetRTP = await getTargetRTP(guestId);
+      const edge = Math.max(0, (0.80 - targetRTP) / 0.80);
+      const cheatProb = edge * (h.mode === 'drain' ? 1.0 : h.mode === 'base' ? 0.5 : 0.2);
+      if (cheatProb > 0 && Math.random() < cheatProb) {
+        const center = 4;
+        const shift = (slot > center ? -1 : 1) * (Math.random() < 0.6 ? 1 : 2);
+        const newSlot = Math.max(0, Math.min(8, slot + shift));
+        path.length = 0;
+        const ones = newSlot, zeros = PLINKO_ROWS - newSlot;
+        const arr = [...Array(ones).fill(1), ...Array(zeros).fill(0)];
+        for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+        path.push(...arr);
+        slot = newSlot;
+      }
 
       const multiplier = PLINKO_MULTIPLIERS[risk][slot];
       const winAmount = Math.round(bet * multiplier * 100) / 100;
-
-      if (winAmount > 0) {
-        await creditWin(guestId, winAmount, bet);
-      }
+      if (winAmount > 0) await creditWin(guestId, winAmount, bet);
 
       try {
         await pool.query(
@@ -1011,15 +1117,9 @@ const server = http.createServer(async (req, res) => {
 
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, {
-        ok: true,
-        path,
-        slot,
-        multiplier,
-        win: winAmount,
-        balance: bal.total,
-        deposit_balance: bal.deposit,
-        bonus_balance: bal.bonus,
-        wagering: bal.wagering
+        ok: true, path, slot, multiplier, win: winAmount,
+        balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus,
+        wagering: bal.wagering, treasury: h.treasury, house_mode: h.mode
       });
     }
 
