@@ -45,9 +45,9 @@
     box-shadow: inset 0 0 40px rgba(0,0,0,0.9); aspect-ratio: 5 / 3;
   }
   
-  .reel { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .reel { flex: 1; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
   
-  /* Ячейки (фиксированный размер, чтобы WILD не растягивал) */
+  /* Ячейки */
   .symbol { 
     flex: 1; 
     width: 100%;
@@ -55,34 +55,33 @@
     background: rgba(255,255,255,0.05);
     border-radius: 10px; 
     display: flex; justify-content: center; align-items: center; 
-    font-size: 40px; /* Чуть уменьшили, чтобы эмодзи влезали */
-    font-weight: 900;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
     overflow: hidden;
+    position: relative;
+    transition: transform 0.2s;
   }
   
-  .sym-high { color: var(--gold-light); }
-  .sym-low { color: #00e5ff; }
-  
-  /* WILD (Стилизованный, без изменения размера ячейки) */
+  /* Картинки внутри ячеек */
+  .symbol img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+    transition: transform 0.3s;
+  }
+
+  /* WILD - если картинка без текста, мы можем наложить текст */
   .sym-wild-text {
-    background: linear-gradient(180deg, #f1c40f, #b8860b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+    text-align: center;
     font-weight: 900;
-    font-size: 24px;
-    text-shadow: 0 0 10px rgba(241,196,15,0.8);
-    border: 2px solid var(--gold-mid);
-    border-radius: 8px;
-    padding: 4px 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80%;
-    height: 80%;
-    margin: auto;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff;
+    pointer-events: none;
   }
 
   /* Панель управления */
@@ -118,9 +117,6 @@
   .btn-spin:active { transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
 
-  /* Анимация */
-  .spinning .symbol { filter: blur(4px); opacity: 0.8; }
-
   /* Модалка информации */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
   .modal-overlay.show { display: flex !important; }
@@ -132,14 +128,17 @@
   .modal-box ul { padding-left: 20px; }
   .paytable { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .paytable-item { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px; }
-  .paytable-sym { font-size: 24px; }
+  .paytable-item img { width: 30px; height: 30px; object-fit: contain; }
   .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
+
+  /* Анимации */
+  .spinning .symbol { transform: translateY(-10%); transition: none; }
+  .spinning .symbol img { filter: blur(4px); opacity: 0.8; }
 
   @media (max-width: 600px) {
     .slot-machine { padding: 4px; border-radius: 10px; }
     .reels-wrap { gap: 3px; padding: 5px; border-radius: 5px; }
-    .symbol { font-size: 28px; border-radius: 6px; }
-    .sym-wild-text { font-size: 16px; padding: 2px 4px; }
+    .symbol { border-radius: 6px; }
     .controls { padding: 8px; gap: 4px; border-radius: 10px; }
     .info-btn { width: 32px; height: 32px; font-size: 16px; }
     .bet-panel, .win-panel { padding: 3px 5px; }
@@ -165,13 +164,15 @@
 
   <div class="game-area">
     <div class="slot-machine" id="slotMachine">
-      <div class="reels-wrap" id="reelsWrap"></div>
+      <div class="reels-wrap" id="reelsWrap">
+        <!-- Барабаны генерируются в JS -->
+      </div>
     </div>
 
     <div class="controls">
       <button class="info-btn" onclick="document.getElementById('infoModal').classList.add('show')">i</button>
       
-      <!-- Блок ставки (с фиксированными шагами) -->
+      <!-- Блок ставки -->
       <div class="bet-panel">
         <button class="bet-btn" id="btnBetDown" onclick="changeBet(-1)">-</button>
         <div class="bet-val" id="betAmount">6</div>
@@ -210,12 +211,12 @@
     
     <h3>Таблица выплат (за 5 символов на линии):</h3>
     <div class="paytable">
-      <div class="paytable-item"><div class="paytable-sym sym-low">10, J, Q, K, A</div><div class="paytable-val">x10</div></div>
-      <div class="paytable-item"><div class="paytable-sym">🔔 Колокол</div><div class="paytable-val">x20</div></div>
-      <div class="paytable-item"><div class="paytable-sym">💎 Алмаз</div><div class="paytable-val">x30</div></div>
-      <div class="paytable-item"><div class="paytable-sym">🪲 Скарабей</div><div class="paytable-val">x50</div></div>
-      <div class="paytable-item"><div class="paytable-sym">👑 Корона</div><div class="paytable-val">x100</div></div>
-      <div class="paytable-item"><div class="paytable-sym">W</div><div class="paytable-val">x1000</div></div>
+      <div class="paytable-item"><img src="/sym_10.png" onerror="this.style.display='none'"><div class="paytable-val">10, J, Q, K, A: x10</div></div>
+      <div class="paytable-item"><img src="/sym_ankh.png" onerror="this.style.display='none'"><div class="paytable-val">Анкх: x20</div></div>
+      <div class="paytable-item"><img src="/sym_diamond.png" onerror="this.style.display='none'"><div class="paytable-val">Алмаз: x30</div></div>
+      <div class="paytable-item"><img src="/sym_scarab.png" onerror="this.style.display='none'"><div class="paytable-val">Скарабей: x50</div></div>
+      <div class="paytable-item"><img src="/sym_crown.png" onerror="this.style.display='none'"><div class="paytable-val">Корона: x100</div></div>
+      <div class="paytable-item"><img src="/sym_wild.png" onerror="this.style.display='none'"><div class="paytable-val">WILD: x1000</div></div>
     </div>
   </div>
 </div>
@@ -231,32 +232,32 @@ const BETS = [6, 16, 32, 48, 64, 120];
 let betIndex = 0;
 let bet = BETS[betIndex];
 
-// Символы
+// Наши сгенерированные символы
 const SYMBOLS = {
-  '10': { id: '10', val: '10', class: 'sym-low', weight: 25 },
-  'J': { id: 'J', val: 'J', class: 'sym-low', weight: 25 },
-  'Q': { id: 'Q', val: 'Q', class: 'sym-low', weight: 25 },
-  'K': { id: 'K', val: 'K', class: 'sym-low', weight: 25 },
-  'A': { id: 'A', val: 'A', class: 'sym-low', weight: 25 },
-  'bell': { id: 'bell', val: '🔔', class: 'sym-high', weight: 10 },
-  'diamond': { id: 'diamond', val: '💎', class: 'sym-high', weight: 8 },
-  'scarab': { id: 'scarab', val: '🪲', class: 'sym-high', weight: 6 },
-  'crown': { id: 'crown', val: '👑', class: 'sym-high', weight: 4 },
-  'wild': { id: 'wild', val: 'W', class: 'sym-wild-text', weight: 3 },
-  'scatter': { id: 'scatter', val: '🎡', class: 'sym-high', weight: 2 },
-  'coin': { id: 'coin', val: '🪙', class: 'sym-high', weight: 2 }
+  '10': { id: '10', img: '/sym_10.png', weight: 25 },
+  'J': { id: 'J', img: '/sym_j.png', weight: 25 },
+  'Q': { id: 'Q', img: '/sym_q.png', weight: 25 },
+  'K': { id: 'K', img: '/sym_k.png', weight: 25 },
+  'A': { id: 'A', img: '/sym_a.png', weight: 25 },
+  'ankh': { id: 'ankh', img: '/sym_ankh.png', weight: 10 },
+  'diamond': { id: 'diamond', img: '/sym_diamond.png', weight: 8 },
+  'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 6 },
+  'crown': { id: 'crown', img: '/sym_crown.png', weight: 4 },
+  'wild': { id: 'wild', img: '/sym_wild.png', weight: 3 },
+  'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 2 },
+  'coin': { id: 'coin', img: '/sym_coin.png', weight: 2 }
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 
-// Таблица выплат за 3, 4, 5 символов
+// Таблица выплат за 3, 4, 5 символов (в ставках)
 const PAYTABLE = {
   '10': [1, 3, 10], 'J': [1, 3, 10], 'Q': [1, 3, 10], 'K': [1, 3, 10], 'A': [1, 3, 10],
-  'bell': [2, 5, 20], 'diamond': [3, 8, 30], 'scarab': [5, 15, 50], 'crown': [10, 30, 100],
+  'ankh': [2, 5, 20], 'diamond': [3, 8, 30], 'scarab': [5, 15, 50], 'crown': [10, 30, 100],
   'wild': [50, 200, 1000]
 };
 
-// Генерация одного символа с учетом веса (шанса выпадения)
+// Генерация одного символа с учетом веса
 function getRandomSymbol() {
   const totalWeight = Object.values(SYMBOLS).reduce((sum, s) => sum + s.weight, 0);
   let random = Math.random() * totalWeight;
@@ -267,28 +268,66 @@ function getRandomSymbol() {
   return SYMBOLS['10'];
 }
 
-// Отрисовка барабанов
-function renderReels(board) {
+// Создание HTML для ячейки (для анимации)
+function createSymbolHTML(sym) {
+  let html = `<img src="${sym.img}" alt="${sym.id}">`;
+  if (sym.id === 'wild') {
+    html += `<div class="sym-wild-text">WILD</div>`;
+  }
+  return html;
+}
+
+// Отрисовка случайных барабанов (для анимации)
+function renderReelsRandom() {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
   for (let i = 0; i < 5; i++) {
     const reel = document.createElement('div');
     reel.className = 'reel';
     for (let j = 0; j < 3; j++) {
-      let sym = board ? board[i][j] : getRandomSymbol();
+      const sym = getRandomSymbol();
       const el = document.createElement('div');
       el.className = 'symbol';
-      
-      if (sym.id === 'wild') {
-        el.innerHTML = `<div class="sym-wild-text">WILD</div>`;
-      } else {
-        el.textContent = sym.val;
-        el.classList.add(sym.class);
-      }
+      el.innerHTML = createSymbolHTML(sym);
       reel.appendChild(el);
     }
     wrap.appendChild(reel);
   }
+}
+
+// Отрисовка финальной доски с каскадной остановкой
+function renderFinalBoard(board) {
+  const wrap = $('reelsWrap');
+  wrap.innerHTML = '';
+  
+  for (let i = 0; i < 5; i++) {
+    const reel = document.createElement('div');
+    reel.className = 'reel';
+    
+    for (let j = 0; j < 3; j++) {
+      const sym = board[i][j];
+      const el = document.createElement('div');
+      el.className = 'symbol';
+      el.innerHTML = createSymbolHTML(sym);
+      
+      // Скрываем символы перед каскадной анимацией
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-100%)';
+      el.style.transition = `opacity 0.3s ease ${i * 0.2}s, transform 0.3s ease ${i * 0.2}s`;
+      
+      reel.appendChild(el);
+    }
+    wrap.appendChild(reel);
+  }
+  
+  // Запускаем появление каскадом
+  setTimeout(() => {
+    const allSymbols = wrap.querySelectorAll('.symbol');
+    allSymbols.forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  }, 50);
 }
 
 function changeBet(dir) {
@@ -307,7 +346,6 @@ function changeBet(dir) {
 function calculateWins(board, betAmount) {
   let totalWin = 0;
   
-  // Собираем все 20 линий (индексы [барабан, ряд])
   const lines = [
     [[0,1],[1,1],[2,1],[3,1],[4,1]], // 1 (центр)
     [[0,0],[1,0],[2,0],[3,0],[4,0]], // 2 (верх)
@@ -336,16 +374,16 @@ function calculateWins(board, betAmount) {
     let matchCount = 1;
     let targetSymId = firstSym.id;
 
-    // Если первый символ - WILD, ищем, во что он превратится
+    // Если первый символ - WILD
     if (targetSymId === 'wild') {
       for (let i = 1; i < 5; i++) {
         const sym = board[line[i][0]][line[i][1]];
         if (sym.id !== 'wild') { targetSymId = sym.id; break; }
       }
-      if (targetSymId === 'wild') targetSymId = 'wild'; // Если все 5 Wild
+      if (targetSymId === 'wild') targetSymId = 'wild';
     }
 
-    if (targetSymId === 'scatter' || targetSymId === 'coin') continue; // Они не играют по линиям
+    if (targetSymId === 'scatter' || targetSymId === 'coin') continue;
 
     // Считаем совпадения
     for (let i = 1; i < 5; i++) {
@@ -359,7 +397,8 @@ function calculateWins(board, betAmount) {
 
     if (matchCount >= 3 && PAYTABLE[targetSymId]) {
       const payout = PAYTABLE[targetSymId][matchCount - 3];
-      totalWin += payout * (betAmount / 10); // Выплата относительно ставки (10 - базовая)
+      // Ставка пересчитывается относительно минимальной (6)
+      totalWin += payout * (betAmount / 6); 
     }
   }
 
@@ -375,13 +414,13 @@ async function spin() {
   $('btnSpin').disabled = true;
   $('winAmount').textContent = '0';
   
-  // 1. Визуальная прокрутка (быстрая смена символов)
+  // 1. Анимация прокрутки
   const wrap = $('reelsWrap');
   wrap.classList.add('spinning');
   
   let ticks = 0;
   const interval = setInterval(() => {
-    renderReels(null); // Рандомные символы для анимации
+    renderReelsRandom();
     ticks++;
     if (ticks > 15) {
       clearInterval(interval);
@@ -408,8 +447,7 @@ async function finishSpin() {
       return;
     }
     
-    // 3. Генерируем доску и считаем выигрыш на клиенте (чтобы показать красиво)
-    // В будущем сервер будет отдавать готовую доску
+    // 3. Генерируем доску и считаем выигрыш (пока на клиенте)
     const board = [];
     for (let i = 0; i < 5; i++) {
       const reel = [];
@@ -419,22 +457,27 @@ async function finishSpin() {
       board.push(reel);
     }
     
-    renderReels(board);
+    // Красивая каскадная отрисовка
+    renderFinalBoard(board);
     
-    const winAmount = calculateWins(board, bet);
+    // Ждем, пока картинки встанут на место
+    setTimeout(() => {
+      const winAmount = calculateWins(board, bet);
+      
+      if (winAmount > 0) {
+        $('winAmount').textContent = winAmount.toFixed(2);
+        // Мигание выигрыша
+        $('winAmount').style.color = '#00ff88';
+        setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
+      }
+      
+      balance = d.balance;
+      $('balanceVal').textContent = balance.toFixed(2);
+      
+      isSpinning = false;
+      $('btnSpin').disabled = false;
+    }, 1200); // Ждем каскад (1.2 сек)
     
-    // 4. Показываем результат
-    if (winAmount > 0) {
-      $('winAmount').textContent = winAmount.toFixed(2);
-      // В будущем сервер должен начислить эту сумму. Пока просто отображаем.
-    }
-    
-    // Обновляем баланс с сервера
-    balance = d.balance;
-    $('balanceVal').textContent = balance.toFixed(2);
-    
-    isSpinning = false;
-    $('btnSpin').disabled = false;
   } catch(e) {
     console.error(e);
     alert('Ошибка соединения');
@@ -443,7 +486,6 @@ async function finishSpin() {
   }
 }
 
-// Загрузка игрока
 function loadMe() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -477,9 +519,8 @@ window.onload = () => {
     setTimeout(() => { window.location.href = '/'; }, 1500);
   }
   
-  // Инициализация ставки
   changeBet(0);
-  renderReels(null);
+  renderReelsRandom();
 };
 </script>
 </body>
