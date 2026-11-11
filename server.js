@@ -226,9 +226,6 @@ async function getCasinoStats(period = 'all') {
 }
 
 // ===== ОБЩАЯ КАЗНА: жёсткий потолок RTP 80% (игроки 80 / казино 20) =====
-// Казна = таблица online (реальные игровые обороты без бонусов/админских).
-// Каждая игра спрашивает: сколько сейчас можно отдать, чтобы не превысить 80% от оборота.
-// Ответ ВСЕГДА в диапазоне 0.60..0.80. Никогда выше 0.80.
 let HOUSE_CACHE = { rtp: 0.80, ts: 0, treasury: 0, actualRTP: 0, mode: 'base' };
 const HOUSE_CACHE_MS = 4000;
 const HOUSE_RTP_CAP = 0.80;
@@ -274,11 +271,9 @@ async function getHouseRTP() {
   if (turnover >= 100) {
     const overpay = actualRTP - HOUSE_TARGET;
     if (overpay > 0) {
-      // Переплатили — жёстко режем пропорционально перерасходу
       rtp = HOUSE_TARGET - Math.min(0.20, overpay * 2.5);
       mode = 'drain';
     } else if (overpay < -0.10) {
-      // Недоплатили сильно — можно чуть догнать, но не выше 80%
       rtp = HOUSE_TARGET - Math.min(0.05, Math.abs(overpay) * 0.3);
       mode = 'catchup';
     } else {
@@ -294,7 +289,6 @@ async function getHouseRTP() {
 
   rtp *= 0.985 + Math.random() * 0.03;
 
-  // ЖЁСТКИЙ КЛАМП: никогда выше 80%
   rtp = Math.max(HOUSE_RTP_FLOOR, Math.min(HOUSE_RTP_CAP, rtp));
 
   HOUSE_CACHE = { rtp, ts: now, treasury: t.treasury, actualRTP, mode };
@@ -1123,7 +1117,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // ===== LADDER =====
+    // ===== LADDER (исправлено: флаг finished, без удаления сессии, подкрутка 1 раз на уровень) =====
     if (url === '/api/ladder/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -1135,24 +1129,29 @@ const server = http.createServer(async (req, res) => {
       if (minesCount < 1 || minesCount > 7) return sendJSON(res, 400, { error: 'Камней от 1 до 7' });
       const debited = await debitBet(guestId, bet);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      
+
       const levelsCount = 13;
       const cellsCount = 20;
       const ladder = [];
-      
       for (let i = 0; i < levelsCount; i++) {
         const mines = [];
         while (mines.length < minesCount) {
           const r = Math.floor(Math.random() * cellsCount);
           if (!mines.includes(r)) mines.push(r);
         }
-        ladder.push({ cellsCount, mines });
+        ladder.push({ cellsCount, mines, cheated: false });
       }
-      
+
       const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-      ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, createdAt: Date.now(), debitResult: debited };
+      ladderSessions[sessionId] = {
+        guestId, bet, minesCount, ladder,
+        currentStep: 0,
+        finished: false,
+        createdAt: Date.now(),
+        debitResult: debited
+      };
       const bal = await getBalance(guestId);
-      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder, bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+      return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder: ladder.map(l => ({ cellsCount: l.cellsCount, mines: l.mines })), bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
     if (url === '/api/ladder/step' && method === 'POST') {
       const b = await parseBody(req);
@@ -1162,50 +1161,72 @@ const server = http.createServer(async (req, res) => {
       if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
       const sess = ladderSessions[sessionId];
       if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (sess.finished) return sendJSON(res, 400, { error: 'Сессия завершена' });
       if (sess.currentStep >= 13) return sendJSON(res, 400, { error: 'Игра уже завершена' });
+      if (!Number.isInteger(cellIdx) || cellIdx < 0 || cellIdx >= 20) return sendJSON(res, 400, { error: 'Неверная клетка' });
+
       const currentLevel = sess.ladder[sess.currentStep];
-      let isMine = currentLevel.mines.includes(cellIdx);
-      
-      if (!isMine) {
-        const targetRTP = await getTargetRTP(guestId);
-        const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
-        const effectiveCheat = cheatChance * 0.35;
-        if (Math.random() < effectiveCheat) {
-          isMine = true;
-          currentLevel.mines.push(cellIdx);
-        }
-      }
       const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
-      
-      if (!isMine) {
-        sess.currentStep++;
-        if (sess.currentStep >= 13) {
-          const mults = LADDER_MULTS[sess.minesCount];
-          const winMult = mults[12];
-          const winAmount = Math.round(sess.bet * winMult * 100) / 100;
-          await creditWin(guestId, winAmount, sess.bet);
-          try {
-            await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
-            if (!isBonusGame) {
-              await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]);
-            }
-          } catch(e){}
-          const bal = await getBalance(guestId);
-          delete ladderSessions[sessionId];
-          return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
-        }
-        const bal = await getBalance(guestId);
-        return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
-      } else {
-        delete ladderSessions[sessionId];
+
+      // 1) Игрок наступил на уже существующую мину
+      if (currentLevel.mines.includes(cellIdx)) {
+        sess.finished = true;
         try {
           if (!isBonusGame) {
             await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]);
           }
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, 0, guestId]);
         } catch(e){}
         const bal = await getBalance(guestId);
         return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
       }
+
+      // 2) Подкрутка под RTP — максимум 1 раз на уровень
+      let isMine = false;
+      if (!currentLevel.cheated) {
+        const targetRTP = await getTargetRTP(guestId);
+        const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
+        const effectiveCheat = cheatChance * 0.25;
+        if (Math.random() < effectiveCheat) {
+          isMine = true;
+          currentLevel.mines.push(cellIdx);
+          currentLevel.cheated = true;
+        }
+      }
+
+      if (isMine) {
+        sess.finished = true;
+        try {
+          if (!isBonusGame) {
+            await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]);
+          }
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, 0, guestId]);
+        } catch(e){}
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+      }
+
+      // 3) Безопасно — идём дальше
+      sess.currentStep++;
+
+      if (sess.currentStep >= 13) {
+        sess.finished = true;
+        const mults = LADDER_MULTS[sess.minesCount];
+        const winMult = mults[12];
+        const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+        await creditWin(guestId, winAmount, sess.bet);
+        try {
+          await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
+          if (!isBonusGame) {
+            await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]);
+          }
+        } catch(e){}
+        const bal = await getBalance(guestId);
+        return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
+      }
+
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
     }
     if (url === '/api/ladder/cashout' && method === 'POST') {
       const b = await parseBody(req);
@@ -1214,10 +1235,13 @@ const server = http.createServer(async (req, res) => {
       if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
       const sess = ladderSessions[sessionId];
       if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+      if (sess.finished) return sendJSON(res, 400, { error: 'Сессия уже завершена' });
       if (sess.currentStep === 0) return sendJSON(res, 400, { error: 'Нет пройденных уровней' });
+
       const mults = LADDER_MULTS[sess.minesCount];
       const winMult = mults[sess.currentStep - 1];
       const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+      sess.finished = true;
       await creditWin(guestId, winAmount, sess.bet);
       const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
       try {
@@ -1227,7 +1251,6 @@ const server = http.createServer(async (req, res) => {
         }
       } catch(e){}
       const bal = await getBalance(guestId);
-      delete ladderSessions[sessionId];
       return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
