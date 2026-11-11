@@ -47,9 +47,16 @@
   .risk-btn.active[data-risk="medium"] { border-color: #f1c40f; color: #f1c40f; background: rgba(241,196,15,0.1); }
   .risk-btn.active[data-risk="high"] { border-color: #ff4d4d; color: #ff4d4d; background: rgba(255,77,77,0.1); }
 
-  .btn-play { width: 100%; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 16px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: auto; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
+  .buttons-row { display: flex; gap: 10px; margin-top: auto; flex-shrink: 0; }
+  
+  .btn-play { flex: 1; background: linear-gradient(135deg, var(--accent), #0077ff); color: #000; border: none; border-radius: 10px; padding: 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
   .btn-play:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0,229,255,0.5); transform: translateY(-2px); }
   .btn-play:disabled { opacity: 0.5; cursor: not-allowed; background: #333; color: #888; box-shadow: none; }
+
+  .btn-auto { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: #fff; border-radius: 10px; padding: 16px; font-size: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+  .btn-auto:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+  .btn-auto:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-auto.stop { background: var(--red); color: #fff; border-color: var(--red); }
 
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); padding: 15px; }
   
@@ -62,7 +69,6 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
-  /* Модалка "Как играть" */
   .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
   .howto-backdrop.show { display: flex; }
   .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
@@ -75,10 +81,10 @@
     .main-body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 8px; }
     .sidebar h3 { display: none; }
-    .input-group { margin-bottom: 0; flex: 1; min-width: 100px; }
-    .quick-bets { margin-bottom: 0; flex: 2; min-width: 160px; }
-    .risk-grid { margin-bottom: 0; flex: 1.5; min-width: 140px; }
-    .btn-play { width: auto; min-width: 100px; margin-top: 0; flex: 1; padding: 10px; font-size: 13px; }
+    .input-group { margin-bottom: 0; flex: 1; min-width: 90px; }
+    .quick-bets { margin-bottom: 0; flex: 2; min-width: 140px; }
+    .risk-grid { margin-bottom: 0; flex: 2; min-width: 150px; }
+    .buttons-row { width: 100%; margin-top: 10px; }
     .game-area { padding: 5px; }
     .toast-container { top: 60px; right: 10px; left: 10px; }
     .toast { width: 100%; min-width: 0; transform: translateY(-120%); }
@@ -113,12 +119,13 @@
     <div class="sidebar">
       <h3>Сумма ставки</h3>
       <div class="input-group">
-        <input type="number" id="betAmount" value="10.00" min="1" step="1">
+        <input type="number" id="betAmount" value="10.00" min="1" max="100" step="1">
         <span class="currency">₽</span>
       </div>
       <div class="quick-bets" id="quickBets">
+        <button onclick="setBet(1)">1</button>
+        <button onclick="setBet(5)">5</button>
         <button onclick="setBet(10)" class="active">10</button>
-        <button onclick="setBet(25)">25</button>
         <button onclick="setBet(50)">50</button>
         <button onclick="setBet(100)">100</button>
       </div>
@@ -130,7 +137,10 @@
         <button class="risk-btn" data-risk="high" onclick="setRisk('high')">Высокий</button>
       </div>
 
-      <button class="btn-play" id="btnPlay" onclick="dropBall()">Играть</button>
+      <div class="buttons-row">
+        <button class="btn-play" id="btnPlay" onclick="dropBall()">Играть</button>
+        <button class="btn-auto" id="btnAuto" onclick="toggleAuto()">Авто</button>
+      </div>
     </div>
 
     <div class="game-area">
@@ -141,14 +151,13 @@
   </div>
 </div>
 
-<!-- МОДАЛКА "КАК ИГРАТЬ" -->
 <div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
   <div class="howto-modal">
     <h2>🎮 Как играть в Plinko</h2>
     <p>Шарик падает сверху вниз по пирамиде колышков. На каждом колышке он случайно отскакивает влево или вправо.</p>
     <p>Внизу шарик попадает в одну из ячеек с множителем (<b>х0.2</b> — <b>х24</b>). Ваш выигрыш = <b>ставка × множитель</b>.</p>
     <p>В центре множители маленькие (<b>x0.2</b>), но шарик падает туда чаще всего. По краям — большие (<b>x24</b>), но шанс попасть туда очень мал.</p>
-    <p>Выбирайте уровень риска: <b>Низкий</b> — частые мелкие выигрыши, <b>Высокий</b> — редкие крупные.</p>
+    <p>Кнопка <b>«Авто»</b> запускает шарики автоматически. Баланс будет списываться с каждым шаром, пока вы не нажмёте <b>«Стоп»</b>.</p>
     <button class="howto-close" onclick="closeHowTo()">Понятно, играю</button>
   </div>
 </div>
@@ -160,6 +169,8 @@ let balance = 0;
 let busy = false;
 let currentBet = 10;
 let currentRisk = 'low';
+let isAutoMode = false;
+let autoTimer = null;
 
 const RISK_CONFIG = {
   low: { rows: 8, multipliers: [5.3, 2.2, 1.1, 0.9, 0.5, 0.9, 1.1, 2.2, 5.3] },
@@ -196,7 +207,7 @@ window.addEventListener('resize', resizeCanvas);
 function buildBoard() {
   ROWS = 8;
   const padTop = 40;
-  const padBottom = 80; // Поднял плашки выше, чтобы они не улетали за экран на телефоне
+  const padBottom = 80;
   
   boardWidth = Math.min(W - 40, 500); 
   boardHeight = H - padTop - padBottom;
@@ -236,7 +247,7 @@ function buildBoard() {
       x: slotX, 
       y: bottomY,
       w: pegGap - 4,             
-      h: padBottom - 20, // Высота плашек уменьшена, чтобы точно влезли
+      h: padBottom - 20,
       index: i
     });
   }
@@ -419,8 +430,10 @@ function animate() {
         
         setTimeout(() => { 
           balls = balls.filter(x => x.id !== b.id); 
-          busy = false; 
-          $('btnPlay').disabled = false;
+          if (!isAutoMode) {
+            busy = false; 
+            $('btnPlay').disabled = false;
+          }
         }, 800);
       }
     }
@@ -482,7 +495,7 @@ async function refreshBalance() {
 }
 
 function setBet(v) {
-  if (busy) return;
+  if (busy || isAutoMode) return;
   currentBet = v;
   $('betAmount').value = v.toFixed(2);
   document.querySelectorAll('#quickBets button').forEach(b => b.classList.remove('active'));
@@ -490,7 +503,7 @@ function setBet(v) {
 }
 
 function setRisk(r) {
-  if (busy) return;
+  if (busy || isAutoMode) return;
   currentRisk = r;
   document.querySelectorAll('#riskGrid button').forEach(b => b.classList.remove('active'));
   if (event && event.target) event.target.classList.add('active');
@@ -499,16 +512,25 @@ function setRisk(r) {
 }
 
 async function dropBall() {
-  if (busy) return;
+  if (busy && !isAutoMode) return;
   if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  
   currentBet = parseFloat($('betAmount').value) || 0;
-  if (currentBet < 1) { showToast('Мин. ставка 1 ₽', 'error'); return; }
+  if (currentBet < 1) { showToast('Мин. ставка 1 ₽', 'error'); stopAuto(); return; }
+  if (currentBet > 100) { showToast('Макс. ставка 100 ₽', 'error'); stopAuto(); return; }
   
   await refreshBalance();
-  if (balance < currentBet) { showToast(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`, 'error'); return; }
+  if (balance < currentBet) { 
+    showToast(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`, 'error'); 
+    stopAuto(); 
+    return; 
+  }
 
-  busy = true;
-  $('btnPlay').disabled = true;
+  if (!isAutoMode) {
+    busy = true;
+    $('btnPlay').disabled = true;
+  }
+  
   highlightIdx = -1;
 
   try {
@@ -521,8 +543,12 @@ async function dropBall() {
     
     if (!r.ok) {
       showToast(d.error || 'Ошибка', 'error');
-      busy = false;
-      $('btnPlay').disabled = false;
+      if (!isAutoMode) {
+        busy = false;
+        $('btnPlay').disabled = false;
+      } else {
+        stopAuto();
+      }
       return;
     }
     
@@ -531,7 +557,7 @@ async function dropBall() {
     const topPegX = W/2 - rowWidthTop / 2 + pegGap;
     
     const ball = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       x: topPegX, 
       y: startY - 20,
       targetX: topPegX,
@@ -547,9 +573,48 @@ async function dropBall() {
     refreshBalance();
   } catch(e) {
     showToast('Ошибка соединения', 'error');
-    busy = false;
-    $('btnPlay').disabled = false;
+    if (!isAutoMode) {
+      busy = false;
+      $('btnPlay').disabled = false;
+    } else {
+      stopAuto();
+    }
   }
+}
+
+function toggleAuto() {
+  if (isAutoMode) {
+    stopAuto();
+  } else {
+    startAuto();
+  }
+}
+
+function startAuto() {
+  if (!currentPlayer) { showToast('Войдите в аккаунт', 'error'); return; }
+  isAutoMode = true;
+  $('btnAuto').textContent = 'Стоп';
+  $('btnAuto').classList.add('stop');
+  $('btnPlay').disabled = true;
+  $('btnAuto').disabled = false; // Разрешаем нажать Стоп
+  
+  // Запускаем первый шар сразу
+  dropBall();
+  
+  // И затем каждые 600мс
+  autoTimer = setInterval(() => {
+    dropBall();
+  }, 600);
+}
+
+function stopAuto() {
+  isAutoMode = false;
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  $('btnAuto').textContent = 'Авто';
+  $('btnAuto').classList.remove('stop');
+  $('btnPlay').disabled = false;
+  $('btnAuto').disabled = false;
+  busy = false;
 }
 
 window.onload = () => {
