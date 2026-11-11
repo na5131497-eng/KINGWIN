@@ -148,7 +148,6 @@ let W, H, pegs = [], slots = [], ROWS = 8;
 let boardWidth = 0, boardHeight = 0, startY = 0, rowGap = 0, pegGap = 0;
 const BALL_SIZE = 8;
 
-// Подсветка выигрышной плашки
 let highlightIdx = -1;
 let highlightTime = 0;
 
@@ -196,12 +195,34 @@ function buildBoard() {
   
   slots = [];
   const slotCount = RISK_CONFIG[currentRisk].multipliers.length;
-  const bottomY = startY + ROWS * rowGap + 10;
-  const firstPegX = W / 2 - ((ROWS + 2 - 1) * pegGap) / 2; 
+  const bottomY = startY + ROWS * rowGap + 15;
+  
+  // Центр нижнего ряда колышков (их ROWS + 2 = 10 штук)
+  // 10 колышков: от 0 до 9. Центр между 4 и 5.
+  // Нам нужно 9 плашек, которые будут строго под первыми 9 колышками нижнего ряда?
+  // Или под всеми 9 слотами, центрируя по колышкам.
+  // В стандартном Plinko: последний ряд имеет 10 колышков, а слотов 9. Слоты находятся МЕЖДУ колышками.
+  // Но у нас плашки должны быть ровно под колышками. Давай сделаем их по центрам колышков нижнего ряда.
+  
+  // Находим первый колышек нижнего ряда
+  const lastRowCount = ROWS + 2; 
+  const lastRowWidth = (lastRowCount - 1) * pegGap;
+  const lastRowStartX = W / 2 - lastRowWidth / 2;
   
   for (let i = 0; i < slotCount; i++) {
+    // Центрируем 9 плашек под 10 колышками. 
+    // Первая плашка под 1-м колышком, последняя под 10-м? Нет, они должны попадать между.
+    // Проще: пусть плашка i находится на позиции между i-м и (i+1)-м колышком.
+    // Но ты просил "чтобы х были на уровне с колышками". Значит, центры плашек должны совпадать с центрами колышков.
+    
+    // Так как слотов 9, а колышков 10, мы не можем разместить их точно под каждым.
+    // Разместим их по центру между колышками (как и должно быть в Plinko), но выровняем левый край.
+    // Чтобы не уезжало влево, центрируем сетку плашек относительно W/2.
+    
+    const slotX = lastRowStartX + pegGap / 2 + i * pegGap;
+    
     slots.push({
-      x: firstPegX + i * pegGap, 
+      x: slotX, 
       y: bottomY,
       w: pegGap - 4,             
       h: padBottom - 10,
@@ -251,13 +272,12 @@ function drawSlot(slot, mult, isHighlighted) {
   const w = slot.w;
   const h = slot.h;
 
-  // Анимация подсветки (яркая вспышка и пульсация)
   if (isHighlighted) {
-    const pulse = 1 + Math.sin(Date.now() / 100) * 0.1; // Пульс
+    const pulse = 1 + Math.sin(Date.now() / 100) * 0.1;
     const scaleW = w * pulse;
     const scaleH = h * pulse;
     const scaleX = slot.x - scaleW / 2;
-    const scaleY = y - (scaleH - h) / 2; // Смещение вверх
+    const scaleY = y - (scaleH - h) / 2;
 
     ctx.beginPath();
     ctx.roundRect(scaleX, scaleY, scaleW, scaleH, [radius]);
@@ -267,14 +287,12 @@ function drawSlot(slot, mult, isHighlighted) {
     ctx.fill();
     ctx.shadowBlur = 0;
   } else {
-    // Обычная тень
     ctx.beginPath();
     ctx.roundRect(x, y + 3, w, h, [radius]);
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fill();
   }
 
-  // Фон
   const grad = ctx.createLinearGradient(x, y, x, y + h);
   grad.addColorStop(0, style.bg1);
   grad.addColorStop(1, style.bg2);
@@ -283,18 +301,15 @@ function drawSlot(slot, mult, isHighlighted) {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Контур (при подсветке делаем белым и толще)
   ctx.strokeStyle = isHighlighted ? '#ffffff' : style.border;
   ctx.lineWidth = isHighlighted ? 3 : 1.5;
   ctx.stroke();
 
-  // Внутренний блик
   ctx.beginPath();
   ctx.roundRect(x + 2, y + 2, w - 4, h / 2, [radius - 2, radius - 2, 0, 0]);
   ctx.fillStyle = 'rgba(255,255,255,0.1)';
   ctx.fill();
 
-  // Текст (при подсветке делаем ярче и больше)
   ctx.fillStyle = isHighlighted ? '#ffffff' : style.text;
   ctx.font = isHighlighted ? '900 14px Montserrat' : '900 11px Montserrat';
   ctx.textAlign = 'center';
@@ -353,7 +368,6 @@ let balls = [];
 function animate() {
   drawBoard();
   
-  // Отключаем подсветку через 2 секунды
   if (highlightIdx !== -1 && Date.now() - highlightTime > 2000) {
     highlightIdx = -1;
   }
@@ -386,7 +400,6 @@ function animate() {
       if (b.y >= b.landY) {
         b.state = 'done';
         
-        // Включаем подсветку выигравшей плашки
         highlightIdx = b.finalSlot;
         highlightTime = Date.now();
 
@@ -485,7 +498,7 @@ async function dropBall() {
 
   busy = true;
   $('btnPlay').disabled = true;
-  highlightIdx = -1; // Сбрасываем предыдущую подсветку
+  highlightIdx = -1;
 
   try {
     const r = await fetch('/api/plinko/drop', {
