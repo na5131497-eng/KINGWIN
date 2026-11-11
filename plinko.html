@@ -136,6 +136,7 @@ let busy = false;
 let currentBet = 10;
 let currentRisk = 'low';
 
+// 8 РЯДОВ ВСЕГДА. Множители как ты просил.
 const RISK_CONFIG = {
   low: { 
     rows: 8, 
@@ -155,7 +156,7 @@ const canvas = $('gameCanvas');
 const ctx = canvas.getContext('2d');
 let W, H, pegs = [], slots = [], cellW = 0, cellH = 0;
 let ROWS = 8;
-const BALL_SIZE = 10;
+let BALL_SIZE = 10;
 
 function resizeCanvas() {
   const p = canvas.parentElement;
@@ -175,12 +176,12 @@ function buildBoard() {
   const conf = RISK_CONFIG[currentRisk];
   ROWS = conf.rows;
   
-  const padTop = 80; // Даём место для красивых бортиков
-  const padBottom = 90;
-  const boardWidth = Math.min(W - 60, 700);
+  const padTop = 60;
+  const padBottom = 80;
+  const boardWidth = Math.min(W - 40, 600); // Ограничиваем ширину
   const boardHeight = H - padTop - padBottom;
   
-  const startY = padTop;
+  const startY = padTop + 20;
   const rowGap = boardHeight / ROWS;
   pegs = [];
   
@@ -202,15 +203,15 @@ function buildBoard() {
   
   slots = [];
   const slotCount = conf.multipliers.length;
-  cellW = (boardWidth + pegGap * 1.5) / slotCount; // Расширяем слоты, чтобы они были по краям колышков
-  cellH = padBottom - 20;
+  cellW = boardWidth / (slotCount - 1);
+  cellH = padBottom - 10;
   
-  const bottomY = startY + ROWS * rowGap + 25;
-  const slotStartX = W / 2 - (cellW * slotCount) / 2;
+  const bottomY = startY + ROWS * rowGap + 15;
+  const slotStartX = W / 2 - boardWidth / 2 - cellW/2 + pegGap/2;
   
   for (let i = 0; i < slotCount; i++) {
     slots.push({
-      x: slotStartX + i * cellW,
+      x: W / 2 - ((slotCount-1)*cellW)/2 + i*cellW - cellW/2 + 5, // Центрируем
       y: bottomY,
       w: cellW - 6,
       h: cellH,
@@ -220,23 +221,20 @@ function buildBoard() {
 }
 
 function getSlotStyle(mult) {
-  if (mult >= 13) return { bg1: '#ff9a9e', bg2: '#fecfef', border: '#ff4d4d', text: '#fff' }; // Королевский красный
+  if (mult >= 13) return { bg1: '#ff9a9e', bg2: '#fecfef', border: '#ff4d4d', text: '#fff' }; // Королевский
   if (mult >= 4) return { bg1: '#fceabb', bg2: '#f8b500', border: '#d4af37', text: '#000' };  // Золото
   if (mult >= 1.1) return { bg1: '#a8ff78', bg2: '#78ffd6', border: '#3fbf7f', text: '#000' }; // Зелёный
   return { bg1: '#2c3e50', bg2: '#000000', border: '#8b92a5', text: '#fff' };                 // Тёмный
 }
 
-// Отрисовка красивой королевской сумочки
 function drawBag(x, y, w, h, mult) {
   const style = getSlotStyle(mult);
   
-  // Тень под сумкой
   ctx.beginPath();
-  ctx.ellipse(x + w/2, y + h, w/2, 6, 0, 0, Math.PI*2);
+  ctx.ellipse(x + w/2, y + h, w/2, 5, 0, 0, Math.PI*2);
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fill();
 
-  // Тело сумки (мешочек)
   const bagY = y + h * 0.3;
   const bagH = h * 0.7;
   
@@ -255,46 +253,39 @@ function drawBag(x, y, w, h, mult) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Верёвочка (завязка)
   ctx.beginPath();
   ctx.moveTo(x + 4, bagY);
   ctx.quadraticCurveTo(x + w/2, bagY - 15, x + w - 4, bagY);
-  ctx.strokeStyle = '#d4af37'; // Золотая верёвка
+  ctx.strokeStyle = '#d4af37';
   ctx.lineWidth = 3;
   ctx.stroke();
   
-  // Узелок
   ctx.beginPath();
   ctx.arc(x + w/2, bagY - 8, 4, 0, Math.PI * 2);
   ctx.fillStyle = '#d4af37';
   ctx.fill();
 
-  // Текст множителя (на сумке)
   ctx.fillStyle = style.text;
-  ctx.font = '900 13px Montserrat';
+  ctx.font = '900 12px Montserrat';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
-  ctx.shadowBlur = 4;
+  ctx.shadowBlur = 3;
   ctx.fillText('x' + mult, x + w/2, y + h/2 + 4);
   ctx.shadowBlur = 0;
 }
 
-// Отрисовка красивого колышка
 function drawPeg(peg) {
-  // Тень
   ctx.beginPath();
   ctx.arc(peg.x + 1, peg.y + 2, 5, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.fill();
 
-  // Основа
   ctx.beginPath();
   ctx.arc(peg.x, peg.y, 5, 0, Math.PI * 2);
   ctx.fillStyle = '#4a5a70';
   ctx.fill();
   
-  // Градиент для объёма
   const grad = ctx.createRadialGradient(peg.x - 2, peg.y - 2, 1, peg.x, peg.y, 5);
   grad.addColorStop(0, '#a0b8d0');
   grad.addColorStop(0.5, '#4a5a70');
@@ -304,7 +295,6 @@ function drawPeg(peg) {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Блик (светлая точка)
   ctx.beginPath();
   ctx.arc(peg.x - 1.5, peg.y - 1.5, 1.5, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
@@ -314,14 +304,12 @@ function drawPeg(peg) {
 function drawBoard() {
   ctx.clearRect(0, 0, W, H);
   
-  const conf = RISK_CONFIG[currentRisk];
-  const pegGap = Math.min(W - 60, 700) / (ROWS + 2);
+  const boardWidth = Math.min(W - 40, 600);
   
-  // Рисуем красивые боковые бортики
-  const leftWallX = W/2 - (pegGap * (ROWS + 2))/2 + pegGap/2 - 15;
-  const rightWallX = W/2 + (pegGap * (ROWS + 2))/2 - pegGap/2 + 15;
+  // Бортики
+  const leftWallX = W/2 - boardWidth/2 - 15;
+  const rightWallX = W/2 + boardWidth/2 + 15;
   
-  // Бортики (стены)
   const wallGrad = ctx.createLinearGradient(leftWallX, 0, leftWallX + 10, 0);
   wallGrad.addColorStop(0, '#10141d');
   wallGrad.addColorStop(0.5, '#2a3441');
@@ -330,37 +318,29 @@ function drawBoard() {
   ctx.fillStyle = wallGrad;
   ctx.shadowColor = '#00e5ff';
   ctx.shadowBlur = 10;
-  
-  // Левый бортик
   ctx.beginPath();
-  ctx.roundRect(leftWallX, 60, 10, H - 140, [10, 10, 0, 0]);
+  ctx.roundRect(leftWallX, 80, 10, H - 180, [10, 10, 0, 0]);
   ctx.fill();
   
-  // Правый бортик
   ctx.beginPath();
-  ctx.roundRect(rightWallX - 10, 60, 10, H - 140, [10, 10, 0, 0]);
+  ctx.roundRect(rightWallX - 10, 80, 10, H - 180, [10, 10, 0, 0]);
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Колышки
   pegs.forEach(peg => drawPeg(peg));
   
-  // Сумки
-  const mults = conf.multipliers;
+  const mults = RISK_CONFIG[currentRisk].multipliers;
   slots.forEach(slot => {
     const mult = mults[slot.index];
     drawBag(slot.x, slot.y, slot.w, slot.h, mult);
   });
   
-  // Шарики
   balls.forEach(ball => {
-    // Свечение
     ctx.beginPath();
     ctx.fillStyle = 'rgba(0,229,255,0.4)';
     ctx.arc(ball.x, ball.y, BALL_SIZE + 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Сам шарик
     const grad = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 2, ball.x, ball.y, BALL_SIZE);
     grad.addColorStop(0, '#ffffff');
     grad.addColorStop(0.4, '#00e5ff');
@@ -400,7 +380,7 @@ function animate() {
           const slotX = slots[b.finalSlot].x + slots[b.finalSlot].w / 2;
           b.targetX = slotX;
           b.state = 'landing';
-          b.landY = slots[b.finalSlot].y + slots[b.finalSlot].h / 2; // Падает прям в сумочку
+          b.landY = slots[b.finalSlot].y + slots[b.finalSlot].h / 2;
         }
       }
     } else if (b.state === 'landing') {
@@ -425,7 +405,7 @@ function animate() {
 }
 
 function getNextPegCoord(path, step) {
-  const boardWidth = Math.min(W - 60, 700);
+  const boardWidth = Math.min(W - 40, 600);
   const pegGap = boardWidth / (ROWS + 2);
   const count = step + 2;
   const rowStartX = W/2 - ((count-1) * pegGap)/2;
@@ -440,7 +420,7 @@ function getNextPegCoord(path, step) {
   
   return {
     x: rowStartX + clampedCol * pegGap,
-    y: 60 + (step-1) * ((H - 140) / ROWS) + 20
+    y: 80 + (step) * ((H - 160) / ROWS) // Исправлено
   };
 }
 
@@ -524,9 +504,9 @@ async function dropBall() {
     const ball = {
       id: Date.now(),
       x: W / 2,
-      y: 50,
+      y: 60,
       targetX: W / 2,
-      nextPegY: 60 + (H - 140) / ROWS + 20,
+      nextPegY: 80 + ((H - 160) / ROWS),
       speedY: 6,
       path: d.path,
       step: 0,
@@ -539,7 +519,7 @@ async function dropBall() {
   } catch(e) {
     showToast('Ошибка соединения', 'error');
     busy = false;
-    $('btnPlay').disabled = true;
+    $('btnPlay').disabled = false;
   }
 }
 
