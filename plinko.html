@@ -184,6 +184,13 @@ let W, H, pegs = [], slots = [], ROWS = 8;
 let boardWidth = 0, boardHeight = 0, startY = 0, rowGap = 0, pegGap = 0;
 const BALL_SIZE = 8;
 
+// ===== СКОРОСТЬ ПАДЕНИЯ (чем меньше, тем медленнее) =====
+// Было: speedY = 7  → теперь 2.2 для падения, 3.2 для landing
+// Авто-режим: было 600мс → стало 1400мс
+const BALL_FALL_SPEED = 2.2;
+const BALL_LAND_SPEED = 3.2;
+const AUTO_INTERVAL_MS = 1400;
+
 let highlightIdx = -1;
 let highlightTime = 0;
 
@@ -562,7 +569,7 @@ async function dropBall() {
       y: startY - 20,
       targetX: topPegX,
       nextPegY: startY,
-      speedY: 7,
+      speedY: BALL_FALL_SPEED,
       path: d.path,
       step: 0,
       state: 'falling',
@@ -596,15 +603,13 @@ function startAuto() {
   $('btnAuto').textContent = 'Стоп';
   $('btnAuto').classList.add('stop');
   $('btnPlay').disabled = true;
-  $('btnAuto').disabled = false; // Разрешаем нажать Стоп
+  $('btnAuto').disabled = false;
   
-  // Запускаем первый шар сразу
   dropBall();
   
-  // И затем каждые 600мс
   autoTimer = setInterval(() => {
     dropBall();
-  }, 600);
+  }, AUTO_INTERVAL_MS);
 }
 
 function stopAuto() {
