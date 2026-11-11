@@ -49,7 +49,7 @@
   .btn-play:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(0,229,255,0.5); transform: translateY(-2px); }
   .btn-play:disabled { opacity: 0.5; cursor: not-allowed; background: #333; color: #888; box-shadow: none; }
 
-  .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); padding: 20px; }
+  .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); padding: 15px; }
   
   .canvas-wrap { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -64,11 +64,11 @@
     .main-body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 8px; }
     .sidebar h3 { display: none; }
-    .input-group { margin-bottom: 0; flex: 1; min-width: 110px; }
-    .quick-bets { margin-bottom: 0; flex: 2; min-width: 180px; }
-    .risk-grid { margin-bottom: 0; flex: 1; min-width: 150px; }
-    .btn-play { width: auto; min-width: 110px; margin-top: 0; flex: 1; padding: 12px; font-size: 14px; }
-    .game-area { padding: 10px; }
+    .input-group { margin-bottom: 0; flex: 1; min-width: 100px; }
+    .quick-bets { margin-bottom: 0; flex: 2; min-width: 160px; }
+    .risk-grid { margin-bottom: 0; flex: 1.5; min-width: 140px; }
+    .btn-play { width: auto; min-width: 100px; margin-top: 0; flex: 1; padding: 10px; font-size: 13px; }
+    .game-area { padding: 5px; }
     .toast-container { top: 60px; right: 10px; left: 10px; }
     .toast { width: 100%; min-width: 0; transform: translateY(-120%); }
     .toast.show { transform: translateY(0); }
@@ -136,7 +136,7 @@ let busy = false;
 let currentBet = 10;
 let currentRisk = 'low';
 
-// 8 РЯДОВ ВСЕГДА. Множители как ты просил.
+// ВСЕГДА 8 РЯДОВ. Множители как ты просил.
 const RISK_CONFIG = {
   low: { 
     rows: 8, 
@@ -154,9 +154,9 @@ const RISK_CONFIG = {
 
 const canvas = $('gameCanvas');
 const ctx = canvas.getContext('2d');
-let W, H, pegs = [], slots = [], cellW = 0, cellH = 0;
-let ROWS = 8;
-let BALL_SIZE = 10;
+let W, H, pegs = [], slots = [], ROWS = 8;
+let boardWidth = 0, boardHeight = 0, startY = 0, rowGap = 0, pegGap = 0;
+const BALL_SIZE = 8;
 
 function resizeCanvas() {
   const p = canvas.parentElement;
@@ -173,21 +173,26 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 
 function buildBoard() {
-  const conf = RISK_CONFIG[currentRisk];
-  ROWS = conf.rows;
+  ROWS = 8;
   
-  const padTop = 60;
-  const padBottom = 80;
-  const boardWidth = Math.min(W - 40, 600); // Ограничиваем ширину
-  const boardHeight = H - padTop - padBottom;
+  // Отступы, чтобы влезло на телефон
+  const padTop = 50;
+  const padBottom = 70;
   
-  const startY = padTop + 20;
-  const rowGap = boardHeight / ROWS;
+  // Ширина сетки: не больше экрана, но с отступами
+  boardWidth = Math.min(W - 40, 500); 
+  boardHeight = H - padTop - padBottom;
+  
+  startY = padTop + 20;
+  rowGap = boardHeight / ROWS;
+  
+  // Ширина между колышками
+  pegGap = boardWidth / (ROWS + 2);
+  
   pegs = [];
-  
+  // Генерируем колышки (верхний ряд 3, нижний 10)
   for (let r = 0; r < ROWS; r++) {
     const count = r + 3;
-    const pegGap = boardWidth / (ROWS + 2);
     const rowWidth = (count - 1) * pegGap;
     const rowStartX = W / 2 - rowWidth / 2;
     
@@ -202,19 +207,19 @@ function buildBoard() {
   }
   
   slots = [];
-  const slotCount = conf.multipliers.length;
-  cellW = boardWidth / (slotCount - 1);
-  cellH = padBottom - 10;
+  const slotCount = RISK_CONFIG[currentRisk].multipliers.length;
+  const cellW = boardWidth / (slotCount - 1); // Расстояние между центрами
   
-  const bottomY = startY + ROWS * rowGap + 15;
-  const slotStartX = W / 2 - boardWidth / 2 - cellW/2 + pegGap/2;
+  const bottomY = startY + ROWS * rowGap + 10;
+  // Центр первого слота совпадает с первым колышком последнего ряда
+  const firstPegX = W / 2 - ((ROWS + 2 - 1) * pegGap) / 2; 
   
   for (let i = 0; i < slotCount; i++) {
     slots.push({
-      x: W / 2 - ((slotCount-1)*cellW)/2 + i*cellW - cellW/2 + 5, // Центрируем
+      x: firstPegX + i * pegGap, // Центр слота
       y: bottomY,
-      w: cellW - 6,
-      h: cellH,
+      w: pegGap - 4,             // Ширина сумки
+      h: padBottom - 20,
       index: i
     });
   }
@@ -227,128 +232,107 @@ function getSlotStyle(mult) {
   return { bg1: '#2c3e50', bg2: '#000000', border: '#8b92a5', text: '#fff' };                 // Тёмный
 }
 
-function drawBag(x, y, w, h, mult) {
+function drawBag(cx, cy, w, h, mult) {
   const style = getSlotStyle(mult);
   
+  // Тень
   ctx.beginPath();
-  ctx.ellipse(x + w/2, y + h, w/2, 5, 0, 0, Math.PI*2);
+  ctx.ellipse(cx, cy + h, w/2, 5, 0, 0, Math.PI*2);
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fill();
 
-  const bagY = y + h * 0.3;
+  // Мешок (снизу)
+  const bagY = cy + h * 0.3;
   const bagH = h * 0.7;
   
   ctx.beginPath();
-  ctx.moveTo(x + 4, bagY);
-  ctx.bezierCurveTo(x - 5, bagY + bagH * 0.5, x + w/2, y + h, x + w - 4, bagY);
-  ctx.quadraticCurveTo(x + w - 2, bagY - 5, x + w/2, bagY - 8);
-  ctx.quadraticCurveTo(x + 2, bagY - 5, x + 4, bagY);
+  ctx.moveTo(cx - w/2 + 4, bagY);
+  ctx.bezierCurveTo(cx - w/2 - 5, bagY + bagH * 0.5, cx, cy + h, cx + w/2 - 4, bagY);
+  ctx.quadraticCurveTo(cx + w/2 - 2, bagY - 5, cx, bagY - 8);
+  ctx.quadraticCurveTo(cx - w/2 + 2, bagY - 5, cx - w/2 + 4, bagY);
   
-  const grad = ctx.createLinearGradient(x, bagY, x + w, y + h);
+  const grad = ctx.createLinearGradient(cx, bagY, cx, cy + h);
   grad.addColorStop(0, style.bg1);
   grad.addColorStop(1, style.bg2);
   ctx.fillStyle = grad;
   ctx.fill();
   ctx.strokeStyle = style.border;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Верёвка
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 4, bagY);
+  ctx.quadraticCurveTo(cx, bagY - 12, cx + w/2 - 4, bagY);
+  ctx.strokeStyle = '#d4af37';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(x + 4, bagY);
-  ctx.quadraticCurveTo(x + w/2, bagY - 15, x + w - 4, bagY);
-  ctx.strokeStyle = '#d4af37';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  
-  ctx.beginPath();
-  ctx.arc(x + w/2, bagY - 8, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#d4af37';
-  ctx.fill();
-
+  // Текст
   ctx.fillStyle = style.text;
-  ctx.font = '900 12px Montserrat';
+  ctx.font = '900 10px Montserrat';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowColor = 'rgba(0,0,0,0.8)';
   ctx.shadowBlur = 3;
-  ctx.fillText('x' + mult, x + w/2, y + h/2 + 4);
+  ctx.fillText('x' + mult, cx, cy + h/2 + 4);
   ctx.shadowBlur = 0;
-}
-
-function drawPeg(peg) {
-  ctx.beginPath();
-  ctx.arc(peg.x + 1, peg.y + 2, 5, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(peg.x, peg.y, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#4a5a70';
-  ctx.fill();
-  
-  const grad = ctx.createRadialGradient(peg.x - 2, peg.y - 2, 1, peg.x, peg.y, 5);
-  grad.addColorStop(0, '#a0b8d0');
-  grad.addColorStop(0.5, '#4a5a70');
-  grad.addColorStop(1, '#1a2230');
-  ctx.beginPath();
-  ctx.arc(peg.x, peg.y, 5, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(peg.x - 1.5, peg.y - 1.5, 1.5, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.fill();
 }
 
 function drawBoard() {
   ctx.clearRect(0, 0, W, H);
   
-  const boardWidth = Math.min(W - 40, 600);
+  // Бортики (стены) по краям сетки
+  const wallXOffset = (boardWidth / 2) + 15;
+  const leftWallX = W/2 - wallXOffset;
+  const rightWallX = W/2 + wallXOffset;
   
-  // Бортики
-  const leftWallX = W/2 - boardWidth/2 - 15;
-  const rightWallX = W/2 + boardWidth/2 + 15;
-  
-  const wallGrad = ctx.createLinearGradient(leftWallX, 0, leftWallX + 10, 0);
-  wallGrad.addColorStop(0, '#10141d');
-  wallGrad.addColorStop(0.5, '#2a3441');
-  wallGrad.addColorStop(1, '#10141d');
-  
-  ctx.fillStyle = wallGrad;
+  ctx.fillStyle = '#1a2230';
   ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 8;
+  
+  // Левый бортик
   ctx.beginPath();
-  ctx.roundRect(leftWallX, 80, 10, H - 180, [10, 10, 0, 0]);
+  ctx.roundRect(leftWallX, startY - 15, 6, boardHeight + 25, [4, 4, 0, 0]);
   ctx.fill();
   
+  // Правый бортик
   ctx.beginPath();
-  ctx.roundRect(rightWallX - 10, 80, 10, H - 180, [10, 10, 0, 0]);
+  ctx.roundRect(rightWallX - 6, startY - 15, 6, boardHeight + 25, [4, 4, 0, 0]);
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  pegs.forEach(peg => drawPeg(peg));
+  // Колышки
+  pegs.forEach(peg => {
+    ctx.beginPath();
+    ctx.arc(peg.x, peg.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#4a5a70';
+    ctx.fill();
+    
+    // Блик
+    ctx.beginPath();
+    ctx.arc(peg.x - 1, peg.y - 1, 1, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fill();
+  });
   
+  // Сумки
   const mults = RISK_CONFIG[currentRisk].multipliers;
   slots.forEach(slot => {
     const mult = mults[slot.index];
     drawBag(slot.x, slot.y, slot.w, slot.h, mult);
   });
   
+  // Шарики
   balls.forEach(ball => {
     ctx.beginPath();
-    ctx.fillStyle = 'rgba(0,229,255,0.4)';
-    ctx.arc(ball.x, ball.y, BALL_SIZE + 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    const grad = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 2, ball.x, ball.y, BALL_SIZE);
+    const grad = ctx.createRadialGradient(ball.x - 2, ball.y - 2, 1, ball.x, ball.y, BALL_SIZE);
     grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.4, '#00e5ff');
+    grad.addColorStop(0.5, '#00e5ff');
     grad.addColorStop(1, '#0077ff');
     
-    ctx.beginPath();
     ctx.fillStyle = grad;
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 10;
     ctx.shadowColor = 'rgba(0,229,255,0.8)';
     ctx.arc(ball.x, ball.y, BALL_SIZE, 0, Math.PI * 2);
     ctx.fill();
@@ -377,7 +361,7 @@ function animate() {
           b.targetX = nextPeg.x;
           b.nextPegY = nextPeg.y;
         } else {
-          const slotX = slots[b.finalSlot].x + slots[b.finalSlot].w / 2;
+          const slotX = slots[b.finalSlot].x; // Точка сбора
           b.targetX = slotX;
           b.state = 'landing';
           b.landY = slots[b.finalSlot].y + slots[b.finalSlot].h / 2;
@@ -405,10 +389,9 @@ function animate() {
 }
 
 function getNextPegCoord(path, step) {
-  const boardWidth = Math.min(W - 40, 600);
-  const pegGap = boardWidth / (ROWS + 2);
   const count = step + 2;
-  const rowStartX = W/2 - ((count-1) * pegGap)/2;
+  const rowWidth = (count - 1) * pegGap;
+  const rowStartX = W/2 - rowWidth / 2;
   
   let offset = 0;
   for (let i = 0; i < step; i++) {
@@ -420,7 +403,7 @@ function getNextPegCoord(path, step) {
   
   return {
     x: rowStartX + clampedCol * pegGap,
-    y: 80 + (step) * ((H - 160) / ROWS) // Исправлено
+    y: startY + (step) * rowGap // Строго по рядам
   };
 }
 
@@ -501,13 +484,18 @@ async function dropBall() {
       return;
     }
     
+    // Спавним шарик ровно по центру верхнего колышка
+    const countTop = 3;
+    const rowWidthTop = (countTop - 1) * pegGap;
+    const topPegX = W/2 - rowWidthTop / 2 + pegGap; // Центральный колышек верхнего ряда
+    
     const ball = {
       id: Date.now(),
-      x: W / 2,
-      y: 60,
-      targetX: W / 2,
-      nextPegY: 80 + ((H - 160) / ROWS),
-      speedY: 6,
+      x: topPegX, 
+      y: startY - 20,
+      targetX: topPegX,
+      nextPegY: startY,
+      speedY: 7,
       path: d.path,
       step: 0,
       state: 'falling',
