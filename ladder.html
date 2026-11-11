@@ -51,12 +51,20 @@
   .btn-cashout:disabled { opacity: 0.5; cursor: not-allowed; background: #333; }
 
   .game-area { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; background: radial-gradient(circle at center, #121826, #090a10 80%); }
-  .ladder-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px 10px; gap: 6px; z-index: 2; position: relative; }
-  .level-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin-bottom: 2px; }
-  .mult-badge { width: 55px; flex-shrink: 0; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
+  
+  /* Контейнер с горизонтальным и вертикальным скроллом */
+  .ladder-scroll { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; gap: 4px; z-index: 2; position: relative; }
+  
+  /* Минимальная ширина пирамиды, чтобы клетки не сжимались в полоски */
+  .ladder-inner { min-width: 520px; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; }
+  
+  .level-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .mult-badge { width: 50px; flex-shrink: 0; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--text-muted); background: transparent; border-radius: 6px; transition: 0.3s; }
   .mult-badge.active { background: rgba(0,229,255,0.15); border: 1px solid var(--accent); color: #fff; box-shadow: 0 0 10px rgba(0,229,255,0.3); }
   
+  /* Сетка. Клетки будут квадратными и не меньше 20px */
   .grid-row { display: grid; flex: 1; gap: 4px; }
+  
   .cell { aspect-ratio: 1; background: #1a1f2b; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: inset 0 0 5px rgba(0,229,255,0.1); }
   .cell:hover:not(:disabled) { background: rgba(0,229,255,0.15); border-color: var(--accent); transform: scale(1.1); z-index: 2; }
   .cell.current { background: #1a2c3a; border-color: var(--accent); animation: pulse 1.5s infinite; }
@@ -93,9 +101,11 @@
     .btn-start, .btn-cashout { width: auto; min-width: 120px; margin-top: 0; flex: 1; padding: 10px; }
     
     .ladder-scroll { padding: 10px 5px; gap: 4px; }
-    .level-row { gap: 6px; max-width: 100%; }
-    .mult-badge { width: 40px; font-size: 10px; height: 22px; }
-    .grid-row { gap: 2px; }
+    /* На мобилке уменьшаем минимальную ширину, чтобы влезало чуть больше */
+    .ladder-inner { min-width: 420px; gap: 4px; }
+    .level-row { gap: 4px; }
+    .mult-badge { width: 36px; font-size: 9px; height: 20px; }
+    .grid-row { gap: 3px; }
     .icon { width: 100%; height: 100%; }
     
     .toast-container { top: 60px; right: 10px; left: 10px; }
@@ -157,7 +167,9 @@
     </div>
 
     <div class="game-area">
-      <div class="ladder-scroll" id="ladderScroll"></div>
+      <div class="ladder-scroll" id="ladderScroll">
+        <div class="ladder-inner" id="ladderInner"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -166,7 +178,7 @@
   <div class="howto-modal">
     <h2>🪜 Как играть в Ladder</h2>
     <p>Ваша цель — подняться по лестнице как можно выше, забирая растущий множитель.</p>
-    <p>На каждом из 13 уровней расположено <b>20 клеток</b>. В начале игры вы выбираете количество сломанных корон (мин) — от 1 до 7.</p>
+    <p>Каждый уровень имеет форму пирамиды: внизу 20 клеток, вверху 8. В начале игры вы выбираете количество сломанных корон (мин).</p>
     <p>Нажимайте на клетки. Если попали на <b>корону (👑)</b> — поднимаетесь на уровень выше. Если на <b>сломанную корону (💥)</b> — ставка сгорает.</p>
     <p>В любой момент нажмите <b>«Забрать»</b>, чтобы сохранить текущий выигрыш.</p>
     <button class="howto-close" onclick="closeHowTo()">Понятно</button>
@@ -260,10 +272,11 @@ function setMines(val) {
 }
 
 function renderBoard(revealCurrentMines = false) {
-  const scroll = $('ladderScroll');
-  scroll.innerHTML = '';
+  const inner = $('ladderInner');
+  inner.innerHTML = '';
   const multArr = MULT_TABLE[minesCount];
   
+  // Рендерим сверху вниз (от 13-го к 1-му)
   for (let i = maxSteps - 1; i >= 0; i--) {
     const row = document.createElement('div');
     row.className = 'level-row';
@@ -274,9 +287,9 @@ function renderBoard(revealCurrentMines = false) {
 
     const grid = document.createElement('div');
     grid.className = 'grid-row';
-    const cellsCount = stepsData[i] ? stepsData[i].cellsCount : 20; 
+    const cellsCount = stepsData[i] ? stepsData[i].cellsCount : (20 - i); 
     
-    // Сетка на 20 колонок всегда, чтобы клетки были ровными и крупными
+    // Сетка на cellsCount колонок. Клетки будут расти в размере, но не меньше 20px (за счет min-width родителя)
     grid.style.gridTemplateColumns = `repeat(${cellsCount}, 1fr)`;
 
     for (let c = 0; c < cellsCount; c++) {
@@ -303,9 +316,9 @@ function renderBoard(revealCurrentMines = false) {
       grid.appendChild(cell);
     }
     row.appendChild(grid);
-    scroll.appendChild(row);
+    inner.appendChild(row);
   }
-  setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 50);
+  setTimeout(() => { $('ladderScroll').scrollTop = $('ladderScroll').scrollHeight; }, 50);
 }
 
 async function startGame() {
@@ -326,13 +339,15 @@ async function startGame() {
     const d = await r.json();
     if (!r.ok) { showToast(d.error, 'error'); busy = false; $('btnStart').disabled = false; return; }
     sessionId = d.session_id;
-    stepsData = d.ladder.map(level => {
+    
+    stepsData = d.ladder.map((level, idx) => {
       const safe = [];
       for (let i = 0; i < level.cellsCount; i++) {
         if (!level.mines.includes(i)) safe.push(i);
       }
       return { cellsCount: level.cellsCount, mines: level.mines, safe };
     });
+    
     currentStep = 0;
     $('btnStart').style.display = 'none';
     $('btnCashout').style.display = 'flex';
