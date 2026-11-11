@@ -172,7 +172,6 @@ let currentRisk = 'low';
 let isAutoMode = false;
 let autoTimer = null;
 
-// ВАШИ МНОЖИТЕЛИ ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ
 const RISK_CONFIG = {
   low: { rows: 8, multipliers: [2.4, 1.5, 1.1, 0.9, 0.6, 0.9, 1.1, 1.5, 2.4] },
   medium: { rows: 8, multipliers: [7.0, 2.2, 1.0, 0.5, 0.25, 0.5, 1.0, 2.2, 7.0] },
@@ -185,14 +184,14 @@ let W, H, pegs = [], slots = [], ROWS = 8;
 let boardWidth = 0, boardHeight = 0, startY = 0, rowGap = 0, pegGap = 0;
 
 const BALL_SIZE = 9;
-const BALL_FALL_SPEED = 2.8; // Скорость падения
+const BALL_FALL_SPEED = 2.8;
 const BALL_LAND_SPEED = 3.5;
 const AUTO_INTERVAL_MS = 1400;
 
 let highlightIdx = -1;
 let highlightTime = 0;
 let balls = [];
-let trails = []; // Шлейф шарика
+let trails = [];
 
 function openHowTo() { $('howtoModal').classList.add('show'); }
 function closeHowTo() { $('howtoModal').classList.remove('show'); }
@@ -247,22 +246,23 @@ function buildBoard() {
   const lastRowWidth = (lastRowCount - 1) * pegGap;
   const lastRowStartX = W / 2 - lastRowWidth / 2;
   
+  // Увеличили высоту ячейки до 54px, чтобы текст помещался
+  const slotHeight = W < 600 ? 48 : 54; 
+
   for (let i = 0; i < slotCount; i++) {
     const slotX = lastRowStartX + pegGap / 2 + i * pegGap;
     
     slots.push({
       x: slotX, 
       y: bottomY,
-      w: pegGap - 6,             
-      h: 46,
+      w: pegGap - 4,             
+      h: slotHeight,
       index: i
     });
   }
 }
 
-// Отрисовка колышков (цилиндры с неоновой подсветкой, как на карточке)
 function drawPeg(peg) {
-  // Тень/свечение снизу
   ctx.beginPath();
   ctx.arc(peg.x, peg.y + 4, 8, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(0,229,255,0.3)';
@@ -271,7 +271,6 @@ function drawPeg(peg) {
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Основной металлический цилиндр
   const grad = ctx.createLinearGradient(peg.x - 6, peg.y - 6, peg.x + 6, peg.y + 6);
   grad.addColorStop(0, '#e0e5ec');
   grad.addColorStop(0.5, '#8b95a5');
@@ -282,18 +281,15 @@ function drawPeg(peg) {
   ctx.fillStyle = grad;
   ctx.fill();
   
-  // Блик сверху
   ctx.beginPath();
   ctx.arc(peg.x - 2, peg.y - 2, 3, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
   ctx.fill();
 }
 
-// Отрисовка слотов (ламинированные, 3D, как на карточке)
 function drawSlot(slot, mult, isHighlighted) {
   let c1, c2, border, glow;
   
-  // Цвета адаптированы под твои множители (центр темный, края цветные)
   if (mult >= 7.0) { c1 = '#ff4d4d'; c2 = '#8b0000'; border = '#ff4d4d'; glow = 'rgba(255,77,77,0.6)'; }
   else if (mult >= 2.2) { c1 = '#f1c40f'; c2 = '#b8860b'; border = '#f1c40f'; glow = 'rgba(241,196,15,0.6)'; }
   else if (mult >= 0.9) { c1 = '#00ff88'; c2 = '#006633'; border = '#00ff88'; glow = 'rgba(0,255,136,0.6)'; }
@@ -321,7 +317,6 @@ function drawSlot(slot, mult, isHighlighted) {
     ctx.shadowBlur = 0;
   }
 
-  // Фон слота (глубина)
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, [radius]);
   const bgGrad = ctx.createLinearGradient(x, y, x, y + h);
@@ -333,36 +328,42 @@ function drawSlot(slot, mult, isHighlighted) {
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Внутренняя обводка (стекло)
   ctx.beginPath();
   ctx.roundRect(x + 2, y + 2, w - 4, h - 4, [radius - 2]);
   ctx.strokeStyle = 'rgba(255,255,255,0.4)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Блик сверху (эффект ламинации)
   ctx.beginPath();
   ctx.roundRect(x + 4, y + 4, w - 8, h / 2 - 4, [radius - 3, radius - 3, 0, 0]);
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
   ctx.fill();
 
-  // Текст
+  // --- АВТОПОДГОНКА ШРИФТА ---
+  const text = mult + 'x';
+  let fontSize = 14; // базовый размер
+  ctx.font = `900 ${fontSize}px Montserrat`;
+  
+  // Уменьшаем шрифт, пока текст не станет меньше ширины слота (с отступами по 6px с каждой стороны)
+  while (ctx.measureText(text).width > (w - 12) && fontSize > 8) {
+    fontSize -= 1;
+    ctx.font = `900 ${fontSize}px Montserrat`;
+  }
+
   ctx.fillStyle = mult >= 0.9 ? '#fff' : '#8b92a5';
-  ctx.font = '900 14px Montserrat';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowColor = mult >= 0.9 ? glow : 'transparent';
   ctx.shadowBlur = 8;
-  ctx.fillText(mult + 'x', slot.x, y + h / 2 + 2);
+  // +2px вниз для идеального центрирования
+  ctx.fillText(text, slot.x, y + h / 2 + 2);
   ctx.shadowBlur = 0;
 }
 
-// Отрисовка космического фона с сеткой и свечением
 function drawBackground() {
   ctx.fillStyle = '#05070e';
   ctx.fillRect(0, 0, W, H);
 
-  // Космическое свечение сверху (сине-фиолетовое)
   const bgGrad = ctx.createRadialGradient(W/2, 0, 10, W/2, 0, W/1.5);
   bgGrad.addColorStop(0, 'rgba(0,229,255,0.15)');
   bgGrad.addColorStop(0.5, 'rgba(100,0,255,0.05)');
@@ -370,7 +371,6 @@ function drawBackground() {
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // 3D Неоновая сетка снизу
   ctx.strokeStyle = 'rgba(0,229,255,0.1)';
   ctx.lineWidth = 1;
   const horizon = H * 0.8;
@@ -399,7 +399,6 @@ function drawBoard() {
     drawSlot(slot, mults[slot.index], i === highlightIdx);
   });
 
-  // Шлейф шарика (Tail)
   trails.forEach((t) => {
     const alpha = 1 - (Date.now() - t.time) / 400;
     if (alpha > 0) {
@@ -413,9 +412,7 @@ function drawBoard() {
     }
   });
 
-  // Отрисовка шаров (светящиеся)
   balls.forEach(ball => {
-    // Свечение вокруг шара
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, BALL_SIZE + 6, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 229, 255, 0.2)';
@@ -424,7 +421,6 @@ function drawBoard() {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Ядро шара
     const grad = ctx.createRadialGradient(ball.x - 2, ball.y - 2, 1, ball.x, ball.y, BALL_SIZE);
     grad.addColorStop(0, '#ffffff');
     grad.addColorStop(0.3, '#00e5ff');
@@ -444,13 +440,11 @@ function animate() {
     highlightIdx = -1;
   }
 
-  // Обновляем шлейф
   trails = trails.filter(t => Date.now() - t.time < 400);
 
   for (let i = balls.length - 1; i >= 0; i--) {
     const b = balls[i];
     
-    // Добавляем след каждые несколько кадров
     if (Math.random() < 0.5) {
       trails.push({ x: b.x, y: b.y, time: Date.now() });
     }
