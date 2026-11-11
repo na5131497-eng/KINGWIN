@@ -65,11 +65,24 @@
     display: flex; justify-content: center; align-items: center; 
     border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     overflow: hidden; position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
   
   .symbol img { width: 85%; height: 85%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
 
   .sym-wild-text { position: absolute; bottom: 5px; width: 100%; text-align: center; font-weight: 900; font-size: 12px; color: #fff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; }
+
+  /* ПОДСВЕТКА ВЫИГРЫША (Сыгровки) */
+  .symbol.win-highlight {
+    box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.9), 0 0 15px rgba(255, 215, 0, 0.8);
+    border: 2px solid var(--gold-light);
+    animation: pulse-win 0.6s infinite alternate;
+    z-index: 2;
+  }
+  @keyframes pulse-win {
+    from { transform: scale(1); filter: brightness(1); }
+    to { transform: scale(1.05); filter: brightness(1.5); }
+  }
 
   /* Панель управления */
   .controls { 
@@ -105,12 +118,7 @@
   .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
 
   /* Анимация вращения */
-  .spinning .symbol img { 
-    filter: blur(4px); 
-    opacity: 0.9; 
-    transform: translateY(10px);
-    transition: none; 
-  }
+  .spinning .symbol img { filter: blur(4px); opacity: 0.9; transform: translateY(10px); transition: none; }
 
   /* Мобильная адаптация */
   @media (max-width: 768px) {
@@ -179,20 +187,18 @@
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('infoModal').classList.remove('show')">✕</button>
     <h2>🎰 Empire of Gold (6x5)</h2>
-    <p>Обновленный слот с 6 барабанами и 5 рядами.</p>
+    <p>Слот с 6 барабанами и 5 рядами. Выплаты считаются слева направо по 9 фиксированным линиям.</p>
     <h3>Спецсимволы:</h3>
     <ul>
-      <li><b>WILD</b> — заменяет все символы, кроме Скаттера.</li>
-      <li><b>SCATTER</b> — выпадение 3-х и более запускает фриспины (в разработке).</li>
-      <li><b>COIN</b> — выпадение 6+ активирует Hold & Win (в разработке).</li>
+      <li><b>WILD</b> — заменяет все символы.</li>
     </ul>
-    <h3>Таблица выплат (за 5 на линии):</h3>
+    <h3>Таблица выплат (за 3/4/5/6 на линии, в ставках):</h3>
     <div class="paytable">
-      <div class="paytable-item"><img src="/sym_10.png"><div class="paytable-val">10, J, Q, K, A: x10</div></div>
-      <div class="paytable-item"><img src="/sym_diamond.png"><div class="paytable-val">Алмаз: x30</div></div>
-      <div class="paytable-item"><img src="/sym_scarab.png"><div class="paytable-val">Скарабей: x50</div></div>
-      <div class="paytable-item"><img src="/sym_crown.png"><div class="paytable-val">Корона: x100</div></div>
-      <div class="paytable-item"><img src="/sym_wild.png"><div class="paytable-val">WILD: x1000</div></div>
+      <div class="paytable-item"><img src="/sym_10.png" onerror="this.style.display='none'"><div class="paytable-val">10-A: x0.5 / x1 / x3 / x10</div></div>
+      <div class="paytable-item"><img src="/sym_diamond.png" onerror="this.style.display='none'"><div class="paytable-val">Алмаз: x1 / x3 / x8 / x30</div></div>
+      <div class="paytable-item"><img src="/sym_scarab.png" onerror="this.style.display='none'"><div class="paytable-val">Скарабей: x2 / x5 / x15 / x50</div></div>
+      <div class="paytable-item"><img src="/sym_crown.png" onerror="this.style.display='none'"><div class="paytable-val">Корона: x4 / x10 / x30 / x100</div></div>
+      <div class="paytable-item"><img src="/sym_wild.png" onerror="this.style.display='none'"><div class="paytable-val">WILD: x10 / x50 / x200 / x1000</div></div>
     </div>
   </div>
 </div>
@@ -200,7 +206,7 @@
 <script>
 const $ = id => document.getElementById(id);
 let currentPlayer = null;
-let balance = 1000.00; // <--- ТЕСТОВЫЙ БАЛАНС
+let balance = 1000.00;
 let isSpinning = false;
 
 const BETS = [6, 16, 32, 48, 64, 120];
@@ -223,10 +229,11 @@ const SYMBOLS = {
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 
+// Таблица выплат: [За 3, За 4, За 5, За 6]
 const PAYTABLE = {
-  '10': [1, 3, 10], 'J': [1, 3, 10], 'Q': [1, 3, 10], 'K': [1, 3, 10], 'A': [1, 3, 10],
-  'diamond': [3, 8, 30], 'scarab': [5, 15, 50], 'crown': [10, 30, 100],
-  'wild': [50, 200, 1000]
+  '10': [0.5, 1, 3, 10], 'J': [0.5, 1, 3, 10], 'Q': [0.5, 1, 3, 10], 'K': [0.5, 1, 3, 10], 'A': [0.5, 1, 3, 10],
+  'diamond': [1, 3, 8, 30], 'scarab': [2, 5, 15, 50], 'crown': [4, 10, 30, 100],
+  'wild': [10, 50, 200, 1000]
 };
 
 function getRandomSymbol() {
@@ -262,6 +269,7 @@ function renderReelsRandom() {
   }
 }
 
+// Отрисовка финального поля
 function renderFinalBoard(board) {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
@@ -274,12 +282,12 @@ function renderFinalBoard(board) {
       const sym = board[i][j];
       const el = document.createElement('div');
       el.className = 'symbol';
+      el.dataset.col = i;
+      el.dataset.row = j;
       el.innerHTML = createSymbolHTML(sym);
       
       el.style.opacity = '0';
       el.style.transform = 'translateY(-40px)'; 
-      
-      // Каскадный съезд (задержка 0.05с между колонками для быстроты)
       el.style.transition = `opacity 0.3s ease ${i * 0.05}s, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1) ${i * 0.05}s`;
       
       reel.appendChild(el);
@@ -307,8 +315,22 @@ function changeBet(dir) {
   $('btnBetUp').disabled = betIndex === BETS.length - 1;
 }
 
+// Функция для подсветки конкретных ячеек
+function highlightWinCells(cells) {
+  cells.forEach(c => {
+    const el = document.querySelector(`.symbol[data-col="${c[0]}"][data-row="${c[1]}"]`);
+    if (el) el.classList.add('win-highlight');
+  });
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.symbol').forEach(el => el.classList.remove('win-highlight'));
+}
+
 function calculateWins(board, betAmount) {
   let totalWin = 0;
+  let winningCells = [];
+  
   const lines = [
     [[0,2],[1,2],[2,2],[3,2],[4,2],[5,2]], 
     [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]], 
@@ -325,6 +347,7 @@ function calculateWins(board, betAmount) {
     const firstSym = board[line[0][0]][line[0][1]];
     let matchCount = 1;
     let targetSymId = firstSym.id;
+    let currentLineCells = [line[0]]; // Сохраняем ячейки для подсветки
 
     if (targetSymId === 'wild') {
       for (let i = 1; i < 6; i++) {
@@ -338,34 +361,42 @@ function calculateWins(board, betAmount) {
 
     for (let i = 1; i < 6; i++) {
       const sym = board[line[i][0]][line[i][1]];
-      if (sym.id === targetSymId || sym.id === 'wild') matchCount++;
-      else break;
+      if (sym.id === targetSymId || sym.id === 'wild') {
+        matchCount++;
+        currentLineCells.push(line[i]); 
+      } else {
+        break;
+      }
     }
 
     if (matchCount >= 3 && PAYTABLE[targetSymId]) {
-      const payout = PAYTABLE[targetSymId][matchCount - 3] || 50;
+      const payout = PAYTABLE[targetSymId][matchCount - 3];
       totalWin += payout * (betAmount / 6); 
+      
+      // Добавляем выигрышные ячейки в общий список для подсветки
+      winningCells.push(...currentLineCells); 
     }
   }
-  return Math.round(totalWin * 100) / 100;
+
+  return { win: Math.round(totalWin * 100) / 100, cells: winningCells };
 }
 
 async function spin() {
   if (isSpinning) return;
   if (balance < bet) { alert('Недостаточно средств (тестовый баланс)'); return; }
   
-  // Списываем ставку
   balance -= bet;
   $('balanceVal').textContent = balance.toFixed(2);
 
   isSpinning = true;
   $('btnSpin').disabled = true;
   $('winAmount').textContent = '0';
+  clearHighlight();
   
   const wrap = $('reelsWrap');
   wrap.classList.add('spinning');
   
-  // Вращение ровно 0.7 секунды (7 тиков по 100мс)
+  // 0.7 секунды вращения
   let ticks = 0;
   const interval = setInterval(() => {
     renderReelsRandom();
@@ -386,25 +417,27 @@ function finishSpin() {
     board.push(reel);
   }
   
-  // Запускаем красивый съезд сверху
   renderFinalBoard(board);
   
   setTimeout(() => {
-    const winAmount = calculateWins(board, bet);
+    // Вызываем функцию, которая возвращает и сумму, и координаты выигрышных ячеек
+    const result = calculateWins(board, bet);
     
-    if (winAmount > 0) {
-      $('winAmount').textContent = winAmount.toFixed(2);
+    if (result.win > 0) {
+      $('winAmount').textContent = result.win.toFixed(2);
       $('winAmount').style.color = '#00ff88';
       setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
       
-      // Начисляем выигрыш
-      balance += winAmount;
+      // Подсвечиваем выигрышные символы
+      highlightWinCells(result.cells);
+      
+      balance += result.win;
       $('balanceVal').textContent = balance.toFixed(2);
     }
     
     isSpinning = false;
     $('btnSpin').disabled = false;
-  }, 800); // Ждем падения (0.3s анимация + 0.5s пауза)
+  }, 800);
 }
 
 window.onload = () => {
