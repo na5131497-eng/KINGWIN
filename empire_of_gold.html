@@ -87,7 +87,19 @@
   }
   
   .symbol-inner img { width: 85%; height: 85%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
-  .sym-wild-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #fff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; }
+  
+  /* Стили для надписей */
+  .sym-wild-text { 
+    position: absolute; bottom: 4px; width: 100%; text-align: center; 
+    font-weight: 900; font-size: 10px; color: #fff; 
+    text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; 
+  }
+  .sym-scatter-text { 
+    position: absolute; bottom: 4px; width: 100%; text-align: center; 
+    font-weight: 900; font-size: 10px; color: #ff4d4d; 
+    text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d; pointer-events: none; 
+    letter-spacing: 1px;
+  }
 
   .symbol-inner.win-highlight {
     box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.9), 0 0 15px rgba(255, 215, 0, 0.8);
@@ -148,7 +160,7 @@
     .info-btn { width: 26px; height: 26px; font-size: 14px; border-width: 1px; box-shadow: 0 2px 0 #7f0000; }
     .reels-wrap { gap: 2px; padding: 2px; border-width: 1px; }
     .symbol { border-radius: 4px; }
-    .sym-wild-text { font-size: 7px; bottom: 1px; }
+    .sym-wild-text, .sym-scatter-text { font-size: 7px; bottom: 1px; }
     .bottom-controls { margin-top: 6px; gap: 8px; }
     .btn-bonus { width: 50px; height: 50px; font-size: 9px; border-width: 2px; box-shadow: 0 3px 0 #553800; }
     .btn-spin { height: 50px; font-size: 18px; border-width: 2px; box-shadow: 0 4px 0 #004d00; }
@@ -274,9 +286,18 @@ function getRandomSymbol() {
   return SYMBOLS['10'];
 }
 
+// ФУНКЦИЯ ОТРИСОВКИ СИМВОЛА (С ДОБАВЛЕННЫМ SCATTER)
 function createSymbolHTML(sym) {
   let html = `<img src="${sym.img}" alt="${sym.id}">`;
-  if (sym.id === 'wild') html += `<div class="sym-wild-text">WILD</div>`;
+  
+  if (sym.id === 'wild') {
+    html += `<div class="sym-wild-text">WILD</div>`;
+  }
+  
+  if (sym.id === 'scatter') {
+    html += `<div class="sym-scatter-text">SCATTER</div>`;
+  }
+  
   return html;
 }
 
@@ -401,7 +422,6 @@ async function processCascades(board, totalWinSoFar = 0) {
       const finalColumn = [...newSymbols, ...remaining];
       for (let j = 0; j < 5; j++) newBoard[i][j] = finalColumn[j];
       
-      // ПОЛНАЯ ПЕРЕРИСОВКА КОЛОНКИ С ИНДИВИДУАЛЬНЫМ СМЕЩЕНИЕМ
       reel.innerHTML = '';
       
       for (let j = 0; j < 5; j++) {
@@ -409,18 +429,11 @@ async function processCascades(board, totalWinSoFar = 0) {
         const el = document.createElement('div');
         el.className = 'symbol';
         
-        // Рассчитываем стартовую позицию
         let startY = 0;
-        
         if (j < missingCount) {
-          // Это новый символ, падает сверху
           startY = (j - missingCount) * 100;
         } else {
-          // Это оставшийся символ. Нужно найти его старую позицию
-          // Индекс в новой колонке (j) минус missingCount = индекс в old remaining
           const oldRemainingIndex = j - missingCount;
-          
-          // Ищем этот символ в старой доске (он не был выигрышным)
           let oldPos = -1;
           let countFound = -1;
           for (let oldJ = 0; oldJ < 5; oldJ++) {
@@ -433,19 +446,14 @@ async function processCascades(board, totalWinSoFar = 0) {
               }
             }
           }
-          
-          if (oldPos !== -1) {
-            startY = oldPos * 100;
-          } else {
-            startY = j * 100; // Фоллбэк
-          }
+          if (oldPos !== -1) startY = oldPos * 100;
+          else startY = j * 100;
         }
         
         el.style.transform = `translateY(${startY}%)`;
         el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
         reel.appendChild(el);
         
-        // Анимация съезда на место
         const endY = j * 100;
         setTimeout(() => {
           el.style.transform = `translateY(${endY}%)`;
@@ -454,7 +462,6 @@ async function processCascades(board, totalWinSoFar = 0) {
     }
     
     await new Promise(r => setTimeout(r, 600));
-    
     await processCascades(newBoard, totalWinSoFar);
     
   } else {
