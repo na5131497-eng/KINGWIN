@@ -353,20 +353,20 @@ function highlightWinCells(positions) {
   });
 }
 
-async function processCascades(board) {
+// Функция для каскада, принимает текущий общий выигрыш
+async function processCascades(board, totalWinSoFar = 0) {
   const res = checkWins(board, bet);
   
   if (res.win > 0) {
-    balance += res.win;
-    $('balanceVal').textContent = balance.toFixed(2);
-    $('winAmount').textContent = res.win.toFixed(2);
+    // Прибавляем выигрыш к общему
+    totalWinSoFar += res.win;
+    $('winAmount').textContent = totalWinSoFar.toFixed(2);
     $('winAmount').style.color = '#00ff88';
     
     highlightWinCells(res.positions);
     await new Promise(r => setTimeout(r, 800)); 
     
     playExplosionSound();
-    // 1. Помечаем элементы на взрыв и запоминаем их DOM
     res.positions.forEach(pos => {
       const reel = document.getElementById(`reel-${pos[0]}`);
       if (!reel) return;
@@ -383,7 +383,6 @@ async function processCascades(board) {
     
     await new Promise(r => setTimeout(r, 400)); 
     
-    // 2. Собираем оставшиеся символы в каждой колонке
     const newBoard = JSON.parse(JSON.stringify(board));
     
     for (let i = 0; i < 6; i++) {
@@ -391,27 +390,19 @@ async function processCascades(board) {
       if (!reel) continue;
       
       const children = Array.from(reel.children);
-      
-      // Находим оставшиеся
       const remaining = [];
-      const positionsLeft = []; // Порядковые номера оставшихся в колонке
+      
       for (let j = 0; j < 5; j++) {
         const isWin = res.positions.some(pos => pos[0] === i && pos[1] === j);
-        if (!isWin) {
-          remaining.push(board[i][j]);
-          positionsLeft.push(j);
-        }
+        if (!isWin) remaining.push(board[i][j]);
       }
       
       const missingCount = 5 - remaining.length;
       const newSymbols = [];
       for (let k = 0; k < missingCount; k++) newSymbols.push(getRandomSymbol());
       
-      // Обновляем данные доски
       const finalColumn = [...newSymbols, ...remaining];
       for (let j = 0; j < 5; j++) newBoard[i][j] = finalColumn[j];
-      
-      // --- ВИЗУАЛЬНОЕ ОБНОВЛЕНИЕ КОЛОНКИ ---
       
       // Удаляем взорванные
       for (let j = children.length - 1; j >= 0; j--) {
@@ -420,7 +411,7 @@ async function processCascades(board) {
         }
       }
       
-      // Сдвигаем оставшиеся вниз
+      // Сдвигаем оставшиеся
       const remainingElements = reel.querySelectorAll('.symbol');
       let newIndex = missingCount;
       for (let j = 0; j < 5; j++) {
@@ -432,11 +423,10 @@ async function processCascades(board) {
         }
       }
       
-      // Добавляем новые символы сверху
+      // Добавляем новые
       for (let k = 0; k < missingCount; k++) {
         const el = document.createElement('div');
         el.className = 'symbol';
-        // Начальное положение — выше экрана
         el.style.transform = `translateY(${(k - missingCount) * 100}%)`;
         el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(newSymbols[k])}</div>`;
         
@@ -449,9 +439,16 @@ async function processCascades(board) {
     }
     
     await new Promise(r => setTimeout(r, 600));
-    await processCascades(newBoard);
+    
+    // Рекурсивный вызов с передачей общего выигрыша
+    await processCascades(newBoard, totalWinSoFar);
     
   } else {
+    // Каскады закончились
+    if (totalWinSoFar > 0) {
+      balance += totalWinSoFar;
+      $('balanceVal').textContent = balance.toFixed(2);
+    }
     isSpinning = false;
     $('btnSpin').disabled = false;
     $('winAmount').style.color = 'var(--gold-light)';
@@ -499,7 +496,6 @@ async function spin() {
     for (let j = 0; j < 5; j++) {
       const el = document.createElement('div');
       el.className = 'symbol';
-      // Все начинают падать сверху
       el.style.transform = `translateY(${(j - 5) * 100}%)`;
       el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[i][j])}</div>`;
       reel.appendChild(el);
@@ -511,7 +507,8 @@ async function spin() {
   }
   
   await new Promise(r => setTimeout(r, 700));
-  await processCascades(board);
+  // Запускаем каскады с нулевым изначальным выигрышем
+  await processCascades(board, 0);
 }
 
 window.onload = () => {
