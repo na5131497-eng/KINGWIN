@@ -134,6 +134,14 @@ const LADDER_MULTS = {
   7: [1.47, 2.32, 3.69, 5.96, 9.85, 16.78, 29.62, 54.58, 105.62, 216.05, 471.43, 1102.24, 2783.50]
 };
 
+// ===== PLINKO CONFIG =====
+const PLINKO_ROWS = 8;
+const PLINKO_MULTIPLIERS = {
+  low:    [5.3, 2.2, 1.1, 0.9, 0.5, 0.9, 1.1, 2.2, 5.3],
+  medium: [13, 3.1, 1.3, 0.6, 0.4, 0.6, 1.3, 3.1, 13],
+  high:   [24, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 24]
+};
+
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
@@ -946,6 +954,73 @@ const server = http.createServer(async (req, res) => {
         await pool.query('INSERT INTO dealer_reviews (date, guest_id, guest_name, dealer_name, stars, comment) VALUES ($1,$2,$3,$4,$5,$6)', [todayStr(), guestId, guestName, dealerName, stars, comment]);
         return sendJSON(res, 200, { ok: true });
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    // ===== PLINKO =====
+    if (url === '/api/plinko/drop' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const bet = Math.round((parseFloat(b.bet) || 0) * 100) / 100;
+      const risk = String(b.risk || 'low');
+      if (!guestId) return sendJSON(res, 400, { error: 'Войдите в аккаунт' });
+      if (!PLINKO_MULTIPLIERS[risk]) return sendJSON(res, 400, { error: 'Неверный риск' });
+      if (bet < 1) return sendJSON(res, 400, { error: 'Мин. ставка 1 ₽' });
+      if (bet > 100) return sendJSON(res, 400, { error: 'Макс. ставка 100 ₽' });
+
+      const debited = await debitBet(guestId, bet);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+
+      const isBonusGame = debited.fromBonus > 0 && debited.fromDeposit === 0;
+
+      // Generate path: each row = left(0) or right(1)
+      const path = [];
+      for (let i = 0; i < PLINKO_ROWS; i++) {
+        path.push(Math.random() < 0.5 ? 0 : 1);
+      }
+
+      // Final slot: sum of directions + start offset
+      let slot = 0;
+      for (const d of path) slot += d;
+      // slot is 0..8, which matches multipliers array length (9)
+
+      const multiplier = PLINKO_MULTIPLIERS[risk][slot];
+      const winAmount = Math.round(bet * multiplier * 100) / 100;
+
+      if (winAmount > 0) {
+        await creditWin(guestId, winAmount, bet);
+      }
+
+      try {
+        await pool.query(
+          `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
+          ['plinko', guestId, bet, winAmount, multiplier, winAmount > bet ? 'win' : (winAmount === bet ? 'push' : 'lose'), guestId]
+        );
+        if (!isBonusGame) {
+          const net = bet - winAmount;
+          await pool.query(
+            `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+            [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Plinko ${risk} (${guestId})`]
+          );
+        }
+      } catch(e) {}
+
+      try {
+        const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+        if (gName.rows.length) await accruePointsByNick(gName.rows[0].name, bet, 'plinko');
+      } catch(e) {}
+
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, {
+        ok: true,
+        path,
+        slot,
+        multiplier,
+        win: winAmount,
+        balance: bal.total,
+        deposit_balance: bal.deposit,
+        bonus_balance: bal.bonus,
+        wagering: bal.wagering
+      });
     }
 
     // ===== LADDER =====
