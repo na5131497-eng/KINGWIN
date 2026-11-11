@@ -23,6 +23,8 @@
   .float-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #8b92a5; font-size: 12px; font-weight: 700; transition: 0.2s; text-transform: uppercase; border: 1px solid transparent; }
   .float-menu a:hover { background: rgba(0,229,255,0.1); color: var(--accent); border-color: rgba(0,229,255,0.3); }
 
+  .btn-help { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 36px; display: flex; align-items: center; }
+
   .topbar { height: 60px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; padding-left: 70px; flex-shrink: 0; z-index: 100; }
   .logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   .top-actions { display: flex; align-items: center; gap: 10px; }
@@ -60,6 +62,15 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
+  /* Модалка "Как играть" */
+  .howto-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
+  .howto-backdrop.show { display: flex; }
+  .howto-modal { background: linear-gradient(135deg, #111625, #0a0d14); border: 1px solid rgba(0,229,255,0.3); border-radius: 20px; max-width: 480px; width: 100%; margin: auto; padding: 30px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+  .howto-modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 16px; text-align: center; color: var(--accent); }
+  .howto-modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 15px; line-height: 1.6; }
+  .howto-modal b { color: #fff; }
+  .howto-close { display: block; width: 100%; margin-top: 20px; background: #00e5ff; color: #000; border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+
   @media (max-width: 900px) {
     .main-body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; align-items: center; justify-content: space-between; gap: 8px; }
@@ -86,6 +97,7 @@
   <a href="/cases.html">Cases</a>
   <a href="/miner.html">Miner</a>
   <a href="/ladder.html">Ladder</a>
+  <a href="/plinko.html" style="color:var(--accent); border-color:rgba(0,229,255,0.3); background:rgba(0,229,255,0.1);">Plinko</a>
 </div>
 
 <div class="app">
@@ -93,6 +105,7 @@
     <a href="/" class="logo">KINGWIN</a>
     <div class="top-actions">
       <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
+      <button class="btn-help" onclick="openHowTo()">Как играть</button>
     </div>
   </div>
 
@@ -128,6 +141,18 @@
   </div>
 </div>
 
+<!-- МОДАЛКА "КАК ИГРАТЬ" -->
+<div class="howto-backdrop" id="howtoModal" onclick="if(event.target.id==='howtoModal')closeHowTo()">
+  <div class="howto-modal">
+    <h2>🎮 Как играть в Plinko</h2>
+    <p>Шарик падает сверху вниз по пирамиде колышков. На каждом колышке он случайно отскакивает влево или вправо.</p>
+    <p>Внизу шарик попадает в одну из ячеек с множителем (<b>х0.2</b> — <b>х24</b>). Ваш выигрыш = <b>ставка × множитель</b>.</p>
+    <p>В центре множители маленькие (<b>x0.2</b>), но шарик падает туда чаще всего. По краям — большие (<b>x24</b>), но шанс попасть туда очень мал.</p>
+    <p>Выбирайте уровень риска: <b>Низкий</b> — частые мелкие выигрыши, <b>Высокий</b> — редкие крупные.</p>
+    <button class="howto-close" onclick="closeHowTo()">Понятно, играю</button>
+  </div>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
 let currentPlayer = null;
@@ -151,6 +176,9 @@ const BALL_SIZE = 8;
 let highlightIdx = -1;
 let highlightTime = 0;
 
+function openHowTo() { $('howtoModal').classList.add('show'); }
+function closeHowTo() { $('howtoModal').classList.remove('show'); }
+
 function resizeCanvas() {
   const p = canvas.parentElement;
   const dpr = window.devicePixelRatio || 1;
@@ -167,8 +195,8 @@ window.addEventListener('resize', resizeCanvas);
 
 function buildBoard() {
   ROWS = 8;
-  const padTop = 50;
-  const padBottom = 60;
+  const padTop = 40;
+  const padBottom = 80; // Поднял плашки выше, чтобы они не улетали за экран на телефоне
   
   boardWidth = Math.min(W - 40, 500); 
   boardHeight = H - padTop - padBottom;
@@ -197,35 +225,18 @@ function buildBoard() {
   const slotCount = RISK_CONFIG[currentRisk].multipliers.length;
   const bottomY = startY + ROWS * rowGap + 15;
   
-  // Центр нижнего ряда колышков (их ROWS + 2 = 10 штук)
-  // 10 колышков: от 0 до 9. Центр между 4 и 5.
-  // Нам нужно 9 плашек, которые будут строго под первыми 9 колышками нижнего ряда?
-  // Или под всеми 9 слотами, центрируя по колышкам.
-  // В стандартном Plinko: последний ряд имеет 10 колышков, а слотов 9. Слоты находятся МЕЖДУ колышками.
-  // Но у нас плашки должны быть ровно под колышками. Давай сделаем их по центрам колышков нижнего ряда.
-  
-  // Находим первый колышек нижнего ряда
   const lastRowCount = ROWS + 2; 
   const lastRowWidth = (lastRowCount - 1) * pegGap;
   const lastRowStartX = W / 2 - lastRowWidth / 2;
   
   for (let i = 0; i < slotCount; i++) {
-    // Центрируем 9 плашек под 10 колышками. 
-    // Первая плашка под 1-м колышком, последняя под 10-м? Нет, они должны попадать между.
-    // Проще: пусть плашка i находится на позиции между i-м и (i+1)-м колышком.
-    // Но ты просил "чтобы х были на уровне с колышками". Значит, центры плашек должны совпадать с центрами колышков.
-    
-    // Так как слотов 9, а колышков 10, мы не можем разместить их точно под каждым.
-    // Разместим их по центру между колышками (как и должно быть в Plinko), но выровняем левый край.
-    // Чтобы не уезжало влево, центрируем сетку плашек относительно W/2.
-    
     const slotX = lastRowStartX + pegGap / 2 + i * pegGap;
     
     slots.push({
       x: slotX, 
       y: bottomY,
       w: pegGap - 4,             
-      h: padBottom - 10,
+      h: padBottom - 20, // Высота плашек уменьшена, чтобы точно влезли
       index: i
     });
   }
