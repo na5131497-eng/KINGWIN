@@ -353,12 +353,10 @@ function highlightWinCells(positions) {
   });
 }
 
-// Функция для каскада, принимает текущий общий выигрыш
 async function processCascades(board, totalWinSoFar = 0) {
   const res = checkWins(board, bet);
   
   if (res.win > 0) {
-    // Прибавляем выигрыш к общему
     totalWinSoFar += res.win;
     $('winAmount').textContent = totalWinSoFar.toFixed(2);
     $('winAmount').style.color = '#00ff88';
@@ -389,7 +387,6 @@ async function processCascades(board, totalWinSoFar = 0) {
       const reel = document.getElementById(`reel-${i}`);
       if (!reel) continue;
       
-      const children = Array.from(reel.children);
       const remaining = [];
       
       for (let j = 0; j < 5; j++) {
@@ -404,47 +401,63 @@ async function processCascades(board, totalWinSoFar = 0) {
       const finalColumn = [...newSymbols, ...remaining];
       for (let j = 0; j < 5; j++) newBoard[i][j] = finalColumn[j];
       
-      // Удаляем взорванные
-      for (let j = children.length - 1; j >= 0; j--) {
-        if (res.positions.some(pos => pos[0] === i && pos[1] === j)) {
-          children[j].remove();
-        }
-      }
+      // ПОЛНАЯ ПЕРЕРИСОВКА КОЛОНКИ С ИНДИВИДУАЛЬНЫМ СМЕЩЕНИЕМ
+      reel.innerHTML = '';
       
-      // Сдвигаем оставшиеся
-      const remainingElements = reel.querySelectorAll('.symbol');
-      let newIndex = missingCount;
       for (let j = 0; j < 5; j++) {
-        const isWin = res.positions.some(pos => pos[0] === i && pos[1] === j);
-        if (!isWin) {
-          const el = remainingElements[j];
-          if (el) el.style.transform = `translateY(${newIndex * 100}%)`;
-          newIndex++;
-        }
-      }
-      
-      // Добавляем новые
-      for (let k = 0; k < missingCount; k++) {
+        const sym = finalColumn[j];
         const el = document.createElement('div');
         el.className = 'symbol';
-        el.style.transform = `translateY(${(k - missingCount) * 100}%)`;
-        el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(newSymbols[k])}</div>`;
         
-        reel.insertBefore(el, reel.firstChild);
+        // Рассчитываем стартовую позицию
+        let startY = 0;
         
+        if (j < missingCount) {
+          // Это новый символ, падает сверху
+          startY = (j - missingCount) * 100;
+        } else {
+          // Это оставшийся символ. Нужно найти его старую позицию
+          // Индекс в новой колонке (j) минус missingCount = индекс в old remaining
+          const oldRemainingIndex = j - missingCount;
+          
+          // Ищем этот символ в старой доске (он не был выигрышным)
+          let oldPos = -1;
+          let countFound = -1;
+          for (let oldJ = 0; oldJ < 5; oldJ++) {
+            const isWin = res.positions.some(pos => pos[0] === i && pos[1] === oldJ);
+            if (!isWin) {
+              countFound++;
+              if (countFound === oldRemainingIndex) {
+                oldPos = oldJ;
+                break;
+              }
+            }
+          }
+          
+          if (oldPos !== -1) {
+            startY = oldPos * 100;
+          } else {
+            startY = j * 100; // Фоллбэк
+          }
+        }
+        
+        el.style.transform = `translateY(${startY}%)`;
+        el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
+        reel.appendChild(el);
+        
+        // Анимация съезда на место
+        const endY = j * 100;
         setTimeout(() => {
-          el.style.transform = `translateY(${k * 100}%)`;
-        }, 50);
+          el.style.transform = `translateY(${endY}%)`;
+        }, 20);
       }
     }
     
     await new Promise(r => setTimeout(r, 600));
     
-    // Рекурсивный вызов с передачей общего выигрыша
     await processCascades(newBoard, totalWinSoFar);
     
   } else {
-    // Каскады закончились
     if (totalWinSoFar > 0) {
       balance += totalWinSoFar;
       $('balanceVal').textContent = balance.toFixed(2);
@@ -507,7 +520,6 @@ async function spin() {
   }
   
   await new Promise(r => setTimeout(r, 700));
-  // Запускаем каскады с нулевым изначальным выигрышем
   await processCascades(board, 0);
 }
 
