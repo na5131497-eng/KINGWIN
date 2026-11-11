@@ -136,20 +136,10 @@ let busy = false;
 let currentBet = 10;
 let currentRisk = 'low';
 
-// ВСЕГДА 8 РЯДОВ. Множители как ты просил.
 const RISK_CONFIG = {
-  low: { 
-    rows: 8, 
-    multipliers: [5.3, 2.2, 1.1, 0.9, 0.5, 0.9, 1.1, 2.2, 5.3] 
-  },
-  medium: { 
-    rows: 8, 
-    multipliers: [13, 3.1, 1.3, 0.6, 0.4, 0.6, 1.3, 3.1, 13] 
-  },
-  high: { 
-    rows: 8, 
-    multipliers: [24, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 24] 
-  }
+  low: { rows: 8, multipliers: [5.3, 2.2, 1.1, 0.9, 0.5, 0.9, 1.1, 2.2, 5.3] },
+  medium: { rows: 8, multipliers: [13, 3.1, 1.3, 0.6, 0.4, 0.6, 1.3, 3.1, 13] },
+  high: { rows: 8, multipliers: [24, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 24] }
 };
 
 const canvas = $('gameCanvas');
@@ -157,6 +147,10 @@ const ctx = canvas.getContext('2d');
 let W, H, pegs = [], slots = [], ROWS = 8;
 let boardWidth = 0, boardHeight = 0, startY = 0, rowGap = 0, pegGap = 0;
 const BALL_SIZE = 8;
+
+// Подсветка выигрышной плашки
+let highlightIdx = -1;
+let highlightTime = 0;
 
 function resizeCanvas() {
   const p = canvas.parentElement;
@@ -174,23 +168,17 @@ window.addEventListener('resize', resizeCanvas);
 
 function buildBoard() {
   ROWS = 8;
-  
-  // Отступы, чтобы влезло на телефон
   const padTop = 50;
-  const padBottom = 70;
+  const padBottom = 60;
   
-  // Ширина сетки: не больше экрана, но с отступами
   boardWidth = Math.min(W - 40, 500); 
   boardHeight = H - padTop - padBottom;
   
   startY = padTop + 20;
   rowGap = boardHeight / ROWS;
-  
-  // Ширина между колышками
   pegGap = boardWidth / (ROWS + 2);
   
   pegs = [];
-  // Генерируем колышки (верхний ряд 3, нижний 10)
   for (let r = 0; r < ROWS; r++) {
     const count = r + 3;
     const rowWidth = (count - 1) * pegGap;
@@ -208,129 +196,149 @@ function buildBoard() {
   
   slots = [];
   const slotCount = RISK_CONFIG[currentRisk].multipliers.length;
-  const cellW = boardWidth / (slotCount - 1); // Расстояние между центрами
-  
   const bottomY = startY + ROWS * rowGap + 10;
-  // Центр первого слота совпадает с первым колышком последнего ряда
   const firstPegX = W / 2 - ((ROWS + 2 - 1) * pegGap) / 2; 
   
   for (let i = 0; i < slotCount; i++) {
     slots.push({
-      x: firstPegX + i * pegGap, // Центр слота
+      x: firstPegX + i * pegGap, 
       y: bottomY,
-      w: pegGap - 4,             // Ширина сумки
-      h: padBottom - 20,
+      w: pegGap - 4,             
+      h: padBottom - 10,
       index: i
     });
   }
 }
 
 function getSlotStyle(mult) {
-  if (mult >= 13) return { bg1: '#ff9a9e', bg2: '#fecfef', border: '#ff4d4d', text: '#fff' }; // Королевский
-  if (mult >= 4) return { bg1: '#fceabb', bg2: '#f8b500', border: '#d4af37', text: '#000' };  // Золото
-  if (mult >= 1.1) return { bg1: '#a8ff78', bg2: '#78ffd6', border: '#3fbf7f', text: '#000' }; // Зелёный
-  return { bg1: '#2c3e50', bg2: '#000000', border: '#8b92a5', text: '#fff' };                 // Тёмный
+  if (mult >= 13) return { bg1: 'rgba(255,77,77,0.9)', bg2: 'rgba(153,0,0,0.9)', border: '#ff4d4d', text: '#fff' };
+  if (mult >= 4) return { bg1: 'rgba(241,196,15,0.9)', bg2: 'rgba(184,134,11,0.9)', border: '#f1c40f', text: '#000' };
+  if (mult >= 1.1) return { bg1: 'rgba(63,191,127,0.8)', bg2: 'rgba(20,80,50,0.9)', border: '#3fbf7f', text: '#fff' };
+  return { bg1: 'rgba(40,50,70,0.9)', bg2: 'rgba(20,25,35,0.9)', border: '#4a5a70', text: '#fff' };
 }
 
-function drawBag(cx, cy, w, h, mult) {
-  const style = getSlotStyle(mult);
-  
-  // Тень
+function drawPeg(peg) {
   ctx.beginPath();
-  ctx.ellipse(cx, cy + h, w/2, 5, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.arc(peg.x + 1.5, peg.y + 2.5, 5.5, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.fill();
 
-  // Мешок (снизу)
-  const bagY = cy + h * 0.3;
-  const bagH = h * 0.7;
-  
+  const grad = ctx.createRadialGradient(peg.x - 2, peg.y - 2, 1, peg.x, peg.y, 5.5);
+  grad.addColorStop(0, '#a0b8d0');
+  grad.addColorStop(0.6, '#4a5a70');
+  grad.addColorStop(1, '#1a2230');
   ctx.beginPath();
-  ctx.moveTo(cx - w/2 + 4, bagY);
-  ctx.bezierCurveTo(cx - w/2 - 5, bagY + bagH * 0.5, cx, cy + h, cx + w/2 - 4, bagY);
-  ctx.quadraticCurveTo(cx + w/2 - 2, bagY - 5, cx, bagY - 8);
-  ctx.quadraticCurveTo(cx - w/2 + 2, bagY - 5, cx - w/2 + 4, bagY);
-  
-  const grad = ctx.createLinearGradient(cx, bagY, cx, cy + h);
-  grad.addColorStop(0, style.bg1);
-  grad.addColorStop(1, style.bg2);
+  ctx.arc(peg.x, peg.y, 5.5, 0, Math.PI * 2);
   ctx.fillStyle = grad;
   ctx.fill();
-  ctx.strokeStyle = style.border;
-  ctx.lineWidth = 1.5;
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Верёвка
   ctx.beginPath();
-  ctx.moveTo(cx - w/2 + 4, bagY);
-  ctx.quadraticCurveTo(cx, bagY - 12, cx + w/2 - 4, bagY);
-  ctx.strokeStyle = '#d4af37';
-  ctx.lineWidth = 2;
+  ctx.arc(peg.x - 2, peg.y - 2, 1.8, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fill();
+}
+
+function drawSlot(slot, mult, isHighlighted) {
+  const style = getSlotStyle(mult);
+  const radius = 8;
+  
+  const x = slot.x - slot.w / 2;
+  const y = slot.y;
+  const w = slot.w;
+  const h = slot.h;
+
+  // Анимация подсветки (яркая вспышка и пульсация)
+  if (isHighlighted) {
+    const pulse = 1 + Math.sin(Date.now() / 100) * 0.1; // Пульс
+    const scaleW = w * pulse;
+    const scaleH = h * pulse;
+    const scaleX = slot.x - scaleW / 2;
+    const scaleY = y - (scaleH - h) / 2; // Смещение вверх
+
+    ctx.beginPath();
+    ctx.roundRect(scaleX, scaleY, scaleW, scaleH, [radius]);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.shadowColor = '#fff';
+    ctx.shadowBlur = 30;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  } else {
+    // Обычная тень
+    ctx.beginPath();
+    ctx.roundRect(x, y + 3, w, h, [radius]);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fill();
+  }
+
+  // Фон
+  const grad = ctx.createLinearGradient(x, y, x, y + h);
+  grad.addColorStop(0, style.bg1);
+  grad.addColorStop(1, style.bg2);
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, [radius]);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Контур (при подсветке делаем белым и толще)
+  ctx.strokeStyle = isHighlighted ? '#ffffff' : style.border;
+  ctx.lineWidth = isHighlighted ? 3 : 1.5;
   ctx.stroke();
 
-  // Текст
-  ctx.fillStyle = style.text;
-  ctx.font = '900 10px Montserrat';
+  // Внутренний блик
+  ctx.beginPath();
+  ctx.roundRect(x + 2, y + 2, w - 4, h / 2, [radius - 2, radius - 2, 0, 0]);
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fill();
+
+  // Текст (при подсветке делаем ярче и больше)
+  ctx.fillStyle = isHighlighted ? '#ffffff' : style.text;
+  ctx.font = isHighlighted ? '900 14px Montserrat' : '900 11px Montserrat';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
-  ctx.shadowBlur = 3;
-  ctx.fillText('x' + mult, cx, cy + h/2 + 4);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 2;
+  ctx.fillText('x' + mult, slot.x, y + h / 2);
   ctx.shadowBlur = 0;
 }
 
 function drawBoard() {
   ctx.clearRect(0, 0, W, H);
   
-  // Бортики (стены) по краям сетки
   const wallXOffset = (boardWidth / 2) + 15;
   const leftWallX = W/2 - wallXOffset;
   const rightWallX = W/2 + wallXOffset;
   
   ctx.fillStyle = '#1a2230';
   ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 10;
   
-  // Левый бортик
-  ctx.beginPath();
-  ctx.roundRect(leftWallX, startY - 15, 6, boardHeight + 25, [4, 4, 0, 0]);
-  ctx.fill();
-  
-  // Правый бортик
-  ctx.beginPath();
-  ctx.roundRect(rightWallX - 6, startY - 15, 6, boardHeight + 25, [4, 4, 0, 0]);
-  ctx.fill();
+  ctx.beginPath(); ctx.roundRect(leftWallX, startY - 20, 6, boardHeight + 30, [6, 6, 0, 0]); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(rightWallX - 6, startY - 20, 6, boardHeight + 30, [6, 6, 0, 0]); ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Колышки
-  pegs.forEach(peg => {
-    ctx.beginPath();
-    ctx.arc(peg.x, peg.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = '#4a5a70';
-    ctx.fill();
-    
-    // Блик
-    ctx.beginPath();
-    ctx.arc(peg.x - 1, peg.y - 1, 1, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.fill();
-  });
+  pegs.forEach(peg => drawPeg(peg));
   
-  // Сумки
   const mults = RISK_CONFIG[currentRisk].multipliers;
-  slots.forEach(slot => {
-    const mult = mults[slot.index];
-    drawBag(slot.x, slot.y, slot.w, slot.h, mult);
+  slots.forEach((slot, i) => {
+    drawSlot(slot, mults[slot.index], i === highlightIdx);
   });
   
-  // Шарики
   balls.forEach(ball => {
     ctx.beginPath();
-    const grad = ctx.createRadialGradient(ball.x - 2, ball.y - 2, 1, ball.x, ball.y, BALL_SIZE);
+    ctx.fillStyle = 'rgba(0,229,255,0.3)';
+    ctx.arc(ball.x, ball.y, BALL_SIZE + 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    const grad = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 1, ball.x, ball.y, BALL_SIZE);
     grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.5, '#00e5ff');
+    grad.addColorStop(0.4, '#00e5ff');
     grad.addColorStop(1, '#0077ff');
     
+    ctx.beginPath();
     ctx.fillStyle = grad;
     ctx.shadowBlur = 10;
     ctx.shadowColor = 'rgba(0,229,255,0.8)';
@@ -344,6 +352,11 @@ let balls = [];
 
 function animate() {
   drawBoard();
+  
+  // Отключаем подсветку через 2 секунды
+  if (highlightIdx !== -1 && Date.now() - highlightTime > 2000) {
+    highlightIdx = -1;
+  }
   
   for (let i = balls.length - 1; i >= 0; i--) {
     const b = balls[i];
@@ -361,10 +374,9 @@ function animate() {
           b.targetX = nextPeg.x;
           b.nextPegY = nextPeg.y;
         } else {
-          const slotX = slots[b.finalSlot].x; // Точка сбора
-          b.targetX = slotX;
+          b.targetX = slots[b.finalSlot].x;
           b.state = 'landing';
-          b.landY = slots[b.finalSlot].y + slots[b.finalSlot].h / 2;
+          b.landY = slots[b.finalSlot].y;
         }
       }
     } else if (b.state === 'landing') {
@@ -373,6 +385,11 @@ function animate() {
       
       if (b.y >= b.landY) {
         b.state = 'done';
+        
+        // Включаем подсветку выигравшей плашки
+        highlightIdx = b.finalSlot;
+        highlightTime = Date.now();
+
         const win = currentBet * RISK_CONFIG[currentRisk].multipliers[b.finalSlot];
         showToast(`Множитель: x${RISK_CONFIG[currentRisk].multipliers[b.finalSlot]} (${win.toFixed(2)} ₽)`, win >= currentBet ? 'success' : 'error');
         
@@ -403,7 +420,7 @@ function getNextPegCoord(path, step) {
   
   return {
     x: rowStartX + clampedCol * pegGap,
-    y: startY + (step) * rowGap // Строго по рядам
+    y: startY + (step) * rowGap 
   };
 }
 
@@ -468,6 +485,7 @@ async function dropBall() {
 
   busy = true;
   $('btnPlay').disabled = true;
+  highlightIdx = -1; // Сбрасываем предыдущую подсветку
 
   try {
     const r = await fetch('/api/plinko/drop', {
@@ -484,10 +502,9 @@ async function dropBall() {
       return;
     }
     
-    // Спавним шарик ровно по центру верхнего колышка
     const countTop = 3;
     const rowWidthTop = (countTop - 1) * pegGap;
-    const topPegX = W/2 - rowWidthTop / 2 + pegGap; // Центральный колышек верхнего ряда
+    const topPegX = W/2 - rowWidthTop / 2 + pegGap;
     
     const ball = {
       id: Date.now(),
