@@ -15,6 +15,7 @@
     --text-main: #fff;
     --green: #00c853;
     --red: #ff4d4d;
+    --cyan: #00e5ff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; background: var(--bg-dark); color: var(--text-main); }
@@ -55,11 +56,21 @@
 
   /* Панель над барабанами */
   .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
-  .bet-control { display: flex; align-items: center; background: #000; border: 2px solid var(--gold-mid); border-radius: 8px; padding: 2px 6px; gap: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
-  .bet-btn-sm { background: none; border: none; color: var(--gold-light); font-size: 20px; font-weight: 900; cursor: pointer; padding: 0 5px; line-height: 1; }
+  
+  /* Блок ставки с подписью */
+  .bet-block {
+    display: flex; flex-direction: column; align-items: center;
+    background: #000; border: 2px solid var(--gold-mid); border-radius: 8px;
+    padding: 2px 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+  }
+  .bet-title { font-size: 8px; color: #8b92a5; font-weight: 800; letter-spacing: 1px; margin-bottom: 2px; }
+  .bet-control { display: flex; align-items: center; gap: 8px; }
+  .bet-btn-sm { background: none; border: none; color: var(--gold-light); font-size: 18px; font-weight: 900; cursor: pointer; padding: 0 5px; line-height: 1; }
   .bet-btn-sm:disabled { opacity: 0.3; }
-  .bet-val-sm { font-size: 14px; font-weight: 900; color: #fff; min-width: 35px; text-align: center; }
+  .bet-val-sm { font-size: 14px; font-weight: 900; color: #fff; min-width: 30px; text-align: center; }
+
   .info-btn { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(180deg, #e53935, #b71c1c); border: 2px solid #fff; color: #fff; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 2px 0 #7f0000; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+  
   .info-block { background: #000; border: 2px solid var(--gold-mid); border-radius: 8px; padding: 4px 8px; display: flex; flex-direction: column; align-items: center; min-width: 80px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
   .info-label { font-size: 9px; color: #8b92a5; font-weight: 800; text-transform: uppercase; }
   .info-val { font-size: 14px; color: #fff; font-weight: 900; }
@@ -69,18 +80,13 @@
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
     background: #0d041a; border-radius: 8px; padding: 4px; border: 2px solid #3a1c5c;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.9); aspect-ratio: 6 / 5; 
-    overflow: hidden; /* Важно для обрезки ленты */
+    overflow: hidden; 
   }
   
-  .reel { 
-    display: flex; flex-direction: column; position: relative; overflow: hidden; 
-    /* Убираем gap из колонки, используем margin для ячеек, чтобы лента была монолитной */
-  }
+  .reel { display: flex; flex-direction: column; position: relative; overflow: hidden; }
   
   .symbol { 
-    width: 100%; height: 20%; /* Ровно 1/5 часть от высоты колонки */
-    padding: 2px; /* Отступ внутри ячейки */
-    box-sizing: border-box;
+    width: 100%; height: 20%; padding: 2px; box-sizing: border-box;
   }
   
   .symbol-inner {
@@ -115,7 +121,7 @@
   .btn-spin:active { transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
 
-  /* Модалка */
+  /* Модалки (Инфо и Бонус) */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--panel-bg); border: 2px solid var(--gold-mid); border-radius: 16px; padding: 25px; width: 100%; max-width: 500px; text-align: left; position: relative; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
@@ -129,16 +135,27 @@
   .paytable-item img { width: 30px; height: 30px; object-fit: contain; }
   .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
 
-  /* Мобильная адаптация */
+  /* Бонусные карточки */
+  .bonus-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+  .bonus-card { background: rgba(0,0,0,0.4); border: 2px solid var(--gold-mid); border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+  .bonus-card:hover { background: rgba(241,196,15,0.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(241,196,15,0.2); }
+  .bonus-info h4 { font-size: 16px; color: var(--gold-light); margin-bottom: 4px; }
+  .bonus-info p { font-size: 12px; color: #b0b8c5; }
+  .bonus-price { background: var(--green); color: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 3px 0 #004d00; text-align: center; }
+
+  /* Анимация вращения */
+  .spinning .symbol img { filter: blur(4px); opacity: 0.9; transform: translateY(10px); transition: none; }
+
   @media (max-width: 768px) {
     .topbar { height: 45px; padding: 0 8px; }
     .balance-panel { font-size: 12px; padding: 2px 8px; }
     .slot-machine { padding: 5px; border-radius: 10px; border-width: 2px; width: 100%; }
     .info-bar { gap: 4px; margin-bottom: 4px; }
+    .bet-title { font-size: 7px; }
     .info-block { padding: 2px 4px; min-width: 60px; border-width: 1px; }
     .info-label { font-size: 7px; }
     .info-val { font-size: 11px; }
-    .bet-control { padding: 0 4px; gap: 4px; border-width: 1px; }
+    .bet-control { gap: 4px; }
     .bet-btn-sm { font-size: 16px; }
     .bet-val-sm { font-size: 11px; min-width: 25px; }
     .info-btn { width: 26px; height: 26px; font-size: 14px; border-width: 1px; box-shadow: 0 2px 0 #7f0000; }
@@ -172,14 +189,20 @@
   <div class="game-area">
     <div class="slot-machine">
       <div class="info-bar">
-        <div class="bet-control">
-          <button class="bet-btn-sm" id="btnBetDown" onclick="changeBet(-1)">-</button>
-          <div class="bet-val-sm" id="betAmount">6</div>
-          <button class="bet-btn-sm" id="btnBetUp" onclick="changeBet(1)">+</button>
+        <!-- Ставка с подписью -->
+        <div class="bet-block">
+          <div class="bet-title">СТАВКА</div>
+          <div class="bet-control">
+            <button class="bet-btn-sm" id="btnBetDown" onclick="changeBet(-1)">-</button>
+            <div class="bet-val-sm" id="betAmount">6</div>
+            <button class="bet-btn-sm" id="btnBetUp" onclick="changeBet(1)">+</button>
+          </div>
         </div>
+        
         <button class="info-btn" onclick="document.getElementById('infoModal').classList.add('show')">i</button>
+        
         <div class="info-block">
-          <div class="info-label">WIN</div>
+          <div class="info-label">ВЫИГРЫШ</div>
           <div class="info-val" id="winAmount" style="color: var(--gold-light);">0</div>
         </div>
       </div>
@@ -187,7 +210,7 @@
     </div>
 
     <div class="bottom-controls">
-      <button class="btn-bonus" onclick="buyBonus()">BONUS</button>
+      <button class="btn-bonus" onclick="document.getElementById('bonusModal').classList.add('show')">BONUS</button>
       <button class="btn-spin" id="btnSpin" onclick="spin()">SPIN</button>
     </div>
   </div>
@@ -214,9 +237,37 @@
   </div>
 </div>
 
+<!-- МОДАЛКА ПОКУПКИ БОНУСА -->
+<div class="modal-overlay" id="bonusModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('bonusModal').classList.remove('show')">✕</button>
+    <h2>🎁 Купить бонус</h2>
+    <p>Выбери один из вариантов бонусной игры:</p>
+    
+    <div class="bonus-cards">
+      <!-- Бонус 1 -->
+      <div class="bonus-card" onclick="buyBonus(1)">
+        <div class="bonus-info">
+          <h4>Империя (x100)</h4>
+          <p>10 фриспинов с множителем <b>x2</b></p>
+        </div>
+        <div class="bonus-price" id="priceBonus1">600 ₽</div>
+      </div>
+      
+      <!-- Бонус 2 -->
+      <div class="bonus-card" onclick="buyBonus(2)">
+        <div class="bonus-info">
+          <h4>Сокровища Фараона (x250)</h4>
+          <p>15 фриспинов с множителем <b>x5</b></p>
+        </div>
+        <div class="bonus-price" id="priceBonus2">1500 ₽</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
-let currentPlayer = null;
 let balance = 1000.00;
 let isSpinning = false;
 
@@ -261,7 +312,6 @@ function createSymbolHTML(sym) {
   return html;
 }
 
-// Инициализация поля при загрузке
 function initReels() {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
@@ -269,9 +319,7 @@ function initReels() {
     const reel = document.createElement('div');
     reel.className = 'reel';
     reel.id = `reel-${i}`;
-    
-    // Создаем ленту из 10 ячеек (2 экрана), чтобы было куда крутиться
-    for (let j = 0; j < 10; j++) {
+    for (let j = 0; j < 5; j++) {
       const sym = getRandomSymbol();
       const el = document.createElement('div');
       el.className = 'symbol';
@@ -291,13 +339,15 @@ function changeBet(dir) {
   $('betAmount').textContent = bet;
   $('btnBetDown').disabled = betIndex === 0;
   $('btnBetUp').disabled = betIndex === BETS.length - 1;
+  
+  // Обновляем цены на бонусы
+  $('priceBonus1').textContent = `${bet * 100} ₽`;
+  $('priceBonus2').textContent = `${bet * 250} ₽`;
 }
 
 function highlightWinCells(cells) {
   cells.forEach(c => {
     const reel = document.getElementById(`reel-${c[0]}`);
-    // c[1] - это ряд. Так как у нас лента, на экране видны ячейки с индексами 5,6,7,8,9 (если мы прокрутили на 5)
-    // Но после остановки мы сбрасываем позицию, поэтому берем просто c[1] из видимых
     const el = reel.querySelectorAll('.symbol-inner')[c[1]];
     if (el) el.classList.add('win-highlight');
   });
@@ -341,11 +391,11 @@ function calculateWins(board, betAmount) {
   return { win: Math.round(totalWin * 100) / 100, cells: winningCells };
 }
 
-function buyBonus() {
-  if (isSpinning) return;
-  const cost = bet * 100;
-  if (balance < cost) { alert(`Для покупки бонуса нужно ${cost} ₽`); return; }
-  alert('Покупка бонуса пока в разработке! Скоро добавим фриспины.');
+function buyBonus(type) {
+  document.getElementById('bonusModal').classList.remove('show');
+  const cost = type === 1 ? bet * 100 : bet * 250;
+  if (balance < cost) { alert(`Недостаточно средств. Нужно ${cost} ₽`); return; }
+  alert(`Покупка бонуса №${type} пока в разработке! Скоро добавим фриспины.`);
 }
 
 async function spin() {
@@ -360,7 +410,7 @@ async function spin() {
   $('winAmount').textContent = '0';
   clearHighlight();
   
-  // Генерируем финальную доску заранее, чтобы знать, где остановить барабаны
+  // Генерируем финальную доску
   const finalBoard = [];
   for (let i = 0; i < 6; i++) {
     const reel = [];
@@ -368,65 +418,68 @@ async function spin() {
     finalBoard.push(reel);
   }
 
-  // Запускаем вращение для каждой колонки с разной скоростью
-  let finishedReels = 0;
-
+  // 1. Опустошаем все колонки (ячейки исчезают)
   for (let i = 0; i < 6; i++) {
     const reelEl = document.getElementById(`reel-${i}`);
-    
-    // Останавливаем колонку с задержкой (каскад)
-    const stopDelay = 700 + (i * 100); // Первая через 700мс, последняя через 1200мс
-    
-    // Анимация: прокручиваем ленту на 5 ячеек вниз (200% высоты)
-    reelEl.style.transition = `transform ${stopDelay}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
-    reelEl.style.transform = 'translateY(-50%)'; 
-
-    setTimeout(() => {
-      // Когда колонка остановилась, мы резко подменяем контент на финальный
-      // и сбрасываем позицию на 0
-      reelEl.style.transition = 'none';
-      reelEl.style.transform = 'translateY(0)';
-      
-      // Очищаем и заполняем финальными символами
-      reelEl.innerHTML = '';
-      for (let j = 0; j < 5; j++) {
-        const sym = finalBoard[i][j];
-        const el = document.createElement('div');
-        el.className = 'symbol';
-        el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
-        
-        // Легкий эффект падения после сброса
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(-20px)';
-        el.style.transition = `opacity 0.2s, transform 0.2s`;
-        
-        reelEl.appendChild(el);
-        
-        setTimeout(() => {
-          el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
-        }, 20 * j);
-      }
-
-      finishedReels++;
-      if (finishedReels === 6) {
-        // Все колонки остановились, считаем выигрыш
-        setTimeout(() => {
-          const result = calculateWins(finalBoard, bet);
-          if (result.win > 0) {
-            $('winAmount').textContent = result.win.toFixed(2);
-            $('winAmount').style.color = '#00ff88';
-            setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
-            highlightWinCells(result.cells);
-            balance += result.win;
-            $('balanceVal').textContent = balance.toFixed(2);
-          }
-          isSpinning = false;
-          $('btnSpin').disabled = false;
-        }, 400);
-      }
-    }, stopDelay);
+    reelEl.style.transition = 'none';
+    reelEl.innerHTML = '';
+    for (let j = 0; j < 5; j++) {
+      const emptyEl = document.createElement('div');
+      emptyEl.className = 'symbol';
+      emptyEl.innerHTML = `<div class="symbol-inner" style="opacity:0;"></div>`;
+      reelEl.appendChild(emptyEl);
+    }
   }
+
+  // 2. Ждем 100мс и начинаем плавный съезд
+  setTimeout(() => {
+    for (let i = 0; i < 6; i++) {
+      const reelEl = document.getElementById(`reel-${i}`);
+      
+      // Задержка для каждой колонки (каскад)
+      const dropDelay = i * 80; 
+      
+      setTimeout(() => {
+        reelEl.innerHTML = '';
+        for (let j = 0; j < 5; j++) {
+          const sym = finalBoard[i][j];
+          const el = document.createElement('div');
+          el.className = 'symbol';
+          el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
+          
+          // Начальная позиция сверху и прозрачность 0
+          el.style.transform = 'translateY(-100%)';
+          el.style.opacity = '0';
+          
+          reelEl.appendChild(el);
+          
+          // Запускаем анимацию съезда
+          setTimeout(() => {
+            el.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s';
+            el.style.transform = 'translateY(0)';
+            el.style.opacity = '1';
+          }, 10);
+        }
+
+        // Если это последняя колонка, считаем выигрыш после завершения анимации
+        if (i === 5) {
+          setTimeout(() => {
+            const result = calculateWins(finalBoard, bet);
+            if (result.win > 0) {
+              $('winAmount').textContent = result.win.toFixed(2);
+              $('winAmount').style.color = '#00ff88';
+              setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
+              highlightWinCells(result.cells);
+              balance += result.win;
+              $('balanceVal').textContent = balance.toFixed(2);
+            }
+            isSpinning = false;
+            $('btnSpin').disabled = false;
+          }, 400);
+        }
+      }, dropDelay);
+    }
+  }, 100);
 }
 
 window.onload = () => {
