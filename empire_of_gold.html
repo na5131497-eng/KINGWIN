@@ -22,7 +22,6 @@
   
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
 
-  /* Королевский фон */
   .bg-palace {
     position: absolute; inset: 0; z-index: 0;
     background: radial-gradient(circle at 50% 0%, rgba(241,196,15,0.15) 0%, transparent 60%), linear-gradient(180deg, #1a0b2e 0%, #0d041a 100%);
@@ -37,14 +36,12 @@
   .bg-palace::before { left: 0; } .bg-palace::after { right: 0; }
   .arch { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; border: 3px solid rgba(241,196,15,0.1); border-radius: 50% 50% 0 0; box-shadow: inset 0 0 100px rgba(241,196,15,0.05); }
 
-  /* Верхняя панель */
   .topbar { height: 50px; background: linear-gradient(180deg, rgba(74, 44, 122, 0.9), rgba(42, 18, 64, 0.9)); backdrop-filter: blur(5px); border-bottom: 2px solid var(--gold-mid); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0; z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
   .balance-panel { background: #000; border: 2px solid var(--gold-mid); border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 13px; color: var(--gold-light); box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
   .balance-panel .coin-icon { width: 18px; height: 18px; background: var(--gold-mid); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; font-size: 11px; border: 1px solid #fff; }
   .balance-panel button { background: var(--green); border: 2px solid #69f0ae; color: #fff; border-radius: 50%; width: 18px; height: 18px; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 0; margin-left: 5px; }
   .back-btn { color: #fff; text-decoration: none; font-size: 22px; }
 
-  /* Игровое поле */
   .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; position: relative; z-index: 5; }
   
   .slot-machine { 
@@ -54,7 +51,6 @@
     display: flex; flex-direction: column;
   }
 
-  /* Панель над барабанами */
   .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
   
   .bet-block { display: flex; flex-direction: column; align-items: center; background: #000; border: 2px solid var(--gold-mid); border-radius: 8px; padding: 2px 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
@@ -70,7 +66,6 @@
   .info-label { font-size: 9px; color: #8b92a5; font-weight: 800; text-transform: uppercase; }
   .info-val { font-size: 14px; color: #fff; font-weight: 900; }
 
-  /* Барабаны */
   .reels-wrap { 
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
     background: #0d041a; border-radius: 8px; padding: 4px; border: 2px solid #3a1c5c;
@@ -78,16 +73,11 @@
     overflow: hidden; position: relative;
   }
   
-  .reel { 
-    display: flex; flex-direction: column; position: relative; overflow: hidden; height: 100%; 
-  }
+  .reel { display: flex; flex-direction: column; position: relative; overflow: hidden; height: 100%; }
   
   .symbol { 
-    width: 100%; height: 20%; /* Каждый символ занимает 1/5 высоты */
-    padding: 2px; box-sizing: border-box;
-    position: absolute; 
-    /* Убираем transition для top, используем transform для плавности */
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 100%; height: 20%; padding: 2px; box-sizing: border-box;
+    position: absolute; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Замедлили падение */
   }
   
   .symbol-inner {
@@ -96,25 +86,30 @@
     display: flex; justify-content: center; align-items: center; 
     border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     overflow: hidden; position: relative;
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   }
   
   .symbol-inner img { width: 85%; height: 85%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
   .sym-wild-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #fff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; }
 
-  /* Подсветка выигрыша */
+  /* Подсветка и Взрыв */
   .symbol-inner.win-highlight {
     box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.9), 0 0 15px rgba(255, 215, 0, 0.8);
     border: 2px solid var(--gold-light);
-    animation: pulse-win 0.6s infinite alternate;
-    z-index: 2;
+    animation: pulse-win 0.4s infinite alternate;
   }
   @keyframes pulse-win {
     from { transform: scale(1); filter: brightness(1); }
-    to { transform: scale(1.05); filter: brightness(1.5); }
+    to { transform: scale(1.1); filter: brightness(1.5); }
+  }
+  .symbol-inner.exploding {
+    animation: explode 0.4s forwards;
+  }
+  @keyframes explode {
+    0% { transform: scale(1); opacity: 1; filter: brightness(2); }
+    100% { transform: scale(1.8); opacity: 0; filter: brightness(4) blur(5px); }
   }
 
-  /* Панель под барабанами */
   .bottom-controls { width: 100%; max-width: 750px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .btn-bonus { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, #f1c40f, #b8860b); border: 3px solid #fff; color: #000; font-weight: 900; font-size: 10px; cursor: pointer; box-shadow: 0 4px 0 #553800, 0 10px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: center; align-items: center; text-transform: uppercase; flex-shrink: 0; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
   .btn-bonus:active { transform: translateY(3px); box-shadow: 0 1px 0 #553800; }
@@ -122,7 +117,6 @@
   .btn-spin:active { transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
 
-  /* Модалки */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--panel-bg); border: 2px solid var(--gold-mid); border-radius: 16px; padding: 25px; width: 100%; max-width: 500px; text-align: left; position: relative; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
@@ -136,7 +130,6 @@
   .paytable-item img { width: 30px; height: 30px; object-fit: contain; }
   .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
 
-  /* Бонусные карточки */
   .bonus-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
   .bonus-card { background: rgba(0,0,0,0.4); border: 2px solid var(--gold-mid); border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
   .bonus-card:hover { background: rgba(241,196,15,0.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(241,196,15,0.2); }
@@ -211,12 +204,11 @@
   </div>
 </div>
 
-<!-- МОДАЛКА ИНФОРМАЦИИ -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('infoModal').classList.remove('show')">✕</button>
-    <h2>🎰 Empire of Gold</h2>
-    <p><b>НОВАЯ МЕХАНИКА:</b> Выплаты начисляются за 7, 8, 9 или 10 одинаковых символов в любом месте на экране!<br>При выигрыше символы исчезают, а на их место падают новые (каскад).</p>
+    <h2>🎰 Empire of Gold (RTP 95%)</h2>
+    <p><b>НОВАЯ МЕХАНИКА:</b> Выплаты начисляются за 7, 8, 9 или 10 одинаковых символов в любом месте на экране!<br>При выигрыше символы взрываются, а на их место падают новые.</p>
     
     <h3>Спецсимволы:</h3>
     <ul>
@@ -225,16 +217,15 @@
 
     <h3>Таблица выплат (в ставках):</h3>
     <div class="paytable">
-      <div class="paytable-item"><img src="/sym_10.png"><div class="paytable-val">10-A: x1 / x2 / x5 / x10</div></div>
-      <div class="paytable-item"><img src="/sym_diamond.png"><div class="paytable-val">Алмаз: x2 / x4 / x10 / x30</div></div>
-      <div class="paytable-item"><img src="/sym_scarab.png"><div class="paytable-val">Скарабей: x4 / x8 / x20 / x50</div></div>
-      <div class="paytable-item"><img src="/sym_crown.png"><div class="paytable-val">Корона: x8 / x20 / x50 / x100</div></div>
-      <div class="paytable-item"><img src="/sym_wild.png"><div class="paytable-val">WILD: x20 / x50 / x200 / x1000</div></div>
+      <div class="paytable-item"><img src="/sym_10.png"><div class="paytable-val">10-A: x0.5 / x1 / x2 / x5</div></div>
+      <div class="paytable-item"><img src="/sym_diamond.png"><div class="paytable-val">Алмаз: x1 / x2 / x5 / x10</div></div>
+      <div class="paytable-item"><img src="/sym_scarab.png"><div class="paytable-val">Скарабей: x2 / x4 / x8 / x20</div></div>
+      <div class="paytable-item"><img src="/sym_crown.png"><div class="paytable-val">Корона: x4 / x10 / x20 / x50</div></div>
+      <div class="paytable-item"><img src="/sym_wild.png"><div class="paytable-val">WILD: x10 / x20 / x50 / x200</div></div>
     </div>
   </div>
 </div>
 
-<!-- МОДАЛКА ПОКУПКИ БОНУСА -->
 <div class="modal-overlay" id="bonusModal">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('bonusModal').classList.remove('show')">✕</button>
@@ -278,10 +269,12 @@ const SYMBOLS = {
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
+
+// Выплаты под RTP ~95% (за 7, 8, 9, 10+ символов)
 const PAYTABLE = {
-  '10': [1, 2, 5, 10], 'J': [1, 2, 5, 10], 'Q': [1, 2, 5, 10], 'K': [1, 2, 5, 10], 'A': [1, 2, 5, 10],
-  'diamond': [2, 4, 10, 30], 'scarab': [4, 8, 20, 50], 'crown': [8, 20, 50, 100],
-  'wild': [20, 50, 200, 1000]
+  '10': [0.5, 1, 2, 5], 'J': [0.5, 1, 2, 5], 'Q': [0.5, 1, 2, 5], 'K': [0.5, 1, 2, 5], 'A': [0.5, 1, 2, 5],
+  'diamond': [1, 2, 5, 10], 'scarab': [2, 4, 8, 20], 'crown': [4, 10, 20, 50],
+  'wild': [10, 20, 50, 200]
 };
 
 function getRandomSymbol() {
@@ -300,7 +293,6 @@ function createSymbolHTML(sym) {
   return html;
 }
 
-// Отрисовка поля
 function renderBoard(board) {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
@@ -314,7 +306,7 @@ function renderBoard(board) {
       const sym = board[i][j];
       const el = document.createElement('div');
       el.className = 'symbol';
-      el.style.transform = `translateY(${j * 100}%)`; // Позиция
+      el.style.transform = `translateY(${j * 100}%)`; 
       el.dataset.col = i;
       el.dataset.row = j;
       el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
@@ -339,7 +331,26 @@ function changeBet(dir) {
   $('priceBonus2').textContent = `${bet * 250} ₽`;
 }
 
-// Проверка выигрыша
+// Звук взрыва
+function playExplosionSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
 function checkWins(board, betAmount) {
   let totalWin = 0;
   let winPositions = [];
@@ -364,11 +375,9 @@ function checkWins(board, betAmount) {
       counts[symId].forEach(pos => winPositions.push(pos));
     }
   }
-  
   return { win: Math.round(totalWin * 100) / 100, positions: winPositions };
 }
 
-// Подсветка
 function highlightWinCells(positions) {
   positions.forEach(pos => {
     const reel = document.getElementById(`reel-${pos[0]}`);
@@ -386,7 +395,6 @@ function clearHighlight() {
   document.querySelectorAll('.symbol-inner').forEach(el => el.classList.remove('win-highlight'));
 }
 
-// Логика каскада
 async function processCascades(board) {
   const res = checkWins(board, bet);
   
@@ -396,85 +404,91 @@ async function processCascades(board) {
     $('winAmount').textContent = res.win.toFixed(2);
     $('winAmount').style.color = '#00ff88';
     
+    // 1. Подсветка (держим 0.8 сек)
     highlightWinCells(res.positions);
+    await new Promise(r => setTimeout(r, 800)); 
     
-    await new Promise(r => setTimeout(r, 600)); // Ждем, чтобы игрок увидел выигрыш
+    // 2. Взрыв
+    playExplosionSound();
+    const explodedElements = [];
     
+    res.positions.forEach(pos => {
+      const reel = document.getElementById(`reel-${pos[0]}`);
+      if (!reel) return;
+      const symbols = reel.querySelectorAll('.symbol');
+      const el = symbols[pos[1]];
+      if (el) {
+        const inner = el.querySelector('.symbol-inner');
+        if (inner) {
+          inner.classList.remove('win-highlight');
+          inner.classList.add('exploding');
+        }
+        explodedElements.push({ el, pos });
+      }
+    });
+    
+    // Ждем взрыв (0.4 сек)
+    await new Promise(r => setTimeout(r, 400)); 
+    
+    // Убираем из DOM
+    explodedElements.forEach(item => item.el.remove());
     clearHighlight();
     
-    // Обновляем доску
+    // 3. Подготовка новой доски
     const newBoard = JSON.parse(JSON.stringify(board));
     
-    // 1. Удаляем выигрышные символы и сдвигаем оставшиеся вниз
     for (let i = 0; i < 6; i++) {
       const reel = document.getElementById(`reel-${i}`);
-      
-      // Собираем оставшиеся символы в колонке (сверху вниз)
       const remaining = [];
+      
       for (let j = 0; j < 5; j++) {
         const isWin = res.positions.some(pos => pos[0] === i && pos[1] === j);
-        if (!isWin) {
-          remaining.push(board[i][j]);
-        }
+        if (!isWin) remaining.push(board[i][j]);
       }
       
-      // Сколько новых символов нужно добавить
       const missingCount = 5 - remaining.length;
       const newSymbols = [];
-      for (let k = 0; k < missingCount; k++) {
-        newSymbols.push(getRandomSymbol());
-      }
+      for (let k = 0; k < missingCount; k++) newSymbols.push(getRandomSymbol());
       
-      // Формируем новую колонку (новые сверху, оставшиеся снизу)
       const finalColumn = [...newSymbols, ...remaining];
+      for (let j = 0; j < 5; j++) newBoard[i][j] = finalColumn[j];
       
-      // Сохраняем в новую доску
-      for (let j = 0; j < 5; j++) {
-        newBoard[i][j] = finalColumn[j];
-      }
-      
-      // Визуальное обновление колонки
-      // Находим DOM-элементы
-      const symbolEls = Array.from(reel.querySelectorAll('.symbol'));
-      
-      // Сначала плавно сдвигаем оставшиеся вниз
+      // Сдвиг оставшихся
       let newIdx = missingCount;
       for (let j = 0; j < 5; j++) {
         const isWin = res.positions.some(pos => pos[0] === i && pos[1] === j);
         if (!isWin) {
-          // Этот символ выжил. Сдвигаем его на новую позицию
-          const el = symbolEls[j];
-          el.style.transform = `translateY(${newIdx * 100}%)`;
+          const el = reel.querySelector(`.symbol[data-row="${j}"]`);
+          if (el) {
+            el.style.transform = `translateY(${newIdx * 100}%)`;
+            el.dataset.row = newIdx; // Обновляем ряд
+          }
           newIdx++;
-        } else {
-          // Выигрышный символ — удаляем
-          symbolEls[j].remove();
         }
       }
       
-      // Теперь добавляем новые символы сверху
+      // Добавление новых
       for (let k = 0; k < missingCount; k++) {
         const sym = newSymbols[k];
         const el = document.createElement('div');
         el.className = 'symbol';
-        // Начальная позиция: выше экрана (-100%, -200% и т.д.)
-        el.style.transform = `translateY(${-(missingCount - k) * 100}%)`;
+        el.style.transform = `translateY(${-(missingCount - k) * 100}%)`; 
+        el.dataset.row = k; // Новый ряд
         el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
         
-        // Вставляем в начало колонки
         reel.insertBefore(el, reel.firstChild);
         
-        // Запускаем анимацию падения
+        // Падение
         setTimeout(() => {
           el.style.transform = `translateY(${k * 100}%)`;
-        }, 50);
+        }, 50 + k * 50);
       }
     }
     
-    // Ждем завершения анимации падения
-    await new Promise(r => setTimeout(r, 500));
+    // 4. Ждем, пока все упадет (0.5 сек)
+    await new Promise(r => setTimeout(r, 600));
     
-    // Рекурсивно проверяем на новый выигрыш
+    // 5. Рекурсия
     await processCascades(newBoard);
     
   } else {
@@ -512,7 +526,6 @@ async function spin() {
   
   currentBoard = board;
   
-  // 1. Опустошаем поле (символы уезжают вверх)
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
   for (let i = 0; i < 6; i++) {
@@ -523,7 +536,7 @@ async function spin() {
       const el = document.createElement('div');
       el.className = 'symbol';
       el.style.transform = `translateY(${j * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner"></div>`;
+      el.innerHTML = `<div class="symbol-inner" style="opacity:0;"></div>`;
       reel.appendChild(el);
     }
     wrap.appendChild(reel);
@@ -531,7 +544,6 @@ async function spin() {
   
   await new Promise(r => setTimeout(r, 100));
   
-  // 2. Съезд символов сверху
   for (let i = 0; i < 6; i++) {
     const reel = document.getElementById(`reel-${i}`);
     const symbols = reel.querySelectorAll('.symbol');
@@ -539,18 +551,16 @@ async function spin() {
       const el = symbols[j];
       const sym = board[i][j];
       
-      el.style.transform = `translateY(${-100 + j * 100}%)`; // Начинаем сверху
+      el.style.transform = `translateY(${-100 + j * 100}%)`;
       el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
       
       setTimeout(() => {
         el.style.transform = `translateY(${j * 100}%)`;
-      }, 10 + j * 20);
+      }, 10 + j * 30);
     }
   }
   
   await new Promise(r => setTimeout(r, 500));
-  
-  // 3. Проверка выигрыша
   await processCascades(board);
 }
 
