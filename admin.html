@@ -156,35 +156,13 @@
   .day-list-item:last-child { border-bottom: none; }
   .day-list-item .who { color: var(--muted); }
   .day-list-item .val { font-weight: 800; }
-  .crash-force-block { background: rgba(0,0,0,.3); border: 1px solid var(--gold); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .crash-force-block h3 { color: var(--gold); font-size: 16px; margin-bottom: 10px; }
-  .crash-force-block .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-  .crash-force-block .hint code { background: rgba(0,229,255,.15); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; }
-  .crash-force-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-  .crash-force-row label { flex: 1; min-width: 140px; }
-  .crash-force-row input { width: 100%; }
-  .crash-force-status { margin-top: 12px; font-size: 13px; color: var(--muted); min-height: 20px; }
   .dot-yes { color: var(--green); font-weight: 900; }
   .dot-no { color: var(--muted); }
-  .crash-live-block { background: rgba(0,0,0,.3); border: 1px solid #00e5ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .crash-live-block h3 { color: #00e5ff; font-size: 16px; margin-bottom: 14px; }
-  .crash-live-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 14px; }
-  .crash-live-mult { flex: 1; min-width: 180px; background: rgba(0,0,0,.4); border: 1px solid rgba(0,229,255,.3); border-radius: 12px; padding: 16px; text-align: center; }
-  .crash-live-mult .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
-  .crash-live-mult .val { font-size: 42px; font-weight: 900; color: #00e5ff; line-height: 1; }
-  .crash-live-mult .st { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  .crash-live-actions { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 8px; }
-  .crash-live-info { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
-  .crash-stop-btn { background: var(--red); color: #fff; font-size: 16px; padding: 16px; font-weight: 900; letter-spacing: 1px; border-radius: 10px; }
-  .crash-stop-btn:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
-  .crash-live-status { font-size: 12px; color: var(--muted); }
-  .miner-force-block { background: rgba(0,0,0,.3); border: 1px solid var(--red); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .miner-force-block h3 { color: var(--red); font-size: 16px; margin-bottom: 10px; }
-  .miner-force-block .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-  .miner-force-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .miner-force-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; padding: 10px 16px; background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 10px; font-weight: 800; }
-  .miner-force-toggle input { width: 22px; height: 22px; accent-color: var(--red); cursor: pointer; margin: 0; }
-  .miner-force-status { font-size: 13px; font-weight: 800; color: var(--muted); }
+  .roulette-type-pill { display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .roulette-type-pill.number, .roulette-type-pill.zero { background: rgba(0,229,255,.15); color: var(--accent); }
+  .roulette-type-pill.red { background: rgba(255,77,77,.2); color: #ff8080; }
+  .roulette-type-pill.black { background: rgba(255,255,255,.1); color: #fff; }
+  .roulette-type-pill.even, .roulette-type-pill.odd { background: rgba(241,196,15,.15); color: var(--amber); }
   @media (max-width: 900px) {
     .sessions-grid { grid-template-columns: 1fr; }
     .mobile-menu-btn { display: block; }
@@ -200,7 +178,6 @@
     .row { gap: 10px; } label { font-size: 11px; width: 100%; }
     label input, label select { width: 100%; } .row button { width: 100%; }
     .modal { padding: 20px; }
-    .miner-force-toggle { width: 100%; }
   }
   @media (max-width: 480px) {
     .cards { grid-template-columns: 1fr; } .chart-wrap { height: 180px; }
@@ -236,8 +213,7 @@
     <button data-page="guests" onclick="switchPage('guests')">Гости (Профиль 2)</button>
     <button data-page="news" onclick="switchPage('news')">📰 Новости</button>
     <button data-page="reviews" onclick="switchPage('reviews')">⭐ Отзывы о дилерах</button>
-    <button data-page="online" onclick="switchPage('online')">Онлайн-казино (Crash)</button>
-    <button data-page="miner" onclick="switchPage('miner')">🎮 Минер</button>
+    <button data-page="roulette" onclick="switchPage('roulette')">🎡 Рулетка</button>
     <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
     <button data-page="history" onclick="switchPage('history')">История</button>
     <button data-page="roles" onclick="switchPage('roles')">Роли</button>
@@ -356,140 +332,55 @@
     </div>
   </div>
 
-  <div class="page" id="page-online">
+  <div class="page" id="page-roulette">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-      <div><h1>Онлайн-казино (Crash)</h1><div class="sub">Управление и успешные выводы (только реальные игроки)</div></div>
-      <button class="danger" onclick="openClearCrashModal()">Очистить историю Crash</button>
+      <div><h1>🎡 Рулетка</h1><div class="sub">История ставок, RTP и доход</div></div>
+      <button class="ghost" onclick="loadDB().then(renderRoulette)">🔄 Обновить</button>
     </div>
 
-    <div id="crashGate" style="display:none;">
-      <div class="panel" style="max-width:420px; margin:40px auto; text-align:center;">
-        <h3 style="margin-bottom:14px;">Введите пароль</h3>
-        <input type="password" id="crashGatePass" class="modal-input" style="width:100%; background:rgba(0,0,0,.5); border:1px solid var(--line); color:#fff; border-radius:8px; padding:14px; font-size:16px; text-align:center; margin-bottom:14px; font-family:inherit;">
-        <div class="err" id="crashGateErr" style="color:var(--red); font-size:13px; min-height:18px; margin-bottom:10px;"></div>
-        <button class="success" style="width:100%; padding:14px; font-size:15px;" onclick="submitCrashGate()">Войти</button>
-      </div>
-    </div>
-
-    <div id="crashContent" style="display:none;">
-      <div class="cards" id="onlineCards"></div>
-
-      <div class="crash-live-block">
-        <h3>🎮 Управление полётом</h3>
-        <div class="crash-live-grid">
-          <div class="crash-live-mult">
-            <div class="lbl">Текущий X</div>
-            <div id="liveMult" class="val">1.00x</div>
-            <div id="liveStatus" class="st">Ожидание...</div>
-          </div>
-          <div class="crash-live-actions">
-            <div class="crash-live-info">Нажми <b style="color:#ff4d4d;">СТОП</b> — раунд крашится <b>прямо сейчас</b> на текущем X.</div>
-            <button id="btnCrashStop" class="crash-stop-btn" onclick="doCrashStop()" disabled>🛑 СТОП — крашнуть сейчас</button>
-          </div>
-        </div>
-        <div id="liveInfo" class="crash-live-status">Раунд ещё не начался.</div>
-      </div>
-
-      <div class="crash-force-block">
-        <h3>🎯 Контроль следующего краша</h3>
-        <div class="hint">Введи коэффициент — следующий раунд крашнется именно на нём. Диапазон: 1.00 – 100.</div>
-        <div class="crash-force-row">
-          <label>Следующий краш (x)<input type="number" id="crashForceInput" step="0.01" min="1" max="100" placeholder="2.5"></label>
-          <button class="gold" onclick="setCrashForce()">🎯 Задать</button>
-          <button class="ghost" onclick="clearCrashForce()">Сбросить</button>
-        </div>
-        <div class="crash-force-status" id="crashForceStatus"></div>
-      </div>
-
-      <div class="panel"><h3>✅ Успешные выводы (только реальные игроки)</h3>
-        <div class="wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Ник</th>
-                <th>Ранг</th>
-                <th>Карта</th>
-                <th>Время</th>
-                <th>Ставка</th>
-                <th>X</th>
-                <th>Вывел</th>
-              </tr>
-            </thead>
-            <tbody id="onlineBody"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="onlineEmpty">Пока нет успешных выводов</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-miner">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-      <div><h1>🎮 Минер</h1><div class="sub">Активные игры и история</div></div>
-      <button class="ghost" onclick="loadMinerAdmin(); loadMinerPlayers()">🔄 Обновить</button>
-    </div>
-    <div class="cards" id="minerCards"></div>
-
-    <div class="miner-force-block">
-      <h3>🎛 Режим «Сливать минер»</h3>
-      <div class="hint">
-        Когда включено — <b>каждый следующий клик игрока в Miner попадает на мину</b>. Игрок проигрывает на первой же открытой клетке.<br>
-        Когда выключено — Miner работает как обычно (случайные мины, RTP 99%).
-      </div>
-      <div class="miner-force-row">
-        <label class="miner-force-toggle">
-          <input type="checkbox" id="minerForceLose" onchange="toggleMinerForceLose()">
-          <span>Сливать каждый клик</span>
-        </label>
-        <span id="minerForceStatus" class="miner-force-status"></span>
-      </div>
-    </div>
-
-    <div class="miner-force-block" style="border-color:var(--amber);">
-      <h3 style="color:var(--amber);">🎯 Слив конкретных игроков</h3>
-      <div class="hint">
-        Включи «слив» у конкретного игрока — он будет проигрывать на первом же клике в Miner.<br>
-        Выключи — играет нормально, даже если глобальный «Сливать каждый клик» выключен.
-      </div>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
-        <input type="text" id="minerPlayerSearch" placeholder="Поиск по нику или ID..." oninput="renderMinerPlayers()" style="flex:1; min-width:220px; background:rgba(0,0,0,.3); border:1px solid var(--line); color:#fff; padding:10px 12px; border-radius:8px; font-family:inherit;">
-        <button class="ghost" onclick="loadMinerPlayers()">🔄 Обновить</button>
-      </div>
-      <div class="wrap" style="max-height:340px;">
-        <table>
-          <thead>
-            <tr><th>Игрок</th><th>ID</th><th>Последняя игра</th><th>Слив</th></tr>
-          </thead>
-          <tbody id="minerPlayersBody"></tbody>
-        </table>
-      </div>
-      <div class="empty" id="minerPlayersEmpty">Пока никто не играл в Miner</div>
-    </div>
+    <div class="cards" id="rouletteCards"></div>
 
     <div class="panel">
-      <h3>🎯 Активные игры (кто сейчас играет)</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <h3 style="margin:0;">📊 Статистика по типам ставок</h3>
+      </div>
       <div class="wrap">
         <table>
           <thead>
-            <tr><th>Игрок (ID)</th><th>Ставка</th><th>Мин</th><th>Открыто</th><th>В игре</th><th>Начал</th></tr>
+            <tr>
+              <th>Тип ставки</th>
+              <th>Раундов</th>
+              <th>Оборот</th>
+              <th>Выплачено</th>
+              <th>Доход</th>
+              <th>RTP</th>
+            </tr>
           </thead>
-          <tbody id="minerActiveBody"></tbody>
+          <tbody id="rouletteStatsBody"></tbody>
         </table>
       </div>
-      <div class="empty" id="minerActiveEmpty">Нет активных игр</div>
+      <div class="empty" id="rouletteStatsEmpty">Пока нет данных</div>
     </div>
 
     <div class="panel">
-      <h3>📜 История игр</h3>
+      <h3>📜 Все раунды</h3>
       <div class="wrap">
         <table>
           <thead>
-            <tr><th>Дата</th><th>Игрок</th><th>Ставка</th><th>Мин</th><th>Открыто</th><th>Множитель</th><th>Выигрыш</th><th>Итог</th></tr>
+            <tr>
+              <th>Дата</th>
+              <th>Игрок</th>
+              <th>Дилер</th>
+              <th>Тип ставки</th>
+              <th>Ставка</th>
+              <th>Выигрыш</th>
+              <th>Доход</th>
+            </tr>
           </thead>
-          <tbody id="minerHistoryBody"></tbody>
+          <tbody id="rouletteBody"></tbody>
         </table>
       </div>
-      <div class="empty" id="minerHistoryEmpty">Пока нет игр</div>
+      <div class="empty" id="rouletteEmpty">Пока нет раундов</div>
     </div>
   </div>
 
@@ -578,7 +469,6 @@
 <div class="modal-backdrop" id="passModal"><div class="modal"><h2 id="passTitle">Введите пароль</h2><p id="passText"></p><input type="password" class="modal-input" id="passInput" placeholder="Пароль"><div class="err" id="passErr"></div><div class="btn-row"><button class="ghost" onclick="closePassModal()">Отмена</button><button class="success" onclick="confirmPass()">Подтвердить</button></div></div></div>
 <div class="modal-backdrop" id="logoutModal"><div class="modal"><h2>Выход</h2><p>Вы уверены?</p><div class="btn-row"><button class="ghost" onclick="closeLogoutModal()">Отмена</button><button class="danger" onclick="confirmLogout()">Выйти</button></div></div></div>
 <div class="modal-backdrop" id="clearAllModal"><div class="modal" style="border-color:var(--red);"><h2 style="color:var(--red);">ВНИМАНИЕ!</h2><p>Полностью очистить базу?<br>Пароль владельца:</p><input type="password" class="modal-input" id="clearAllPass" placeholder="Пароль"><div class="err" id="clearAllErr"></div><div class="btn-row"><button class="ghost" onclick="closeClearAllModal()">Отмена</button><button class="danger" onclick="confirmClearAll()">УДАЛИТЬ ВСЁ</button></div></div></div>
-<div class="modal-backdrop" id="clearCrashModal"><div class="modal" style="border-color:var(--red);"><h2 style="color:var(--red);">Очистить Crash?</h2><p>Удалить все раунды и ставки.<br>Пароль владельца:</p><input type="password" class="modal-input" id="clearCrashPass" placeholder="Пароль"><div class="err" id="clearCrashErr"></div><div class="btn-row"><button class="ghost" onclick="closeClearCrashModal()">Отмена</button><button class="danger" onclick="confirmClearCrash()">ОЧИСТИТЬ</button></div></div></div>
 
 <div class="modal-backdrop" id="editGuestModal"><div class="modal"><h2>Редактировать гостя</h2>
   <div class="form-row">
@@ -618,24 +508,19 @@
   <button class="ghost" style="position:absolute; top:15px; right:15px; width:auto; padding:4px 12px; font-size:16px;" onclick="closeDayIncomeModal()">✕</button>
   <div class="day-modal-content" id="dayIncomeContent"></div>
 </div></div>
-
 <script>
-const db = { sessions:[], baccarat:[], deposits:[], withdrawals:[], payouts:[], players:[], audit:[], employees:[], dealers:[], online:[], guests:[], crash_bets:[], dealer_reviews:[], dealer_ratings:[] };
+const db = { sessions:[], baccarat:[], roulette:[], deposits:[], withdrawals:[], payouts:[], players:[], audit:[], employees:[], dealers:[], online:[], guests:[], crash_bets:[], dealer_reviews:[], dealer_ratings:[] };
 let newsList = [];
 let currentUser = null;
 let currentRole = null;
 let editGuestId = null;
 let guestBalanceId = null;
-let liveCrashInterval = null;
-let minerInterval = null;
-let minerPlayersCache = [];
 
 const CRASH_PASS = '56UpahoS';
-let crashGateUnlocked = false;
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','online','miner','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','online','miner','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','roulette','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','roulette','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 
@@ -687,6 +572,7 @@ async function apiDelete(url){
 async function loadDB(){
   const endpoints = {
     sessions: '/api/sessions', baccarat: '/api/baccarat',
+    roulette: '/api/sessions/roulette',
     deposits: '/api/deposits', withdrawals: '/api/withdrawals',
     payouts: '/api/payouts', players: '/api/players',
     audit: '/api/audit', employees: '/api/employees',
@@ -726,42 +612,9 @@ function switchPage(page){
   const p = $('page-'+page); if(p) p.classList.add('active');
   try { renderAll(); } catch(e){ console.error('renderAll', e); }
 
-  if (page==='online'){
-    if (!crashGateUnlocked) {
-      $('crashGate').style.display = 'block';
-      $('crashContent').style.display = 'none';
-      $('crashGatePass').value = '';
-      $('crashGateErr').textContent = '';
-      setTimeout(() => { const el = $('crashGatePass'); if (el) el.focus(); }, 100);
-      stopLiveCrashPoll();
-    } else {
-      $('crashGate').style.display = 'none';
-      $('crashContent').style.display = 'block';
-      loadCrashForceStatus();
-      renderOnline();
-      startLiveCrashPoll();
-    }
-  } else {
-    stopLiveCrashPoll();
-  }
-
-  if (page==='miner'){ startMinerPoll(); loadMinerForceLose(); loadMinerPlayers(); }
-  else { stopMinerPoll(); }
+  if (page==='roulette'){ renderRoulette(); }
 
   if (window.innerWidth <= 900) toggleMenu();
-}
-
-function submitCrashGate(){
-  const pass = $('crashGatePass').value;
-  const err = $('crashGateErr');
-  err.textContent = '';
-  if (pass !== CRASH_PASS) { err.textContent = 'Неверный пароль'; return; }
-  crashGateUnlocked = true;
-  $('crashGate').style.display = 'none';
-  $('crashContent').style.display = 'block';
-  loadCrashForceStatus();
-  renderOnline();
-  startLiveCrashPoll();
 }
 
 async function doLogin(){
@@ -781,7 +634,6 @@ async function doLogin(){
     await loadDB();
     renderAll();
     switchPage('dash');
-    loadCrashForceStatus();
   } catch(e){
     err.textContent = 'Ошибка соединения: ' + e.message;
   }
@@ -792,9 +644,7 @@ function openLogoutModal(){ $('logoutModal').classList.add('show'); }
 function closeLogoutModal(){ $('logoutModal').classList.remove('show'); }
 async function confirmLogout(){
   try { await audit('logout', currentUser + ' вышел'); } catch(e){}
-  stopLiveCrashPoll(); stopMinerPoll();
   currentUser = null; currentRole = null;
-  crashGateUnlocked = false;
   $('loginScreen').classList.remove('hidden');
   $('loginUser').focus();
   closeLogoutModal();
@@ -802,14 +652,13 @@ async function confirmLogout(){
 
 function openClearModal(){ $('clearAllModal').classList.add('show'); }
 function closeClearAllModal(){ $('clearAllModal').classList.remove('show'); }
-function openClearCrashModal(){ $('clearCrashModal').classList.add('show'); }
-function closeClearCrashModal(){ $('clearCrashModal').classList.remove('show'); }
 
 async function confirmClearAll(){
   const pass = $('clearAllPass').value;
   if(pass !== CRASH_PASS){ $('clearAllErr').textContent = 'Неверный пароль.'; return; }
   for(const s of db.sessions) await apiDelete('/api/sessions/' + s.id);
   for(const b of db.baccarat) await apiDelete('/api/baccarat/' + b.id);
+  for(const r of db.roulette) await apiDelete('/api/sessions/roulette/' + r.id);
   for(const d of db.deposits) await apiDelete('/api/deposits/' + d.id);
   for(const w of db.withdrawals) await apiDelete('/api/withdrawals/' + w.id);
   for(const p of db.payouts) await apiDelete('/api/payouts/' + p.id);
@@ -820,14 +669,6 @@ async function confirmClearAll(){
   closeClearAllModal();
   await loadDB(); renderAll();
   showInfo('Успех', 'Все данные удалены.');
-}
-async function confirmClearCrash(){
-  const pass = $('clearCrashPass').value;
-  if(pass !== CRASH_PASS){ $('clearCrashErr').textContent = 'Неверный пароль.'; return; }
-  await apiDelete('/api/crash/clear');
-  closeClearCrashModal();
-  await loadDB(); renderAll();
-  showInfo('Успех', 'История Crash очищена.');
 }
 
 let confirmAction = null;
@@ -866,37 +707,319 @@ async function confirmPass(){
 }
 $('passInput').addEventListener('keypress', e=>{ if(e.key==='Enter') confirmPass(); });
 
-function openGuestBalance(id){
-  const g = db.guests.find(x => String(x.id) === String(id));
-  if(!g){ showInfo('Ошибка','Гость не найден'); return; }
-  guestBalanceId = g.id;
-  $('gbGuestInfo').innerHTML = `<b style="color:#fff">${escHtml(g.name)}</b> · № ${escHtml(g.id)}<br>Реальный: <b style="color:var(--green)">${fmt(parseFloat(g.deposit_balance)||0)} ₽</b> · Бонусный: <b style="color:var(--gold)">${fmt(parseFloat(g.bonus_balance)||0)} ₽</b>`;
-  $('gbType').value = 'deposit';
-  $('gbOp').value = 'add';
-  $('gbAmount').value = '';
-  $('gbPass').value = '';
-  $('gbErr').textContent = '';
-  $('guestBalanceModal').classList.add('show');
+/* ============ РУЛЕТКА ============ */
+function rouletteNet(r){
+  const bet = parseFloat(r.bet) || 0;
+  const win = parseFloat(r.win) || 0;
+  return { bet, win, income: bet - win };
 }
-function closeGuestBalanceModal(){ $('guestBalanceModal').classList.remove('show'); guestBalanceId = null; }
-function gbSetAmount(v){ $('gbAmount').value = v; }
-async function submitGuestBalance(){
-  if(!guestBalanceId) return;
-  const type = $('gbType').value;
-  const op = $('gbOp').value;
-  const amount = parseFloat($('gbAmount').value) || 0;
-  const pass = $('gbPass').value;
-  if(amount <= 0){ $('gbErr').textContent = 'Сумма должна быть > 0'; return; }
-  if(!pass){ $('gbErr').textContent = 'Введите пароль owner'; return; }
-  const r = await apiPost('/api/admin/guests/balance', { id: guestBalanceId, amount, type, op, pass });
-  if(r.error){ $('gbErr').textContent = r.error; return; }
-  const g = db.guests.find(x => String(x.id) === String(guestBalanceId));
-  const label = op==='add'?'Добавлено':'Списано';
-  const typeLabel = type==='bonus'?'бонусный':'реальный';
-  closeGuestBalanceModal();
-  await loadDB(); renderGuests();
-  showInfo('Готово', `${label} <b>${fmt(amount)} ₽</b> (${typeLabel}) гостю <b>${escHtml(g?.name||'—')}</b>.<br>Баланс: реальный <b style="color:var(--green)">${fmt(r.balance?.deposit_balance??0)} ₽</b>, бонусный <b style="color:var(--gold)">${fmt(r.balance?.bonus_balance??0)} ₽</b>.`);
+function rouletteStats(){
+  let t = 0, p = 0, i = 0;
+  db.roulette.forEach(r => {
+    const n = rouletteNet(r);
+    t += n.bet; p += n.win; i += n.income;
+  });
+  return { turnover: t, payouts: p, income: i, count: db.roulette.length, rtp: t > 0 ? (p / t * 100) : 0 };
 }
+
+function rouletteTypeLabel(r){
+  const labels = {
+    number: 'Число ' + (r.bet_number ?? ''),
+    zero: 'Зеро',
+    red: 'Красное',
+    black: 'Чёрное',
+    even: 'Чёт',
+    odd: 'Нечет'
+  };
+  return labels[r.bet_type] || r.bet_type;
+}
+
+function renderRoulette(){
+  const st = rouletteStats();
+  const cards = $('rouletteCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Раундов</div><div class="value accent">${st.count}</div></div>
+    <div class="card"><div class="label">Оборот</div><div class="value">${fmt(st.turnover)} ₽</div></div>
+    <div class="card"><div class="label">Выплачено</div><div class="value red">${fmt(st.payouts)} ₽</div></div>
+    <div class="card" style="border-color:var(--gold);"><div class="label">Доход</div><div class="value gold">${fmt(st.income)} ₽</div></div>
+    <div class="card"><div class="label">RTP</div><div class="value" style="color:${st.rtp >= 90 ? 'var(--green)' : st.rtp >= 75 ? 'var(--amber)' : 'var(--red)'}">${st.rtp.toFixed(1)}%</div></div>
+  `;
+
+  // Статистика по типам
+  const byType = {};
+  db.roulette.forEach(r => {
+    const t = r.bet_type || 'other';
+    if(!byType[t]) byType[t] = { count: 0, turnover: 0, payouts: 0 };
+    const n = rouletteNet(r);
+    byType[t].count++;
+    byType[t].turnover += n.bet;
+    byType[t].payouts += n.win;
+  });
+  const stBody = $('rouletteStatsBody');
+  const stEmpty = $('rouletteStatsEmpty');
+  const typeKeys = Object.keys(byType);
+  if(stBody){
+    if(typeKeys.length === 0){
+      stBody.innerHTML = '';
+      if(stEmpty) stEmpty.style.display = 'block';
+    } else {
+      if(stEmpty) stEmpty.style.display = 'none';
+      stBody.innerHTML = typeKeys.map(t => {
+        const d = byType[t];
+        const inc = d.turnover - d.payouts;
+        const rtp = d.turnover > 0 ? (d.payouts / d.turnover * 100) : 0;
+        return `<tr>
+          <td><span class="roulette-type-pill ${t}">${rouletteTypeLabel({bet_type: t, bet_number: ''})}</span></td>
+          <td>${d.count}</td>
+          <td>${fmt(d.turnover)} ₽</td>
+          <td>${fmt(d.payouts)} ₽</td>
+          <td class="${inc >= 0 ? 'pos' : 'neg'}">${inc >= 0 ? '+' : ''}${fmt(inc)} ₽</td>
+          <td style="color:${rtp >= 90 ? 'var(--green)' : rtp >= 75 ? 'var(--amber)' : 'var(--red)'}">${rtp.toFixed(1)}%</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // Все раунды
+  const body = $('rouletteBody');
+  if(body){
+    if(db.roulette.length === 0){
+      body.innerHTML = '';
+      const e = $('rouletteEmpty'); if(e) e.style.display = 'block';
+    } else {
+      const e = $('rouletteEmpty'); if(e) e.style.display = 'none';
+      const sorted = [...db.roulette].sort((a,b) => {
+        const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
+        const dbb = b.created_at ? new Date(b.created_at) : new Date(b.date || 0);
+        return dbb - da;
+      });
+      body.innerHTML = sorted.map(r => {
+        const n = rouletteNet(r);
+        const dt = r.created_at ? formatTime(r.created_at) : (r.date || '—');
+        return `<tr>
+          <td style="color:var(--muted);font-size:11px">${dt}</td>
+          <td><b>${escHtml(r.nick || '—')}</b></td>
+          <td>${escHtml(r.dealer || '—')}</td>
+          <td><span class="roulette-type-pill ${r.bet_type}">${rouletteTypeLabel(r)}</span></td>
+          <td>${fmt(n.bet)} ₽</td>
+          <td class="${n.win > 0 ? 'pos' : ''}">${fmt(n.win)} ₽</td>
+          <td class="${n.income >= 0 ? 'pos' : 'neg'}">${n.income >= 0 ? '+' : ''}${fmt(n.income)} ₽</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+}
+
+/* ============ ДАШБОРД ============ */
+function bacCalc(r){
+  let payout = 0;
+  if(r.bet === 'игрок'){ if(r.result === 'игрок') payout = r.sum * 2; else if(r.result === 'ничья') payout = r.sum; }
+  else if(r.bet === 'банк'){ if(r.result === 'банк') payout = r.sum * 1.95; else if(r.result === 'ничья') payout = r.sum; }
+  else { if(r.result === 'ничья') payout = r.sum * 9; }
+  return { payout, casino: r.sum - payout };
+}
+function sessionNet(s){
+  const dep = parseFloat(s.dep) || 0;
+  const outSum = parseFloat(s.out_sum) || 0;
+  const fee = parseFloat(s.fee) || 0;
+  const net = outSum - fee;
+  return { dep, outSum, fee, net, income: dep - net };
+}
+function bjStats(){ let t=0,p=0,i=0; db.sessions.forEach(s=>{const r=sessionNet(s); t+=r.dep; p+=r.net; i+=r.income;}); return {turnover:t,payouts:p,income:i,count:db.sessions.length}; }
+function bacStats(){ let t=0,p=0,i=0; db.baccarat.forEach(b=>{const r=bacCalc(b); t+=b.sum; p+=r.payout; i+=r.casino;}); return {turnover:t,payouts:p,income:i,count:db.baccarat.length}; }
+function onlineStats(){ let inc=0,exp=0; db.online.forEach(o=>{ const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; if(o.type==='доход') inc+=parseFloat(o.sum)||0; else exp+=parseFloat(o.sum)||0; }); return {income:inc,expense:exp,net:inc-exp}; }
+
+function renderDash(){
+  const bj=bjStats(), bac=bacStats(), rl=rouletteStats(), on=onlineStats();
+  let dep=0; db.deposits.forEach(d=>{ if(d.status==='approved') dep+=parseFloat(d.sum)||0; });
+  const total = bj.income + bac.income + rl.income + on.net;
+  const cards = $('dashCards');
+  if(cards) cards.innerHTML = `
+    <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Рулетки</div><div class="value green">${fmt(rl.income)} ₽</div></div>
+    <div class="card"><div class="label">Доход Crash</div><div class="value accent">${fmt(on.net)} ₽</div></div>
+    <div class="card"><div class="label">Депозиты</div><div class="value" style="color:var(--muted)">${fmt(dep)} ₽</div></div>
+    <div class="card" style="border-color:var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(total)} ₽</div></div>
+  `;
+  drawChart();
+  renderIncomeCalendar();
+  renderSessions();
+}
+
+function renderIncomeCalendar(){
+  const days = {};
+  const ensure = d => days[d] || (days[d]={bj:0,bac:0,roulette:0,crash:0,dep:0,commission:0,salaries:0});
+  (db.sessions||[]).forEach(s=>{ if(s.date) ensure(s.date).bj += sessionNet(s).income; });
+  (db.baccarat||[]).forEach(b=>{ if(b.date) ensure(b.date).bac += bacCalc(b).casino; });
+  (db.roulette||[]).forEach(r=>{ if(r.date) ensure(r.date).roulette += rouletteNet(r).income; });
+  (db.online||[]).forEach(o=>{ if(!o.date) return; const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; ensure(o.date).crash += (o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0)); });
+  (db.deposits||[]).forEach(d=>{ if(d.date && d.status==='approved') ensure(d.date).dep += parseFloat(d.sum)||0; });
+  (db.withdrawals||[]).forEach(w=>{ if(!w.date) return; if(w.status==='approved'){ const s=parseFloat(w.sum)||0; ensure(w.date).commission += parseFloat(w.fee)||Math.round(s*0.07*100)/100; } });
+  (db.payouts||[]).forEach(p=>{ if(p.date) ensure(p.date).salaries += parseFloat(p.sum)||0; });
+
+  const cal = $('incomeCalendar'); if(!cal) return;
+  const empty = $('incomeCalendarEmpty');
+  const badge = $('incSummaryBadge');
+  const cnt = $('incDaysCount');
+  const dates = Object.keys(days).sort();
+  if(!dates.length){ cal.innerHTML=''; if(empty) empty.style.display='block'; if(badge) badge.textContent=''; if(cnt) cnt.textContent='0'; return; }
+  if(empty) empty.style.display='none';
+  let gt=0; dates.forEach(d=>{ const g=days[d]; gt += (g.bj+g.bac+g.roulette+g.crash)-g.commission-g.salaries; });
+  if(badge){ badge.textContent = (gt>=0?'+':'')+fmt(gt)+' ₽'; badge.style.color = gt>=0?'var(--green)':'var(--red)'; }
+  if(cnt) cnt.textContent = dates.length;
+  const vals = dates.map(d=>{ const g=days[d]; return (g.bj+g.bac+g.roulette+g.crash)-g.commission-g.salaries; });
+  const maxAbs = Math.max(...vals.map(Math.abs), 1);
+  cal.innerHTML = dates.map((d,i)=>{
+    const net = vals[i]; const [y,m,dd] = d.split('-');
+    let cls='zero';
+    if(net!==0){ const r=Math.abs(net)/maxAbs; let l; if(r<.15)l=1;else if(r<.4)l=2;else if(r<.7)l=3;else l=4; cls=(net>0?'pos-':'neg-')+l; }
+    return `<div class="inc-cell ${cls}" data-date="${d}" data-bj="${days[d].bj.toFixed(2)}" data-bac="${days[d].bac.toFixed(2)}" data-roulette="${days[d].roulette.toFixed(2)}" data-crash="${days[d].crash.toFixed(2)}" data-dep="${days[d].dep.toFixed(2)}" data-comm="${days[d].commission.toFixed(2)}" data-sal="${days[d].salaries.toFixed(2)}" data-net="${net.toFixed(2)}">${dd}</div>`;
+  }).join('');
+  bindCalendarTooltips();
+}
+
+function bindCalendarTooltips(){
+  let tip = $('incGlobalTooltip');
+  if(!tip){ tip=document.createElement('div'); tip.id='incGlobalTooltip'; tip.className='inc-tooltip'; document.body.appendChild(tip); }
+  document.querySelectorAll('.inc-cell').forEach(cell => {
+    cell.addEventListener('mouseenter', () => {
+      const d=cell.dataset.date, net=parseFloat(cell.dataset.net)||0, [y,m,dd]=d.split('-');
+      tip.innerHTML = `<div class="tt-date">${dd}.${m}.${y}</div><div class="tt-total ${net>=0?'pos':'neg'}">${net>=0?'+':''}${fmt(net)} ₽</div>
+        <div class="tt-row"><span>Блэкджек</span><span class="${parseFloat(cell.dataset.bj)>=0?'pos':'neg'}">${parseFloat(cell.dataset.bj)>=0?'+':''}${fmt(cell.dataset.bj)} ₽</span></div>
+        <div class="tt-row"><span>Баккара</span><span class="${parseFloat(cell.dataset.bac)>=0?'pos':'neg'}">${parseFloat(cell.dataset.bac)>=0?'+':''}${fmt(cell.dataset.bac)} ₽</span></div>
+        <div class="tt-row"><span>Рулетка</span><span class="${parseFloat(cell.dataset.roulette)>=0?'pos':'neg'}">${parseFloat(cell.dataset.roulette)>=0?'+':''}${fmt(cell.dataset.roulette)} ₽</span></div>
+        <div class="tt-row"><span>Crash</span><span class="${parseFloat(cell.dataset.crash)>=0?'pos':'neg'}">${parseFloat(cell.dataset.crash)>=0?'+':''}${fmt(cell.dataset.crash)} ₽</span></div>
+        <div class="tt-row"><span>Депозиты</span><span style="color:var(--muted)">${fmt(cell.dataset.dep)} ₽</span></div>
+        <div class="tt-row"><span>Комиссии</span><span class="neg">−${fmt(cell.dataset.comm)} ₽</span></div>
+        <div class="tt-row"><span>Зарплаты</span><span class="neg">−${fmt(cell.dataset.sal)} ₽</span></div>`;
+      tip.classList.add('show');
+      const rc = cell.getBoundingClientRect();
+      let l = rc.left+rc.width/2-100, t = rc.top-tip.offsetHeight-10;
+      if(t<10) t=rc.bottom+10;
+      if(l+200>window.innerWidth-10) l=window.innerWidth-210;
+      if(l<10) l=10;
+      tip.style.left=l+'px'; tip.style.top=t+'px';
+    });
+    cell.addEventListener('mouseleave', ()=>tip.classList.remove('show'));
+    cell.addEventListener('click', ()=>openDayIncomeModal(cell.dataset.date));
+  });
+}
+
+function openDayIncomeModal(date){
+  const [y,m,dd]=date.split('-'); const dateStr=`${dd}.${m}.${y}`;
+  const bjS = (db.sessions||[]).filter(s=>s.date===date);
+  const bacS = (db.baccarat||[]).filter(b=>b.date===date);
+  const rlS = (db.roulette||[]).filter(r=>r.date===date);
+  const crashR = (db.online||[]).filter(o=>o.date===date && (o.note||'').startsWith('Crash Round'));
+  const depA = (db.deposits||[]).filter(d=>d.date===date && d.status==='approved');
+  const wdA = (db.withdrawals||[]).filter(w=>w.date===date && w.status==='approved');
+  const payD = (db.payouts||[]).filter(p=>p.date===date);
+  let bjT=0,bacT=0,rlT=0,crashT=0,depT=0,commT=0,salT=0;
+  bjS.forEach(s=>bjT+=sessionNet(s).income);
+  bacS.forEach(b=>bacT+=bacCalc(b).casino);
+  rlS.forEach(r=>rlT+=rouletteNet(r).income);
+  crashR.forEach(o=>{ const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; if(o.type==='доход') crashT+=parseFloat(o.sum)||0; else crashT-=parseFloat(o.sum)||0; });
+  depA.forEach(d=>depT+=parseFloat(d.sum)||0);
+  wdA.forEach(w=>{ const s=parseFloat(w.sum)||0; commT+=parseFloat(w.fee)||Math.round(s*0.07*100)/100; });
+  payD.forEach(p=>salT+=parseFloat(p.sum)||0);
+  const net = (bjT+bacT+rlT+crashT)-commT-salT;
+  let html = `<div class="day-modal-title">${dateStr}</div><div class="day-modal-sub">Отчёт за день</div><div class="day-modal-total" style="color:${net>=0?'var(--green)':'var(--red)'};">${net>=0?'+':''}${fmt(net)} ₽</div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>🎲 Блэкджек (${bjS.length})</span><span class="amt ${bjT>=0?'pos':'neg'}">${bjT>=0?'+':''}${fmt(bjT)} ₽</span></div><div class="day-list">${bjS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bjS.map(s=>{const r=sessionNet(s);return `<div class="day-list-item"><span class="who">${s.nick||'—'} · ставка ${fmt(r.dep)} ₽</span><span class="val ${r.income>=0?'pos':'neg'}">${r.income>=0?'+':''}${fmt(r.income)} ₽</span></div>`;}).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>🎴 Баккара (${bacS.length})</span><span class="amt ${bacT>=0?'pos':'neg'}">${bacT>=0?'+':''}${fmt(bacT)} ₽</span></div><div class="day-list">${bacS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bacS.map(b=>{const r=bacCalc(b);return `<div class="day-list-item"><span class="who">${b.player||'—'} · ${fmt(b.sum)} ₽</span><span class="val ${r.casino>=0?'pos':'neg'}">${r.casino>=0?'+':''}${fmt(r.casino)} ₽</span></div>`;}).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>🎡 Рулетка (${rlS.length})</span><span class="amt ${rlT>=0?'pos':'neg'}">${rlT>=0?'+':''}${fmt(rlT)} ₽</span></div><div class="day-list">${rlS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>':rlS.map(r=>{const n=rouletteNet(r);return `<div class="day-list-item"><span class="who">${r.nick||'—'} · ${rouletteTypeLabel(r)} · ставка ${fmt(n.bet)} ₽</span><span class="val ${n.income>=0?'pos':'neg'}">${n.income>=0?'+':''}${fmt(n.income)} ₽</span></div>`;}).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>🚀 Crash (${crashR.length})</span><span class="amt ${crashT>=0?'pos':'neg'}">${crashT>=0?'+':''}${fmt(crashT)} ₽</span></div><div class="day-list">${crashR.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>':crashR.map(o=>{const v=o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0);return `<div class="day-list-item"><span class="who">${o.note||'—'}</span><span class="val ${v>=0?'pos':'neg'}">${v>=0?'+':''}${fmt(v)} ₽</span></div>`;}).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>💰 Депозиты (${depA.length})</span><span class="amt" style="color:var(--muted)">${fmt(depT)} ₽</span></div><div class="day-list">${depA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':depA.map(d=>`<div class="day-list-item"><span class="who">${d.nick||'—'}</span><span class="val" style="color:var(--muted)">${fmt(d.sum)} ₽</span></div>`).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>💳 Комиссии (${wdA.length})</span><span class="amt neg">−${fmt(commT)} ₽</span></div><div class="day-list">${wdA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':wdA.map(w=>{const s=parseFloat(w.sum)||0;const f=parseFloat(w.fee)||Math.round(s*0.07*100)/100;return `<div class="day-list-item"><span class="who">${w.nick||'—'} · ${fmt(s)} ₽</span><span class="val neg">−${fmt(f)} ₽</span></div>`;}).join('')}</div></div>`;
+  html += `<div class="day-section"><div class="day-section-title"><span>👔 Зарплаты (${payD.length})</span><span class="amt neg">−${fmt(salT)} ₽</span></div><div class="day-list">${payD.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':payD.map(p=>`<div class="day-list-item"><span class="who">${p.dealer||'—'}</span><span class="val neg">−${fmt(p.sum)} ₽</span></div>`).join('')}</div></div>`;
+  html += `<div style="text-align:center;margin-top:20px"><button class="ghost" onclick="closeDayIncomeModal()" style="width:100%">Закрыть</button></div>`;
+  const c = $('dayIncomeContent'); if(c) c.innerHTML = html;
+  $('dayIncomeModal').classList.add('show');
+}
+function closeDayIncomeModal(){ $('dayIncomeModal').classList.remove('show'); }
+
+function renderSessions(){
+  const bjB = $('bjSessionsBody'); if(bjB){
+    const bj = [...db.sessions].sort((a,b)=>{ const da=a.created_at?new Date(a.created_at):new Date(a.date||0); const dbb=b.created_at?new Date(b.created_at):new Date(b.date||0); return dbb-da; }).slice(0,50);
+    const cnt = $('bjCount'); if(cnt) cnt.textContent = db.sessions.length;
+    bjB.innerHTML = bj.length===0?'<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>':bj.map(s=>{const r=sessionNet(s);const t=s.created_at?new Date(s.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):(s.date||'—');const w=r.net>0?'pos':(r.net<0?'neg':'');return `<tr><td>${s.nick||'—'}</td><td>${fmt(r.dep)} ₽</td><td class="${w}">${fmt(r.net)} ₽</td><td>${s.dealer||'—'}</td><td style="color:var(--muted);font-size:11px">${t}</td></tr>`;}).join('');
+  }
+  const bacB = $('bacSessionsBody'); if(bacB){
+    const bac = [...db.baccarat].sort((a,b)=>{ const da=a.created_at?new Date(a.created_at):new Date(a.date||0); const dbb=b.created_at?new Date(b.created_at):new Date(b.date||0); return dbb-da; }).slice(0,50);
+    const cnt = $('bacCount'); if(cnt) cnt.textContent = db.baccarat.length;
+    bacB.innerHTML = bac.length===0?'<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>':bac.map(b=>{const r=bacCalc(b);const t=b.created_at?new Date(b.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):(b.date||'—');const w=r.payout>0?'pos':(r.payout<0?'neg':'');return `<tr><td>${b.player||'—'}</td><td>${fmt(b.sum)} ₽</td><td class="${w}">${fmt(r.payout)} ₽</td><td>${b.dealer||'—'}</td><td style="color:var(--muted);font-size:11px">${t}</td></tr>`;}).join('');
+  }
+}
+
+function drawChart(){
+  const canvas = $('incomeChart'); if(!canvas) return;
+  const wrap = canvas.parentElement; const dpr=window.devicePixelRatio||1;
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+  const map={};
+  db.sessions.forEach(s=>{ if(!s.date)return; map[s.date]=(map[s.date]||0)+sessionNet(s).income; });
+  db.baccarat.forEach(b=>{ if(!b.date)return; map[b.date]=(map[b.date]||0)+bacCalc(b).casino; });
+  db.roulette.forEach(r=>{ if(!r.date)return; map[r.date]=(map[r.date]||0)+rouletteNet(r).income; });
+  db.online.forEach(o=>{ if(!o.date)return; const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок'))return; map[o.date]=(map[o.date]||0)+(o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0)); });
+  const dates=Object.keys(map).sort();
+  if(!dates.length){ ctx.fillStyle='#a0aec0'; ctx.font='14px Montserrat'; ctx.textAlign='center'; ctx.fillText('Нет данных для графика', W/2, H/2); return; }
+  let run=0; const vals=dates.map(d=>{ run+=map[d]; return run; });
+  const padL=60,padR=20,padT=20,padB=40;
+  const pw=W-padL-padR, ph=H-padT-padB;
+  const maxV=Math.max(1,...vals), minV=Math.min(0,...vals), range=maxV-minV||1;
+  const y=v=>padT+ph-((v-minV)/range)*ph;
+  const x=i=>padL+(dates.length===1?pw/2:(i/(dates.length-1))*pw);
+  ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+  ctx.fillStyle='#a0aec0'; ctx.font='11px Montserrat'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){ const v=minV+(range/4)*i; const yy=y(v); ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke(); ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4); }
+  ctx.fillStyle='#a0aec0'; ctx.font='11px Montserrat'; ctx.textAlign='center';
+  const step=Math.ceil(dates.length/7);
+  dates.forEach((d,i)=>{ if(i%step===0||i===dates.length-1){ const [,mm,dd]=d.split('-'); ctx.fillText(dd+'.'+mm, x(i), H-15); } });
+  ctx.beginPath(); ctx.strokeStyle='#00e5ff'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.shadowBlur=10; ctx.shadowColor='rgba(0,229,255,.5)';
+  vals.forEach((v,i)=>{ const xx=x(i),yy=y(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
+  ctx.stroke(); ctx.shadowBlur=0;
+  const lx=x(vals.length-1), ly=y(vals[vals.length-1]);
+  ctx.beginPath(); ctx.fillStyle='#00e5ff'; ctx.arc(lx,ly,5,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=18; ctx.shadowColor='rgba(0,229,255,.8)';
+  ctx.beginPath(); ctx.arc(lx,ly,5,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+}
+
+/* ============ ОСТАЛЬНЫЕ РАЗДЕЛЫ ============ */
+function renderFinance(){
+  const db1 = $('depositsBody');
+  if(db1) db1.innerHTML = db.deposits.map(d=>`<tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td><td>${fmt(d.sum)} ₽</td><td><span class="status ${d.status}">${d.status}</span></td><td>${d.status==='pending'?`<button class="success small" onclick="depAction(${d.id},'approved')">Зачислить</button><button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>`:`<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
+  const dE = $('depositsEmpty'); if(dE) dE.style.display = db.deposits.length?'none':'block';
+  const w1 = $('withdrawalsBody');
+  if(w1) w1.innerHTML = db.withdrawals.map(w=>`<tr><td>${w.date}</td><td>${w.nick}<br><span style="font-size:11px;color:#a0aec0">${w.email||''}</span></td><td>${fmt(w.sum)} ₽</td><td>${fmt(w.fee)} ₽</td><td>${fmt(w.net)} ₽</td><td><span class="status ${w.status}">${w.status}</span></td><td>${w.status==='pending'?`<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="ghost small" onclick="wdAction(${w.id},'hold')">Отложить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>`:w.status==='hold'?`<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>`:`<button class="ghost small" onclick="delWithdrawal(${w.id})">Удалить</button>`}</td></tr>`).join('');
+  const wE = $('withdrawalsEmpty'); if(wE) wE.style.display = db.withdrawals.length?'none':'block';
+}
+async function depAction(id, status){ await apiPut('/api/deposits/'+id, {status}); await audit('deposit_'+status, '#'+id); await loadDB(); renderFinance(); }
+async function wdAction(id, status){ await apiPut('/api/withdrawals/'+id, {status}); await audit('withdrawal_'+status, '#'+id); await loadDB(); renderFinance(); }
+async function delDeposit(id){ await apiDelete('/api/deposits/'+id); await loadDB(); renderFinance(); }
+async function delWithdrawal(id){ await apiDelete('/api/withdrawals/'+id); await loadDB(); renderFinance(); }
+
+function renderPlayers(){
+  const names = new Set();
+  db.sessions.forEach(s=>{ if(s.nick) names.add(s.nick); });
+  db.baccarat.forEach(b=>{ if(b.player) names.add(b.player); });
+  db.roulette.forEach(r=>{ if(r.nick) names.add(r.nick); });
+  const list = [...names]; let total = 0;
+  const body = $('playersBody');
+  if(body) body.innerHTML = list.map((nick,i)=>{
+    const bj = db.sessions.filter(s=>s.nick===nick).reduce((a,s)=>a+sessionNet(s).income,0);
+    const bac = db.baccarat.filter(b=>b.player===nick).reduce((a,b)=>a+bacCalc(b).casino,0);
+    const rl = db.roulette.filter(r=>r.nick===nick).reduce((a,r)=>a+rouletteNet(r).income,0);
+    const sum = bj+bac+rl; total += sum;
+    const p = db.players.find(x=>x.nick===nick)||{};
+    return `<tr><td>${i+1}</td><td>${nick}</td><td class="${bj>=0?'pos':'neg'}">${bj>=0?'+':''}${fmt(bj)} ₽</td><td class="${bac>=0?'pos':'neg'}">${bac>=0?'+':''}${fmt(bac)} ₽</td><td class="${sum>=0?'pos':'neg'}">${sum>=0?'+':''}${fmt(sum)} ₽</td><td>${p.vip?'VIP':'—'}</td><td><button class="ghost small" onclick="toggleVIP('${nick.replace(/'/g,"\\'")}', ${!p.vip})">VIP</button></td></tr>`;
+  }).join('');
+  const e = $('playersEmpty'); if(e) e.style.display = list.length?'none':'block';
+  const cards = $('playerCards');
+  if(cards) cards.innerHTML = `<div class="card"><div class="label">Игроков</div><div class="value accent">${list.length}</div></div><div class="card"><div class="label">Общий проигрыш</div><div class="value ${total>=0?'green':'red'}">${fmt(total)} ₽</div></div>`;
+}
+async function toggleVIP(nick,val){ await apiPost('/api/players',{nick,vip:val}); await audit('vip_toggle',nick); await loadDB(); renderPlayers(); }
 
 function renderGuests(){
   const body = $('guestsBody'); if(!body) return;
@@ -998,544 +1121,36 @@ async function delGuest(id){
   await loadDB(); renderGuests();
 }
 
-function bacCalc(r){
-  let payout = 0;
-  if(r.bet === 'игрок'){ if(r.result === 'игрок') payout = r.sum * 2; else if(r.result === 'ничья') payout = r.sum; }
-  else if(r.bet === 'банк'){ if(r.result === 'банк') payout = r.sum * 1.95; else if(r.result === 'ничья') payout = r.sum; }
-  else { if(r.result === 'ничья') payout = r.sum * 9; }
-  return { payout, casino: r.sum - payout };
+function openGuestBalance(id){
+  const g = db.guests.find(x => String(x.id) === String(id));
+  if(!g){ showInfo('Ошибка','Гость не найден'); return; }
+  guestBalanceId = g.id;
+  $('gbGuestInfo').innerHTML = `<b style="color:#fff">${escHtml(g.name)}</b> · № ${escHtml(g.id)}<br>Реальный: <b style="color:var(--green)">${fmt(parseFloat(g.deposit_balance)||0)} ₽</b> · Бонусный: <b style="color:var(--gold)">${fmt(parseFloat(g.bonus_balance)||0)} ₽</b>`;
+  $('gbType').value = 'deposit';
+  $('gbOp').value = 'add';
+  $('gbAmount').value = '';
+  $('gbPass').value = '';
+  $('gbErr').textContent = '';
+  $('guestBalanceModal').classList.add('show');
 }
-function sessionNet(s){
-  const dep = parseFloat(s.dep) || 0;
-  const outSum = parseFloat(s.out_sum) || 0;
-  const fee = parseFloat(s.fee) || 0;
-  const net = outSum - fee;
-  return { dep, outSum, fee, net, income: dep - net };
-}
-function bjStats(){ let t=0,p=0,i=0; db.sessions.forEach(s=>{const r=sessionNet(s); t+=r.dep; p+=r.net; i+=r.income;}); return {turnover:t,payouts:p,income:i,count:db.sessions.length}; }
-function bacStats(){ let t=0,p=0,i=0; db.baccarat.forEach(b=>{const r=bacCalc(b); t+=b.sum; p+=r.payout; i+=r.casino;}); return {turnover:t,payouts:p,income:i,count:db.baccarat.length}; }
-function onlineStats(){ let inc=0,exp=0; db.online.forEach(o=>{ const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; if(o.type==='доход') inc+=parseFloat(o.sum)||0; else exp+=parseFloat(o.sum)||0; }); return {income:inc,expense:exp,net:inc-exp}; }
-
-function renderDash(){
-  const bj=bjStats(), bac=bacStats(), on=onlineStats();
-  let dep=0; db.deposits.forEach(d=>{ if(d.status==='approved') dep+=parseFloat(d.sum)||0; });
-  const total = bj.income + bac.income + on.net;
-  const cards = $('dashCards');
-  if(cards) cards.innerHTML = `
-    <div class="card"><div class="label">Доход Блэкджека</div><div class="value green">${fmt(bj.income)} ₽</div></div>
-    <div class="card"><div class="label">Доход Баккары</div><div class="value green">${fmt(bac.income)} ₽</div></div>
-    <div class="card"><div class="label">Доход Crash</div><div class="value accent">${fmt(on.net)} ₽</div></div>
-    <div class="card"><div class="label">Депозиты</div><div class="value" style="color:var(--muted)">${fmt(dep)} ₽</div></div>
-    <div class="card" style="border-color:var(--gold);"><div class="label">Общий доход</div><div class="value gold">${fmt(total)} ₽</div></div>
-  `;
-  drawChart();
-  renderIncomeCalendar();
-  renderSessions();
-}
-
-function renderIncomeCalendar(){
-  const days = {};
-  const ensure = d => days[d] || (days[d]={bj:0,bac:0,crash:0,dep:0,commission:0,salaries:0});
-  (db.sessions||[]).forEach(s=>{ if(s.date) ensure(s.date).bj += sessionNet(s).income; });
-  (db.baccarat||[]).forEach(b=>{ if(b.date) ensure(b.date).bac += bacCalc(b).casino; });
-  (db.online||[]).forEach(o=>{ if(!o.date) return; const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; ensure(o.date).crash += (o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0)); });
-  (db.deposits||[]).forEach(d=>{ if(d.date && d.status==='approved') ensure(d.date).dep += parseFloat(d.sum)||0; });
-  (db.withdrawals||[]).forEach(w=>{ if(!w.date) return; if(w.status==='approved'){ const s=parseFloat(w.sum)||0; ensure(w.date).commission += parseFloat(w.fee)||Math.round(s*0.07*100)/100; } });
-  (db.payouts||[]).forEach(p=>{ if(p.date) ensure(p.date).salaries += parseFloat(p.sum)||0; });
-
-  const cal = $('incomeCalendar'); if(!cal) return;
-  const empty = $('incomeCalendarEmpty');
-  const badge = $('incSummaryBadge');
-  const cnt = $('incDaysCount');
-  const dates = Object.keys(days).sort();
-  if(!dates.length){ cal.innerHTML=''; if(empty) empty.style.display='block'; if(badge) badge.textContent=''; if(cnt) cnt.textContent='0'; return; }
-  if(empty) empty.style.display='none';
-  let gt=0; dates.forEach(d=>{ const g=days[d]; gt += (g.bj+g.bac+g.crash)-g.commission-g.salaries; });
-  if(badge){ badge.textContent = (gt>=0?'+':'')+fmt(gt)+' ₽'; badge.style.color = gt>=0?'var(--green)':'var(--red)'; }
-  if(cnt) cnt.textContent = dates.length;
-  const vals = dates.map(d=>{ const g=days[d]; return (g.bj+g.bac+g.crash)-g.commission-g.salaries; });
-  const maxAbs = Math.max(...vals.map(Math.abs), 1);
-  cal.innerHTML = dates.map((d,i)=>{
-    const net = vals[i]; const [y,m,dd] = d.split('-');
-    let cls='zero';
-    if(net!==0){ const r=Math.abs(net)/maxAbs; let l; if(r<.15)l=1;else if(r<.4)l=2;else if(r<.7)l=3;else l=4; cls=(net>0?'pos-':'neg-')+l; }
-    return `<div class="inc-cell ${cls}" data-date="${d}" data-bj="${days[d].bj.toFixed(2)}" data-bac="${days[d].bac.toFixed(2)}" data-crash="${days[d].crash.toFixed(2)}" data-dep="${days[d].dep.toFixed(2)}" data-comm="${days[d].commission.toFixed(2)}" data-sal="${days[d].salaries.toFixed(2)}" data-net="${net.toFixed(2)}">${dd}</div>`;
-  }).join('');
-  bindCalendarTooltips();
-}
-
-function bindCalendarTooltips(){
-  let tip = $('incGlobalTooltip');
-  if(!tip){ tip=document.createElement('div'); tip.id='incGlobalTooltip'; tip.className='inc-tooltip'; document.body.appendChild(tip); }
-  document.querySelectorAll('.inc-cell').forEach(cell => {
-    cell.addEventListener('mouseenter', () => {
-      const d=cell.dataset.date, net=parseFloat(cell.dataset.net)||0, [y,m,dd]=d.split('-');
-      tip.innerHTML = `<div class="tt-date">${dd}.${m}.${y}</div><div class="tt-total ${net>=0?'pos':'neg'}">${net>=0?'+':''}${fmt(net)} ₽</div>
-        <div class="tt-row"><span>Блэкджек</span><span class="${parseFloat(cell.dataset.bj)>=0?'pos':'neg'}">${parseFloat(cell.dataset.bj)>=0?'+':''}${fmt(cell.dataset.bj)} ₽</span></div>
-        <div class="tt-row"><span>Баккара</span><span class="${parseFloat(cell.dataset.bac)>=0?'pos':'neg'}">${parseFloat(cell.dataset.bac)>=0?'+':''}${fmt(cell.dataset.bac)} ₽</span></div>
-        <div class="tt-row"><span>Crash</span><span class="${parseFloat(cell.dataset.crash)>=0?'pos':'neg'}">${parseFloat(cell.dataset.crash)>=0?'+':''}${fmt(cell.dataset.crash)} ₽</span></div>
-        <div class="tt-row"><span>Депозиты</span><span style="color:var(--muted)">${fmt(cell.dataset.dep)} ₽</span></div>
-        <div class="tt-row"><span>Комиссии</span><span class="neg">−${fmt(cell.dataset.comm)} ₽</span></div>
-        <div class="tt-row"><span>Зарплаты</span><span class="neg">−${fmt(cell.dataset.sal)} ₽</span></div>`;
-      tip.classList.add('show');
-      const rc = cell.getBoundingClientRect();
-      let l = rc.left+rc.width/2-100, t = rc.top-tip.offsetHeight-10;
-      if(t<10) t=rc.bottom+10;
-      if(l+200>window.innerWidth-10) l=window.innerWidth-210;
-      if(l<10) l=10;
-      tip.style.left=l+'px'; tip.style.top=t+'px';
-    });
-    cell.addEventListener('mouseleave', ()=>tip.classList.remove('show'));
-    cell.addEventListener('click', ()=>openDayIncomeModal(cell.dataset.date));
-  });
-}
-
-function openDayIncomeModal(date){
-  const [y,m,dd]=date.split('-'); const dateStr=`${dd}.${m}.${y}`;
-  const bjS = (db.sessions||[]).filter(s=>s.date===date);
-  const bacS = (db.baccarat||[]).filter(b=>b.date===date);
-  const crashR = (db.online||[]).filter(o=>o.date===date && (o.note||'').startsWith('Crash Round'));
-  const depA = (db.deposits||[]).filter(d=>d.date===date && d.status==='approved');
-  const wdA = (db.withdrawals||[]).filter(w=>w.date===date && w.status==='approved');
-  const payD = (db.payouts||[]).filter(p=>p.date===date);
-  let bjT=0,bacT=0,crashT=0,depT=0,commT=0,salT=0;
-  bjS.forEach(s=>bjT+=sessionNet(s).income);
-  bacS.forEach(b=>bacT+=bacCalc(b).casino);
-  crashR.forEach(o=>{ const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; if(o.type==='доход') crashT+=parseFloat(o.sum)||0; else crashT-=parseFloat(o.sum)||0; });
-  depA.forEach(d=>depT+=parseFloat(d.sum)||0);
-  wdA.forEach(w=>{ const s=parseFloat(w.sum)||0; commT+=parseFloat(w.fee)||Math.round(s*0.07*100)/100; });
-  payD.forEach(p=>salT+=parseFloat(p.sum)||0);
-  const net = (bjT+bacT+crashT)-commT-salT;
-  let html = `<div class="day-modal-title">${dateStr}</div><div class="day-modal-sub">Отчёт за день</div><div class="day-modal-total" style="color:${net>=0?'var(--green)':'var(--red)'};">${net>=0?'+':''}${fmt(net)} ₽</div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>🎲 Блэкджек (${bjS.length})</span><span class="amt ${bjT>=0?'pos':'neg'}">${bjT>=0?'+':''}${fmt(bjT)} ₽</span></div><div class="day-list">${bjS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bjS.map(s=>{const r=sessionNet(s);return `<div class="day-list-item"><span class="who">${s.nick||'—'} · ставка ${fmt(r.dep)} ₽</span><span class="val ${r.income>=0?'pos':'neg'}">${r.income>=0?'+':''}${fmt(r.income)} ₽</span></div>`;}).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>🎴 Баккара (${bacS.length})</span><span class="amt ${bacT>=0?'pos':'neg'}">${bacT>=0?'+':''}${fmt(bacT)} ₽</span></div><div class="day-list">${bacS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bacS.map(b=>{const r=bacCalc(b);return `<div class="day-list-item"><span class="who">${b.player||'—'} · ${fmt(b.sum)} ₽</span><span class="val ${r.casino>=0?'pos':'neg'}">${r.casino>=0?'+':''}${fmt(r.casino)} ₽</span></div>`;}).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>🚀 Crash (${crashR.length})</span><span class="amt ${crashT>=0?'pos':'neg'}">${crashT>=0?'+':''}${fmt(crashT)} ₽</span></div><div class="day-list">${crashR.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>':crashR.map(o=>{const v=o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0);return `<div class="day-list-item"><span class="who">${o.note||'—'}</span><span class="val ${v>=0?'pos':'neg'}">${v>=0?'+':''}${fmt(v)} ₽</span></div>`;}).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>💰 Депозиты (${depA.length})</span><span class="amt" style="color:var(--muted)">${fmt(depT)} ₽</span></div><div class="day-list">${depA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':depA.map(d=>`<div class="day-list-item"><span class="who">${d.nick||'—'}</span><span class="val" style="color:var(--muted)">${fmt(d.sum)} ₽</span></div>`).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>💳 Комиссии (${wdA.length})</span><span class="amt neg">−${fmt(commT)} ₽</span></div><div class="day-list">${wdA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':wdA.map(w=>{const s=parseFloat(w.sum)||0;const f=parseFloat(w.fee)||Math.round(s*0.07*100)/100;return `<div class="day-list-item"><span class="who">${w.nick||'—'} · ${fmt(s)} ₽</span><span class="val neg">−${fmt(f)} ₽</span></div>`;}).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>👔 Зарплаты (${payD.length})</span><span class="amt neg">−${fmt(salT)} ₽</span></div><div class="day-list">${payD.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':payD.map(p=>`<div class="day-list-item"><span class="who">${p.dealer||'—'}</span><span class="val neg">−${fmt(p.sum)} ₽</span></div>`).join('')}</div></div>`;
-  html += `<div style="text-align:center;margin-top:20px"><button class="ghost" onclick="closeDayIncomeModal()" style="width:100%">Закрыть</button></div>`;
-  const c = $('dayIncomeContent'); if(c) c.innerHTML = html;
-  $('dayIncomeModal').classList.add('show');
-}
-function closeDayIncomeModal(){ $('dayIncomeModal').classList.remove('show'); }
-
-function renderSessions(){
-  const bjB = $('bjSessionsBody'); if(bjB){
-    const bj = [...db.sessions].sort((a,b)=>{ const da=a.created_at?new Date(a.created_at):new Date(a.date||0); const dbb=b.created_at?new Date(b.created_at):new Date(b.date||0); return dbb-da; }).slice(0,50);
-    const cnt = $('bjCount'); if(cnt) cnt.textContent = db.sessions.length;
-    bjB.innerHTML = bj.length===0?'<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>':bj.map(s=>{const r=sessionNet(s);const t=s.created_at?new Date(s.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):(s.date||'—');const w=r.net>0?'pos':(r.net<0?'neg':'');return `<tr><td>${s.nick||'—'}</td><td>${fmt(r.dep)} ₽</td><td class="${w}">${fmt(r.net)} ₽</td><td>${s.dealer||'—'}</td><td style="color:var(--muted);font-size:11px">${t}</td></tr>`;}).join('');
-  }
-  const bacB = $('bacSessionsBody'); if(bacB){
-    const bac = [...db.baccarat].sort((a,b)=>{ const da=a.created_at?new Date(a.created_at):new Date(a.date||0); const dbb=b.created_at?new Date(b.created_at):new Date(b.date||0); return dbb-da; }).slice(0,50);
-    const cnt = $('bacCount'); if(cnt) cnt.textContent = db.baccarat.length;
-    bacB.innerHTML = bac.length===0?'<tr class="empty-row"><td colspan="5">Пока нет сессий</td></tr>':bac.map(b=>{const r=bacCalc(b);const t=b.created_at?new Date(b.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):(b.date||'—');const w=r.payout>0?'pos':(r.payout<0?'neg':'');return `<tr><td>${b.player||'—'}</td><td>${fmt(b.sum)} ₽</td><td class="${w}">${fmt(r.payout)} ₽</td><td>${b.dealer||'—'}</td><td style="color:var(--muted);font-size:11px">${t}</td></tr>`;}).join('');
-  }
-}
-
-function drawChart(){
-  const canvas = $('incomeChart'); if(!canvas) return;
-  const wrap = canvas.parentElement; const dpr=window.devicePixelRatio||1;
-  const W=wrap.clientWidth, H=wrap.clientHeight;
-  canvas.width=W*dpr; canvas.height=H*dpr;
-  const ctx=canvas.getContext('2d');
-  ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  const map={};
-  db.sessions.forEach(s=>{ if(!s.date)return; map[s.date]=(map[s.date]||0)+sessionNet(s).income; });
-  db.baccarat.forEach(b=>{ if(!b.date)return; map[b.date]=(map[b.date]||0)+bacCalc(b).casino; });
-  db.online.forEach(o=>{ if(!o.date)return; const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок'))return; map[o.date]=(map[o.date]||0)+(o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0)); });
-  const dates=Object.keys(map).sort();
-  if(!dates.length){ ctx.fillStyle='#a0aec0'; ctx.font='14px Montserrat'; ctx.textAlign='center'; ctx.fillText('Нет данных для графика', W/2, H/2); return; }
-  let run=0; const vals=dates.map(d=>{ run+=map[d]; return run; });
-  const padL=60,padR=20,padT=20,padB=40;
-  const pw=W-padL-padR, ph=H-padT-padB;
-  const maxV=Math.max(1,...vals), minV=Math.min(0,...vals), range=maxV-minV||1;
-  const y=v=>padT+ph-((v-minV)/range)*ph;
-  const x=i=>padL+(dates.length===1?pw/2:(i/(dates.length-1))*pw);
-  ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
-  ctx.fillStyle='#a0aec0'; ctx.font='11px Montserrat'; ctx.textAlign='right';
-  for(let i=0;i<=4;i++){ const v=minV+(range/4)*i; const yy=y(v); ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke(); ctx.fillText(Math.round(v).toLocaleString('ru-RU'), padL-10, yy+4); }
-  ctx.fillStyle='#a0aec0'; ctx.font='11px Montserrat'; ctx.textAlign='center';
-  const step=Math.ceil(dates.length/7);
-  dates.forEach((d,i)=>{ if(i%step===0||i===dates.length-1){ const [,mm,dd]=d.split('-'); ctx.fillText(dd+'.'+mm, x(i), H-15); } });
-  ctx.beginPath(); ctx.strokeStyle='#00e5ff'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.shadowBlur=10; ctx.shadowColor='rgba(0,229,255,.5)';
-  vals.forEach((v,i)=>{ const xx=x(i),yy=y(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
-  ctx.stroke(); ctx.shadowBlur=0;
-  const lx=x(vals.length-1), ly=y(vals[vals.length-1]);
-  ctx.beginPath(); ctx.fillStyle='#00e5ff'; ctx.arc(lx,ly,5,0,Math.PI*2); ctx.fill();
-  ctx.shadowBlur=18; ctx.shadowColor='rgba(0,229,255,.8)';
-  ctx.beginPath(); ctx.arc(lx,ly,5,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
-}
-
-function renderFinance(){
-  const db1 = $('depositsBody');
-  if(db1) db1.innerHTML = db.deposits.map(d=>`<tr><td>${d.date}</td><td>${d.nick}<br><span style="font-size:11px;color:#a0aec0">${d.email||''}</span></td><td>${fmt(d.sum)} ₽</td><td><span class="status ${d.status}">${d.status}</span></td><td>${d.status==='pending'?`<button class="success small" onclick="depAction(${d.id},'approved')">Зачислить</button><button class="danger small" onclick="depAction(${d.id},'rejected')">Отклонить</button>`:`<button class="ghost small" onclick="delDeposit(${d.id})">Удалить</button>`}</td></tr>`).join('');
-  const dE = $('depositsEmpty'); if(dE) dE.style.display = db.deposits.length?'none':'block';
-  const w1 = $('withdrawalsBody');
-  if(w1) w1.innerHTML = db.withdrawals.map(w=>`<tr><td>${w.date}</td><td>${w.nick}<br><span style="font-size:11px;color:#a0aec0">${w.email||''}</span></td><td>${fmt(w.sum)} ₽</td><td>${fmt(w.fee)} ₽</td><td>${fmt(w.net)} ₽</td><td><span class="status ${w.status}">${w.status}</span></td><td>${w.status==='pending'?`<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="ghost small" onclick="wdAction(${w.id},'hold')">Отложить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>`:w.status==='hold'?`<button class="success small" onclick="wdAction(${w.id},'approved')">Выплатить</button><button class="danger small" onclick="wdAction(${w.id},'rejected')">Отклонить</button>`:`<button class="ghost small" onclick="delWithdrawal(${w.id})">Удалить</button>`}</td></tr>`).join('');
-  const wE = $('withdrawalsEmpty'); if(wE) wE.style.display = db.withdrawals.length?'none':'block';
-}
-async function depAction(id, status){ await apiPut('/api/deposits/'+id, {status}); await audit('deposit_'+status, '#'+id); await loadDB(); renderFinance(); }
-async function wdAction(id, status){ await apiPut('/api/withdrawals/'+id, {status}); await audit('withdrawal_'+status, '#'+id); await loadDB(); renderFinance(); }
-async function delDeposit(id){ await apiDelete('/api/deposits/'+id); await loadDB(); renderFinance(); }
-async function delWithdrawal(id){ await apiDelete('/api/withdrawals/'+id); await loadDB(); renderFinance(); }
-
-function renderPlayers(){
-  const names = new Set();
-  db.sessions.forEach(s=>{ if(s.nick) names.add(s.nick); });
-  db.baccarat.forEach(b=>{ if(b.player) names.add(b.player); });
-  const list = [...names]; let total = 0;
-  const body = $('playersBody');
-  if(body) body.innerHTML = list.map((nick,i)=>{
-    const bj = db.sessions.filter(s=>s.nick===nick).reduce((a,s)=>a+sessionNet(s).income,0);
-    const bac = db.baccarat.filter(b=>b.player===nick).reduce((a,b)=>a+bacCalc(b).casino,0);
-    const sum = bj+bac; total += sum;
-    const p = db.players.find(x=>x.nick===nick)||{};
-    return `<tr><td>${i+1}</td><td>${nick}</td><td class="${bj>=0?'pos':'neg'}">${bj>=0?'+':''}${fmt(bj)} ₽</td><td class="${bac>=0?'pos':'neg'}">${bac>=0?'+':''}${fmt(bac)} ₽</td><td class="${sum>=0?'pos':'neg'}">${sum>=0?'+':''}${fmt(sum)} ₽</td><td>${p.vip?'VIP':'—'}</td><td><button class="ghost small" onclick="toggleVIP('${nick.replace(/'/g,"\\'")}', ${!p.vip})">VIP</button></td></tr>`;
-  }).join('');
-  const e = $('playersEmpty'); if(e) e.style.display = list.length?'none':'block';
-  const cards = $('playerCards');
-  if(cards) cards.innerHTML = `<div class="card"><div class="label">Игроков</div><div class="value accent">${list.length}</div></div><div class="card"><div class="label">Общий проигрыш</div><div class="value ${total>=0?'green':'red'}">${fmt(total)} ₽</div></div>`;
-}
-async function toggleVIP(nick,val){ await apiPost('/api/players',{nick,vip:val}); await audit('vip_toggle',nick); await loadDB(); renderPlayers(); }
-
-function renderOnline(){
-  const cash = db.crash_bets.filter(b =>
-    b.cashed_out === true &&
-    b.player_id &&
-    !String(b.player_id).startsWith('BOT') &&
-    b.player_name &&
-    b.player_name !== '••••'
-  );
-  const totalBets = db.crash_bets
-    .filter(b => b.player_id && !String(b.player_id).startsWith('BOT'))
-    .reduce((a,b)=>a+(parseFloat(b.amount)||0),0);
-  const totalPay = cash.reduce((a,b)=>a+(parseFloat(b.amount)*parseFloat(b.cashout_mult)||0),0);
-  const cards = $('onlineCards');
-  if(cards) cards.innerHTML = `
-    <div class="card"><div class="label">Ставок (реальные)</div><div class="value accent">${fmt(totalBets)} ₽</div></div>
-    <div class="card"><div class="label">Выигрышей (реальные)</div><div class="value red">${fmt(totalPay)} ₽</div></div>
-    <div class="card"><div class="label">Прибыль</div><div class="value green">${fmt(totalBets-totalPay)} ₽</div></div>
-    <div class="card"><div class="label">Успешных выводов</div><div class="value gold">${cash.length}</div></div>`;
-
-  const body = $('onlineBody');
-  if(body) {
-    if (cash.length === 0) {
-      body.innerHTML = '';
-      const e = $('onlineEmpty'); if(e) e.style.display = 'block';
-    } else {
-      const e = $('onlineEmpty'); if(e) e.style.display = 'none';
-      const map = Object.fromEntries(db.guests.map(g => [String(g.id), g]));
-      body.innerHTML = cash.map(b => {
-        const g = map[String(b.player_id)] || {};
-        const nick = b.player_name || g.name || '—';
-        const rank = b.player_rank || g.rank || '—';
-        const card = g.id || b.player_id || '—';
-        const time = formatTime(b.created_at);
-        const bet = parseFloat(b.amount) || 0;
-        const mult = parseFloat(b.cashout_mult) || 0;
-        const win = bet * mult;
-        return `<tr>
-          <td><b>${escHtml(nick)}</b></td>
-          <td><span class="rank-pill ${rank}">${rank}</span></td>
-          <td style="font-family:'Courier New',monospace">${escHtml(card)}</td>
-          <td style="color:var(--muted);font-size:12px">${escHtml(time)}</td>
-          <td>${fmt(bet)} ₽</td>
-          <td class="pos">x${mult.toFixed(2)}</td>
-          <td class="pos">${fmt(win)} ₽</td>
-        </tr>`;
-      }).join('');
-    }
-  }
-}
-
-async function loadCrashForceStatus(){
-  try { const r = await fetch('/api/admin/crash/force-next'); const d = await r.json(); const el = $('crashForceStatus'); if(!el) return;
-    if(d.value && d.value>0){ el.innerHTML = `<span style="color:var(--gold);font-weight:900;">⚠ Активно: x${d.value.toFixed(2)}</span>`; $('crashForceInput').value = d.value; }
-    else { el.innerHTML = '<span style="color:var(--muted);">Не задан</span>'; }
-  } catch(e){}
-}
-async function setCrashForce(){
-  const val = parseFloat($('crashForceInput').value);
-  if(!isFinite(val) || val<1 || val>100){ alert('1.00–100'); return; }
-  try {
-    const r = await fetch('/api/admin/crash/force-next',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ value: val, pass: CRASH_PASS })
-    });
-    const d = await r.json();
-    if(!r.ok){ alert(d.error||'Ошибка'); return; }
-    $('crashForceStatus').innerHTML = `<span style="color:var(--gold);font-weight:900;">✓ Следующий краш: x${val.toFixed(2)}</span>`;
-    await audit('crash_force','x'+val.toFixed(2));
-  } catch(e){ alert('Ошибка соединения'); }
-}
-async function clearCrashForce(){
-  try {
-    const r = await fetch('/api/admin/crash/clear-force',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ pass: CRASH_PASS })
-    });
-    const d = await r.json();
-    if(!r.ok){ alert(d.error||'Ошибка'); return; }
-    $('crashForceStatus').innerHTML = `<span style="color:var(--muted);">Сброшено</span>`;
-    $('crashForceInput').value='';
-    await audit('crash_force_clear','');
-  } catch(e){ alert('Ошибка соединения'); }
-}
-
-async function pollLiveCrash(){
-  try {
-    const r = await fetch('/api/admin/crash/live', { cache: 'no-store' });
-    const d = await r.json();
-    const el = $('liveMult');
-    const st = $('liveStatus');
-    const info = $('liveInfo');
-    const btn = $('btnCrashStop');
-    if(!el) return;
-    el.textContent = (d.multiplier || 1).toFixed(2) + 'x';
-    if(d.status === 'flying'){
-      el.style.color = '#00e5ff';
-      st.textContent = 'Летит...';
-      st.style.color = '#3fbf7f';
-      if(btn) btn.disabled = false;
-      const secLeft = ((d.msToPlanned || 0) / 1000).toFixed(1);
-      if(info) info.innerHTML = `Запланирован краш на <b style="color:var(--gold);">x${(d.plannedCrashPoint || d.crashPoint || 1).toFixed(2)}</b> — осталось ~${secLeft} сек. Раунд #${d.roundId}`;
-    } else if(d.status === 'crashed'){
-      el.style.color = '#ff4d4d';
-      st.textContent = 'Краш!';
-      st.style.color = '#ff4d4d';
-      if(btn) btn.disabled = true;
-      if(info) info.innerHTML = `Раунд завершён на <b style="color:var(--red);">x${(d.crashPoint || 1).toFixed(2)}</b>. Раунд #${d.roundId}`;
-    } else {
-      el.style.color = 'var(--muted)';
-      st.textContent = 'Ожидание...';
-      if(btn) btn.disabled = true;
-      if(info) info.textContent = 'Раунд ещё не начался.';
-    }
-  } catch(e){}
-}
-function startLiveCrashPoll(){
-  stopLiveCrashPoll();
-  pollLiveCrash();
-  liveCrashInterval = setInterval(pollLiveCrash, 200);
-}
-function stopLiveCrashPoll(){
-  if(liveCrashInterval){ clearInterval(liveCrashInterval); liveCrashInterval = null; }
-}
-async function doCrashStop(){
-  try {
-    const r = await fetch('/api/admin/crash/stop', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ pass: CRASH_PASS })
-    });
-    const d = await r.json();
-    if(!r.ok){ alert(d.error || 'Ошибка'); return; }
-    await audit('crash_stop', 'x' + d.stopped_at.toFixed(2));
-    pollLiveCrash();
-  } catch(e){ alert('Ошибка соединения'); }
-}
-
-async function loadMinerForceLose(){
-  try {
-    const r = await fetch('/api/admin/miner/force-lose');
-    const d = await r.json();
-    const cb = $('minerForceLose');
-    const st = $('minerForceStatus');
-    if (cb) cb.checked = !!d.enabled;
-    if (st) {
-      st.textContent = d.enabled ? '⚠ ВКЛЮЧЕНО — все проигрывают' : 'Выключено — игра как обычно';
-      st.style.color = d.enabled ? 'var(--red)' : 'var(--muted)';
-    }
-  } catch(e){}
-}
-async function toggleMinerForceLose(){
-  const cb = $('minerForceLose');
-  const st = $('minerForceStatus');
-  const enabled = cb.checked;
-  try {
-    const r = await fetch('/api/admin/miner/force-lose', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ enabled, pass: CRASH_PASS })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      alert(d.error || 'Ошибка');
-      cb.checked = !enabled;
-      return;
-    }
-    if (st) {
-      st.textContent = d.enabled ? '⚠ ВКЛЮЧЕНО — все проигрывают' : 'Выключено — игра как обычно';
-      st.style.color = d.enabled ? 'var(--red)' : 'var(--muted)';
-    }
-    await audit('miner_force_lose', d.enabled ? 'enabled' : 'disabled');
-  } catch(e) {
-    alert('Ошибка соединения');
-    cb.checked = !enabled;
-  }
-}
-
-async function loadMinerAdmin(){
-  loadMinerForceLose();
-  try {
-    const hRes = await fetch('/api/admin/miner/history?limit=500');
-    const history = await hRes.json();
-    const activeRes = await fetch('/api/admin/miner/active');
-    const active = await activeRes.json();
-
-    const list = Array.isArray(history) ? history : [];
-    const activeList = Array.isArray(active) ? active : [];
-
-    let totalBet = 0, totalWin = 0, wins = 0, losses = 0;
-    list.forEach(g => {
-      totalBet += parseFloat(g.bet) || 0;
-      totalWin += parseFloat(g.result) || 0;
-      if (g.status === 'win') wins++;
-      else if (g.status === 'lose') losses++;
-    });
-
-    const cards = $('minerCards');
-    if (cards) cards.innerHTML = `
-      <div class="card"><div class="label">Всего игр</div><div class="value accent">${list.length}</div></div>
-      <div class="card"><div class="label">Активных сейчас</div><div class="value gold">${activeList.length}</div></div>
-      <div class="card"><div class="label">Оборот</div><div class="value">${fmt(totalBet)} ₽</div></div>
-      <div class="card"><div class="label">Выплачено</div><div class="value red">${fmt(totalWin)} ₽</div></div>
-      <div class="card"><div class="label">Прибыль</div><div class="value ${totalBet-totalWin>=0?'green':'red'}">${fmt(totalBet-totalWin)} ₽</div></div>
-      <div class="card"><div class="label">W / L</div><div class="value">${wins} / ${losses}</div></div>
-    `;
-
-    const ab = $('minerActiveBody');
-    const ae = $('minerActiveEmpty');
-    if (ab) {
-      if (activeList.length === 0) {
-        ab.innerHTML = '';
-        if (ae) ae.style.display = 'block';
-      } else {
-        if (ae) ae.style.display = 'none';
-        ab.innerHTML = activeList.map(s => `
-          <tr>
-            <td><b>${s.guest_id}</b></td>
-            <td>${fmt(s.bet)} ₽</td>
-            <td>${s.mines}</td>
-            <td class="pos">${s.revealed}</td>
-            <td>${s.elapsed_sec} сек</td>
-            <td style="color:var(--muted);font-size:11px">${formatTime(s.started_at)}</td>
-          </tr>
-        `).join('');
-      }
-    }
-
-    const hb = $('minerHistoryBody');
-    const he = $('minerHistoryEmpty');
-    if (hb) {
-      if (list.length === 0) {
-        hb.innerHTML = '';
-        if (he) he.style.display = 'block';
-      } else {
-        if (he) he.style.display = 'none';
-        hb.innerHTML = list.map(g => {
-          const bet = parseFloat(g.bet) || 0;
-          const win = parseFloat(g.result) || 0;
-          const mult = parseFloat(g.multiplier) || 0;
-          const isWin = g.status === 'win';
-          const dt = formatTime(g.created_at);
-          return `<tr>
-            <td style="color:var(--muted);font-size:11px">${dt}</td>
-            <td><b>${g.player_name || '—'}</b></td>
-            <td>${fmt(bet)} ₽</td>
-            <td>${g.mines || 0}</td>
-            <td>${g.revealed || 0}</td>
-            <td class="${isWin?'pos':'neg'}">${mult ? 'x'+mult.toFixed(2) : '—'}</td>
-            <td class="${isWin?'pos':'neg'}">${isWin ? '+'+fmt(win)+' ₽' : '—'}</td>
-            <td>${isWin ? '<span class="status approved">WIN</span>' : '<span class="status rejected">LOSE</span>'}</td>
-          </tr>`;
-        }).join('');
-      }
-    }
-  } catch(e) {
-    console.error('loadMinerAdmin', e);
-  }
-  if (!loadMinerPlayers._last || Date.now() - loadMinerPlayers._last > 30000) {
-    loadMinerPlayers._last = Date.now();
-    loadMinerPlayers();
-  }
-}
-function startMinerPoll(){
-  stopMinerPoll();
-  loadMinerAdmin();
-  minerInterval = setInterval(loadMinerAdmin, 5000);
-}
-function stopMinerPoll(){
-  if (minerInterval) { clearInterval(minerInterval); minerInterval = null; }
-}
-
-async function loadMinerPlayers(){
-  try {
-    const r = await fetch('/api/admin/miner/players', { cache: 'no-store' });
-    const d = await r.json();
-    minerPlayersCache = Array.isArray(d) ? d : [];
-    renderMinerPlayers();
-  } catch(e) {
-    console.error('loadMinerPlayers', e);
-  }
-}
-
-function renderMinerPlayers(){
-  const body = $('minerPlayersBody');
-  const empty = $('minerPlayersEmpty');
-  if (!body) return;
-  const q = (($('minerPlayerSearch')?.value) || '').trim().toLowerCase();
-  const list = minerPlayersCache.filter(p => {
-    if (!q) return true;
-    return (p.guest_id || '').toLowerCase().includes(q) || (p.guest_name || '').toLowerCase().includes(q);
-  });
-  if (list.length === 0) {
-    body.innerHTML = '';
-    if (empty) empty.style.display = 'block';
-    return;
-  }
-  if (empty) empty.style.display = 'none';
-  body.innerHTML = list.map(p => {
-    const name = p.guest_name || '—';
-    const id = p.guest_id || '—';
-    const last = p.last_played ? formatTime(p.last_played) : '—';
-    const checked = p.forced ? 'checked' : '';
-    return `<tr>
-      <td><b>${escHtml(name)}</b></td>
-      <td style="font-family:'Courier New',monospace; color:var(--muted); font-size:12px;">${escHtml(id)}</td>
-      <td style="color:var(--muted); font-size:12px;">${escHtml(last)}</td>
-      <td>
-        <label class="miner-force-toggle" style="padding:6px 12px;">
-          <input type="checkbox" ${checked} onchange="toggleMinerPlayer('${escHtml(id).replace(/'/g, "\\'")}', '${escHtml(name).replace(/'/g, "\\'")}', this.checked)">
-          <span style="font-size:12px;">${p.forced ? '⚠ Слив' : 'Играет'}</span>
-        </label>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-async function toggleMinerPlayer(guestId, guestName, enabled){
-  try {
-    const r = await fetch('/api/admin/miner/player-force', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guest_id: guestId, guest_name: guestName, enabled, pass: CRASH_PASS })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      alert(d.error || 'Ошибка');
-      await loadMinerPlayers();
-      return;
-    }
-    const p = minerPlayersCache.find(x => x.guest_id === guestId);
-    if (p) p.forced = !!enabled;
-    renderMinerPlayers();
-    await audit('miner_player_force', `${guestName || guestId} → ${enabled ? 'ON' : 'OFF'}`);
-  } catch(e) {
-    alert('Ошибка соединения');
-    await loadMinerPlayers();
-  }
+function closeGuestBalanceModal(){ $('guestBalanceModal').classList.remove('show'); guestBalanceId = null; }
+function gbSetAmount(v){ $('gbAmount').value = v; }
+async function submitGuestBalance(){
+  if(!guestBalanceId) return;
+  const type = $('gbType').value;
+  const op = $('gbOp').value;
+  const amount = parseFloat($('gbAmount').value) || 0;
+  const pass = $('gbPass').value;
+  if(amount <= 0){ $('gbErr').textContent = 'Сумма должна быть > 0'; return; }
+  if(!pass){ $('gbErr').textContent = 'Введите пароль owner'; return; }
+  const r = await apiPost('/api/admin/guests/balance', { id: guestBalanceId, amount, type, op, pass });
+  if(r.error){ $('gbErr').textContent = r.error; return; }
+  const g = db.guests.find(x => String(x.id) === String(guestBalanceId));
+  const label = op==='add'?'Добавлено':'Списано';
+  const typeLabel = type==='bonus'?'бонусный':'реальный';
+  closeGuestBalanceModal();
+  await loadDB(); renderGuests();
+  showInfo('Готово', `${label} <b>${fmt(amount)} ₽</b> (${typeLabel}) гостю <b>${escHtml(g?.name||'—')}</b>.<br>Баланс: реальный <b style="color:var(--green)">${fmt(r.balance?.deposit_balance??0)} ₽</b>, бонусный <b style="color:var(--gold)">${fmt(r.balance?.bonus_balance??0)} ₽</b>.`);
 }
 
 function renderNewsAdmin(){
@@ -1596,16 +1211,18 @@ function dealerNames(){
   const set = new Set();
   db.sessions.forEach(s=>{ if(s.dealer && s.dealer!=='—') set.add(s.dealer); });
   db.baccarat.forEach(b=>{ if(b.dealer && b.dealer!=='—') set.add(b.dealer); });
+  db.roulette.forEach(r=>{ if(r.dealer && r.dealer!=='—') set.add(r.dealer); });
   db.payouts.forEach(p=>{ if(p.dealer) set.add(p.dealer); });
   return [...set];
 }
 function dealerStats(name){
   const s = db.sessions.filter(x=>x.dealer===name);
   const b = db.baccarat.filter(x=>x.dealer===name);
-  const income = s.reduce((a,x)=>a+sessionNet(x).income,0) + b.reduce((a,x)=>a+bacCalc(x).casino,0);
+  const r = db.roulette.filter(x=>x.dealer===name);
+  const income = s.reduce((a,x)=>a+sessionNet(x).income,0) + b.reduce((a,x)=>a+bacCalc(x).casino,0) + r.reduce((a,x)=>a+rouletteNet(x).income,0);
   const accrued = Math.round(income*10/100*100)/100;
   const paid = db.payouts.filter(p=>p.dealer===name).reduce((a,p)=>a+(parseFloat(p.sum)||0),0);
-  return { sessions: s.length+b.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
+  return { sessions: s.length+b.length+r.length, income, accrued, paid, remaining: Math.round((accrued-paid)*100)/100 };
 }
 async function loadCashSafeAdmin(){
   try { const r = await fetch('/api/admin/cash-safe'); const d = await r.json();
@@ -1713,7 +1330,7 @@ function renderAll(){
   try { if(hasPerm('guests')) renderGuests(); } catch(e){ console.error('renderGuests',e); }
   try { if(hasPerm('news')) renderNewsAdmin(); } catch(e){ console.error('renderNewsAdmin',e); }
   try { if(hasPerm('reviews')) renderReviews(); } catch(e){ console.error('renderReviews',e); }
-  try { if(hasPerm('online')) renderOnline(); } catch(e){ console.error('renderOnline',e); }
+  try { if(hasPerm('roulette')) renderRoulette(); } catch(e){ console.error('renderRoulette',e); }
   try { if(hasPerm('payouts')) renderPayouts(); } catch(e){ console.error('renderPayouts',e); }
   try { if(hasPerm('history')) renderHistory(); } catch(e){ console.error('renderHistory',e); }
   try { if(hasPerm('roles')) renderRoles(); } catch(e){ console.error('renderRoles',e); }
