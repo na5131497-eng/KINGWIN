@@ -7,14 +7,31 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const OWNER_PASS = '56UpahoS';
 
-app.use(cors());
+// === Railway: путь к БД в /data (Volume), локально — ./kingwin.db ===
+const DB_PATH = process.env.RAILWAY_ENVIRONMENT
+  ? '/data/kingwin.db'
+  : path.join(__dirname, 'kingwin.db');
+
+app.use(cors({
+  origin: [
+    'https://kingwin-production.up.railway.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ==================== HEALTHCHECK ====================
+app.get('/health', (req, res) => {
+  res.json({ ok: true, time: new Date().toISOString(), db: DB_PATH });
+});
+
 // ==================== БАЗА ====================
-const db = new sqlite3.Database('./kingwin.db', (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) console.error('DB open error:', err);
-  else console.log('DB connected');
+  else console.log('DB connected:', DB_PATH);
 });
 
 function run(sql, params = []) {
@@ -36,115 +53,74 @@ function all(sql, params = []) {
   });
 }
 
-// ==================== ИНИЦИАЛИЗАЦИЯ ТАБЛИЦ ====================
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
 async function initDB() {
   await run(`CREATE TABLE IF NOT EXISTS guests (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    pass TEXT DEFAULT '1234',
-    rank TEXT DEFAULT 'Bronze',
-    points INTEGER DEFAULT 0,
-    visits INTEGER DEFAULT 0,
-    deposit_balance REAL DEFAULT 0,
-    bonus_balance REAL DEFAULT 0,
-    bonus_text TEXT DEFAULT '',
-    bonus_code TEXT DEFAULT '',
-    last_visit TEXT,
-    wheel_last_spin TEXT,
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, pass TEXT DEFAULT '1234',
+    rank TEXT DEFAULT 'Bronze', points INTEGER DEFAULT 0, visits INTEGER DEFAULT 0,
+    deposit_balance REAL DEFAULT 0, bonus_balance REAL DEFAULT 0,
+    bonus_text TEXT DEFAULT '', bonus_code TEXT DEFAULT '',
+    last_visit TEXT, wheel_last_spin TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS dealers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    login TEXT UNIQUE NOT NULL,
-    pass TEXT NOT NULL,
-    balance REAL DEFAULT 0,
-    points INTEGER DEFAULT 0,
-    sessions INTEGER DEFAULT 0,
-    total_turnover REAL DEFAULT 0,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+    login TEXT UNIQUE NOT NULL, pass TEXT NOT NULL,
+    balance REAL DEFAULT 0, points INTEGER DEFAULT 0,
+    sessions INTEGER DEFAULT 0, total_turnover REAL DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS employees (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    login TEXT UNIQUE NOT NULL,
-    pass TEXT NOT NULL,
-    role TEXT DEFAULT 'admin'
+    id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+    login TEXT UNIQUE NOT NULL, pass TEXT NOT NULL, role TEXT DEFAULT 'admin'
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dealer TEXT,
-    game_type TEXT,
-    nick TEXT,
-    dep REAL DEFAULT 0,
-    out_sum REAL DEFAULT 0,
-    fee REAL DEFAULT 0,
-    bet REAL DEFAULT 0,
-    win REAL DEFAULT 0,
-    jackpot INTEGER DEFAULT 0,
-    jackpot_won REAL DEFAULT 0,
-    date TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, dealer TEXT, game_type TEXT, nick TEXT,
+    dep REAL DEFAULT 0, out_sum REAL DEFAULT 0, fee REAL DEFAULT 0,
+    bet REAL DEFAULT 0, win REAL DEFAULT 0,
+    jackpot INTEGER DEFAULT 0, jackpot_won REAL DEFAULT 0,
+    date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS baccarat (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dealer TEXT,
-    player TEXT,
-    bet TEXT,
-    sum REAL,
-    result TEXT,
-    date TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, dealer TEXT, player TEXT, bet TEXT,
+    sum REAL, result TEXT, date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS roulette_sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dealer TEXT NOT NULL,
-    nick TEXT NOT NULL,
-    bet_type TEXT NOT NULL,
-    bet_number INTEGER,
-    bet REAL NOT NULL,
-    win REAL NOT NULL,
-    won INTEGER,
-    bet_source TEXT DEFAULT 'real',
-    date TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, dealer TEXT NOT NULL, nick TEXT NOT NULL,
+    bet_type TEXT NOT NULL, bet_number INTEGER,
+    bet REAL NOT NULL, win REAL NOT NULL, won INTEGER,
+    bet_source TEXT DEFAULT 'real', date TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS deposits (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT, nick TEXT, email TEXT,
-    sum REAL, status TEXT DEFAULT 'pending',
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, nick TEXT, email TEXT,
+    sum REAL, status TEXT DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS withdrawals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT, nick TEXT, email TEXT,
-    sum REAL, fee REAL, net REAL,
-    status TEXT DEFAULT 'pending', card TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, nick TEXT, email TEXT,
+    sum REAL, fee REAL, net REAL, status TEXT DEFAULT 'pending', card TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS payouts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT, dealer TEXT, sum REAL, note TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, dealer TEXT, sum REAL, note TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS online (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT, type TEXT, sum REAL, note TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, type TEXT, sum REAL, note TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS audit (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    time TEXT, user_name TEXT, action TEXT, details TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, user_name TEXT, action TEXT, details TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -153,84 +129,59 @@ async function initDB() {
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS cash_operations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dealer_id INTEGER, guest_name TEXT,
-    type TEXT, sum REAL, status TEXT DEFAULT 'open',
-    date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, dealer_id INTEGER, guest_name TEXT,
+    type TEXT, sum REAL, status TEXT DEFAULT 'open', date TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS dealer_tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dealer_id INTEGER, task_id TEXT, reward REAL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, dealer_id INTEGER, task_id TEXT, reward REAL,
     date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS news (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT, body TEXT, date TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, body TEXT, date TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS dealer_reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    guest_name TEXT, dealer_name TEXT, stars INTEGER, comment TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, guest_name TEXT, dealer_name TEXT,
+    stars INTEGER, comment TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS bonus_transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    guest_id TEXT NOT NULL,
-    type TEXT NOT NULL,
-    amount REAL NOT NULL,
-    source TEXT,
-    note TEXT,
-    wager_done REAL DEFAULT 0,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, guest_id TEXT NOT NULL, type TEXT NOT NULL,
+    amount REAL NOT NULL, source TEXT, note TEXT, wager_done REAL DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS tournaments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    prize_pool REAL NOT NULL DEFAULT 100,
-    prize_type TEXT DEFAULT 'bonus',
-    wager_multiplier REAL DEFAULT 3,
-    entry_min_bet REAL DEFAULT 30,
-    entry_min_bets INTEGER DEFAULT 5,
-    min_participants INTEGER DEFAULT 3,
-    start_at TEXT,
-    end_at TEXT,
-    status TEXT DEFAULT 'active',
-    winner_id TEXT,
-    winner_name TEXT,
-    winner_score REAL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,
+    prize_pool REAL NOT NULL DEFAULT 100, prize_type TEXT DEFAULT 'bonus',
+    wager_multiplier REAL DEFAULT 3, entry_min_bet REAL DEFAULT 30,
+    entry_min_bets INTEGER DEFAULT 5, min_participants INTEGER DEFAULT 3,
+    start_at TEXT, end_at TEXT, status TEXT DEFAULT 'active',
+    winner_id TEXT, winner_name TEXT, winner_score REAL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS tournament_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tournament_id INTEGER NOT NULL,
-    guest_id TEXT NOT NULL,
-    guest_name TEXT,
-    score REAL DEFAULT 0,
-    bets_count INTEGER DEFAULT 0,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, tournament_id INTEGER NOT NULL,
+    guest_id TEXT NOT NULL, guest_name TEXT, score REAL DEFAULT 0,
+    bets_count INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(tournament_id, guest_id)
   )`);
 
   await run(`CREATE TABLE IF NOT EXISTS tournament_bets (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tournament_id INTEGER,
-    guest_id TEXT,
-    game TEXT, bet REAL, win REAL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT, tournament_id INTEGER, guest_id TEXT,
+    game TEXT, bet REAL, win REAL, created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // Стартовый owner
   const owner = await get(`SELECT * FROM employees WHERE login = 'owner'`);
   if (!owner) {
     await run(`INSERT INTO employees (name, login, pass, role) VALUES (?, ?, ?, 'owner')`,
       ['Owner', 'owner', OWNER_PASS]);
-    console.log('Created default owner (login: owner, pass: 56UpahoS)');
+    console.log('Created owner: login=owner, pass=' + OWNER_PASS);
   }
 
   console.log('DB initialized');
@@ -295,7 +246,6 @@ app.post('/api/guest/login', async (req, res) => {
     const { id, pass } = req.body;
     const guest = await get(`SELECT * FROM guests WHERE id = ? AND pass = ?`, [id, pass]);
     if (!guest) return res.status(401).json({ error: 'Неверный номер или пароль' });
-
     await run(`UPDATE guests SET last_visit = ? WHERE id = ?`, [new Date().toISOString(), id]);
     res.json({ guest });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -303,8 +253,7 @@ app.post('/api/guest/login', async (req, res) => {
 
 app.get('/api/guest/me', async (req, res) => {
   try {
-    const { id } = req.query;
-    const guest = await get(`SELECT * FROM guests WHERE id = ?`, [id]);
+    const guest = await get(`SELECT * FROM guests WHERE id = ?`, [req.query.id]);
     if (!guest) return res.status(404).json({ error: 'Не найден' });
     res.json({
       guest,
@@ -352,10 +301,8 @@ app.post('/api/guests/update', async (req, res) => {
 });
 
 app.post('/api/guests/delete', async (req, res) => {
-  try {
-    await run(`DELETE FROM guests WHERE id = ?`, [req.body.id]);
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { await run(`DELETE FROM guests WHERE id = ?`, [req.body.id]); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/guests/withdraw-deduct', async (req, res) => {
@@ -410,16 +357,12 @@ app.post('/api/deposits', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.put('/api/deposits/:id', async (req, res) => {
-  try {
-    await run(`UPDATE deposits SET status = ? WHERE id = ?`, [req.body.status, req.params.id]);
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { await run(`UPDATE deposits SET status = ? WHERE id = ?`, [req.body.status, req.params.id]); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.delete('/api/deposits/:id', async (req, res) => {
-  try {
-    await run(`DELETE FROM deposits WHERE id = ?`, [req.params.id]);
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { await run(`DELETE FROM deposits WHERE id = ?`, [req.params.id]); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/api/withdrawals', async (req, res) => {
@@ -436,19 +379,15 @@ app.post('/api/withdrawals', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.put('/api/withdrawals/:id', async (req, res) => {
-  try {
-    await run(`UPDATE withdrawals SET status = ? WHERE id = ?`, [req.body.status, req.params.id]);
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { await run(`UPDATE withdrawals SET status = ? WHERE id = ?`, [req.body.status, req.params.id]); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.delete('/api/withdrawals/:id', async (req, res) => {
-  try {
-    await run(`DELETE FROM withdrawals WHERE id = ?`, [req.params.id]);
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { await run(`DELETE FROM withdrawals WHERE id = ?`, [req.params.id]); res.json({ ok: true }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ==================== ИГРЫ: БЛЭКДЖЕК/БАККАРА ====================
+// ==================== БЛЭКДЖЕК / БАККАРА ====================
 app.get('/api/sessions', async (req, res) => {
   try { res.json(await all(`SELECT * FROM sessions ORDER BY created_at DESC LIMIT 1000`)); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -470,7 +409,6 @@ app.post('/api/sessions/round', async (req, res) => {
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [dealer, 'bj', nick, betAmount, winAmount, 0, betAmount, winAmount, jackpot ? 1 : 0, today()]);
 
-      // Обновляем статистику дилера
       const d = await get(`SELECT * FROM dealers WHERE name = ?`, [dealer]);
       if (d) {
         await run(`UPDATE dealers SET sessions = sessions + 1, total_turnover = total_turnover + ? WHERE id = ?`,
@@ -481,14 +419,11 @@ app.post('/api/sessions/round', async (req, res) => {
       return res.json({ id: r.id, ok: true, jackpot_won: jackpot ? winAmount : 0 });
     }
 
-    // bac
     const r = await run(`INSERT INTO sessions (dealer, game_type, nick, bet, win, date)
                          VALUES (?, ?, ?, ?, ?, ?)`,
       [dealer, 'bac', nick, betAmount, winAmount, today()]);
-
     const guest = await get(`SELECT * FROM guests WHERE name = ? COLLATE NOCASE`, [nick]);
     if (guest) await trackTournamentBet(guest.id, guest.name, 'bac', betAmount, winAmount);
-
     res.json({ id: r.id, ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -533,7 +468,6 @@ app.post('/api/sessions/roulette', async (req, res) => {
     const guest = await get(`SELECT * FROM guests WHERE name = ? COLLATE NOCASE`, [nick]);
     if (!guest) return res.status(404).json({ error: 'Гость не найден' });
 
-    // Списание и начисление
     if (bet_source === 'bonus') {
       if ((guest.bonus_balance || 0) < betAmount) {
         return res.status(400).json({ error: 'Недостаточно бонусных фишек' });
@@ -563,7 +497,6 @@ app.post('/api/sessions/roulette', async (req, res) => {
       [dealer, nick, bet_type, bet_number ?? null, betAmount, winAmount, won ? 1 : 0, bet_source, today()]);
 
     await trackTournamentBet(guest.id, guest.name, 'roulette', betAmount, winAmount);
-
     res.json({ id: r.id, ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -595,20 +528,16 @@ app.get('/api/dealer/profile', async (req, res) => {
   try {
     const d = await get(`SELECT * FROM dealers WHERE id = ?`, [req.query.id]);
     if (!d) return res.status(404).json({ error: 'Не найден' });
-
     const reviews = await all(`SELECT * FROM dealer_reviews WHERE LOWER(dealer_name) = LOWER(?)`, [d.name]);
     const avgStars = reviews.length ? reviews.reduce((a, r) => a + (r.stars || 0), 0) / reviews.length : 0;
-
     res.json({
       dealer: {
         ...d,
         avg_stars: avgStars,
         rank_label: d.points >= 500 ? 'Diamond' : d.points >= 200 ? 'Platinum' : d.points >= 100 ? 'Gold' : d.points >= 50 ? 'Silver' : 'Bronze',
         rank_color: d.points >= 500 ? '#b9f2ff' : d.points >= 200 ? '#e5e4e2' : d.points >= 100 ? '#f1c40f' : d.points >= 50 ? '#c0c0c0' : '#cd7f32',
-        rank_percent: 10,
-        rank_bonus: 0,
-        next_label: 'До следующего ранга',
-        next_rank_label: '',
+        rank_percent: 10, rank_bonus: 0,
+        next_label: 'До следующего ранга', next_rank_label: '',
         points_to_next: 50 - (d.points % 50),
         progress_pct: Math.min(100, (d.points % 50) * 2),
         created_at: d.created_at
@@ -632,7 +561,6 @@ app.post('/api/dealer/withdraw', async (req, res) => {
     const d = await get(`SELECT * FROM dealers WHERE id = ?`, [id]);
     if (!d) return res.status(404).json({ error: 'Не найден' });
     if ((d.balance || 0) < sum) return res.status(400).json({ error: 'Недостаточно средств' });
-
     const fee = Math.round(sum * 0.07 * 100) / 100;
     const net = Math.round((sum - fee) * 100) / 100;
     await run(`UPDATE dealers SET balance = balance - ? WHERE id = ?`, [sum, id]);
@@ -654,9 +582,8 @@ app.post('/api/dealer/change-password', async (req, res) => {
 });
 
 app.get('/api/dealer/silence', async (req, res) => {
-  try {
-    res.json({ percent: 10, days_passed: 0, days_left: 7 });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { res.json({ percent: 10, days_passed: 0, days_left: 7 }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ==================== СЕЙФ ====================
@@ -671,10 +598,8 @@ app.get('/api/dealer/cash-safe', async (req, res) => {
 });
 
 app.get('/api/dealer/cash-history', async (req, res) => {
-  try {
-    res.json(await all(`SELECT * FROM cash_operations WHERE dealer_id = ? AND date = ? ORDER BY created_at DESC`,
-      [req.query.id, today()]));
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { res.json(await all(`SELECT * FROM cash_operations WHERE dealer_id = ? AND date = ? ORDER BY created_at DESC`, [req.query.id, today()])); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/dealer/cash-in', async (req, res) => {
@@ -682,8 +607,7 @@ app.post('/api/dealer/cash-in', async (req, res) => {
     const { dealer_id, nick, sum, pass } = req.body;
     const d = await get(`SELECT * FROM dealers WHERE id = ? AND pass = ?`, [dealer_id, pass]);
     if (!d) return res.status(401).json({ error: 'Неверный пароль' });
-    await run(`INSERT INTO cash_operations (dealer_id, guest_name, type, sum, date)
-               VALUES (?, ?, 'in', ?, ?)`, [dealer_id, nick, sum, today()]);
+    await run(`INSERT INTO cash_operations (dealer_id, guest_name, type, sum, date) VALUES (?, ?, 'in', ?, ?)`, [dealer_id, nick, sum, today()]);
     res.json({ ok: true, guest: nick });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -693,8 +617,7 @@ app.post('/api/dealer/cash-out', async (req, res) => {
     const { dealer_id, nick, sum, pass } = req.body;
     const d = await get(`SELECT * FROM dealers WHERE id = ? AND pass = ?`, [dealer_id, pass]);
     if (!d) return res.status(401).json({ error: 'Неверный пароль' });
-    await run(`INSERT INTO cash_operations (dealer_id, guest_name, type, sum, date)
-               VALUES (?, ?, 'out', ?, ?)`, [dealer_id, nick, sum, today()]);
+    await run(`INSERT INTO cash_operations (dealer_id, guest_name, type, sum, date) VALUES (?, ?, 'out', ?, ?)`, [dealer_id, nick, sum, today()]);
     res.json({ ok: true, guest: nick });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -704,8 +627,7 @@ app.post('/api/dealer/cash-handover', async (req, res) => {
     const { dealer_id } = req.body;
     const ops = await all(`SELECT * FROM cash_operations WHERE dealer_id = ? AND date = ? AND status = 'open'`, [dealer_id, today()]);
     const total = ops.reduce((a, o) => a + (o.type === 'in' ? o.sum : -o.sum), 0);
-    await run(`UPDATE cash_operations SET status = 'closed' WHERE dealer_id = ? AND date = ? AND status = 'open'`,
-      [dealer_id, today()]);
+    await run(`UPDATE cash_operations SET status = 'closed' WHERE dealer_id = ? AND date = ? AND status = 'open'`, [dealer_id, today()]);
     res.json({ ok: true, expected: total });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -717,9 +639,12 @@ app.get('/api/admin/cash-safe', async (req, res) => {
     for (const d of dealers) {
       const open = await all(`SELECT * FROM cash_operations WHERE dealer_id = ? AND status = 'open'`, [d.id]);
       const handed = await all(`SELECT * FROM cash_operations WHERE dealer_id = ? AND status = 'closed'`, [d.id]);
-      const openTotal = open.reduce((a, o) => a + (o.type === 'in' ? o.sum : -o.sum), 0);
-      const handedTotal = handed.reduce((a, o) => a + (o.type === 'in' ? o.sum : -o.sum), 0);
-      result.push({ dealer_id: d.id, dealer_name: d.dealer_name, open_total: openTotal, handed_total: handedTotal, handed_cnt: handed.length });
+      result.push({
+        dealer_id: d.id, dealer_name: d.dealer_name,
+        open_total: open.reduce((a, o) => a + (o.type === 'in' ? o.sum : -o.sum), 0),
+        handed_total: handed.reduce((a, o) => a + (o.type === 'in' ? o.sum : -o.sum), 0),
+        handed_cnt: handed.length
+      });
     }
     res.json({ dealers: result });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -733,15 +658,11 @@ app.get('/api/dealer/tasks', async (req, res) => {
       { id: 'daily_bac_3', title: 'Сделай 3 раунда баккары', goal: 3, reward: 10, type: 'bac' },
       { id: 'daily_roulette_5', title: 'Сделай 5 ставок в рулетку', goal: 5, reward: 10, type: 'roulette' }
     ];
-    const dealerId = req.query.id;
-    const todayS = today();
-    const earned = await get(`SELECT SUM(reward) AS total FROM dealer_tasks WHERE dealer_id = ? AND date = ?`, [dealerId, todayS]);
+    const earned = await get(`SELECT SUM(reward) AS total FROM dealer_tasks WHERE dealer_id = ? AND date = ?`, [req.query.id, today()]);
     res.json({
-      day: todayS,
+      day: today(),
       tasks: tasks.map(t => ({ ...t, progress: 0, canClaim: true, claimed: false, blocked: false })),
-      earned_today: earned?.total || 0,
-      daily_limit: 50,
-      limit_reached: (earned?.total || 0) >= 50
+      earned_today: earned?.total || 0, daily_limit: 50, limit_reached: (earned?.total || 0) >= 50
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -750,8 +671,7 @@ app.post('/api/dealer/tasks/claim', async (req, res) => {
   try {
     const { dealer_id, task_id } = req.body;
     const reward = 10;
-    await run(`INSERT INTO dealer_tasks (dealer_id, task_id, reward, date) VALUES (?, ?, ?, ?)`,
-      [dealer_id, task_id, reward, today()]);
+    await run(`INSERT INTO dealer_tasks (dealer_id, task_id, reward, date) VALUES (?, ?, ?, ?)`, [dealer_id, task_id, reward, today()]);
     await run(`UPDATE dealers SET balance = balance + ? WHERE id = ?`, [reward, dealer_id]);
     res.json({ ok: true, reward });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -779,23 +699,19 @@ app.post('/api/promo/activate', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ==================== ПЛАТЕЖИ / PENDING TRANSFERS ====================
+// ==================== PENDING TRANSFERS ====================
 app.get('/api/dealer/pending-transfers', async (req, res) => {
-  try {
-    res.json(await all(`SELECT * FROM deposits WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50`));
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { res.json(await all(`SELECT * FROM deposits WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50`)); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/dealer/issue-chips', async (req, res) => {
   try {
-    const { deposit_id, dealer_id } = req.body;
+    const { deposit_id } = req.body;
     const dep = await get(`SELECT * FROM deposits WHERE id = ?`, [deposit_id]);
     if (!dep) return res.status(404).json({ error: 'Депозит не найден' });
-
     const g = await get(`SELECT * FROM guests WHERE name = ? COLLATE NOCASE`, [dep.nick]);
-    if (g) {
-      await run(`UPDATE guests SET deposit_balance = deposit_balance + ? WHERE id = ?`, [dep.sum, g.id]);
-    }
+    if (g) await run(`UPDATE guests SET deposit_balance = deposit_balance + ? WHERE id = ?`, [dep.sum, g.id]);
     await run(`UPDATE deposits SET status = 'approved' WHERE id = ?`, [deposit_id]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -840,7 +756,7 @@ app.delete('/api/employees/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ==================== ИГРОКИ (VIP) ====================
+// ==================== ИГРОКИ VIP ====================
 app.get('/api/players', async (req, res) => {
   try { res.json(await all(`SELECT * FROM players`)); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -848,8 +764,8 @@ app.get('/api/players', async (req, res) => {
 app.post('/api/players', async (req, res) => {
   try {
     const { nick, vip } = req.body;
-    await run(`INSERT INTO players (nick, vip) VALUES (?, ?)
-               ON CONFLICT(nick) DO UPDATE SET vip = ?`, [nick, vip ? 1 : 0, vip ? 1 : 0]);
+    await run(`INSERT INTO players (nick, vip) VALUES (?, ?) ON CONFLICT(nick) DO UPDATE SET vip = ?`,
+      [nick, vip ? 1 : 0, vip ? 1 : 0]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -896,7 +812,7 @@ app.delete('/api/admin/news/:id', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ==================== ОТЗЫВЫ О ДИЛЕРАХ ====================
+// ==================== ОТЗЫВЫ ====================
 app.get('/api/dealer-reviews', async (req, res) => {
   try { res.json(await all(`SELECT * FROM dealer_reviews ORDER BY created_at DESC`)); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -904,8 +820,8 @@ app.get('/api/dealer-reviews', async (req, res) => {
 app.post('/api/dealer-reviews', async (req, res) => {
   try {
     const { guest_name, dealer_name, stars, comment } = req.body;
-    const r = await run(`INSERT INTO dealer_reviews (guest_name, dealer_name, stars, comment)
-                         VALUES (?, ?, ?, ?)`, [guest_name, dealer_name, stars, comment]);
+    const r = await run(`INSERT INTO dealer_reviews (guest_name, dealer_name, stars, comment) VALUES (?, ?, ?, ?)`,
+      [guest_name, dealer_name, stars, comment]);
     res.json({ id: r.id, ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -915,20 +831,17 @@ app.delete('/api/dealer-reviews/:id', async (req, res) => {
 });
 app.get('/api/dealer-ratings', async (req, res) => {
   try {
-    const rows = await all(`SELECT dealer_name AS dealer, AVG(stars) AS avg_stars, COUNT(*) AS reviews_count
-                            FROM dealer_reviews GROUP BY dealer_name ORDER BY avg_stars DESC`);
-    res.json(rows);
+    res.json(await all(`SELECT dealer_name AS dealer, AVG(stars) AS avg_stars, COUNT(*) AS reviews_count
+                        FROM dealer_reviews GROUP BY dealer_name ORDER BY avg_stars DESC`));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ==================== CRASH (заглушки для совместимости) ====================
+// ==================== CRASH (заглушки) ====================
 app.get('/api/online', async (req, res) => {
   try { res.json(await all(`SELECT * FROM online ORDER BY created_at DESC LIMIT 200`)); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
-app.get('/api/crash/all-bets', async (req, res) => {
-  try { res.json([]); } catch (e) { res.status(500).json({ error: e.message }); }
-});
+app.get('/api/crash/all-bets', async (req, res) => { res.json([]); });
 app.delete('/api/crash/clear', async (req, res) => {
   try { await run(`DELETE FROM online`); res.json({ ok: true }); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -943,18 +856,13 @@ app.get('/api/tournament/active', async (req, res) => {
   try {
     const t = await get(`SELECT * FROM tournaments WHERE status = 'active' ORDER BY id DESC LIMIT 1`);
     if (!t) return res.json({ tournament: null });
-
     const cntRow = await get(`SELECT COUNT(*) AS cnt FROM tournament_entries WHERE tournament_id = ?`, [t.id]);
     const participants = cntRow?.cnt || 0;
     const minP = t.min_participants || 3;
     const top = await all(`SELECT guest_name, score, bets_count FROM tournament_entries
                            WHERE tournament_id = ? ORDER BY score DESC LIMIT 10`, [t.id]);
-
     res.json({
-      tournament: t,
-      top,
-      participants,
-      min_participants: minP,
+      tournament: t, top, participants, min_participants: minP,
       can_finish: participants >= minP,
       effective_prize: participants >= minP ? t.prize_pool : 0
     });
@@ -965,16 +873,12 @@ app.post('/api/tournament/join', async (req, res) => {
   try {
     const { card } = req.body;
     if (!card) return res.status(400).json({ error: 'Введи номер карты' });
-
     const t = await get(`SELECT * FROM tournaments WHERE status = 'active' ORDER BY id DESC LIMIT 1`);
     if (!t) return res.status(400).json({ error: 'Нет активного турнира' });
-
     const guest = await get(`SELECT * FROM guests WHERE id = ?`, [card]);
     if (!guest) return res.status(404).json({ error: 'Карта не найдена' });
-
     const existing = await get(`SELECT * FROM tournament_entries WHERE tournament_id = ? AND guest_id = ?`, [t.id, guest.id]);
     if (existing) return res.json({ ok: true, already: true });
-
     await run(`INSERT INTO tournament_entries (tournament_id, guest_id, guest_name, score, bets_count)
                VALUES (?, ?, ?, 0, 0)`, [t.id, guest.id, guest.name]);
     res.json({ ok: true, already: false });
@@ -990,10 +894,8 @@ app.post('/api/admin/tournament/create', async (req, res) => {
   try {
     const { pass, title, prize_pool, days } = req.body;
     if (pass !== OWNER_PASS) return res.status(403).json({ error: 'Нет доступа' });
-
     const start = new Date().toISOString();
     const end = new Date(Date.now() + (days || 3) * 24 * 60 * 60 * 1000).toISOString();
-
     await run(`UPDATE tournaments SET status = 'cancelled' WHERE status = 'active'`);
     const r = await run(`INSERT INTO tournaments (title, prize_pool, prize_type, wager_multiplier, entry_min_bet, entry_min_bets, min_participants, start_at, end_at, status)
                          VALUES (?, ?, 'bonus', 3, 30, 5, 3, ?, ?, 'active')`,
@@ -1006,33 +908,22 @@ app.post('/api/admin/tournament/finish', async (req, res) => {
   try {
     const { pass } = req.body;
     if (pass !== OWNER_PASS) return res.status(403).json({ error: 'Нет доступа' });
-
     const t = await get(`SELECT * FROM tournaments WHERE status = 'active' ORDER BY id DESC LIMIT 1`);
     if (!t) return res.status(404).json({ error: 'Нет активного турнира' });
-
     const cntRow = await get(`SELECT COUNT(*) AS cnt FROM tournament_entries WHERE tournament_id = ?`, [t.id]);
     const participants = cntRow?.cnt || 0;
     const minP = t.min_participants || 3;
     if (participants < minP) {
       return res.status(400).json({ error: `Мало участников: ${participants}/${minP}`, participants, min_participants: minP });
     }
-
     const winner = await get(`SELECT * FROM tournament_entries WHERE tournament_id = ? ORDER BY score DESC LIMIT 1`, [t.id]);
     if (!winner) return res.status(400).json({ error: 'Нет участников' });
-
     await run(`UPDATE guests SET bonus_balance = bonus_balance + ? WHERE id = ?`, [t.prize_pool, winner.guest_id]);
-    await addBonusTx(winner.guest_id, 'issue', t.prize_pool, 'tournament', `Победа в турнире #${t.id} "${t.title}"`);
-
+    await addBonusTx(winner.guest_id, 'issue', t.prize_pool, 'tournament', `Победа в турнире #${t.id}`);
     await run(`UPDATE tournaments SET status = 'finished', winner_id = ?, winner_name = ?, winner_score = ? WHERE id = ?`,
       [winner.guest_id, winner.guest_name, winner.score, t.id]);
-
-    res.json({
-      ok: true,
-      winner: winner.guest_name,
-      score: winner.score,
-      prize: t.prize_pool,
-      wager_required: t.prize_pool * (t.wager_multiplier || 3)
-    });
+    res.json({ ok: true, winner: winner.guest_name, score: winner.score, prize: t.prize_pool,
+      wager_required: t.prize_pool * (t.wager_multiplier || 3) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -1046,9 +937,8 @@ app.post('/api/admin/tournament/cancel', async (req, res) => {
 });
 
 app.get('/api/admin/tournament/:id/entries', async (req, res) => {
-  try {
-    res.json(await all(`SELECT * FROM tournament_entries WHERE tournament_id = ? ORDER BY score DESC`, [req.params.id]));
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  try { res.json(await all(`SELECT * FROM tournament_entries WHERE tournament_id = ? ORDER BY score DESC`, [req.params.id])); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ==================== АВТОЗАВЕРШЕНИЕ ТУРНИРОВ ====================
@@ -1078,20 +968,30 @@ setInterval(async () => {
     await addBonusTx(winner.guest_id, 'issue', t.prize_pool, 'tournament', `Автопобеда в турнире #${t.id}`);
     await run(`UPDATE tournaments SET status = 'finished', winner_id = ?, winner_name = ?, winner_score = ? WHERE id = ?`,
       [winner.guest_id, winner.guest_name, winner.score, t.id]);
-
     console.log(`Tournament #${t.id} auto-finished. Winner: ${winner.guest_name} (${winner.score} pts)`);
   } catch (e) {
     console.error('Auto-finish tournament error:', e);
   }
-}, 60 * 1000); // проверка каждую минуту
+}, 60 * 1000);
+
+// ==================== 404 ДЛЯ API ====================
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// ==================== SPA FALLBACK ====================
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ==================== СТАРТ ====================
 initDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n╔══════════════════════════════════════╗`);
     console.log(`║  KINGWIN SERVER                      ║`);
-    console.log(`║  http://localhost:${PORT}              ║`);
-    console.log(`║  Owner: owner / 56UpahoS             ║`);
+    console.log(`║  Port: ${PORT}                          ║`);
+    console.log(`║  DB: ${DB_PATH}  ║`);
+    console.log(`║  Owner: owner / ${OWNER_PASS}         ║`);
     console.log(`╚══════════════════════════════════════╝\n`);
   });
 }).catch(e => {
