@@ -108,17 +108,9 @@
     100% { transform: scale(1.8); opacity: 0; filter: brightness(4) blur(5px); }
   }
 
-  /* Панель под барабанами */
   .bottom-controls { width: 100%; max-width: 750px; margin-top: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
   
-  /* Обертка для кнопки бонуса и танцора */
-  .bonus-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-  }
+  .bonus-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
   
   .btn-bonus { 
     width: 60px; height: 60px; border-radius: 50%; 
@@ -131,16 +123,12 @@
   }
   .btn-bonus:active { transform: translateY(3px); box-shadow: 0 1px 0 #553800; }
 
-  /* Танцующая эмодзи под кнопкой бонуса */
   .dancer-emoji {
-    font-size: 40px;
-    line-height: 1;
+    font-size: 40px; line-height: 1;
     animation: dance 1.5s ease-in-out infinite alternate;
     filter: drop-shadow(0 0 10px #f1c40f);
-    user-select: none;
-    pointer-events: none;
+    user-select: none; pointer-events: none;
   }
-
   @keyframes dance {
     0% { transform: translateY(0) rotate(-15deg) scale(1); }
     50% { transform: translateY(-10px) rotate(15deg) scale(1.1); }
@@ -152,25 +140,26 @@
     background: linear-gradient(180deg, #00c853, #009624); 
     border: 3px solid #fff; color: #fff; font-weight: 900; font-size: 24px; 
     cursor: pointer; box-shadow: 0 6px 0 #004d00, 0 10px 15px rgba(0,0,0,0.5); 
-    text-transform: uppercase; letter-spacing: 2px; 
-    display: flex; justify-content: center; align-items: center;
-    margin-top: 10px; /* Выравниваем по высоте с кнопкой бонуса + эмодзи */
+    text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: center; align-items: center; 
+    margin-top: 10px;
   }
   .btn-spin:active { transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(4px); box-shadow: 0 2px 0 #004d00; }
 
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
   .modal-overlay.show { display: flex !important; }
-  .modal-box { background: var(--panel-bg); border: 2px solid var(--gold-mid); border-radius: 16px; padding: 25px; width: 100%; max-width: 500px; text-align: left; position: relative; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+  .modal-box { background: var(--panel-bg); border: 2px solid var(--gold-mid); border-radius: 16px; padding: 25px; width: 100%; max-width: 600px; text-align: left; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
   .modal-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--gold-mid); font-size: 24px; cursor: pointer; font-weight: 900; }
-  .modal-box h2 { font-size: 20px; margin-bottom: 15px; color: var(--gold-mid); text-align: center; }
-  .modal-box h3 { font-size: 14px; margin-top: 15px; margin-bottom: 5px; color: #fff; }
-  .modal-box p, .modal-box li { color: #b0b8c5; font-size: 13px; line-height: 1.5; margin-bottom: 5px; }
-  .modal-box ul { padding-left: 20px; }
-  .paytable { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .paytable-item { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px; }
-  .paytable-item img { width: 30px; height: 30px; object-fit: contain; }
-  .paytable-val { font-size: 12px; color: var(--gold-light); font-weight: 800; }
+  .modal-box h2 { font-size: 22px; margin-bottom: 10px; color: var(--gold-mid); text-align: center; }
+  .modal-box p, .modal-box li { color: #b0b8c5; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+  .modal-box h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+  
+  /* Таблица выплат в модалке */
+  .paytable { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+  .paytable-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .paytable-left { display: flex; align-items: center; gap: 12px; }
+  .paytable-item img { width: 35px; height: 35px; object-fit: contain; }
+  .paytable-val { font-size: 13px; color: var(--gold-light); font-weight: 800; text-align: right; }
 
   .bonus-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
   .bonus-card { background: rgba(0,0,0,0.4); border: 2px solid var(--gold-mid); border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
@@ -202,7 +191,13 @@
     .btn-spin { height: 50px; font-size: 18px; border-width: 2px; box-shadow: 0 4px 0 #004d00; margin-top: 5px; }
     
     .bg-palace::before, .bg-palace::after { width: 30px; }
-    .paytable { grid-template-columns: 1fr; }
+    
+    /* Мобильная модалка */
+    .modal-box { padding: 15px; max-height: 90vh; }
+    .modal-box h2 { font-size: 18px; }
+    .modal-box p, .modal-box li { font-size: 12px; }
+    .paytable-item img { width: 25px; height: 25px; }
+    .paytable-val { font-size: 11px; }
   }
 </style>
 </head>
@@ -252,22 +247,51 @@
   </div>
 </div>
 
+<!-- МОДАЛКА ИНФОРМАЦИИ (RTP 91%) -->
 <div class="modal-overlay" id="infoModal">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('infoModal').classList.remove('show')">✕</button>
-    <h2>🎰 Empire of Gold (RTP 95%)</h2>
-    <p><b>МЕХАНИКА:</b> Выплаты за 7, 8, 9 или 10 одинаковых символов.<br>При выигрыше символы взрываются, а оставшиеся падают вниз!</p>
-    <h3>Таблица выплат:</h3>
+    <h2>🎰 Empire of Gold</h2>
+    <p><b>RTP: 91%</b>. Слот с 6 барабанами и 5 рядами (30 ячеек). Выплаты начисляются за <b>7, 8, 9 или 10+ одинаковых символов</b> в любом месте на экране! При выигрыше символы взрываются, а на их место падают новые (каскад).</p>
+    
+    <h3>Спецсимволы:</h3>
+    <ul>
+      <li><b>WILD (Слиток)</b> — заменяет любые символы для составления комбинации.</li>
+      <li><b>SCATTER (Колесо)</b> — выпадение 3-х и более запускает бонусную игру (в разработке).</li>
+      <li><b>COIN (Монета)</b> — выпадение 6+ активирует Hold & Win (в разработке).</li>
+    </ul>
+
+    <h3>Таблица выплат (в ставках):</h3>
     <div class="paytable">
-      <div class="paytable-item"><img src="/sym_10.png"><div class="paytable-val">10-A: x0.5 / x1 / x2 / x5</div></div>
-      <div class="paytable-item"><img src="/sym_diamond.png"><div class="paytable-val">Алмаз: x1 / x2 / x5 / x10</div></div>
-      <div class="paytable-item"><img src="/sym_scarab.png"><div class="paytable-val">Скарабей: x2 / x4 / x8 / x20</div></div>
-      <div class="paytable-item"><img src="/sym_crown.png"><div class="paytable-val">Корона: x4 / x10 / x20 / x50</div></div>
-      <div class="paytable-item"><img src="/sym_wild.png"><div class="paytable-val">WILD: x10 / x20 / x50 / x200</div></div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_10.png" onerror="this.style.display='none'"><span>10, J, Q, K, A</span></div>
+        <div class="paytable-val">7: x0.5 | 8: x1 | 9: x2 | 10+: x5</div>
+      </div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_ankh.png" onerror="this.style.display='none'"><span>Анкх</span></div>
+        <div class="paytable-val">7: x1 | 8: x2 | 9: x5 | 10+: x10</div>
+      </div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_diamond.png" onerror="this.style.display='none'"><span>Алмаз</span></div>
+        <div class="paytable-val">7: x2 | 8: x4 | 9: x8 | 10+: x20</div>
+      </div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_scarab.png" onerror="this.style.display='none'"><span>Скарабей</span></div>
+        <div class="paytable-val">7: x4 | 8: x10 | 9: x20 | 10+: x50</div>
+      </div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_crown.png" onerror="this.style.display='none'"><span>Корона</span></div>
+        <div class="paytable-val">7: x10 | 8: x20 | 9: x50 | 10+: x200</div>
+      </div>
+      <div class="paytable-item">
+        <div class="paytable-left"><img src="/sym_wild.png" onerror="this.style.display='none'"><span>WILD</span></div>
+        <div class="paytable-val">7: x20 | 8: x50 | 9: x200 | 10+: x500</div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- МОДАЛКА БОНУСА -->
 <div class="modal-overlay" id="bonusModal">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('bonusModal').classList.remove('show')">✕</button>
@@ -300,20 +324,22 @@ const SYMBOLS = {
   'Q': { id: 'Q', img: '/sym_q.png', weight: 25 },
   'K': { id: 'K', img: '/sym_k.png', weight: 25 },
   'A': { id: 'A', img: '/sym_a.png', weight: 25 },
-  'diamond': { id: 'diamond', img: '/sym_diamond.png', weight: 10 },
-  'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 8 },
-  'crown': { id: 'crown', img: '/sym_crown.png', weight: 6 },
-  'wild': { id: 'wild', img: '/sym_wild.png', weight: 3 },
+  'ankh': { id: 'ankh', img: '/sym_ankh.png', weight: 10 }, // Вернул Анкх в таблицу
+  'diamond': { id: 'diamond', img: '/sym_diamond.png', weight: 8 },
+  'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 5 },
+  'crown': { id: 'crown', img: '/sym_crown.png', weight: 3 },
+  'wild': { id: 'wild', img: '/sym_wild.png', weight: 2 },
   'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 2 },
   'coin': { id: 'coin', img: '/sym_coin.png', weight: 2 }
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 
+// Выплаты под RTP 91% (за 7, 8, 9, 10+ символов)
 const PAYTABLE = {
   '10': [0.5, 1, 2, 5], 'J': [0.5, 1, 2, 5], 'Q': [0.5, 1, 2, 5], 'K': [0.5, 1, 2, 5], 'A': [0.5, 1, 2, 5],
-  'diamond': [1, 2, 5, 10], 'scarab': [2, 4, 8, 20], 'crown': [4, 10, 20, 50],
-  'wild': [10, 20, 50, 200]
+  'ankh': [1, 2, 5, 10], 'diamond': [2, 4, 8, 20], 'scarab': [4, 10, 20, 50], 'crown': [10, 20, 50, 200],
+  'wild': [20, 50, 200, 500]
 };
 
 function getRandomSymbol() {
