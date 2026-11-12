@@ -63,6 +63,35 @@
   }
   .loading-text { margin-top: 10px; font-size: 14px; color: var(--gold-light); font-weight: 800; z-index: 2; letter-spacing: 2px; }
 
+  /* ===== АНИМИРОВАННЫЙ БАННЕР БОНУСА ===== */
+  .bonus-activation-overlay {
+    position: absolute; inset: 0; z-index: 9998;
+    background: rgba(0,0,0,0.9);
+    display: none; justify-content: center; align-items: center; flex-direction: column;
+    opacity: 0; transition: opacity 0.4s ease;
+    backdrop-filter: blur(5px);
+  }
+  .bonus-activation-overlay.show { display: flex; opacity: 1; }
+  
+  .bonus-text {
+    font-size: 54px; font-weight: 900; color: #fff;
+    text-shadow: 0 0 20px #f1c40f, 0 0 40px #f1c40f, 0 0 60px #ff4d4d;
+    text-transform: uppercase; letter-spacing: 4px;
+    animation: bonusPulse 0.5s infinite alternate;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  @keyframes bonusPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+  .bonus-subtext {
+    font-size: 24px; color: var(--gold-light); font-weight: 800;
+    text-shadow: 0 0 10px #f1c40f;
+    background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 10px;
+    border: 1px solid var(--gold-mid);
+  }
+
   /* ОСНОВНОЙ ИНТЕРФЕЙС */
   .bg-palace {
     position: absolute; inset: 0; z-index: 0;
@@ -180,17 +209,11 @@
   .sym-wild-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #fff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; pointer-events: none; }
   .sym-scatter-text { position: absolute; bottom: 4px; width: 100%; text-align: center; font-weight: 900; font-size: 10px; color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d; pointer-events: none; letter-spacing: 1px; }
   
-  /* Стили для монет в бонусе */
   .coin-value {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: 900;
-    font-size: 14px;
-    color: #fff;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-weight: 900; font-size: 14px; color: #fff;
     text-shadow: 0 0 5px #000, 0 0 10px #f1c40f;
-    pointer-events: none;
-    z-index: 2;
+    pointer-events: none; z-index: 2;
   }
 
   .symbol-inner.win-highlight {
@@ -210,7 +233,6 @@
     100% { transform: scale(1.8); opacity: 0; filter: brightness(4) blur(5px); }
   }
 
-  /* Стили для бонусной игры (Hold & Win) */
   .symbol-inner.coin-locked {
     border: 2px solid var(--gold-light);
     box-shadow: 0 0 25px rgba(241,196,15,0.8), inset 0 0 15px rgba(241,196,15,0.5);
@@ -221,17 +243,14 @@
     to { box-shadow: 0 0 35px rgba(241,196,15,1), inset 0 0 20px rgba(241,196,15,0.6); }
   }
 
-  /* Индикатор фриспинов и бонуса */
-  .freespins-banner {
-    position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-    background: rgba(0, 229, 255, 0.2); border: 2px solid var(--neon);
-    border-radius: 20px; padding: 8px 25px; font-weight: 900; color: var(--neon); font-size: 18px;
-    display: none; z-index: 1000; text-shadow: 0 0 10px var(--neon); box-shadow: 0 0 20px rgba(0,229,255,0.5);
-    animation: pulseBanner 1s infinite alternate; pointer-events: none;
-  }
-  @keyframes pulseBanner {
-    from { transform: translateX(-50%) scale(1); }
-    to { transform: translateX(-50%) scale(1.05); }
+  /* Индикатор бонуса (над барабанами) */
+  .bonus-indicator {
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.8); border: 2px solid var(--gold-light);
+    border-radius: 10px; padding: 5px 20px; font-weight: 900; font-size: 18px;
+    color: var(--gold-light); display: none; z-index: 100;
+    box-shadow: 0 0 20px rgba(241,196,15,0.5);
+    text-align: center; white-space: nowrap;
   }
 
   .bottom-controls { 
@@ -278,6 +297,7 @@
   .btn-spin:active { transform: translateY(6px); box-shadow: 0 0 0 #004d00, 0 0 30px rgba(0,230,118,0.6); }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(6px); box-shadow: 0 0 0 #004d00; }
 
+  /* Модалки */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: linear-gradient(135deg, #1f0d33, #0b0510); border: 2px solid var(--gold-mid); border-radius: 20px; padding: 25px; width: 100%; max-width: 600px; text-align: left; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px rgba(241,196,15,0.3); }
@@ -298,6 +318,13 @@
   .bonus-info h4 { font-size: 18px; color: var(--gold-light); margin-bottom: 4px; }
   .bonus-info p { font-size: 13px; color: #b0b8c5; }
   .bonus-price { background: linear-gradient(180deg, #00e676, #009624); color: #fff; padding: 10px 15px; border-radius: 8px; font-weight: 900; font-size: 16px; box-shadow: 0 3px 0 #004d00; text-align: center; }
+
+  .confirm-buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-confirm { flex: 1; padding: 15px; border-radius: 10px; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; border: none; transition: 0.2s; }
+  .btn-yes { background: linear-gradient(180deg, #00e676, #009624); color: #fff; box-shadow: 0 4px 0 #004d00; }
+  .btn-yes:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #004d00; }
+  .btn-no { background: linear-gradient(180deg, #ff4d4d, #b71c1c); color: #fff; box-shadow: 0 4px 0 #7f0000; }
+  .btn-no:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #7f0000; }
 
   @media (max-width: 768px) {
     .topbar { height: 50px; padding: 0 8px; }
@@ -334,7 +361,9 @@
     .paytable-val { font-size: 11px; }
     
     .loading-title { font-size: 32px; }
-    .freespins-banner { font-size: 14px; padding: 5px 15px; top: 55px; }
+    .bonus-text { font-size: 36px; }
+    .bonus-subtext { font-size: 18px; }
+    .bonus-indicator { font-size: 14px; padding: 3px 10px; top: -30px; }
   }
 </style>
 </head>
@@ -350,14 +379,15 @@
   <div class="loading-text" id="loadingText">0%</div>
 </div>
 
+<!-- БАННЕР АКТИВАЦИИ БОНУСА -->
+<div class="bonus-activation-overlay" id="bonusActivationOverlay">
+  <div class="bonus-text">БОНУС АКТИВИРОВАН!</div>
+  <div class="bonus-subtext" id="bonusSubtext">HOLD & WIN (10 СПИНОВ)</div>
+</div>
+
 <div class="app">
   <div class="bg-palace">
     <div class="arch"></div>
-  </div>
-
-  <!-- Индикатор бонуса -->
-  <div class="freespins-banner" id="bonusBanner">
-    HOLD & WIN: <span id="respinCount">3</span> | TOTAL: <span id="bonusTotal">0</span> ₽
   </div>
 
   <div class="topbar">
@@ -389,6 +419,12 @@
           <div class="info-val" id="winAmount" style="color: var(--gold-light);">0</div>
         </div>
       </div>
+      
+      <!-- Индикатор спинов в бонусе -->
+      <div class="bonus-indicator" id="bonusIndicator">
+        СПИНОВ ОСТАЛОСЬ: <span id="spinsLeftVal">0</span>
+      </div>
+
       <div class="reels-wrap" id="reelsWrap"></div>
     </div>
 
@@ -442,20 +478,32 @@
   </div>
 </div>
 
-<!-- МОДАЛКА БОНУСА -->
+<!-- МОДАЛКА БОНУСА (ВЫБОР) -->
 <div class="modal-overlay" id="bonusModal">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('bonusModal').classList.remove('show')">✕</button>
     <h2>🎁 Купить бонус</h2>
     <div class="bonus-cards">
-      <div class="bonus-card" onclick="buyBonus(1)">
+      <div class="bonus-card" onclick="confirmBonus(1, 100)">
         <div class="bonus-info"><h4>Империя (x100)</h4><p>10 фриспинов с множителем <b>x2</b></p></div>
         <div class="bonus-price" id="priceBonus1">600 ₽</div>
       </div>
-      <div class="bonus-card" onclick="buyBonus(2)">
+      <div class="bonus-card" onclick="confirmBonus(2, 250)">
         <div class="bonus-info"><h4>Сокровища Фараона (x250)</h4><p>15 фриспинов с множителем <b>x5</b></p></div>
         <div class="bonus-price" id="priceBonus2">1500 ₽</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ПОКУПКИ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <h2>Подтверждение</h2>
+    <p id="confirmText">Вы уверены, что хотите купить бонус за <span id="confirmPrice">0</span> ₽?</p>
+    <div class="confirm-buttons">
+      <button class="btn-confirm btn-yes" onclick="executeBonusPurchase()">Да, купить</button>
+      <button class="btn-confirm btn-no" onclick="document.getElementById('confirmModal').classList.remove('show')">Отмена</button>
     </div>
   </div>
 </div>
@@ -467,7 +515,9 @@ let isSpinning = false;
 let inBonus = false;
 let respinsLeft = 0;
 let bonusTotalWin = 0;
-let bonusBoard = []; // Текущее состояние поля в бонусе (хранит монеты)
+let bonusBoard = [];
+let pendingBonusCost = 0;
+let pendingBonusType = 0;
 
 const BETS = [6, 16, 32, 48, 64, 120];
 let betIndex = 0;
@@ -567,6 +617,28 @@ function playCoinSound() {
   } catch(e) {}
 }
 
+function playBonusFanfare() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      const startTime = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0.1, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    });
+  } catch(e) {}
+}
+
 function checkWins(board, betAmount) {
   let totalWin = 0;
   let winPositions = [];
@@ -614,7 +686,6 @@ function highlightWinCells(positions) {
 }
 
 async function processCascades(board, totalWinSoFar = 0, isBonus = false) {
-  // Если мы в бонусе, обрабатываем отдельно
   if (isBonus) {
     await processBonusRespin(board, totalWinSoFar);
     return;
@@ -622,10 +693,8 @@ async function processCascades(board, totalWinSoFar = 0, isBonus = false) {
 
   const res = checkWins(board, bet);
   
-  // Проверка на активацию бонуса Hold & Win (6+ монет)
   if (res.coins.length >= 6) {
     playCoinSound();
-    // Подсвечиваем монеты
     res.coins.forEach(pos => {
       const reel = document.getElementById(`reel-${pos[0]}`);
       if (!reel) return;
@@ -641,6 +710,13 @@ async function processCascades(board, totalWinSoFar = 0, isBonus = false) {
       startHoldAndWin(res.coins);
     }, 1000);
     return;
+  }
+
+  if (res.scatters >= 3) {
+    // Активация бонуса через Скаттеры (пока бесплатно)
+    playBonusFanfare();
+    await new Promise(r => setTimeout(r, 1000));
+    // (можно добавить логику фриспинов, но пока оставим Hold & Win)
   }
 
   if (res.win > 0) {
@@ -741,16 +817,14 @@ async function processCascades(board, totalWinSoFar = 0, isBonus = false) {
   }
 }
 
-// ЛОГИКА БОНУСА HOLD & WIN
+// БОНУС HOLD & WIN
 async function startHoldAndWin(initialCoinPositions) {
   inBonus = true;
   respinsLeft = 3;
   bonusTotalWin = 0;
   
-  // Инициализируем доску для бонуса
   bonusBoard = Array(6).fill().map(() => Array(5).fill(null));
   
-  // Генерируем значения для стартовых монет (от 1x до 10x)
   const values = [1, 2, 3, 5, 10];
   initialCoinPositions.forEach(pos => {
     const val = values[Math.floor(Math.random() * values.length)];
@@ -758,19 +832,27 @@ async function startHoldAndWin(initialCoinPositions) {
     bonusTotalWin += val;
   });
   
-  $('bonusBanner').style.display = 'block';
+  // Показываем оверлей активации
+  $('bonusActivationOverlay').classList.add('show');
+  $('bonusSubtext').textContent = `HOLD & WIN (10 СПИНОВ)`;
+  playBonusFanfare();
+  
+  await new Promise(r => setTimeout(r, 2500));
+  
+  $('bonusActivationOverlay').classList.remove('show');
+  
+  // Показываем баннер с респинами
+  $('bonusIndicator').style.display = 'block';
   updateBonusUI();
   
   await new Promise(r => setTimeout(r, 500));
   renderBonusBoard();
   
-  // Запускаем респины
   await runBonusRespins();
 }
 
 function updateBonusUI() {
-  $('respinCount').textContent = respinsLeft;
-  $('bonusTotal').textContent = bonusTotalWin.toFixed(2);
+  $('spinsLeftVal').textContent = respinsLeft;
 }
 
 function renderBonusBoard() {
@@ -789,10 +871,8 @@ function renderBonusBoard() {
       
       const cell = bonusBoard[i][j];
       if (cell) {
-        // Это монета
         el.innerHTML = `<div class="symbol-inner coin-locked">${createSymbolHTML(cell.sym, cell.value)}</div>`;
       } else {
-        // Пустая ячейка (показываем рубашку)
         el.innerHTML = `<div class="symbol-inner" style="background: rgba(0,0,0,0.5); border: 1px solid #3a1c5c;"></div>`;
       }
       
@@ -802,17 +882,11 @@ function renderBonusBoard() {
   }
 }
 
-async function processBonusRespin(board, totalWin) {
-  // (Этот метод не используется напрямую, логика ниже)
-}
-
 async function runBonusRespins() {
   while (respinsLeft > 0) {
-    // Уменьшаем счетчик
     respinsLeft--;
     updateBonusUI();
     
-    // Крутим пустые ячейки
     const emptyCells = [];
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 5; j++) {
@@ -820,10 +894,9 @@ async function runBonusRespins() {
       }
     }
     
-    // Если нет пустых ячеек — бонус окончен (заполнили всё поле)
     if (emptyCells.length === 0) break;
     
-    // Анимация кручения пустых ячеек
+    // Анимация прокрутки
     for (let i = 0; i < 6; i++) {
       const reel = document.getElementById(`reel-${i}`);
       if (!reel) continue;
@@ -832,7 +905,6 @@ async function runBonusRespins() {
       for (let j = 0; j < 5; j++) {
         if (!bonusBoard[i][j]) {
           const el = symbols[j];
-          // Меняем картинку на случайную для эффекта
           el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(getRandomSymbol())}</div>`;
         }
       }
@@ -840,13 +912,12 @@ async function runBonusRespins() {
     
     await new Promise(r => setTimeout(r, 600));
     
-    // Генерируем новые монеты (шанс выпадения)
     let newCoinAdded = false;
     const values = [1, 2, 3, 5, 10];
     
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 5; j++) {
-        if (!bonusBoard[i][j] && Math.random() < 0.15) { // 15% шанс выпадения монеты
+        if (!bonusBoard[i][j] && Math.random() < 0.15) {
           const val = values[Math.floor(Math.random() * values.length)];
           bonusBoard[i][j] = { sym: SYMBOLS['coin'], value: val };
           bonusTotalWin += val;
@@ -855,56 +926,135 @@ async function runBonusRespins() {
       }
     }
     
-    // Перерисовываем поле
     renderBonusBoard();
-    updateBonusUI();
     
     if (newCoinAdded) {
       playCoinSound();
-      respinsLeft = 3; // Сброс респинов
+      respinsLeft = 3;
       updateBonusUI();
     }
     
     await new Promise(r => setTimeout(r, 800));
   }
   
-  // Бонус завершен
   await new Promise(r => setTimeout(r, 1000));
   
-  // Начисляем выигрыш
   const finalWin = bonusTotalWin * bet;
   balance += finalWin;
   $('balanceVal').textContent = balance.toFixed(2);
   
   alert(`🎉 БОНУС ОКОНЧЕН!\nВы собрали ${bonusTotalWin} монет.\nВаш выигрыш: ${finalWin.toFixed(2)} ₽`);
   
-  // Возвращаемся в игру
-  $('bonusBanner').style.display = 'none';
+  $('bonusIndicator').style.display = 'none';
   inBonus = false;
   isSpinning = false;
   $('btnSpin').disabled = false;
   
-  // Инициализируем новое поле
   initBoard();
 }
 
-function buyBonus(type) {
-  document.getElementById('bonusModal').classList.remove('show');
+// ЛОГИКА ПОКУПКИ С ПОДТВЕРЖДЕНИЕМ
+function confirmBonus(type, multiplier) {
+  const cost = bet * multiplier;
+  if (balance < cost) { alert(`Недостаточно средств. Нужно ${cost} ₽`); return; }
   
-  if (type === 1) {
-    const cost = bet * 100;
-    if (balance < cost) { alert(`Недостаточно средств. Нужно ${cost} ₽`); return; }
-    balance -= cost;
-    $('balanceVal').textContent = balance.toFixed(2);
-    // Принудительно запускаем бонус
-    const fakeCoins = [];
-    for (let i = 0; i < 6; i++) {
-        fakeCoins.push([Math.floor(Math.random()*6), Math.floor(Math.random()*5)]);
-    }
-    startHoldAndWin(fakeCoins);
-  } else {
-    alert('Этот бонус пока в разработке! Используйте первый.');
+  pendingBonusType = type;
+  pendingBonusCost = cost;
+  
+  document.getElementById('bonusModal').classList.remove('show');
+  document.getElementById('confirmPrice').textContent = cost;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+async function executeBonusPurchase() {
+  document.getElementById('confirmModal').classList.remove('show');
+  
+  if (balance < pendingBonusCost) { alert('Недостаточно средств'); return; }
+  
+  balance -= pendingBonusCost;
+  $('balanceVal').textContent = balance.toFixed(2);
+  
+  // 1. Показываем спин, где выпадают Скаттеры (визуально)
+  isSpinning = true;
+  $('btnSpin').disabled = true;
+  
+  const wrap = $('reelsWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const reel = document.createElement('div');
+    reel.className = 'reel';
+    reel.id = `reel-${i}`;
+    wrap.appendChild(reel);
   }
+  
+  await new Promise(r => setTimeout(r, 200));
+  
+  // Генерируем фейковую доску, где гарантированно есть 3+ скаттера
+  const fakeBoard = [];
+  const scatterPositions = [];
+  
+  // Выбираем 3 случайные позиции для скаттеров
+  while (scatterPositions.length < 3) {
+    const col = Math.floor(Math.random() * 6);
+    const row = Math.floor(Math.random() * 5);
+    if (!scatterPositions.some(p => p[0] === col && p[1] === row)) {
+      scatterPositions.push([col, row]);
+    }
+  }
+  
+  for (let i = 0; i < 6; i++) {
+    const col = [];
+    for (let j = 0; j < 5; j++) {
+      if (scatterPositions.some(p => p[0] === i && p[1] === j)) {
+        col.push(SYMBOLS['scatter']);
+      } else {
+        col.push(getRandomSymbol());
+      }
+    }
+    fakeBoard.push(col);
+  }
+  
+  // Рисуем фейковую доску с падением
+  for (let i = 0; i < 6; i++) {
+    const reel = document.getElementById(`reel-${i}`);
+    for (let j = 0; j < 5; j++) {
+      const el = document.createElement('div');
+      el.className = 'symbol';
+      el.style.transform = `translateY(${(j - 5) * 100}%)`;
+      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(fakeBoard[i][j])}</div>`;
+      reel.appendChild(el);
+      
+      const delay = 50 + (i * 100) + (j * 50);
+      setTimeout(() => {
+        el.style.transform = `translateY(${j * 100}%)`;
+      }, delay);
+    }
+  }
+  
+  await new Promise(r => setTimeout(r, 1800));
+  
+  // Подсвечиваем скаттеры
+  scatterPositions.forEach(pos => {
+    const reel = document.getElementById(`reel-${pos[0]}`);
+    if (!reel) return;
+    const symbols = reel.querySelectorAll('.symbol');
+    const el = symbols[pos[1]];
+    if (el) {
+      const inner = el.querySelector('.symbol-inner');
+      if (inner) {
+        inner.style.boxShadow = '0 0 30px #ff4d4d, inset 0 0 15px #ff4d4d';
+        inner.style.border = '2px solid #ff4d4d';
+        inner.style.animation = 'pulse-win 0.4s infinite alternate';
+      }
+    }
+  });
+  
+  // Звук и активация
+  playBonusFanfare();
+  await new Promise(r => setTimeout(r, 1500));
+  
+  // Запускаем бонус
+  startHoldAndWin(scatterPositions.map(p => [p[0], p[1]]));
 }
 
 async function spin() {
@@ -984,7 +1134,6 @@ function initBoard() {
 window.onload = () => {
   changeBet(0);
   
-  // Загрузка 15 секунд
   let progress = 0;
   const loadingInterval = setInterval(() => {
     progress += 1;
@@ -993,12 +1142,11 @@ window.onload = () => {
     
     if (progress >= 100) {
       clearInterval(loadingInterval);
-      
       $('loadingScreen').classList.add('hidden');
       
       setTimeout(() => {
         $('loadingScreen').style.display = 'none';
-        initBoard(); // Инициализируем игру
+        initBoard();
       }, 800);
     }
   }, 150);
