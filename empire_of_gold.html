@@ -123,16 +123,20 @@
   }
   .btn-bonus:active { transform: translateY(3px); box-shadow: 0 1px 0 #553800; }
 
-  .dancer-emoji {
-    font-size: 40px; line-height: 1;
-    animation: dance 1.5s ease-in-out infinite alternate;
+  /* КАРТИНКА ТАНЦОРА */
+  .dancer-img {
+    width: 50px;
+    height: auto;
+    animation: danceImg 1.5s ease-in-out infinite alternate;
     filter: drop-shadow(0 0 10px #f1c40f);
-    user-select: none; pointer-events: none;
+    user-select: none; 
+    pointer-events: none;
+    margin-top: -5px;
   }
-  @keyframes dance {
-    0% { transform: translateY(0) rotate(-15deg) scale(1); }
-    50% { transform: translateY(-10px) rotate(15deg) scale(1.1); }
-    100% { transform: translateY(0) rotate(-15deg) scale(1); }
+  @keyframes danceImg {
+    0% { transform: translateY(0) rotate(-10deg) scale(1); }
+    50% { transform: translateY(-8px) rotate(10deg) scale(1.05); }
+    100% { transform: translateY(0) rotate(-10deg) scale(1); }
   }
 
   .btn-spin { 
@@ -154,7 +158,6 @@
   .modal-box p, .modal-box li { color: #b0b8c5; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
   .modal-box h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
   
-  /* Таблица выплат в модалке */
   .paytable { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
   .paytable-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
   .paytable-left { display: flex; align-items: center; gap: 12px; }
@@ -187,12 +190,11 @@
     
     .bottom-controls { margin-top: 6px; gap: 8px; }
     .btn-bonus { width: 50px; height: 50px; font-size: 9px; border-width: 2px; box-shadow: 0 3px 0 #553800; }
-    .dancer-emoji { font-size: 30px; }
+    .dancer-img { width: 35px; }
     .btn-spin { height: 50px; font-size: 18px; border-width: 2px; box-shadow: 0 4px 0 #004d00; margin-top: 5px; }
     
     .bg-palace::before, .bg-palace::after { width: 30px; }
     
-    /* Мобильная модалка */
     .modal-box { padding: 15px; max-height: 90vh; }
     .modal-box h2 { font-size: 18px; }
     .modal-box p, .modal-box li { font-size: 12px; }
@@ -240,7 +242,7 @@
     <div class="bottom-controls">
       <div class="bonus-wrapper">
         <button class="btn-bonus" onclick="document.getElementById('bonusModal').classList.add('show')">BONUS</button>
-        <div class="dancer-emoji">🕺</div>
+        <img src="/dancer.png" class="dancer-img" alt="Dancer" onerror="this.style.display='none'">
       </div>
       <button class="btn-spin" id="btnSpin" onclick="spin()">SPIN</button>
     </div>
@@ -324,7 +326,7 @@ const SYMBOLS = {
   'Q': { id: 'Q', img: '/sym_q.png', weight: 25 },
   'K': { id: 'K', img: '/sym_k.png', weight: 25 },
   'A': { id: 'A', img: '/sym_a.png', weight: 25 },
-  'ankh': { id: 'ankh', img: '/sym_ankh.png', weight: 10 }, // Вернул Анкх в таблицу
+  'ankh': { id: 'ankh', img: '/sym_ankh.png', weight: 10 },
   'diamond': { id: 'diamond', img: '/sym_diamond.png', weight: 8 },
   'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 5 },
   'crown': { id: 'crown', img: '/sym_crown.png', weight: 3 },
@@ -335,7 +337,6 @@ const SYMBOLS = {
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 
-// Выплаты под RTP 91% (за 7, 8, 9, 10+ символов)
 const PAYTABLE = {
   '10': [0.5, 1, 2, 5], 'J': [0.5, 1, 2, 5], 'Q': [0.5, 1, 2, 5], 'K': [0.5, 1, 2, 5], 'A': [0.5, 1, 2, 5],
   'ankh': [1, 2, 5, 10], 'diamond': [2, 4, 8, 20], 'scarab': [4, 10, 20, 50], 'crown': [10, 20, 50, 200],
