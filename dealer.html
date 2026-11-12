@@ -196,6 +196,30 @@
   .safe-big-card .amount { font-size: 42px; font-weight: 900; color: #00e5ff; line-height: 1.2; margin: 8px 0; }
   .safe-big-card .details { font-size: 13px; color: #d0d5e0; }
 
+  /* === РУЛЕТКА === */
+  .roulette-bet-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .rb-type-btn { background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.1); color: #a0aec0; padding: 12px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .2s; text-align: center; line-height: 1.3; }
+  .rb-type-btn:hover { border-color: rgba(0,229,255,.4); color: #fff; }
+  .rb-type-btn.active { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff; }
+  .rb-type-btn .mult { display: block; font-size: 10px; color: #8fa2b8; margin-top: 2px; font-weight: 800; }
+  .rb-type-btn.active .mult { color: #00e5ff; }
+  .rb-type-btn.red-type.active { background: rgba(255,77,77,.15); border-color: #ff4d4d; color: #ff4d4d; }
+  .rb-type-btn.black-type.active { background: rgba(255,255,255,.1); border-color: #fff; color: #fff; }
+  .rb-type-btn.zero-type.active { background: rgba(63,191,127,.15); border-color: #3fbf7f; color: #3fbf7f; }
+
+  .result-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .result-toggle button { flex: 1; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; border: 2px solid transparent; transition: all .2s; }
+  .result-toggle .win-btn { background: rgba(63,191,127,.1); color: #3fbf7f; border-color: rgba(63,191,127,.3); }
+  .result-toggle .win-btn.active { background: #3fbf7f; color: #000; border-color: #3fbf7f; box-shadow: 0 0 15px rgba(63,191,127,.5); }
+  .result-toggle .lose-btn { background: rgba(255,77,77,.1); color: #ff4d4d; border-color: rgba(255,77,77,.3); }
+  .result-toggle .lose-btn.active { background: #ff4d4d; color: #fff; border-color: #ff4d4d; box-shadow: 0 0 15px rgba(255,77,77,.5); }
+
+  .payout-preview { background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .payout-preview .pp-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  .payout-preview .pp-row span:first-child { color: #8fa2b8; }
+  .payout-preview .pp-row.total { border-top: 1px solid rgba(255,255,255,.1); margin-top: 6px; padding-top: 8px; font-size: 16px; font-weight: 900; }
+  .payout-preview .pp-row.total .val { color: #3fbf7f; }
+
   @media (max-width: 600px) {
     body { padding: 12px; }
     .main-container { padding: 18px 14px; border-radius: 16px; }
@@ -239,6 +263,7 @@
     .faq-answer-inner { font-size: 12px; padding: 0 14px 14px; }
     .faq-answer-inner .a-text { font-size: 12px; padding: 9px 10px; }
     .faq-cat-btn { font-size: 11px; padding: 7px 12px; }
+    .roulette-bet-types { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 380px) {
@@ -250,6 +275,7 @@
     .task .reward { font-size: 13px; }
     .balance-card .amount { font-size: 28px; }
     .safe-big-card .amount { font-size: 28px; }
+    .roulette-bet-types { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -278,6 +304,7 @@
   <div class="tabs">
     <button class="active" data-tab="profile" onclick="switchTab('profile')">👤 Профиль</button>
     <button data-tab="data" onclick="switchTab('data')">🎲 Внести сессию</button>
+    <button data-tab="roulette" onclick="switchTab('roulette')">🎡 Рулетка</button>
     <button data-tab="cash" onclick="switchTab('cash')">💰 Наличные</button>
     <button data-tab="faq" onclick="switchTab('faq')">💬 FAQ</button>
     <button data-tab="tasks" onclick="switchTab('tasks')">📋 Задания</button>
@@ -412,19 +439,88 @@
     </div>
   </div>
 
-  <!-- ============ ВКЛАДКА 3: НАЛИЧНЫЕ ============ -->
+  <!-- ============ ВКЛАДКА 3: РУЛЕТКА ============ -->
+  <div class="tab" id="tab-roulette">
+    <h2>🎡 Рулетка</h2>
+    <div class="sub">Внесите ставку игрока и результат раунда.</div>
+
+    <div class="form-group">
+      <label>Игроки за столом <span style="color:#8fa2b8;font-size:10px;text-transform:none;">(клик — выбрать)</span></label>
+      <div id="roulettePlayersChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+        <span class="chips-empty">Пока никого. Добавьте игрока ↓</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="rouletteNewPlayer" placeholder="Ник нового игрока" style="flex:1;" autocomplete="off">
+        <button class="btn-submit" style="width:auto;padding:0 16px;margin:0;background:#3fbf7f;color:#000;" onclick="addRoulettePlayer()">+</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Ник игрока</label>
+      <input type="text" id="rNick" placeholder="Выберите из списка или введите" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label>На что поставил</label>
+      <div class="roulette-bet-types" id="rBetTypes">
+        <button class="rb-type-btn red-type" data-type="red" onclick="selectRouletteType('red')">🔴 Красное<span class="mult">×1.7</span></button>
+        <button class="rb-type-btn black-type" data-type="black" onclick="selectRouletteType('black')">⚫ Чёрное<span class="mult">×1.7</span></button>
+        <button class="rb-type-btn" data-type="even" onclick="selectRouletteType('even')">Чёт<span class="mult">×1.7</span></button>
+        <button class="rb-type-btn" data-type="odd" onclick="selectRouletteType('odd')">Нечет<span class="mult">×1.7</span></button>
+        <button class="rb-type-btn zero-type" data-type="zero" onclick="selectRouletteType('zero')">🟢 Зеро<span class="mult">×30</span></button>
+        <button class="rb-type-btn" data-type="number" onclick="selectRouletteType('number')">🔢 Число<span class="mult">×30</span></button>
+      </div>
+    </div>
+
+    <div class="form-group" id="rNumberWrap" style="display:none;">
+      <label>Какое число (0–36)</label>
+      <input type="number" id="rNumber" min="0" max="36" placeholder="17" inputmode="numeric">
+    </div>
+
+    <div class="form-group">
+      <label>Ставка (₽)</label>
+      <input type="number" id="rBetAmount" min="10" max="10000" placeholder="100" inputmode="numeric" oninput="updateRoulettePreview()">
+    </div>
+
+    <div class="form-group">
+      <label>Результат</label>
+      <div class="result-toggle">
+        <button type="button" class="lose-btn active" id="rLoseBtn" onclick="setRouletteResult(false)">❌ Не угадал</button>
+        <button type="button" class="win-btn" id="rWinBtn" onclick="setRouletteResult(true)">✅ Угадал</button>
+      </div>
+    </div>
+
+    <div class="payout-preview" id="rPreview">
+      <div class="pp-row"><span>Ставка</span><span class="val">0 ₽</span></div>
+      <div class="pp-row"><span>Коэффициент</span><span class="val">—</span></div>
+      <div class="pp-row total"><span>Выигрыш игрока</span><span class="val">0 ₽</span></div>
+    </div>
+
+    <button class="btn-submit" id="btnRouletteSubmit" onclick="saveRouletteRound()">Внести раунд</button>
+    <div class="msg" id="msgRoulette"></div>
+
+    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-size: 15px; color: #3fbf7f; margin: 0;">📜 Последние раунды</h3>
+        <button class="btn-submit" style="width:auto;padding:6px 12px;margin:0;font-size:11px;background:rgba(63,191,127,0.15);color:#3fbf7f;" onclick="loadRouletteHistory()">🔄</button>
+      </div>
+      <div id="rouletteHistory" style="font-size:13px;">
+        <div style="text-align:center; padding:20px; color:#8fa2b8;">Загрузка...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ВКЛАДКА 4: НАЛИЧНЫЕ ============ -->
   <div class="tab" id="tab-cash">
     <h2>💰 Наличные / Сейф</h2>
     <div class="sub">Принимайте наличные от игроков, выдавайте обратно. Всё идёт в сейф.</div>
 
-    <!-- 📦 Сейф -->
     <div class="safe-big-card">
       <div class="lbl">📦 В сейфе сейчас</div>
       <div class="amount" id="safeTotal">0 ₽</div>
       <div class="details" id="safeDetails">Принято 0 ₽ · Выдано 0 ₽</div>
     </div>
 
-    <!-- Принять наличные -->
     <div style="background: rgba(63,191,127,.1); border: 1px solid rgba(63,191,127,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #3fbf7f;">💰 Принять наличные</h3>
       <div class="form-group">
@@ -440,7 +536,6 @@
       <div class="msg" id="msgCashIn"></div>
     </div>
 
-    <!-- Выдать наличные -->
     <div style="background: rgba(255,77,77,.1); border: 1px solid rgba(255,77,77,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
       <h3 style="font-size: 15px; margin-bottom: 12px; color: #ff6b6b;">💸 Выдать наличные</h3>
       <div style="font-size: 11px; color: #8fa2b8; margin-bottom: 12px;">Игрок сдаёт фишки — выдайте деньги наличными.</div>
@@ -456,13 +551,11 @@
       <div class="msg" id="msgCashOut"></div>
     </div>
 
-    <!-- Сдать сейф -->
     <button class="btn-submit" onclick="doCashHandover()" style="background: rgba(255,255,255,0.1); color: #fff;">
       📤 Сдать сейф owner'у
     </button>
     <div class="msg" id="msgCashHandover"></div>
 
-    <!-- История за сегодня -->
     <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; margin-top: 18px;">
       <h3 style="font-size: 15px; color: #fff; margin: 0 0 12px;">📋 История за сегодня</h3>
       <div id="cashHistoryList" style="font-size: 13px;">
@@ -471,7 +564,7 @@
     </div>
   </div>
 
-  <!-- ============ ВКЛАДКА 4: FAQ ============ -->
+  <!-- ============ ВКЛАДКА 5: FAQ ============ -->
   <div class="tab" id="tab-faq">
     <h2>💬 FAQ для игроков</h2>
     <div class="sub">Частые вопросы и готовые ответы. Кликни на вопрос — увидишь ответ.</div>
@@ -492,7 +585,7 @@
     <div class="faq-empty" id="faqEmpty" style="display:none;">Ничего не найдено. Попробуй другой запрос.</div>
   </div>
 
-  <!-- ============ ВКЛАДКА 5: ЗАДАНИЯ ============ -->
+  <!-- ============ ВКЛАДКА 6: ЗАДАНИЯ ============ -->
   <div class="tab" id="tab-tasks">
     <h2>Ежедневные задания</h2>
     <div class="sub">Обновляются каждый день. Лимит заработка — 50 ₽/день.</div>
@@ -581,7 +674,19 @@ let currentDealer = null;
 let dealerBalance = 0;
 let tasksState = null;
 const COMMISSION = 0.07;
-let pendingCashAction = null; // { type: 'in'|'out', nick, sum }
+let pendingCashAction = null;
+
+// === Коэффициенты рулетки (RTP ~81-82%) ===
+const ROULETTE_PAYOUTS = {
+  number: 30,    // RTP 81.1%
+  zero:   30,    // RTP 81.1%
+  red:    1.7,   // RTP 82.7%
+  black:  1.7,   // RTP 82.7%
+  even:   1.7,   // RTP 82.7%
+  odd:    1.7    // RTP 82.7%
+};
+
+let rouletteState = { type: 'red', number: null, bet: 0, won: false };
 
 function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
 
@@ -602,6 +707,7 @@ function switchTab(name){
   document.getElementById('tab-' + name).classList.add('active');
   if(name === 'profile') { loadProfile(); loadBalance(); loadSilence(); }
   if(name === 'data') loadPendingTransfers();
+  if(name === 'roulette') { renderRoulettePlayers(); loadRouletteHistory(); updateRoulettePreview(); }
   if(name === 'cash') { loadCashSafe(); loadCashHistory(); updateCashPlayersDatalist(); }
   if(name === 'faq') renderFaq();
   if(name === 'tasks') loadTasks();
@@ -637,6 +743,7 @@ async function doLogin(){
     document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
     document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
     renderPlayersChips();
+    renderRoulettePlayers();
     updateRoundCounter();
     loadProfile();
     loadBalance();
@@ -708,6 +815,45 @@ function pickPlayer(nick){
   document.getElementById('betAmount').focus();
 }
 
+/* --- СПИСОК ИГРОКОВ ДЛЯ РУЛЕТКИ (тот же) --- */
+function renderRoulettePlayers(){
+  const list = loadPlayersChips();
+  const box = document.getElementById('roulettePlayersChips');
+  if(!box) return;
+  if(list.length === 0){
+    box.innerHTML = '<span class="chips-empty">Пока никого. Добавьте игрока ↓</span>';
+  } else {
+    box.innerHTML = list.map((nick, i) => `
+      <span class="player-chip" onclick="pickRoulettePlayer('${nick.replace(/'/g,"\\'")}')">
+        ${nick}
+        <span class="del" onclick="event.stopPropagation();removeRoulettePlayer(${i})">×</span>
+      </span>
+    `).join('');
+  }
+}
+function addRoulettePlayer(){
+  const inp = document.getElementById('rouletteNewPlayer');
+  const nick = inp.value.trim();
+  if(!nick) return;
+  const list = loadPlayersChips();
+  if(!list.includes(nick)){ list.push(nick); savePlayersChips(list); }
+  renderPlayersChips();
+  renderRoulettePlayers();
+  inp.value = '';
+  pickRoulettePlayer(nick);
+}
+function removeRoulettePlayer(idx){
+  const list = loadPlayersChips();
+  list.splice(idx, 1);
+  savePlayersChips(list);
+  renderPlayersChips();
+  renderRoulettePlayers();
+}
+function pickRoulettePlayer(nick){
+  document.getElementById('rNick').value = nick;
+  document.getElementById('rBetAmount').focus();
+}
+
 /* --- СЧЁТЧИК РАУНДОВ --- */
 function roundsKey(){ return 'dealer_rounds_' + (currentDealer?.id || '0') + '_' + new Date().toISOString().slice(0,10); }
 function getRoundsToday(){
@@ -744,7 +890,7 @@ function repeatLastRound(){
   }
 }
 
-/* --- СОХРАНЕНИЕ РАУНДА --- */
+/* --- СОХРАНЕНИЕ РАУНДА (БЛЭКДЖЕК/БАККАРА) --- */
 async function saveRound(){
   const gameType = document.getElementById('gameType').value;
   const playerNick = document.getElementById('playerNick').value.trim();
@@ -804,6 +950,133 @@ async function saveRound(){
   }
 }
 
+/* --- РУЛЕТКА --- */
+function selectRouletteType(type){
+  rouletteState.type = type;
+  document.querySelectorAll('#rBetTypes .rb-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  document.getElementById('rNumberWrap').style.display = (type === 'number') ? 'block' : 'none';
+  updateRoulettePreview();
+}
+
+function setRouletteResult(won){
+  rouletteState.won = won;
+  document.getElementById('rWinBtn').classList.toggle('active', won);
+  document.getElementById('rLoseBtn').classList.toggle('active', !won);
+  updateRoulettePreview();
+}
+
+function updateRoulettePreview(){
+  const bet = parseFloat(document.getElementById('rBetAmount').value) || 0;
+  const type = rouletteState.type;
+  const mult = ROULETTE_PAYOUTS[type] || 0;
+  const win = rouletteState.won ? Math.round(bet * mult * 100) / 100 : 0;
+  const preview = document.getElementById('rPreview');
+  if(!preview) return;
+  preview.innerHTML = `
+    <div class="pp-row"><span>Ставка</span><span class="val">${fmt(bet)} ₽</span></div>
+    <div class="pp-row"><span>Тип</span><span class="val">${rouletteTypeLabel(type)}</span></div>
+    <div class="pp-row"><span>Коэффициент</span><span class="val">${rouletteState.won ? '×' + mult : '—'}</span></div>
+    <div class="pp-row total"><span>Выигрыш игрока</span><span class="val" style="color:${rouletteState.won && bet > 0 ? '#3fbf7f' : '#8fa2b8'}">${fmt(win)} ₽</span></div>
+  `;
+}
+
+function rouletteTypeLabel(type){
+  return {
+    red: '🔴 Красное', black: '⚫ Чёрное',
+    even: 'Чёт', odd: 'Нечет',
+    zero: '🟢 Зеро', number: '🔢 Число'
+  }[type] || type;
+}
+
+async function saveRouletteRound(){
+  const nick = document.getElementById('rNick').value.trim();
+  const bet = parseFloat(document.getElementById('rBetAmount').value) || 0;
+  const type = rouletteState.type;
+  const won = rouletteState.won;
+  const number = (type === 'number') ? parseInt(document.getElementById('rNumber').value, 10) : null;
+
+  if(!nick){ showInfo('Ошибка', 'Введите ник игрока'); return; }
+  if(bet < 10 || bet > 10000){ showInfo('Ошибка', 'Ставка от 10 до 10 000 ₽'); return; }
+  if(type === 'number' && (isNaN(number) || number < 0 || number > 36)){
+    showInfo('Ошибка', 'Число от 0 до 36'); return;
+  }
+
+  const mult = ROULETTE_PAYOUTS[type] || 0;
+  const win = won ? Math.round(bet * mult * 100) / 100 : 0;
+
+  const btn = document.getElementById('btnRouletteSubmit');
+  btn.disabled = true; btn.textContent = 'Отправка...';
+
+  try {
+    const res = await fetch('/api/sessions/roulette', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        dealer: currentDealer.name,
+        nick,
+        bet_type: type,
+        bet_number: number,
+        bet,
+        win,
+        won
+      })
+    });
+    const data = await res.json();
+    if(res.ok){
+      showMsg('msgRoulette', `Раунд сохранён! ${won ? 'Выигрыш ' + fmt(win) + ' ₽' : 'Проигрыш'}`, true);
+      document.getElementById('rBetAmount').value = '';
+      document.getElementById('rNumber').value = '';
+      setRouletteResult(false);
+      updateRoulettePreview();
+      incRoundsToday();
+      updateRoundCounter();
+      loadRouletteHistory();
+      loadTasks();
+    } else {
+      showInfo('Ошибка', data.error || 'Не удалось сохранить');
+    }
+  } catch(e){
+    showInfo('Ошибка', 'Соединение прервано');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Внести раунд';
+  }
+}
+
+async function loadRouletteHistory(){
+  if(!currentDealer) return;
+  try {
+    const r = await fetch('/api/sessions/roulette?dealer=' + encodeURIComponent(currentDealer.name));
+    const list = await r.json();
+    const box = document.getElementById('rouletteHistory');
+    if(!box) return;
+    if(!Array.isArray(list) || list.length === 0){
+      box.innerHTML = '<div style="text-align:center; padding:20px; color:#8fa2b8;">Пока нет раундов</div>';
+      return;
+    }
+    box.innerHTML = list.slice(0, 20).map(x => {
+      const t = x.created_at ? new Date(x.created_at).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+      const isWin = (parseFloat(x.win) || 0) > 0;
+      const typeLabel = {
+        number: 'Число ' + (x.bet_number ?? ''),
+        zero: 'Зеро', red: 'Красное', black: 'Чёрное', even: 'Чёт', odd: 'Нечет'
+      }[x.bet_type] || x.bet_type;
+      return `<div class="withdraw-item" style="padding:8px 0;">
+        <div>
+          <div style="font-weight:600;">${x.nick} · ${typeLabel}</div>
+          <div style="font-size:11px;color:#8fa2b8;">${t} · ставка ${fmt(x.bet)} ₽</div>
+        </div>
+        <div style="font-weight:900; color:${isWin ? '#3fbf7f' : '#ff6b6b'};">
+          ${isWin ? '+' + fmt(x.win) + ' ₽' : '−' + fmt(x.bet) + ' ₽'}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    console.error(e);
+  }
+}
+
 /* --- ENTER В ПОЛЯХ --- */
 function bindEnterKeys(){
   ['playerNick','betAmount','winAmount'].forEach(id => {
@@ -814,10 +1087,24 @@ function bindEnterKeys(){
       });
     }
   });
+  ['rNick','rBetAmount','rNumber'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('keypress', e => {
+        if(e.key === 'Enter'){ e.preventDefault(); saveRouletteRound(); }
+      });
+    }
+  });
   const newNick = document.getElementById('newPlayerNick');
   if(newNick){
     newNick.addEventListener('keypress', e => {
       if(e.key === 'Enter'){ e.preventDefault(); addPlayerChip(); }
+    });
+  }
+  const rNewNick = document.getElementById('rouletteNewPlayer');
+  if(rNewNick){
+    rNewNick.addEventListener('keypress', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); addRoulettePlayer(); }
     });
   }
 }
@@ -850,7 +1137,7 @@ async function loadTasks(){
       } else {
         action = `<span>${t.progress} / ${t.goal}</span>`;
       }
-      const typeLabel = t.type === 'bj' ? '🎲 Блэкджек' : '🎴 Баккара';
+      const typeLabel = t.type === 'bj' ? '🎲 Блэкджек' : (t.type === 'bac' ? '🎴 Баккара' : '🎡 Рулетка');
       return `
         <div class="task ${t.done ? 'done' : ''} ${t.blocked ? 'blocked' : ''}">
           <div class="top"><div class="title">${t.title}</div><div class="reward">${t.reward} ₽</div></div>
@@ -1199,7 +1486,7 @@ async function loadCashHistory() {
   } catch(e) {}
 }
 
-/* ============ ПРИНЯТЬ НАЛИЧНЫЕ (с окном и паролем) ============ */
+/* ============ ПРИНЯТЬ НАЛИЧНЫЕ ============ */
 function doCashIn(){
   const nick = document.getElementById('cashInNick').value.trim();
   const sum = parseFloat(document.getElementById('cashInSum').value) || 0;
@@ -1210,7 +1497,7 @@ function doCashIn(){
   document.getElementById('safeWarningModal').classList.add('show');
 }
 
-/* ============ ВЫДАТЬ НАЛИЧНЫЕ (с окном и паролем) ============ */
+/* ============ ВЫДАТЬ НАЛИЧНЫЕ ============ */
 function doCashOut(){
   const nick = document.getElementById('cashOutNick').value.trim();
   const sum = parseFloat(document.getElementById('cashOutSum').value) || 0;
