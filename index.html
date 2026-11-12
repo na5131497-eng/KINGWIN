@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
 <title>KINGWIN — Казино</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -29,38 +30,46 @@
   }
   body > *:not(.bg-crowns) { position: relative; z-index: 1; }
 
+  /* === TOPBAR === */
   .topbar { height: 70px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
-  .header-left { display: flex; align-items: center; gap: 30px; }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; }
+  .header-left { display: flex; align-items: center; gap: 30px; min-width: 0; }
+  .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; text-decoration: none; white-space: nowrap; }
   .nav-menu { display: flex; gap: 20px; }
-  .nav-item { color: var(--text-muted); font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; position: relative; }
+  .nav-item { color: var(--text-muted); font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; position: relative; white-space: nowrap; }
   .nav-item:hover, .nav-item.active { color: #fff; }
   .nav-item.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 2px; background: var(--accent); }
-  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .balance-pill { background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.35); color: #00e676; padding: 10px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; white-space: nowrap; }
-  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; font-family: inherit; }
+  .btn-deposit { background: var(--accent-green); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
   .btn-deposit:hover { box-shadow: 0 0 15px rgba(0,230,118,0.4); transform: translateY(-1px); }
   .profile-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 12px rgba(0,229,255,0.35); user-select: none; flex-shrink: 0; }
   .profile-avatar:hover { transform: scale(1.08); box-shadow: 0 0 20px rgba(0,229,255,0.6); }
-  .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .btn-login:hover { border-color: var(--accent); }
 
   .main-content { max-width: 1400px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-  /* === БАННЕРЫ: главный + турнир === */
+  /* === БАННЕРЫ (главный + турнир) === */
   .banners-row {
     display: grid;
     grid-template-columns: 1fr 360px;
     gap: 20px;
     margin-bottom: 30px;
+    align-items: stretch;
   }
 
-  .hero-banner { position: relative; width: 100%; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #1c2230, #0f1219); border: 1px solid var(--border); min-height: 300px; display: flex; align-items: center; }
+  .hero-banner {
+    position: relative; width: 100%; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(135deg, #1c2230, #0f1219);
+    border: 1px solid var(--border);
+    min-height: 320px;
+    display: flex; align-items: center;
+  }
   .hero-banner img.bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; z-index: 1; }
   .hero-banner .overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.5) 50%, transparent 100%); z-index: 2; }
   .hero-content { position: relative; z-index: 3; padding: 40px; max-width: 500px; }
   .hero-content h1 { font-size: 42px; font-weight: 900; color: var(--accent-green); line-height: 1.1; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-  .hero-content p { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+  .hero-content p { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); line-height: 1.35; }
   .hero-content .btn-claim { background: var(--accent-green); color: #000; padding: 15px 30px; border-radius: 10px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,230,118,0.4); font-family: inherit; }
   .hero-content .btn-claim:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,230,118,0.6); }
 
@@ -70,97 +79,29 @@
     border: 2px solid rgba(241,196,15,.5);
     border-radius: 16px;
     padding: 22px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: .3s;
-    min-height: 300px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    cursor: pointer; transition: .3s;
+    min-height: 320px;
   }
-  .tournament-banner:hover {
-    border-color: #f1c40f;
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(241,196,15,.3);
-  }
+  .tournament-banner:hover { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 12px 40px rgba(241,196,15,.3); }
   .tournament-banner::before {
-    content: '🏆';
-    position: absolute;
-    top: 10px; right: 15px;
-    font-size: 80px;
-    opacity: .15;
-    transform: rotate(15deg);
-    pointer-events: none;
+    content: '🏆'; position: absolute; top: 10px; right: 15px;
+    font-size: 80px; opacity: .15; transform: rotate(15deg); pointer-events: none;
   }
-  .tournament-banner .t-label {
-    font-size: 11px;
-    color: #f1c40f;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-  .tournament-banner .t-title {
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 6px;
-    color: #fff;
-  }
-  .tournament-banner .t-prize {
-    font-size: 40px;
-    font-weight: 900;
-    color: #f1c40f;
-    line-height: 1;
-    margin-bottom: 4px;
-    text-shadow: 0 0 20px rgba(241,196,15,.5);
-  }
-  .tournament-banner .t-sub {
-    font-size: 11px;
-    color: #d0d5e0;
-    margin-bottom: 14px;
-  }
-  .tournament-banner .t-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .tournament-banner .t-info-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 6px 10px;
-    background: rgba(0,0,0,.3);
-    border-radius: 8px;
-  }
+  .tournament-banner .t-label { font-size: 11px; color: #f1c40f; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 6px; }
+  .tournament-banner .t-title { font-size: 20px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; color: #fff; }
+  .tournament-banner .t-prize { font-size: 40px; font-weight: 900; color: #f1c40f; line-height: 1; margin-bottom: 4px; text-shadow: 0 0 20px rgba(241,196,15,.5); }
+  .tournament-banner .t-sub { font-size: 11px; color: #d0d5e0; margin-bottom: 14px; }
+  .tournament-banner .t-info { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .tournament-banner .t-info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 10px; background: rgba(0,0,0,.3); border-radius: 8px; }
   .tournament-banner .t-info-row span:first-child { color: #8fa2b8; }
   .tournament-banner .t-info-row b { color: #fff; }
-  .tournament-banner .t-timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding: 10px 14px;
-    background: rgba(255,77,77,.15);
-    border: 1px solid rgba(255,77,77,.4);
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 800;
-    color: #ff8a8a;
-  }
-  .tournament-banner .t-timer .t-dot {
-    width: 8px; height: 8px;
-    background: #ff4d4d;
-    border-radius: 50%;
-    animation: pulseDot 1.5s infinite;
-    flex-shrink: 0;
-  }
-  @keyframes pulseDot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: .5; transform: scale(1.3); }
-  }
+  .tournament-banner .t-timer { display: flex; align-items: center; gap: 8px; margin-top: auto; padding: 10px 14px; background: rgba(255,77,77,.15); border: 1px solid rgba(255,77,77,.4); border-radius: 10px; font-size: 12px; font-weight: 800; color: #ff8a8a; }
+  .tournament-banner .t-timer .t-dot { width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; animation: pulseDot 1.5s infinite; flex-shrink: 0; }
+  @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.3); } }
 
+  /* === СЕКЦИИ / ИГРЫ === */
   .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; margin-top: 30px; display: flex; align-items: center; gap: 10px; }
   .section-title svg { width: 20px; height: 20px; fill: var(--text-muted); }
 
@@ -177,16 +118,46 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
   .game-sub { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; overflow-y: auto !important; }
+  /* === МОДАЛКИ === */
+  .modal-overlay {
+    position: fixed !important; inset: 0 !important;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: none !important;
+    align-items: center !important; justify-content: center !important;
+    z-index: 99999 !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
+  }
   .modal-overlay.show { display: flex !important; }
-  .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; width: 100%; max-width: 400px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
-  .modal-close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: none; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-box {
+    background: var(--bg-panel);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%; max-width: 420px;
+    text-align: center;
+    position: relative; margin: auto;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .modal-box::-webkit-scrollbar { width: 6px; }
+  .modal-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+  .modal-close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: none; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
   .modal-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
   .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; font-family: inherit; }
+  .modal-box input {
+    width: 100%; background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; color: #fff; font-size: 16px;
+    text-align: center; margin-bottom: 15px;
+    outline: none; font-family: inherit;
+  }
   .modal-box input:focus { border-color: var(--accent); }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
 
+  /* Депозит */
   .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
   .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
   .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
@@ -197,34 +168,56 @@
   .card-info .note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
   .card-info .note b { color: #fff; }
 
-  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; }
+  .btn-primary-full {
+    width: 100%; padding: 15px; font-size: 16px;
+    background: var(--accent-green); color: #000;
+    border: none; border-radius: 10px;
+    font-weight: 900; cursor: pointer; font-family: inherit;
+    transition: 0.2s;
+  }
+  .btn-primary-full:hover { box-shadow: 0 0 20px rgba(0,230,118,0.5); transform: translateY(-1px); }
+
+  /* === TOAST === */
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; }
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
   .toast.info { border-left-color: var(--gold); }
 
-  @media (max-width: 1200px) { .games-grid { grid-template-columns: repeat(5, 1fr); } }
-  @media (max-width: 1000px) {
-    .banners-row { grid-template-columns: 1fr; }
-    .tournament-banner { min-height: auto; }
-    .tournament-banner .t-prize { font-size: 36px; }
+  /* === АДАПТИВ === */
+  @media (max-width: 1200px) {
+    .games-grid { grid-template-columns: repeat(5, 1fr); }
+    .banners-row { grid-template-columns: 1fr 320px; }
   }
+
+  @media (max-width: 1000px) {
+    /* НА МОБИЛКЕ ТУРНИР ИДЁТ ПЕРВЫМ (сверху) */
+    .banners-row { grid-template-columns: 1fr; }
+    .tournament-banner { order: -1; min-height: auto; padding: 20px; }
+    .tournament-banner .t-prize { font-size: 36px; }
+    .hero-banner { min-height: 240px; }
+  }
+
   @media (max-width: 900px) {
     .games-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .nav-menu { display: none; }
     .balance-pill { padding: 8px 10px; font-size: 12px; }
     .btn-deposit { padding: 8px 12px; font-size: 12px; }
     .profile-avatar { width: 36px; height: 36px; font-size: 12px; }
-    .hero-banner { min-height: 250px; }
-    .hero-content { padding: 20px; }
-    .hero-content h1 { font-size: 28px; }
-    .hero-content p { font-size: 14px; }
-    .hero-content .btn-claim { padding: 10px 20px; font-size: 14px; }
-    .modal-overlay { padding: 10px !important; }
-    .modal-box { padding: 22px 18px; max-height: calc(100dvh - 20px); border-radius: 14px; }
+    .hero-banner { min-height: 220px; }
+    .hero-content { padding: 24px; }
+    .hero-content h1 { font-size: 30px; }
+    .hero-content p { font-size: 15px; }
+    .hero-content .btn-claim { padding: 12px 24px; font-size: 14px; }
+    .modal-overlay { padding: 12px !important; }
+    .modal-box { padding: 24px 18px; max-height: calc(100dvh - 24px); border-radius: 14px; }
     .modal-box h2 { font-size: 18px; }
+    .toast-container { top: 70px; right: 10px; left: 10px; }
+    .toast { width: 100%; max-width: none; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
   }
+
   @media (max-width: 600px) {
     .topbar { padding: 0 10px; height: 60px; }
     .logo { font-size: 16px; }
@@ -233,19 +226,35 @@
     .btn-deposit { padding: 7px 10px; font-size: 11px; }
     .profile-avatar { width: 32px; height: 32px; font-size: 11px; }
     .btn-login { padding: 8px 12px; font-size: 11px; }
+    .main-content { padding: 16px 12px; }
     .games-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .game-info { padding: 8px; }
     .game-title { font-size: 10px; }
     .game-sub { font-size: 8px; }
-    .hero-content h1 { font-size: 24px; }
-    .hero-content p { font-size: 12px; }
+    .hero-banner { min-height: 200px; border-radius: 14px; }
+    .hero-content { padding: 20px; }
+    .hero-content h1 { font-size: 26px; }
+    .hero-content p { font-size: 13px; }
+    .hero-content .btn-claim { padding: 10px 20px; font-size: 13px; }
+    .section-title { font-size: 15px; margin-top: 24px; margin-bottom: 12px; }
     .dep-methods { flex-direction: column; gap: 8px; }
     .dep-banner { padding: 12px; font-size: 12px; }
     .dep-amount-input { font-size: 20px; padding: 8px; }
-    .tournament-banner { padding: 18px; }
+    .tournament-banner { padding: 18px; border-radius: 14px; }
     .tournament-banner .t-prize { font-size: 32px; }
-    .tournament-banner .t-title { font-size: 18px; }
+    .tournament-banner .t-title { font-size: 17px; }
     .tournament-banner::before { font-size: 60px; }
+    .modal-box { padding: 20px 16px; border-radius: 12px; }
+    .modal-box h2 { font-size: 17px; }
+    .modal-box input { padding: 12px; font-size: 15px; }
+    .btn-primary-full { padding: 13px; font-size: 15px; }
+  }
+
+  @media (max-width: 380px) {
+    .games-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-content h1 { font-size: 22px; }
+    .tournament-banner .t-prize { font-size: 28px; }
+    .balance-pill { font-size: 10px; padding: 6px 8px; }
   }
 </style>
 </head>
@@ -277,20 +286,11 @@
 </div>
 
 <div class="main-content">
-  <!-- === БАННЕРЫ: главный + турнир === -->
-  <div class="banners-row">
-    <!-- Главный баннер -->
-    <div class="hero-banner">
-      <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus">
-      <div class="overlay"></div>
-      <div class="hero-content">
-        <h1>+100 ₽</h1>
-        <p>к первому депозиту<br>от 200 ₽</p>
-        <button class="btn-claim" onclick="actionRequireLogin('openDeposit')">Забрать бонус</button>
-      </div>
-    </div>
 
-    <!-- Турнир -->
+  <!-- === БАННЕРЫ === -->
+  <div class="banners-row">
+
+    <!-- ТУРНИР (на мобилке будет сверху) -->
     <div class="tournament-banner" onclick="location.href='/tournament.html'">
       <div class="t-label">🏆 Турнир</div>
       <div class="t-title">Розыгрыш недели</div>
@@ -315,6 +315,18 @@
         <span id="tTimerText">Загрузка...</span>
       </div>
     </div>
+
+    <!-- ГЛАВНЫЙ БАННЕР -->
+    <div class="hero-banner">
+      <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus" onerror="this.style.display='none'">
+      <div class="overlay"></div>
+      <div class="hero-content">
+        <h1>+100 ₽</h1>
+        <p>к первому депозиту<br>от 200 ₽</p>
+        <button class="btn-claim" onclick="actionRequireLogin('openDeposit')">Забрать бонус</button>
+      </div>
+    </div>
+
   </div>
 
   <div class="section-title">
@@ -327,22 +339,18 @@
       <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash"></div>
       <div class="game-info"><div class="game-title">Crash</div><div class="game-sub">Успей забрать</div></div>
     </a>
-    
     <a href="/cases.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/cases_card.jpg" alt="Cases" onerror="this.style.display='none'"></div>
       <div class="game-info"><div class="game-title">Cases</div><div class="game-sub">Открывай кейсы</div></div>
     </a>
-
     <a href="/miner.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/miner_card.jpg" alt="Miner"></div>
       <div class="game-info"><div class="game-title">Miner</div><div class="game-sub">Минное поле</div></div>
     </a>
-
     <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder" onerror="this.style.display='none'"></div>
       <div class="game-info"><div class="game-title">Ladder</div><div class="game-sub">Испытай удачу</div></div>
     </a>
-
     <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap"><img src="/plinko_card.webp" alt="Plinko" onerror="this.src='/plinko_card.jpg'"></div>
       <div class="game-info"><div class="game-title">Plinko</div><div class="game-sub">Лови шарик</div></div>
@@ -353,7 +361,7 @@
     <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5S17.17 9 18 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
     Наши слоты
   </div>
-  
+
   <div class="games-grid">
     <a href="/empire_of_gold.html" class="game-card" onclick="return requireLogin(event)">
       <div class="game-img-wrap">
@@ -368,7 +376,7 @@
 
 </div>
 
-<!-- МОДАЛКА ВХОДА -->
+<!-- === МОДАЛКА ВХОДА === -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
@@ -377,11 +385,11 @@
     <input type="text" id="loginId" placeholder="KING-0001">
     <input type="password" id="loginPass" placeholder="Пароль">
     <div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div>
-    <button class="btn-deposit" style="width:100%; padding:15px; font-size:16px;" onclick="doLogin()">Войти</button>
+    <button class="btn-primary-full" onclick="doLogin()">Войти</button>
   </div>
 </div>
 
-<!-- МОДАЛКА ПОПОЛНЕНИЯ -->
+<!-- === МОДАЛКА ПОПОЛНЕНИЯ === -->
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
@@ -410,7 +418,7 @@
         <b>свяжитесь с администратором</b> для получения реквизитов.
       </div>
     </div>
-    <button class="btn-deposit" style="width:100%; padding:15px; font-size:16px;" onclick="goToPayment()">Перейти к оплате</button>
+    <button class="btn-primary-full" onclick="goToPayment()">Перейти к оплате</button>
   </div>
 </div>
 
@@ -420,6 +428,7 @@ let selectedDepMethod = 'bonus';
 let balanceRefreshTimer = null;
 let appliedPromo = null;
 
+/* === ФОНОВЫЕ КОРОНЫ === */
 (function initBackgroundCrowns() {
   const c = document.getElementById('bgCrowns');
   if (!c) return;
@@ -443,6 +452,7 @@ let appliedPromo = null;
   }
 })();
 
+/* === TOAST === */
 function showToast(text, type='success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -451,12 +461,12 @@ function showToast(text, type='success') {
   toast.textContent = text;
   container.appendChild(toast);
   setTimeout(() => toast.classList.add('show'), 10);
-  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); 
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
-function showComingSoon(gameName) { showToast(`«${gameName}» скоро появится! Следите за новостями.`, 'info'); }
 
+/* === МОДАЛКИ === */
 function openModal(id) {
-  if(id === 'depositModal' && !currentPlayer) {
+  if (id === 'depositModal' && !currentPlayer) {
     document.getElementById('loginModal').classList.add('show');
     document.body.style.overflow = 'hidden';
     return;
@@ -472,16 +482,14 @@ function closeModal(id) {
     document.body.style.overflow = '';
   }
 }
-
 window.addEventListener('click', (e) => {
   if (e.target.classList && e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('show');
-    if (!document.querySelector('.modal-overlay.show')) {
-      document.body.style.overflow = '';
-    }
+    if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
   }
 });
 
+/* === ЛОГИН-ГЕЙТ === */
 function requireLogin(e) {
   if (!currentPlayer) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -495,10 +503,11 @@ function actionRequireLogin(fnName) {
   if (typeof window[fnName] === 'function') window[fnName]();
 }
 function goToProfile() {
-  if(!currentPlayer) { openModal('loginModal'); return; }
+  if (!currentPlayer) { openModal('loginModal'); return; }
   window.location.href = `/profile.html?id=${encodeURIComponent(currentPlayer.id)}`;
 }
 
+/* === ДЕПОЗИТ === */
 function openDeposit() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   document.getElementById('depositAmountInput').value = 500;
@@ -517,36 +526,31 @@ function openDeposit() {
     .then(r => r.json())
     .then(deps => {
       if (!Array.isArray(deps)) return;
-      const myDeps = deps.filter(d =>
-        String(d.nick || '').toLowerCase() === String(currentPlayer.name || '').toLowerCase()
-      );
+      const myDeps = deps.filter(d => String(d.nick || '').toLowerCase() === String(currentPlayer.name || '').toLowerCase());
       if (myDeps.length > 0) {
         const banner = document.getElementById('depBanner');
         if (banner) banner.textContent = 'ВВЕДИТЕ ПРОМОКОД';
         if (promoRow) promoRow.style.display = 'block';
       }
     })
-    .catch(e => console.warn('[openDeposit] deposits check failed:', e));
+    .catch(() => {});
 }
-
 function selectDepMethod(method) {
   selectedDepMethod = method;
   document.getElementById('methodBonus').classList.toggle('active', method === 'bonus');
   document.getElementById('methodNoBonus').classList.toggle('active', method === 'nobonus');
   document.getElementById('bonusBlock').style.display = (method === 'nobonus') ? 'none' : 'block';
 }
-
-async function applyPromo(){
+async function applyPromo() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   const code = (document.getElementById('promoCodeInput').value || '').trim().toUpperCase();
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 0;
   const res = document.getElementById('promoResult');
   if (!code) { res.style.color = '#ff8a8a'; res.textContent = 'Введите код'; return; }
-  res.style.color = '#8b92a5';
-  res.textContent = 'Проверка...';
+  res.style.color = '#8b92a5'; res.textContent = 'Проверка...';
   try {
     const r = await fetch('/api/promo/check', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, guest_id: currentPlayer.id, deposit_amount: amount })
     });
     const d = await r.json();
@@ -554,37 +558,27 @@ async function applyPromo(){
     appliedPromo = { code: d.code, bonus: d.bonus };
     res.style.color = '#3fbf7f';
     res.textContent = `✓ Промокод «${d.code}» даст +${d.bonus.toFixed(2)} ₽ бонусом`;
-  } catch(e) { res.style.color = '#ff8a8a'; res.textContent = 'Ошибка соединения'; }
+  } catch (e) { res.style.color = '#ff8a8a'; res.textContent = 'Ошибка соединения'; }
 }
-
-async function activatePromoAfterDeposit(){
+async function activatePromoAfterDeposit() {
   if (!appliedPromo || !currentPlayer) return;
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 0;
   try {
     const r = await fetch('/api/promo/activate', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: appliedPromo.code, guest_id: currentPlayer.id, deposit_amount: amount })
     });
     const d = await r.json();
-    if (r.ok) {
-      showToast(`Промокод активирован: +${d.bonus.toFixed(2)} ₽`, 'success');
-      await refreshBalance();
-    } else {
-      showToast(d.error || 'Промокод не активирован', 'error');
-    }
-  } catch(e) {}
+    if (r.ok) { showToast(`Промокод активирован: +${d.bonus.toFixed(2)} ₽`, 'success'); await refreshBalance(); }
+    else showToast(d.error || 'Промокод не активирован', 'error');
+  } catch (e) {}
 }
-
 async function goToPayment() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
   if (amount < 100) { showToast('Минимальное пополнение — 100 ₽', 'error'); return; }
   if (amount > 10000) { showToast('Максимальное пополнение — 10 000 ₽', 'error'); return; }
-
-  if (appliedPromo) {
-    await activatePromoAfterDeposit();
-  }
-
+  if (appliedPromo) await activatePromoAfterDeposit();
   closeModal('depositModal');
   let url = `/pay.html?amount=${amount}&method=${selectedDepMethod}`;
   if (selectedDepMethod === 'bonus') {
@@ -595,21 +589,20 @@ async function goToPayment() {
   window.location.href = url;
 }
 
+/* === ВХОД === */
 async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
-  if(!id || !pass) { err.textContent = 'Введите номер карты и пароль'; err.style.display = 'block'; return; }
-  
+  if (!id || !pass) { err.textContent = 'Введите номер карты и пароль'; err.style.display = 'block'; return; }
   try {
     const res = await fetch('/api/guest/login', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, pass })
     });
     const data = await res.json();
-    if(!res.ok) { err.textContent = data.error || 'Ошибка входа'; err.style.display = 'block'; return; }
-    
+    if (!res.ok) { err.textContent = data.error || 'Ошибка входа'; err.style.display = 'block'; return; }
     currentPlayer = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
     localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
@@ -617,15 +610,17 @@ async function doLogin() {
     updateUI();
     startBalanceRefresh();
     showToast(`С возвращением, ${currentPlayer.name}!`, 'success');
-  } catch(e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
+  } catch (e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
 function updateUI() {
-  if(currentPlayer) {
+  if (currentPlayer) {
     document.getElementById('userArea').style.display = 'flex';
     document.getElementById('loginArea').style.display = 'none';
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
+    const av = document.querySelector('.profile-avatar');
+    if (av) av.textContent = (currentPlayer.name || 'KW').slice(0, 2).toUpperCase();
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
@@ -649,7 +644,7 @@ async function refreshBalance() {
         document.getElementById('topBalance').textContent = total.toFixed(2);
       }
     }
-  } catch(e) {}
+  } catch (e) {}
 }
 
 /* === ТУРНИР В БАННЕРЕ === */
@@ -657,48 +652,44 @@ async function loadTournamentBanner() {
   try {
     const r = await fetch('/api/tournament/active', { cache: 'no-store' });
     const data = await r.json();
-    
     if (!data || !data.tournament) {
       document.getElementById('tPrizeBanner').textContent = '—';
       document.getElementById('tParticipantsBanner').textContent = '—';
       document.getElementById('tTimerText').textContent = 'Скоро новый турнир';
       return;
     }
-    
     document.getElementById('tPrizeBanner').textContent = data.tournament.prize_pool + ' ₽';
     document.getElementById('tParticipantsBanner').textContent = data.participants;
-    
-    // Таймер
+
     if (data.tournament.end_at) {
       const end = new Date(data.tournament.end_at).getTime();
       const now = Date.now();
       const diff = Math.max(0, end - now);
-      
       if (diff <= 0) {
         document.getElementById('tTimerText').textContent = 'Турнир завершён';
         return;
       }
-      
-      const days = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-      const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
-      
-      document.getElementById('tTimerText').textContent = `До конца: ${days}д ${hours}ч ${mins}м`;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      document.getElementById('tTimerText').textContent =
+        days > 0 ? `До конца: ${days}д ${hours}ч` : `До конца: ${hours}ч ${mins}м`;
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('tournament banner', e);
     document.getElementById('tTimerText').textContent = 'Турнир';
   }
 }
 
+/* === INIT === */
 window.onload = () => {
   const savedId = localStorage.getItem('kingwin_guest_id');
-  if(savedId) {
-    fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => { 
-      if(data.guest) { 
+  if (savedId) {
+    fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => {
+      if (data.guest) {
         currentPlayer = data.guest;
         localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
-        updateUI(); 
+        updateUI();
         startBalanceRefresh();
       } else {
         updateUI();
@@ -707,7 +698,6 @@ window.onload = () => {
   } else {
     updateUI();
   }
-  
   loadTournamentBanner();
   setInterval(loadTournamentBanner, 30000);
 };
