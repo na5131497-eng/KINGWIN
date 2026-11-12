@@ -142,6 +142,9 @@ const PLINKO_MULTIPLIERS = {
   high:   [15.0, 3.5, 0.8, 0.25, 0.1, 0.25, 0.8, 3.5, 15.0]
 };
 
+// ===== EMPIRE OF GOLD (RTP 80%) =====
+const MAX_WIN_SLOT = 5000;
+
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
@@ -312,10 +315,12 @@ async function getPlayerTodayProfit(guestId) {
     const cases = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='cases' AND player_name=$1 AND created_at::date = $2::date`, [name, today]);
     const plinko = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='plinko' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     const ladder = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='ladder' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
+    const empire = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='empire_of_gold' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     return (
       (parseFloat(bj.rows[0].p) || 0) + (parseFloat(bac.rows[0].s) || 0) +
       (parseFloat(miner.rows[0].p) || 0) + (parseFloat(cases.rows[0].p) || 0) +
-      (parseFloat(plinko.rows[0].p) || 0) + (parseFloat(ladder.rows[0].p) || 0)
+      (parseFloat(plinko.rows[0].p) || 0) + (parseFloat(ladder.rows[0].p) || 0) +
+      (parseFloat(empire.rows[0].p) || 0)
     );
   } catch (e) { return 0; }
 }
@@ -1049,6 +1054,54 @@ const server = http.createServer(async (req, res) => {
         await pool.query('INSERT INTO dealer_reviews (date, guest_id, guest_name, dealer_name, stars, comment) VALUES ($1,$2,$3,$4,$5,$6)', [todayStr(), guestId, guestName, dealerName, stars, comment]);
         return sendJSON(res, 200, { ok: true });
       } catch(e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    // ===== EMPIRE OF GOLD =====
+    if (url === '/api/slots/empire/spin' && method === 'POST') {
+      const b = await parseBody(req);
+      const guestId = String(b.guest_id || '').trim();
+      const bet = Math.round((parseFloat(b.bet) || 0) * 100) / 100;
+      if (!guestId) return sendJSON(res, 400, { error: 'Войдите в аккаунт' });
+      if (bet < 6) return sendJSON(res, 400, { error: 'Мин. ставка 6 ₽' });
+      if (bet > 120) return sendJSON(res, 400, { error: 'Макс. ставка 120 ₽' });
+
+      const debited = await debitBet(guestId, bet);
+      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      const isBonusGame = debited.fromBonus > 0 && debited.fromDeposit === 0;
+
+      const house = await getHouseRTP();
+      const targetRTP = house.rtp;
+      let winAmount = 0;
+      const winChance = 0.35 + (targetRTP - 0.80) * 1.5;
+      if (Math.random() < winChance) {
+        const multipliers = [0.2, 0.3, 0.5, 1, 2, 5];
+        const mult = multipliers[Math.floor(Math.random() * multipliers.length)];
+        winAmount = bet * mult;
+        if (winAmount > MAX_WIN_SLOT) winAmount = MAX_WIN_SLOT;
+        winAmount = Math.round(winAmount * 100) / 100;
+      }
+      if (winAmount > 0) await creditWin(guestId, winAmount, bet);
+
+      try {
+        await pool.query(
+          `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
+          ['empire_of_gold', guestId, bet, winAmount, winAmount > 0 ? (winAmount / bet) : 0, winAmount > 0 ? 'win' : 'lose', guestId]
+        );
+        if (!isBonusGame) {
+          const net = bet - winAmount;
+          await pool.query(
+            `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
+            [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Slot Empire (${guestId})`]
+          );
+        }
+      } catch(e) {}
+
+      const bal = await getBalance(guestId);
+      return sendJSON(res, 200, {
+        ok: true, win: winAmount,
+        balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus,
+        treasury: house.treasury, rtp: targetRTP
+      });
     }
 
     // ===== PLINKO (RTP 80%, казна общая) =====
