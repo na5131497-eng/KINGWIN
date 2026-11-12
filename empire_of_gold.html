@@ -63,7 +63,7 @@
   }
   .loading-text { margin-top: 10px; font-size: 14px; color: var(--gold-light); font-weight: 800; z-index: 2; letter-spacing: 2px; }
 
-  /* БАННЕР БОНУСА */
+  /* ===== БАННЕР БОНУСА ===== */
   .bonus-activation-overlay {
     position: absolute; inset: 0; z-index: 9998;
     background: rgba(0,0,0,0.9);
@@ -616,14 +616,12 @@ const SYMBOLS = {
   'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 6 },
   'crown': { id: 'crown', img: '/sym_crown.png', weight: 4 },
   'wild': { id: 'wild', img: '/sym_wild.png', weight: 2 },
-  'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 1 }, // Уменьшили шанс скаттера
+  'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 1 },
   'coin': { id: 'coin', img: '/sym_coin.png', weight: 2 }
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 
-// Таблица выплат Olympus-стиля (за 8, 9, 10, 11, 12+ символов)
-// 8 - базовый, 12+ - максимум
 const PAYTABLE = {
   '10': [0.2, 0.3, 0.5, 0.8, 2],
   'J': [0.2, 0.3, 0.5, 0.8, 2],
@@ -753,9 +751,8 @@ function checkWins(board, betAmount) {
   
   for (const symId in counts) {
     const count = counts[symId].length;
-    // ВАЖНО: Теперь выигрыш начинается с 8 символов!
     if (count >= 8 && PAYTABLE[symId]) {
-      let payoutIndex = Math.min(count - 8, 4); // 8->0, 9->1, 10->2, 11->3, 12+->4
+      let payoutIndex = Math.min(count - 8, 4);
       let payout = PAYTABLE[symId][payoutIndex];
       totalWin += payout * betAmount;
       counts[symId].forEach(pos => winPositions.push(pos));
@@ -792,6 +789,125 @@ function highlightScatters(positions) {
       }
     }
   });
+}
+
+// НОВАЯ ФУНКЦИЯ: ЭФФЕКТ КРЮЧКА НА ПОСЛЕДНЕМ БАРАБАНЕ
+async function spinWithHook() {
+  const board = [];
+  for (let i = 0; i < 6; i++) {
+    const col = [];
+    for (let j = 0; j < 5; j++) col.push(getRandomSymbol());
+    board.push(col);
+  }
+
+  // Считаем скаттеры во всех колонках, кроме последней
+  let scattersBeforeLast = 0;
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (board[i][j].id === 'scatter') scattersBeforeLast++;
+    }
+  }
+
+  // Если ровно 2 скаттера до последней колонки — будет эффект крючка
+  const hasHook = (scattersBeforeLast === 2);
+
+  const wrap = $('reelsWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const reel = document.createElement('div');
+    reel.className = 'reel';
+    reel.id = `reel-${i}`;
+    wrap.appendChild(reel);
+  }
+
+  await new Promise(r => setTimeout(r, 200));
+
+  // Падаем все колонки, кроме последней
+  for (let i = 0; i < 5; i++) {
+    const reel = document.getElementById(`reel-${i}`);
+    for (let j = 0; j < 5; j++) {
+      const el = document.createElement('div');
+      el.className = 'symbol';
+      el.style.transform = `translateY(${(j - 5) * 100}%)`;
+      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[i][j])}</div>`;
+      reel.appendChild(el);
+
+      const delay = 50 + (i * 100) + (j * 50);
+      setTimeout(() => {
+        el.style.transform = `translateY(${j * 100}%)`;
+      }, delay);
+    }
+  }
+
+  // Ждем, пока упадут первые 5 колонок
+  await new Promise(r => setTimeout(r, 1000));
+
+  // Падает последняя (6-я) колонка
+  const lastReel = document.getElementById(`reel-5`);
+
+  for (let j = 0; j < 5; j++) {
+    const el = document.createElement('div');
+    el.className = 'symbol';
+    el.style.transform = `translateY(${(j - 5) * 100}%)`;
+    el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[5][j])}</div>`;
+    lastReel.appendChild(el);
+
+    // Если есть крючок и это один из верхних символов, замедляем
+    const isHookSlow = hasHook && (j === 0 || j === 1); 
+    const delay = 50 + (5 * 100) + (j * (isHookSlow ? 300 : 50));
+
+    setTimeout(() => {
+      el.style.transform = `translateY(${j * 100}%)`;
+    }, delay);
+  }
+
+  // Если крючок — показываем «проезд» на одну клетку вниз
+  if (hasHook) {
+    await new Promise(r => setTimeout(r, 1200));
+    
+    // Звук скрипа/паузы (используем короткий сигнал)
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = 200;
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+      }
+    } catch(e) {}
+
+    // Эффект крючка: последняя колонка как бы проезжает на 1 клетку
+    const lastReel = document.getElementById(`reel-5`);
+    const symbols = lastReel.querySelectorAll('.symbol');
+    
+    // Визуально сдвигаем всю колонку вниз на 20% (одна клетка)
+    symbols.forEach((el, idx) => {
+      el.style.transition = 'transform 0.3s ease-out';
+      el.style.transform = `translateY(${(idx + 1) * 100}%)`;
+    });
+    
+    await new Promise(r => setTimeout(r, 400));
+    
+    // Возвращаем на место (если там не скаттер)
+    symbols.forEach((el, idx) => {
+      el.style.transition = 'transform 0.4s ease-in-out';
+      el.style.transform = `translateY(${idx * 100}%)`;
+    });
+    
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  // Ждем завершения
+  await new Promise(r => setTimeout(r, 1000));
+
+  return board;
 }
 
 async function processCascades(board, totalWinSoFar = 0) {
@@ -1160,41 +1276,7 @@ async function spin() {
   $('winAmount').textContent = '0';
   $('winAmount').style.color = 'var(--gold-light)';
   
-  const board = [];
-  for (let i = 0; i < 6; i++) {
-    const col = [];
-    for (let j = 0; j < 5; j++) col.push(getRandomSymbol());
-    board.push(col);
-  }
-  
-  const wrap = $('reelsWrap');
-  wrap.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const reel = document.createElement('div');
-    reel.className = 'reel';
-    reel.id = `reel-${i}`;
-    wrap.appendChild(reel);
-  }
-  
-  await new Promise(r => setTimeout(r, 200));
-  
-  for (let i = 0; i < 6; i++) {
-    const reel = document.getElementById(`reel-${i}`);
-    for (let j = 0; j < 5; j++) {
-      const el = document.createElement('div');
-      el.className = 'symbol';
-      el.style.transform = `translateY(${(j - 5) * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[i][j])}</div>`;
-      reel.appendChild(el);
-      
-      const delay = 50 + (i * 100) + (j * 50);
-      setTimeout(() => {
-        el.style.transform = `translateY(${j * 100}%)`;
-      }, delay);
-    }
-  }
-  
-  await new Promise(r => setTimeout(r, 1800));
+  const board = await spinWithHook();
   await processCascades(board, 0);
 }
 
