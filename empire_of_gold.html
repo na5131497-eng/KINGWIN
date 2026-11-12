@@ -737,10 +737,12 @@ async function refreshBalance() {
   } catch(e) {}
 }
 
-// ===== АНИМАЦИЯ ПАДЕНИЯ =====
-async function animateDrop() {
+// ===== АНИМАЦИЯ ПРОКРУТКИ БАРАБАНОВ =====
+async function animateSpin() {
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
+  
+  // Создаем колонки
   for (let i = 0; i < 6; i++) {
     const reel = document.createElement('div');
     reel.className = 'reel';
@@ -748,25 +750,41 @@ async function animateDrop() {
     wrap.appendChild(reel);
   }
   
-  await new Promise(r => setTimeout(r, 100));
+  // Запускаем анимацию: каждая колонка быстро меняет символы
+  let ticks = 0;
+  const interval = setInterval(() => {
+    for (let i = 0; i < 6; i++) {
+      const reel = document.getElementById(`reel-${i}`);
+      if (!reel) continue;
+      reel.innerHTML = '';
+      for (let j = 0; j < 5; j++) {
+        const sym = getRandomSymbol();
+        const el = document.createElement('div');
+        el.className = 'symbol';
+        el.style.transform = `translateY(${j * 100}%)`;
+        el.innerHTML = `<div class="symbol-inner" style="opacity: 0.6;">${createSymbolHTML(sym)}</div>`;
+        reel.appendChild(el);
+      }
+    }
+    ticks++;
+  }, 80);
   
+  // Ждем 1.5 секунды прокрутки
+  await new Promise(r => setTimeout(r, 1500));
+  clearInterval(interval);
+  
+  // Плавный съезд вниз (финальный результат будет показан после ответа сервера)
   for (let i = 0; i < 6; i++) {
     const reel = document.getElementById(`reel-${i}`);
-    for (let j = 0; j < 5; j++) {
-      const el = document.createElement('div');
-      el.className = 'symbol';
-      el.style.transform = `translateY(${(j - 5) * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner" style="background: rgba(255,255,255,0.02);"></div>`;
-      reel.appendChild(el);
-      
-      const delay = 50 + (i * 100) + (j * 50);
-      setTimeout(() => {
-        el.style.transform = `translateY(${j * 100}%)`;
-      }, delay);
-    }
+    if (!reel) continue;
+    const symbols = reel.querySelectorAll('.symbol');
+    symbols.forEach((el, idx) => {
+      el.style.transition = 'transform 0.5s ease-out';
+      el.style.transform = `translateY(${idx * 100}%)`;
+    });
   }
   
-  await new Promise(r => setTimeout(r, 1500));
+  await new Promise(r => setTimeout(r, 500));
 }
 
 // ===== СПИН С РЕАЛЬНЫМ БАЛАНСОМ =====
@@ -785,8 +803,8 @@ async function spin() {
   $('winAmount').style.color = 'var(--gold-light)';
   
   try {
-    // Запускаем анимацию падения
-    await animateDrop();
+    // Запускаем анимацию прокрутки
+    await animateSpin();
     
     // Запрос на сервер
     const r = await fetch('/api/slots/empire/spin', {
@@ -814,11 +832,10 @@ async function spin() {
       playBonusFanfare(); // Звук выигрыша
       setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
     } else {
-      // Показываем пустое поле
       $('winAmount').textContent = '0';
     }
     
-    // Заполняем поле финальными символами (для визуала)
+    // Заполняем поле финальными символами (визуал)
     const wrap = $('reelsWrap');
     wrap.innerHTML = '';
     for (let i = 0; i < 6; i++) {
