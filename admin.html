@@ -69,6 +69,9 @@
   .status.approved { background: rgba(63,191,127,.15); color: var(--green); }
   .status.rejected { background: rgba(255,77,77,.15); color: var(--red); }
   .status.hold { background: rgba(255,255,255,.1); color: var(--muted); }
+  .status.active { background: rgba(0,229,255,.15); color: var(--accent); }
+  .status.finished { background: rgba(63,191,127,.15); color: var(--green); }
+  .status.cancelled { background: rgba(255,77,77,.15); color: var(--red); }
   .rank-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
   .rank-pill.Bronze { background: rgba(205,127,50,.25); color: #e8a76a; border: 1px solid #cd7f32; }
   .rank-pill.Silver { background: rgba(192,192,192,.2); color: #d9d9d9; border: 1px solid #c0c0c0; }
@@ -214,6 +217,7 @@
     <button data-page="news" onclick="switchPage('news')">📰 Новости</button>
     <button data-page="reviews" onclick="switchPage('reviews')">⭐ Отзывы о дилерах</button>
     <button data-page="roulette" onclick="switchPage('roulette')">🎡 Рулетка</button>
+    <button data-page="tournaments" onclick="switchPage('tournaments')">🏆 Турниры</button>
     <button data-page="payouts" onclick="switchPage('payouts')">Выплаты дилерам</button>
     <button data-page="history" onclick="switchPage('history')">История</button>
     <button data-page="roles" onclick="switchPage('roles')">Роли</button>
@@ -334,53 +338,62 @@
 
   <div class="page" id="page-roulette">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-      <div><h1>🎡 Рулетка</h1><div class="sub">История ставок, RTP и доход</div></div>
+      <div><h1>🎡 Рулетка</h1><div class="sub">История ставок и доход</div></div>
       <button class="ghost" onclick="loadDB().then(renderRoulette)">🔄 Обновить</button>
     </div>
-
     <div class="cards" id="rouletteCards"></div>
-
     <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-        <h3 style="margin:0;">📊 Статистика по типам ставок</h3>
-      </div>
+      <h3>📊 Статистика по типам ставок</h3>
       <div class="wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Тип ставки</th>
-              <th>Раундов</th>
-              <th>Оборот</th>
-              <th>Выплачено</th>
-              <th>Доход</th>
-              <th>RTP</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Тип ставки</th><th>Раундов</th><th>Оборот</th><th>Выплачено</th><th>Доход</th><th>RTP</th></tr></thead>
           <tbody id="rouletteStatsBody"></tbody>
         </table>
       </div>
       <div class="empty" id="rouletteStatsEmpty">Пока нет данных</div>
     </div>
-
     <div class="panel">
       <h3>📜 Все раунды</h3>
       <div class="wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Игрок</th>
-              <th>Дилер</th>
-              <th>Тип ставки</th>
-              <th>Ставка</th>
-              <th>Выигрыш</th>
-              <th>Доход</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Дата</th><th>Игрок</th><th>Дилер</th><th>Тип ставки</th><th>Ставка</th><th>Выигрыш</th><th>Доход</th></tr></thead>
           <tbody id="rouletteBody"></tbody>
         </table>
       </div>
       <div class="empty" id="rouletteEmpty">Пока нет раундов</div>
+    </div>
+  </div>
+
+  <div class="page" id="page-tournaments">
+    <h1>🏆 Турниры</h1>
+    <div class="sub">Розыгрыши между игроками</div>
+    <div class="panel">
+      <h3>➕ Создать новый турнир</h3>
+      <div class="row">
+        <label>Название<input type="text" id="tour_title" placeholder="Турнир недели" value="Турнир недели"></label>
+        <label>Приз (₽ бонусными)<input type="number" id="tour_prize" value="100" min="10"></label>
+        <label>Длительность (дней)<input type="number" id="tour_days" value="3" min="1" max="30"></label>
+        <button onclick="createTournament()">Создать</button>
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:10px;">
+        ⚠️ Приз — <b>бонусными фишками</b> с вейджером x3. Условие участия: 5 ставок от 30₽. Минимум 3 участника для завершения.
+      </div>
+    </div>
+    <div class="panel">
+      <h3>🎯 Активный турнир</h3>
+      <div id="activeTournamentBox">
+        <div style="color:var(--muted); text-align:center; padding:20px;">Загрузка...</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>📜 История турниров</h3>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>#</th><th>Название</th><th>Приз</th><th>Победитель</th><th>Очки</th><th>Статус</th></tr></thead>
+          <tbody id="tournamentsBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="tournamentsEmpty">Пока нет турниров</div>
     </div>
   </div>
 
@@ -509,18 +522,19 @@
   <div class="day-modal-content" id="dayIncomeContent"></div>
 </div></div>
 <script>
-const db = { sessions:[], baccarat:[], roulette:[], deposits:[], withdrawals:[], payouts:[], players:[], audit:[], employees:[], dealers:[], online:[], guests:[], crash_bets:[], dealer_reviews:[], dealer_ratings:[] };
+const db = { sessions:[], baccarat:[], roulette:[], tournaments:[], deposits:[], withdrawals:[], payouts:[], players:[], audit:[], employees:[], dealers:[], online:[], guests:[], crash_bets:[], dealer_reviews:[], dealer_ratings:[] };
 let newsList = [];
 let currentUser = null;
 let currentRole = null;
 let editGuestId = null;
 let guestBalanceId = null;
+let tournamentInterval = null;
 
 const CRASH_PASS = '56UpahoS';
 
 const ROLES = {
-  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','roulette','payouts','history','roles']},
-  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','roulette','payouts','history']},
+  owner:   {label:'Владелец', perms:['dash','finance','players','guests','news','reviews','roulette','tournaments','payouts','history','roles']},
+  admin:   {label:'Админ', perms:['dash','finance','players','guests','news','reviews','roulette','tournaments','payouts','history']},
   cashier: {label:'Кассир', perms:['dash','finance']}
 };
 
@@ -533,7 +547,7 @@ function formatTime(ts){
   if(!ts) return '—';
   const d = new Date(ts);
   const pad = n => String(n).padStart(2,'0');
-  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 async function apiGet(url){
@@ -571,19 +585,26 @@ async function apiDelete(url){
 
 async function loadDB(){
   const endpoints = {
-    sessions: '/api/sessions', baccarat: '/api/baccarat',
+    sessions: '/api/sessions',
+    baccarat: '/api/baccarat',
     roulette: '/api/sessions/roulette',
-    deposits: '/api/deposits', withdrawals: '/api/withdrawals',
-    payouts: '/api/payouts', players: '/api/players',
-    audit: '/api/audit', employees: '/api/employees',
-    dealers: '/api/dealers', online: '/api/online',
-    guests: '/api/guests', crash_bets: '/api/crash/all-bets',
-    dealer_reviews: '/api/dealer-reviews', dealer_ratings: '/api/dealer-ratings'
+    tournaments: '/api/admin/tournaments',
+    deposits: '/api/deposits',
+    withdrawals: '/api/withdrawals',
+    payouts: '/api/payouts',
+    players: '/api/players',
+    audit: '/api/audit',
+    employees: '/api/employees',
+    dealers: '/api/dealers',
+    online: '/api/online',
+    guests: '/api/guests',
+    crash_bets: '/api/crash/all-bets',
+    dealer_reviews: '/api/dealer-reviews',
+    dealer_ratings: '/api/dealer-ratings'
   };
   const keys = Object.keys(endpoints);
   const results = await Promise.all(keys.map(async k => [k, await apiGet(endpoints[k])]));
   results.forEach(([k, v]) => { db[k] = v; });
-  console.log('DB loaded:', keys.reduce((a,k)=>(a[k]=db[k].length, a), {}));
   newsList = await apiGet('/api/news');
 }
 
@@ -612,7 +633,14 @@ function switchPage(page){
   const p = $('page-'+page); if(p) p.classList.add('active');
   try { renderAll(); } catch(e){ console.error('renderAll', e); }
 
-  if (page==='roulette'){ renderRoulette(); }
+  if (page === 'roulette') renderRoulette();
+  if (page === 'tournaments') {
+    renderTournaments();
+    if (tournamentInterval) clearInterval(tournamentInterval);
+    tournamentInterval = setInterval(renderTournaments, 15000);
+  } else {
+    if (tournamentInterval) { clearInterval(tournamentInterval); tournamentInterval = null; }
+  }
 
   if (window.innerWidth <= 900) toggleMenu();
 }
@@ -656,16 +684,7 @@ function closeClearAllModal(){ $('clearAllModal').classList.remove('show'); }
 async function confirmClearAll(){
   const pass = $('clearAllPass').value;
   if(pass !== CRASH_PASS){ $('clearAllErr').textContent = 'Неверный пароль.'; return; }
-  for(const s of db.sessions) await apiDelete('/api/sessions/' + s.id);
-  for(const b of db.baccarat) await apiDelete('/api/baccarat/' + b.id);
-  for(const r of db.roulette) await apiDelete('/api/sessions/roulette/' + r.id);
-  for(const d of db.deposits) await apiDelete('/api/deposits/' + d.id);
-  for(const w of db.withdrawals) await apiDelete('/api/withdrawals/' + w.id);
-  for(const p of db.payouts) await apiDelete('/api/payouts/' + p.id);
-  for(const o of db.online) await apiDelete('/api/online/' + o.id);
-  await apiDelete('/api/audit');
-  for(const g of db.guests) await apiPost('/api/guests/delete', { id: g.id });
-  await apiDelete('/api/crash/clear');
+  await apiPost('/api/admin/clear-all', { pass });
   closeClearAllModal();
   await loadDB(); renderAll();
   showInfo('Успех', 'Все данные удалены.');
@@ -707,6 +726,137 @@ async function confirmPass(){
 }
 $('passInput').addEventListener('keypress', e=>{ if(e.key==='Enter') confirmPass(); });
 
+/* ============ ТУРНИРЫ ============ */
+async function renderTournaments(){
+  const box = $('activeTournamentBox');
+  if (!box) return;
+  try {
+    const r = await fetch('/api/tournament/active', { cache: 'no-store' });
+    const data = await r.json();
+    if (!data || !data.tournament) {
+      box.innerHTML = '<div style="color:var(--muted); text-align:center; padding:20px;">Нет активного турнира. Создайте новый ↑</div>';
+    } else {
+      const t = data.tournament;
+      const participants = data.participants || 0;
+      const minP = data.min_participants || 3;
+      const canFinish = data.can_finish;
+      const top = data.top || [];
+
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Название</div>
+            <div style="font-size:18px; font-weight:900;">${escHtml(t.title)}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Приз</div>
+            <div style="font-size:22px; font-weight:900; color:var(--gold);">${fmt(t.prize_pool)} ₽ бонусными</div>
+            <div style="font-size:10px; color:var(--muted);">вейджер x${t.wager_multiplier || 3}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Участников</div>
+            <div style="font-size:22px; font-weight:900; color:${participants >= minP ? 'var(--green)' : 'var(--amber)'};">${participants}/${minP}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">До конца</div>
+            <div style="font-size:14px; font-weight:900;" id="tourTimer">—</div>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">Топ участников</div>
+        <div class="wrap" style="max-height:260px;">
+          <table class="mini-table">
+            <thead><tr><th>#</th><th>Игрок</th><th>Очки</th><th>Ставок</th></tr></thead>
+            <tbody>
+              ${top.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px;">Пока нет участников</td></tr>'
+                : top.map((x, i) => `<tr><td>${i+1}</td><td><b>${escHtml(x.guest_name || '—')}</b></td><td class="pos">${Math.round(x.score || 0)}</td><td>${x.bets_count || 0}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button class="gold" onclick="finishTournament()" ${canFinish ? '' : 'disabled style="opacity:0.4;cursor:not-allowed;"'}>🏆 Завершить и выдать приз</button>
+          <button class="danger" onclick="cancelTournament(${t.id})">❌ Отменить турнир</button>
+        </div>
+        ${!canFinish ? `<div style="font-size:11px; color:var(--amber); margin-top:8px;">⚠️ Нужно ещё ${minP - participants} участников</div>` : ''}
+      `;
+
+      // Таймер
+      if (t.end_at) {
+        const end = new Date(t.end_at).getTime();
+        const nowT = Date.now();
+        const diff = Math.max(0, end - nowT);
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const el = $('tourTimer');
+        if (el) el.textContent = diff <= 0 ? 'Завершён' : `${days}д ${hours}ч ${mins}м`;
+      }
+    }
+
+    // История
+    const history = await apiGet('/api/admin/tournaments');
+    const tbody = $('tournamentsBody');
+    const emptyEl = $('tournamentsEmpty');
+    if (tbody) {
+      if (!history || !history.length) {
+        tbody.innerHTML = '';
+        if (emptyEl) emptyEl.style.display = 'block';
+      } else {
+        if (emptyEl) emptyEl.style.display = 'none';
+        tbody.innerHTML = history.map(t => `
+          <tr>
+            <td>${t.id}</td>
+            <td>${escHtml(t.title)}</td>
+            <td>${fmt(t.prize_pool)} ₽</td>
+            <td>${t.winner_name ? escHtml(t.winner_name) : '—'}</td>
+            <td>${t.winner_score ? Math.round(t.winner_score) : '—'}</td>
+            <td><span class="status ${t.status}">${t.status}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch(e) {
+    console.error('renderTournaments', e);
+    if (box) box.innerHTML = '<div style="color:var(--red); text-align:center; padding:20px;">Ошибка загрузки</div>';
+  }
+}
+
+async function createTournament() {
+  const title = $('tour_title').value.trim();
+  const prize = parseFloat($('tour_prize').value) || 100;
+  const days = parseInt($('tour_days').value) || 3;
+  if (!title) { showInfo('Ошибка', 'Введите название'); return; }
+  showPass('Создание турнира', `Создать турнир "${title}" с призом <b>${prize} ₽ бонусными</b> на <b>${days} дней</b>?<br>Пароль owner:`, async () => {
+    const r = await apiPost('/api/admin/tournament/create', { pass: CRASH_PASS, title, prize_pool: prize, days });
+    if (r.error) { showInfo('Ошибка', r.error); return; }
+    showInfo('Готово', `Турнир "${title}" создан. Приз: ${prize} ₽ бонусными, ${days} дней.`);
+    renderTournaments();
+  });
+}
+
+async function finishTournament() {
+  showPass('Завершение турнира', 'Завершить турнир и выдать приз победителю?<br>Пароль owner:', async () => {
+    const r = await apiPost('/api/admin/tournament/finish', { pass: CRASH_PASS });
+    if (r.error) {
+      showInfo('Ошибка', r.error);
+      return;
+    }
+    showInfo('Турнир завершён', `🏆 Победитель: <b>${escHtml(r.winner)}</b><br>Очки: <b>${Math.round(r.score)}</b><br>Приз: <b>${fmt(r.prize)} ₽ бонусными</b><br>Вейджер: <b>${fmt(r.wager_required)} ₽</b> ставок`);
+    renderTournaments();
+  });
+}
+
+async function cancelTournament(id) {
+  if (!confirm('Отменить турнир без выдачи приза?')) return;
+  showPass('Отмена турнира', 'Отменить турнир? Пароль owner:', async () => {
+    const r = await apiPost('/api/admin/tournament/cancel', { pass: CRASH_PASS, id });
+    if (r.error) { showInfo('Ошибка', r.error); return; }
+    showInfo('Готово', 'Турнир отменён');
+    renderTournaments();
+  });
+}
+
 /* ============ РУЛЕТКА ============ */
 function rouletteNet(r){
   const bet = parseFloat(r.bet) || 0;
@@ -721,19 +871,10 @@ function rouletteStats(){
   });
   return { turnover: t, payouts: p, income: i, count: db.roulette.length, rtp: t > 0 ? (p / t * 100) : 0 };
 }
-
 function rouletteTypeLabel(r){
-  const labels = {
-    number: 'Число ' + (r.bet_number ?? ''),
-    zero: 'Зеро',
-    red: 'Красное',
-    black: 'Чёрное',
-    even: 'Чёт',
-    odd: 'Нечет'
-  };
+  const labels = { number: 'Число ' + (r.bet_number ?? ''), zero: 'Зеро', red: 'Красное', black: 'Чёрное', even: 'Чёт', odd: 'Нечет' };
   return labels[r.bet_type] || r.bet_type;
 }
-
 function renderRoulette(){
   const st = rouletteStats();
   const cards = $('rouletteCards');
@@ -744,25 +885,19 @@ function renderRoulette(){
     <div class="card" style="border-color:var(--gold);"><div class="label">Доход</div><div class="value gold">${fmt(st.income)} ₽</div></div>
     <div class="card"><div class="label">RTP</div><div class="value" style="color:${st.rtp >= 90 ? 'var(--green)' : st.rtp >= 75 ? 'var(--amber)' : 'var(--red)'}">${st.rtp.toFixed(1)}%</div></div>
   `;
-
-  // Статистика по типам
   const byType = {};
   db.roulette.forEach(r => {
     const t = r.bet_type || 'other';
     if(!byType[t]) byType[t] = { count: 0, turnover: 0, payouts: 0 };
     const n = rouletteNet(r);
-    byType[t].count++;
-    byType[t].turnover += n.bet;
-    byType[t].payouts += n.win;
+    byType[t].count++; byType[t].turnover += n.bet; byType[t].payouts += n.win;
   });
   const stBody = $('rouletteStatsBody');
   const stEmpty = $('rouletteStatsEmpty');
   const typeKeys = Object.keys(byType);
   if(stBody){
-    if(typeKeys.length === 0){
-      stBody.innerHTML = '';
-      if(stEmpty) stEmpty.style.display = 'block';
-    } else {
+    if(typeKeys.length === 0){ stBody.innerHTML = ''; if(stEmpty) stEmpty.style.display = 'block'; }
+    else {
       if(stEmpty) stEmpty.style.display = 'none';
       stBody.innerHTML = typeKeys.map(t => {
         const d = byType[t];
@@ -770,23 +905,17 @@ function renderRoulette(){
         const rtp = d.turnover > 0 ? (d.payouts / d.turnover * 100) : 0;
         return `<tr>
           <td><span class="roulette-type-pill ${t}">${rouletteTypeLabel({bet_type: t, bet_number: ''})}</span></td>
-          <td>${d.count}</td>
-          <td>${fmt(d.turnover)} ₽</td>
-          <td>${fmt(d.payouts)} ₽</td>
+          <td>${d.count}</td><td>${fmt(d.turnover)} ₽</td><td>${fmt(d.payouts)} ₽</td>
           <td class="${inc >= 0 ? 'pos' : 'neg'}">${inc >= 0 ? '+' : ''}${fmt(inc)} ₽</td>
           <td style="color:${rtp >= 90 ? 'var(--green)' : rtp >= 75 ? 'var(--amber)' : 'var(--red)'}">${rtp.toFixed(1)}%</td>
         </tr>`;
       }).join('');
     }
   }
-
-  // Все раунды
   const body = $('rouletteBody');
   if(body){
-    if(db.roulette.length === 0){
-      body.innerHTML = '';
-      const e = $('rouletteEmpty'); if(e) e.style.display = 'block';
-    } else {
+    if(db.roulette.length === 0){ body.innerHTML = ''; const e = $('rouletteEmpty'); if(e) e.style.display = 'block'; }
+    else {
       const e = $('rouletteEmpty'); if(e) e.style.display = 'none';
       const sorted = [...db.roulette].sort((a,b) => {
         const da = a.created_at ? new Date(a.created_at) : new Date(a.date || 0);
@@ -911,24 +1040,21 @@ function openDayIncomeModal(date){
   const bjS = (db.sessions||[]).filter(s=>s.date===date);
   const bacS = (db.baccarat||[]).filter(b=>b.date===date);
   const rlS = (db.roulette||[]).filter(r=>r.date===date);
-  const crashR = (db.online||[]).filter(o=>o.date===date && (o.note||'').startsWith('Crash Round'));
   const depA = (db.deposits||[]).filter(d=>d.date===date && d.status==='approved');
   const wdA = (db.withdrawals||[]).filter(w=>w.date===date && w.status==='approved');
   const payD = (db.payouts||[]).filter(p=>p.date===date);
-  let bjT=0,bacT=0,rlT=0,crashT=0,depT=0,commT=0,salT=0;
+  let bjT=0,bacT=0,rlT=0,depT=0,commT=0,salT=0;
   bjS.forEach(s=>bjT+=sessionNet(s).income);
   bacS.forEach(b=>bacT+=bacCalc(b).casino);
   rlS.forEach(r=>rlT+=rouletteNet(r).income);
-  crashR.forEach(o=>{ const n=(o.note||'').toLowerCase(); if(n.includes('бонус')||n.includes('ранг')||n.includes('daily')||n.includes('подарок')) return; if(o.type==='доход') crashT+=parseFloat(o.sum)||0; else crashT-=parseFloat(o.sum)||0; });
   depA.forEach(d=>depT+=parseFloat(d.sum)||0);
   wdA.forEach(w=>{ const s=parseFloat(w.sum)||0; commT+=parseFloat(w.fee)||Math.round(s*0.07*100)/100; });
   payD.forEach(p=>salT+=parseFloat(p.sum)||0);
-  const net = (bjT+bacT+rlT+crashT)-commT-salT;
+  const net = (bjT+bacT+rlT)-commT-salT;
   let html = `<div class="day-modal-title">${dateStr}</div><div class="day-modal-sub">Отчёт за день</div><div class="day-modal-total" style="color:${net>=0?'var(--green)':'var(--red)'};">${net>=0?'+':''}${fmt(net)} ₽</div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>🎲 Блэкджек (${bjS.length})</span><span class="amt ${bjT>=0?'pos':'neg'}">${bjT>=0?'+':''}${fmt(bjT)} ₽</span></div><div class="day-list">${bjS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bjS.map(s=>{const r=sessionNet(s);return `<div class="day-list-item"><span class="who">${s.nick||'—'} · ставка ${fmt(r.dep)} ₽</span><span class="val ${r.income>=0?'pos':'neg'}">${r.income>=0?'+':''}${fmt(r.income)} ₽</span></div>`;}).join('')}</div></div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>🎴 Баккара (${bacS.length})</span><span class="amt ${bacT>=0?'pos':'neg'}">${bacT>=0?'+':''}${fmt(bacT)} ₽</span></div><div class="day-list">${bacS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет сессий</div>':bacS.map(b=>{const r=bacCalc(b);return `<div class="day-list-item"><span class="who">${b.player||'—'} · ${fmt(b.sum)} ₽</span><span class="val ${r.casino>=0?'pos':'neg'}">${r.casino>=0?'+':''}${fmt(r.casino)} ₽</span></div>`;}).join('')}</div></div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>🎡 Рулетка (${rlS.length})</span><span class="amt ${rlT>=0?'pos':'neg'}">${rlT>=0?'+':''}${fmt(rlT)} ₽</span></div><div class="day-list">${rlS.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>':rlS.map(r=>{const n=rouletteNet(r);return `<div class="day-list-item"><span class="who">${r.nick||'—'} · ${rouletteTypeLabel(r)} · ставка ${fmt(n.bet)} ₽</span><span class="val ${n.income>=0?'pos':'neg'}">${n.income>=0?'+':''}${fmt(n.income)} ₽</span></div>`;}).join('')}</div></div>`;
-  html += `<div class="day-section"><div class="day-section-title"><span>🚀 Crash (${crashR.length})</span><span class="amt ${crashT>=0?'pos':'neg'}">${crashT>=0?'+':''}${fmt(crashT)} ₽</span></div><div class="day-list">${crashR.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет раундов</div>':crashR.map(o=>{const v=o.type==='доход'?(parseFloat(o.sum)||0):-(parseFloat(o.sum)||0);return `<div class="day-list-item"><span class="who">${o.note||'—'}</span><span class="val ${v>=0?'pos':'neg'}">${v>=0?'+':''}${fmt(v)} ₽</span></div>`;}).join('')}</div></div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>💰 Депозиты (${depA.length})</span><span class="amt" style="color:var(--muted)">${fmt(depT)} ₽</span></div><div class="day-list">${depA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':depA.map(d=>`<div class="day-list-item"><span class="who">${d.nick||'—'}</span><span class="val" style="color:var(--muted)">${fmt(d.sum)} ₽</span></div>`).join('')}</div></div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>💳 Комиссии (${wdA.length})</span><span class="amt neg">−${fmt(commT)} ₽</span></div><div class="day-list">${wdA.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':wdA.map(w=>{const s=parseFloat(w.sum)||0;const f=parseFloat(w.fee)||Math.round(s*0.07*100)/100;return `<div class="day-list-item"><span class="who">${w.nick||'—'} · ${fmt(s)} ₽</span><span class="val neg">−${fmt(f)} ₽</span></div>`;}).join('')}</div></div>`;
   html += `<div class="day-section"><div class="day-section-title"><span>👔 Зарплаты (${payD.length})</span><span class="amt neg">−${fmt(salT)} ₽</span></div><div class="day-list">${payD.length===0?'<div style="color:var(--muted);text-align:center;padding:8px;">Нет</div>':payD.map(p=>`<div class="day-list-item"><span class="who">${p.dealer||'—'}</span><span class="val neg">−${fmt(p.sum)} ₽</span></div>`).join('')}</div></div>`;
@@ -1150,7 +1276,7 @@ async function submitGuestBalance(){
   const typeLabel = type==='bonus'?'бонусный':'реальный';
   closeGuestBalanceModal();
   await loadDB(); renderGuests();
-  showInfo('Готово', `${label} <b>${fmt(amount)} ₽</b> (${typeLabel}) гостю <b>${escHtml(g?.name||'—')}</b>.<br>Баланс: реальный <b style="color:var(--green)">${fmt(r.balance?.deposit_balance??0)} ₽</b>, бонусный <b style="color:var(--gold)">${fmt(r.balance?.bonus_balance??0)} ₽</b>.`);
+  showInfo('Готово', `${label} <b>${fmt(amount)} ₽</b> (${typeLabel}) гостю <b>${escHtml(g?.name||'—')}</b>.<br>Баланс: реальный <b style="color:var(--green)">${fmt(r.balance?.deposit??0)} ₽</b>, бонусный <b style="color:var(--gold)">${fmt(r.balance?.bonus??0)} ₽</b>.`);
 }
 
 function renderNewsAdmin(){
@@ -1331,6 +1457,7 @@ function renderAll(){
   try { if(hasPerm('news')) renderNewsAdmin(); } catch(e){ console.error('renderNewsAdmin',e); }
   try { if(hasPerm('reviews')) renderReviews(); } catch(e){ console.error('renderReviews',e); }
   try { if(hasPerm('roulette')) renderRoulette(); } catch(e){ console.error('renderRoulette',e); }
+  try { if(hasPerm('tournaments')) renderTournaments(); } catch(e){ console.error('renderTournaments',e); }
   try { if(hasPerm('payouts')) renderPayouts(); } catch(e){ console.error('renderPayouts',e); }
   try { if(hasPerm('history')) renderHistory(); } catch(e){ console.error('renderHistory',e); }
   try { if(hasPerm('roles')) renderRoles(); } catch(e){ console.error('renderRoles',e); }
