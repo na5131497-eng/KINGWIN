@@ -22,6 +22,113 @@
   
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
 
+  /* ===== ЭКРАН ЗАГРУЗКИ ===== */
+  .loading-screen {
+    position: absolute; inset: 0; z-index: 9999;
+    background: radial-gradient(circle at center, #2e1352, #0b0510 90%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    transition: opacity 0.8s ease;
+  }
+  .loading-screen.hidden { opacity: 0; pointer-events: none; }
+  
+  /* Фараон на фоне загрузки */
+  .loading-pharaoh {
+    position: absolute;
+    bottom: 0;
+    height: 70%;
+    max-height: 600px;
+    object-fit: contain;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 30px #f1c40f);
+    animation: pharaohDance 3s ease-in-out infinite alternate;
+  }
+  @keyframes pharaohDance {
+    0% { transform: translateY(0) rotate(-5deg); }
+    100% { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  .loading-title {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffe066, #f1c40f, #b8860b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(241,196,15,0.5);
+    margin-bottom: 20px;
+    z-index: 2;
+    text-align: center;
+    letter-spacing: 3px;
+  }
+
+  .loading-bar-container {
+    width: 80%;
+    max-width: 400px;
+    height: 20px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid var(--gold-mid);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 0 20px rgba(241,196,15,0.4);
+    position: relative;
+  }
+  .loading-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #b8860b, #f1c40f, #ffe066);
+    border-radius: 8px;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 15px #f1c40f;
+  }
+  .loading-text {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--gold-light);
+    font-weight: 800;
+    z-index: 2;
+    letter-spacing: 2px;
+  }
+
+  /* ===== ЭКРАН ПРЕВЬЮ БОНУСА (после загрузки) ===== */
+  .bonus-preview {
+    position: absolute; inset: 0; z-index: 9998;
+    background: rgba(0,0,0,0.9);
+    display: none; justify-content: center; align-items: center; flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .bonus-preview.show { display: flex; opacity: 1; }
+  
+  .preview-reels {
+    display: flex; gap: 15px; margin-bottom: 30px;
+  }
+  .preview-symbol {
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    border: 2px solid var(--gold-mid);
+    display: flex; justify-content: center; align-items: center;
+    animation: scatterPulse 0.5s infinite alternate;
+  }
+  .preview-symbol img { width: 80%; height: 80%; object-fit: contain; filter: drop-shadow(0 0 20px #ff4d4d); }
+  
+  @keyframes scatterPulse {
+    from { transform: scale(1); box-shadow: 0 0 20px rgba(255,77,77,0.5); }
+    to { transform: scale(1.1); box-shadow: 0 0 50px rgba(255,77,77,1); }
+  }
+
+  .preview-text {
+    font-size: 32px; font-weight: 900; color: #ff4d4d;
+    text-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff4d4d;
+    letter-spacing: 2px;
+    animation: textGlow 0.5s infinite alternate;
+  }
+  @keyframes textGlow {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+  }
+
+  /* ===== ОСНОВНОЙ ИНТЕРФЕЙС ===== */
   .bg-palace {
     position: absolute; inset: 0; z-index: 0;
     background: radial-gradient(circle at 50% 0%, rgba(241,196,15,0.2) 0%, transparent 60%), linear-gradient(180deg, #1a0b2e 0%, #0b0510 100%);
@@ -155,6 +262,16 @@
     100% { transform: scale(1.8); opacity: 0; filter: brightness(4) blur(5px); }
   }
 
+  /* Мигание скаттера при выпадении бонуса */
+  .symbol-inner.scatter-blink {
+    animation: scatterBlink 0.4s infinite alternate;
+    border: 2px solid var(--red);
+  }
+  @keyframes scatterBlink {
+    from { box-shadow: 0 0 20px rgba(255,77,77,0.5); transform: scale(1); }
+    to { box-shadow: 0 0 50px rgba(255,77,77,1); transform: scale(1.05); }
+  }
+
   .bottom-controls { 
     width: 100%; max-width: 750px; margin-top: 15px; 
     display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; 
@@ -252,10 +369,34 @@
     .modal-box p, .modal-box li { font-size: 12px; }
     .paytable-item img { width: 25px; height: 25px; }
     .paytable-val { font-size: 11px; }
+    
+    .loading-title { font-size: 32px; }
+    .preview-symbol { width: 70px; height: 70px; }
+    .preview-text { font-size: 24px; }
   }
 </style>
 </head>
 <body>
+
+<!-- ЭКРАН ЗАГРУЗКИ -->
+<div class="loading-screen" id="loadingScreen">
+  <img src="/dancer.png" class="loading-pharaoh" alt="Pharaoh" onerror="this.style.display='none'">
+  <div class="loading-title">EMPIRE OF GOLD</div>
+  <div class="loading-bar-container">
+    <div class="loading-bar-fill" id="loadingBarFill"></div>
+  </div>
+  <div class="loading-text" id="loadingText">0%</div>
+</div>
+
+<!-- ЭКРАН ПРЕВЬЮ БОНУСА -->
+<div class="bonus-preview" id="bonusPreview">
+  <div class="preview-reels">
+    <div class="preview-symbol"><img src="/sym_scatter.png" onerror="this.src='https://via.placeholder.com/100/ff0000/ffffff?text=S'"></div>
+    <div class="preview-symbol"><img src="/sym_scatter.png" onerror="this.src='https://via.placeholder.com/100/ff0000/ffffff?text=S'"></div>
+    <div class="preview-symbol"><img src="/sym_scatter.png" onerror="this.src='https://via.placeholder.com/100/ff0000/ffffff?text=S'"></div>
+  </div>
+  <div class="preview-text">БОНУС!</div>
+</div>
 
 <div class="app">
   <div class="bg-palace">
@@ -366,6 +507,7 @@
 const $ = id => document.getElementById(id);
 let balance = 1000.00;
 let isSpinning = false;
+let gameStarted = false;
 
 const BETS = [6, 16, 32, 48, 64, 120];
 let betIndex = 0;
@@ -443,15 +585,45 @@ function playExplosionSound() {
   } catch(e) {}
 }
 
+// Звук фанфар для бонуса
+function playBonusSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    
+    // Простая мелодия из трех нот
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      
+      const startTime = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0.1, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    });
+  } catch(e) {}
+}
+
 function checkWins(board, betAmount) {
   let totalWin = 0;
   let winPositions = [];
+  let scatterPositions = [];
   const counts = {};
   
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 5; j++) {
       const sym = board[i][j];
-      if (sym.id !== 'scatter' && sym.id !== 'coin') {
+      if (sym.id === 'scatter') {
+        scatterPositions.push([i, j]);
+      } else if (sym.id !== 'coin') {
         if (!counts[sym.id]) counts[sym.id] = [];
         counts[sym.id].push([i, j]);
       }
@@ -467,7 +639,8 @@ function checkWins(board, betAmount) {
       counts[symId].forEach(pos => winPositions.push(pos));
     }
   }
-  return { win: Math.round(totalWin * 100) / 100, positions: winPositions };
+  
+  return { win: Math.round(totalWin * 100) / 100, positions: winPositions, scatters: scatterPositions };
 }
 
 function highlightWinCells(positions) {
@@ -483,9 +656,32 @@ function highlightWinCells(positions) {
   });
 }
 
+function highlightScatterCells(positions) {
+  positions.forEach(pos => {
+    const reel = document.getElementById(`reel-${pos[0]}`);
+    if (!reel) return;
+    const symbols = reel.querySelectorAll('.symbol');
+    const el = symbols[pos[1]];
+    if (el) {
+      const inner = el.querySelector('.symbol-inner');
+      if (inner) inner.classList.add('scatter-blink');
+    }
+  });
+}
+
 async function processCascades(board, totalWinSoFar = 0) {
   const res = checkWins(board, bet);
   
+  // Проверка на бонус (3+ скаттера)
+  if (res.scatters.length >= 3) {
+    playBonusSound();
+    highlightScatterCells(res.scatters);
+    await new Promise(r => setTimeout(r, 2000));
+    alert('🎉 БОНУС АКТИВИРОВАН! (В разработке)');
+    // Убираем мигание
+    document.querySelectorAll('.scatter-blink').forEach(el => el.classList.remove('scatter-blink'));
+  }
+
   if (res.win > 0) {
     totalWinSoFar += res.win;
     $('winAmount').textContent = totalWinSoFar.toFixed(2);
@@ -640,8 +836,7 @@ async function spin() {
   await processCascades(board, 0);
 }
 
-window.onload = () => {
-  changeBet(0);
+function initBoard() {
   const initialBoard = [];
   for (let i = 0; i < 6; i++) {
     const col = [];
@@ -664,6 +859,44 @@ window.onload = () => {
     }
     wrap.appendChild(reel);
   }
+}
+
+window.onload = () => {
+  changeBet(0);
+  
+  // Запускаем загрузку на 15 секунд
+  let progress = 0;
+  const loadingInterval = setInterval(() => {
+    progress += 1;
+    $('loadingBarFill').style.width = progress + '%';
+    $('loadingText').textContent = progress + '%';
+    
+    if (progress >= 100) {
+      clearInterval(loadingInterval);
+      
+      // Плавно скрываем экран загрузки
+      $('loadingScreen').classList.add('hidden');
+      
+      setTimeout(() => {
+        $('loadingScreen').style.display = 'none';
+        
+        // Показываем превью бонуса (3 скаттера)
+        const preview = $('bonusPreview');
+        preview.classList.add('show');
+        playBonusSound(); // Играет музыка
+        
+        setTimeout(() => {
+          preview.classList.remove('show');
+          setTimeout(() => {
+            preview.style.display = 'none';
+            // Инициализируем игру
+            initBoard();
+          }, 500);
+        }, 3000); // Показываем превью 3 секунды
+        
+      }, 800);
+    }
+  }, 150); // 100 шагов * 150 мс = 15 секунд
 };
 </script>
 </body>
