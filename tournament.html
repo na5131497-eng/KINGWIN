@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KINGWIN — Турнир</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
+    --accent: #00e5ff; --accent-green: #00e676;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; }
+  
+  .container { max-width: 900px; margin: 0 auto; }
+  
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
+    color: #a0aec0; padding: 10px 18px; border-radius: 10px;
+    text-decoration: none; font-size: 13px; font-weight: 700;
+    margin-bottom: 20px; transition: .2s;
+  }
+  .back-btn:hover { border-color: #00e5ff; color: #00e5ff; }
+  
+  /* === ШАПКА ТУРНИРА === */
+  .hero {
+    background: linear-gradient(135deg, rgba(241,196,15,.2), rgba(255,77,77,.08));
+    border: 2px solid rgba(241,196,15,.5);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🏆';
+    position: absolute;
+    top: -30px; right: -30px;
+    font-size: 200px;
+    opacity: .08;
+    transform: rotate(20deg);
+    pointer-events: none;
+  }
+  .hero .h-label {
+    font-size: 12px; color: #f1c40f;
+    text-transform: uppercase; letter-spacing: 3px;
+    font-weight: 900; margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 38px; font-weight: 900; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .hero .h-prize {
+    font-size: 64px; font-weight: 900;
+    color: #f1c40f;
+    text-shadow: 0 0 40px rgba(241,196,15,.5);
+    line-height: 1; margin-bottom: 8px;
+  }
+  .hero .h-prize-sub {
+    font-size: 13px; color: #d0d5e0;
+    font-weight: 600;
+  }
+  .hero .h-timer-big {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,77,77,.15);
+    border: 1px solid rgba(255,77,77,.4);
+    padding: 12px 24px; border-radius: 12px;
+    margin-top: 20px; font-size: 16px; font-weight: 900;
+    color: #ff8a8a;
+  }
+  .hero .h-timer-big .t-dot {
+    width: 10px; height: 10px; background: #ff4d4d;
+    border-radius: 50%; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(1.3); }
+  }
+  
+  /* === КАРТОЧКИ УСЛОВИЙ === */
+  .conditions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .cond-card {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .cond-card .c-icon { font-size: 32px; margin-bottom: 10px; }
+  .cond-card .c-title {
+    font-size: 11px; color: #8fa2b8;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 800; margin-bottom: 6px;
+  }
+  .cond-card .c-value {
+    font-size: 20px; font-weight: 900;
+    color: #fff; line-height: 1.2;
+  }
+  .cond-card .c-value.green { color: #3fbf7f; }
+  .cond-card .c-value.gold { color: #f1c40f; }
+  .cond-card .c-sub {
+    font-size: 11px; color: #8fa2b8; margin-top: 4px;
+  }
+  
+  /* === БЛОК «КАК УЧАСТВОВАТЬ» === */
+  .how-to {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .how-to h2 {
+    font-size: 18px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .step-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    color: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 14px;
+  }
+  .step-text {
+    font-size: 14px; line-height: 1.5;
+    color: #d0d5e0; padding-top: 4px;
+  }
+  .step-text b { color: #fff; }
+  
+  /* === ПРОГРЕСС === */
+  .progress-block {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .progress-head {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 12px;
+    font-size: 13px; font-weight: 700;
+  }
+  .progress-head span:first-child { color: #8fa2b8; }
+  .progress-head b { color: #fff; }
+  .progress-bar-big {
+    height: 14px; background: rgba(255,255,255,.08);
+    border-radius: 7px; overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .progress-bar-big > div {
+    height: 100%;
+    background: linear-gradient(90deg, #f1c40f, #ff8a00);
+    border-radius: 7px;
+    transition: width .6s;
+    box-shadow: 0 0 20px rgba(241,196,15,.5);
+  }
+  .progress-foot {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #8fa2b8;
+    gap: 8px; flex-wrap: wrap;
+  }
+  
+  /* === ТОП === */
+  .top-list {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .top-list h2 {
+    font-size: 18px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .top-item {
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(0,0,0,.3);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .top-item.first {
+    background: linear-gradient(135deg, rgba(241,196,15,.15), rgba(255,77,77,.05));
+    border: 1px solid rgba(241,196,15,.4);
+  }
+  .top-item .t-rank {
+    font-size: 18px; font-weight: 900;
+    width: 30px; text-align: center; flex-shrink: 0;
+  }
+  .top-item .t-name {
+    flex: 1; font-size: 14px; font-weight: 700;
+    min-width: 0; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .top-item .t-score {
+    font-size: 14px; font-weight: 900;
+    color: #f1c40f; flex-shrink: 0;
+  }
+  .top-empty {
+    text-align: center; color: #8fa2b8;
+    font-size: 13px; padding: 30px;
+    font-style: italic;
+  }
+  
+  /* === КНОПКА === */
+  .btn-join {
+    width: 100%;
+    background: linear-gradient(135deg, #f1c40f, #ff8a00);
+    color: #000;
+    border: none; border-radius: 16px;
+    padding: 20px; font-size: 18px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 2px;
+    cursor: pointer; font-family: inherit;
+    transition: .3s;
+    box-shadow: 0 10px 30px rgba(241,196,15,.3);
+    margin-bottom: 14px;
+  }
+  .btn-join:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(241,196,15,.5);
+  }
+  .btn-join:disabled {
+    background: #333; color: #8fa2b8;
+    cursor: not-allowed; box-shadow: none;
+  }
+  .join-note {
+    text-align: center; font-size: 12px;
+    color: #8fa2b8; line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  /* === МОДАЛКА === */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.85);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: rgba(18,24,38,.98);
+    border: 1px solid #00e5ff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 420px; width: 100%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0,229,255,.2);
+  }
+  .modal h2 { font-size: 22px; margin-bottom: 12px; }
+  .modal p {
+    font-size: 14px; color: #a0aec0;
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .modal input {
+    width: 100%;
+    background: rgba(0,0,0,.5);
+    border: 1px solid rgba(255,255,255,.1);
+    color: #fff; border-radius: 10px;
+    padding: 14px; font-size: 16px;
+    margin-bottom: 12px;
+    font-family: inherit; text-align: center;
+  }
+  .modal input:focus { outline: none; border-color: #00e5ff; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1; padding: 14px;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    text-transform: uppercase;
+  }
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+  }
+  .btn-confirm {
+    background: #00e5ff; color: #000; border: none;
+  }
+  .modal .err {
+    color: #ff4d4d; font-size: 13px;
+    min-height: 18px; margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .modal .ok {
+    color: #3fbf7f; font-size: 13px;
+    min-height: 18px; margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  /* === РЕЗУЛЬТАТ === */
+  .result-block {
+    background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.05));
+    border: 2px solid rgba(63,191,127,.5);
+    border-radius: 20px;
+    padding: 32px; text-align: center;
+    margin-bottom: 24px;
+  }
+  .result-block .r-emoji { font-size: 64px; margin-bottom: 12px; }
+  .result-block h2 {
+    font-size: 24px; margin-bottom: 8px;
+    color: #3fbf7f;
+  }
+  .result-block p {
+    font-size: 14px; color: #d0d5e0;
+    line-height: 1.6;
+  }
+  
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .hero { padding: 28px 20px; border-radius: 18px; }
+    .hero h1 { font-size: 26px; }
+    .hero .h-prize { font-size: 48px; }
+    .hero::before { font-size: 140px; }
+    .conditions-grid { grid-template-columns: 1fr 1fr; }
+    .cond-card { padding: 14px 10px; }
+    .cond-card .c-value { font-size: 16px; }
+    .how-to, .top-list, .progress-block { padding: 18px; }
+    .step-text { font-size: 13px; }
+    .btn-join { font-size: 16px; padding: 18px; }
+  }
+  @media (max-width: 380px) {
+    .conditions-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <a href="/" class="back-btn">← На главную</a>
+
+  <!-- === РЕЗУЛЬТАТ (показывается если турнир завершён) === -->
+  <div class="result-block" id="resultBlock" style="display:none;">
+    <div class="r-emoji">🏆</div>
+    <h2>Турнир завершён!</h2>
+    <p id="resultText">—</p>
+  </div>
+
+  <!-- === ШАПКА === -->
+  <div class="hero" id="heroBlock">
+    <div class="h-label">🏆 Турнир недели</div>
+    <h1 id="heroTitle">Розыгрыш бонусных фишек</h1>
+    <div class="h-prize" id="heroPrize">100 ₽</div>
+    <div class="h-prize-sub">бонусными фишками · вейджер x3</div>
+    <div class="h-timer-big" id="heroTimer">
+      <span class="t-dot"></span>
+      <span id="heroTimerText">Загрузка...</span>
+    </div>
+  </div>
+
+  <!-- === УСЛОВИЯ === -->
+  <div class="conditions-grid">
+    <div class="cond-card">
+      <div class="c-icon">🎫</div>
+      <div class="c-title">Вход</div>
+      <div class="c-value green">Бесплатный</div>
+      <div class="c-sub">без депозита</div>
+    </div>
+    <div class="cond-card">
+      <div class="c-icon">🎲</div>
+      <div class="c-title">Условие</div>
+      <div class="c-value">5 ставок</div>
+      <div class="c-sub">от 30 ₽ каждая</div>
+    </div>
+    <div class="cond-card">
+      <div class="c-icon">⏱</div>
+      <div class="c-title">Длительность</div>
+      <div class="c-value">3 дня</div>
+      <div class="c-sub">с момента старта</div>
+    </div>
+    <div class="cond-card">
+      <div class="c-icon">🏅</div>
+      <div class="c-title">Победитель</div>
+      <div class="c-value gold">Больше очков</div>
+      <div class="c-sub">1 ₽ ставки = 1 очко</div>
+    </div>
+  </div>
+
+  <!-- === КАК УЧАСТВОВАТЬ === -->
+  <div class="how-to">
+    <h2>📋 Как участвовать</h2>
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-text">Нажми <b>«Участвовать»</b> — регистрация в турнире бесплатная</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-text">Делай ставки в любых играх (<b>от 30 ₽</b>). Каждый рубль ставки = <b>1 очко</b></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-text">Сделай минимум <b>5 ставок</b>, чтобы попасть в зачёт</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-text">Через <b>3 дня</b> турнир завершается. Побеждает тот, у кого <b>больше очков</b></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">5</div>
+      <div class="step-text">Победитель получает <b>100 ₽ бонусными фишками</b>. Чтобы вывести — отыграй <b>300 ₽</b> ставок (вейджер x3)</div>
+    </div>
+  </div>
+
+  <!-- === ПРОГРЕСС === -->
+  <div class="progress-block" id="progressBlock">
+    <div class="progress-head">
+      <span>Набор участников</span>
+      <b id="progressText">0 / 3</b>
+    </div>
+    <div class="progress-bar-big">
+      <div id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-foot">
+      <span>Минимум 3 участника для завершения</span>
+      <span id="progressStatus">Ожидание...</span>
+    </div>
+  </div>
+
+  <!-- === ТОП === -->
+  <div class="top-list">
+    <h2>🏅 Топ участников</h2>
+    <div id="topList">
+      <div class="top-empty">Пока нет участников. Стань первым!</div>
+    </div>
+  </div>
+
+  <!-- === КНОПКА === -->
+  <button class="btn-join" id="btnJoin" onclick="openJoinModal()">
+    🏆 Участвовать бесплатно
+  </button>
+  <div class="join-note" id="joinNote">
+    Регистрация бесплатная. После нажатия ты автоматически попадёшь в турнир, если сделаешь 5 ставок от 30₽.
+  </div>
+
+</div>
+
+<!-- === МОДАЛКА ВХОДА === -->
+<div class="modal-backdrop" id="joinModal">
+  <div class="modal">
+    <h2>🏆 Участие в турнире</h2>
+    <p>Введи номер своей клубной карты, чтобы мы засчитали твои ставки.</p>
+    <input type="text" id="joinCardInput" placeholder="KING-0001" autocomplete="off">
+    <div class="err" id="joinErr"></div>
+    <div class="ok" id="joinOk"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeJoinModal()">Отмена</button>
+      <button class="btn-confirm" onclick="submitJoin()">Участвовать</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let tournamentData = null;
+let refreshTimer = null;
+
+function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+
+async function loadTournament() {
+  try {
+    const r = await fetch('/api/tournament/active', { cache: 'no-store' });
+    const data = await r.json();
+    tournamentData = data;
+    
+    if (!data || !data.tournament) {
+      // Нет активного турнира
+      document.getElementById('resultBlock').style.display = 'block';
+      document.getElementById('resultText').innerHTML = 'Сейчас нет активного турнира.<br>Следи за новостями — скоро запустим новый!';
+      document.getElementById('heroBlock').style.display = 'none';
+      document.getElementById('progressBlock').style.display = 'none';
+      document.getElementById('btnJoin').disabled = true;
+      document.getElementById('btnJoin').textContent = '⏳ Турнир не активен';
+      document.getElementById('joinNote').textContent = 'Дождись старта нового турнира';
+      return;
+    }
+    
+    const t = data.tournament;
+    
+    // Если турнир завершён
+    if (t.status === 'finished') {
+      document.getElementById('resultBlock').style.display = 'block';
+      document.getElementById('resultText').innerHTML = 
+        `🏆 Победитель: <b style="color:#f1c40f;">${t.winner_name || '—'}</b><br>` +
+        `Очки: <b>${t.winner_score ? Math.round(t.winner_score) : '—'}</b><br>` +
+        `Приз: <b style="color:#3fbf7f;">${t.prize_pool} ₽ бонусными</b>`;
+      document.getElementById('heroBlock').style.display = 'none';
+      document.getElementById('progressBlock').style.display = 'none';
+      document.getElementById('btnJoin').disabled = true;
+      document.getElementById('btnJoin').textContent = '🏁 Турнир завершён';
+      document.getElementById('joinNote').textContent = 'Следи за новым турниром на главной';
+      
+      // Всё равно показать топ
+      renderTop(data.top || []);
+      return;
+    }
+    
+    // Активный турнир
+    document.getElementById('resultBlock').style.display = 'none';
+    document.getElementById('heroBlock').style.display = 'block';
+    document.getElementById('progressBlock').style.display = 'block';
+    document.getElementById('btnJoin').disabled = false;
+    document.getElementById('btnJoin').textContent = '🏆 Участвовать бесплатно';
+    document.getElementById('joinNote').textContent = 
+      'Регистрация бесплатная. После нажатия ты автоматически попадёшь в турнир, если сделаешь 5 ставок от 30₽.';
+    
+    document.getElementById('heroTitle').textContent = t.title || 'Розыгрыш бонусных фишек';
+    document.getElementById('heroPrize').textContent = t.prize_pool + ' ₽';
+    
+    // Таймер
+    if (t.end_at) {
+      updateTimer(t.end_at);
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setInterval(() => updateTimer(t.end_at), 30000);
+    }
+    
+    // Прогресс
+    const minP = data.min_participants || 3;
+    const pct = Math.min(100, (data.participants / minP) * 100);
+    document.getElementById('progressText').textContent = `${data.participants} / ${minP}`;
+    document.getElementById('progressBar').style.width = pct + '%';
+    
+    const statusEl = document.getElementById('progressStatus');
+    if (data.can_finish) {
+      statusEl.innerHTML = '✅ Участников достаточно';
+      statusEl.style.color = '#3fbf7f';
+    } else {
+      const need = minP - data.participants;
+      statusEl.innerHTML = `Нужно ещё ${need}`;
+      statusEl.style.color = '#f1c40f';
+    }
+    
+    renderTop(data.top || []);
+  } catch(e) {
+    console.error('loadTournament', e);
+    document.getElementById('heroTimerText').textContent = 'Ошибка загрузки';
+  }
+}
+
+function updateTimer(endAt) {
+  const end = new Date(endAt).getTime();
+  const now = Date.now();
+  const diff = Math.max(0, end - now);
+  
+  if (diff <= 0) {
+    document.getElementById('heroTimerText').textContent = 'Турнир завершён';
+    return;
+  }
+  
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const secs = Math.floor((diff % (1000*60)) / 1000);
+  
+  let text = 'До конца: ';
+  if (days > 0) text += `${days}д ${hours}ч ${mins}м`;
+  else if (hours > 0) text += `${hours}ч ${mins}м ${secs}с`;
+  else text += `${mins}м ${secs}с`;
+  
+  document.getElementById('heroTimerText').textContent = text;
+}
+
+function renderTop(top) {
+  const el = document.getElementById('topList');
+  if (!top || top.length === 0) {
+    el.innerHTML = '<div class="top-empty">Пока нет участников. Стань первым!</div>';
+    return;
+  }
+  
+  el.innerHTML = top.map((x, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+    const isFirst = i === 0;
+    return `
+      <div class="top-item${isFirst ? ' first' : ''}">
+        <div class="t-rank">${medal}</div>
+        <div class="t-name">${escapeHtml(x.guest_name || '—')}</div>
+        <div class="t-score">${Math.round(x.score)} очков</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function openJoinModal() {
+  document.getElementById('joinCardInput').value = '';
+  document.getElementById('joinErr').textContent = '';
+  document.getElementById('joinOk').textContent = '';
+  document.getElementById('joinModal').classList.add('show');
+  setTimeout(() => document.getElementById('joinCardInput').focus(), 100);
+}
+
+function closeJoinModal() {
+  document.getElementById('joinModal').classList.remove('show');
+}
+
+async function submitJoin() {
+  const card = document.getElementById('joinCardInput').value.trim();
+  const err = document.getElementById('joinErr');
+  const ok = document.getElementById('joinOk');
+  err.textContent = '';
+  ok.textContent = '';
+  
+  if (!card) {
+    err.textContent = 'Введи номер карты';
+    return;
+  }
+  
+  try {
+    const r = await fetch('/api/tournament/join', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ card })
+    });
+    const data = await r.json();
+    
+    if (!r.ok) {
+      err.textContent = data.error || 'Ошибка';
+      return;
+    }
+    
+    ok.textContent = `✓ Ты участвуешь! Теперь делай ставки от 30₽ и набирай очки.`;
+    setTimeout(() => {
+      closeJoinModal();
+      loadTournament();
+    }, 1500);
+  } catch(e) {
+    err.textContent = 'Ошибка соединения';
+  }
+}
+
+// Закрытие по клику на фон
+document.getElementById('joinModal').addEventListener('click', (e) => {
+  if (e.target.id === 'joinModal') closeJoinModal();
+});
+
+// Enter в поле ввода
+document.getElementById('joinCardInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') submitJoin();
+});
+
+loadTournament();
+// Обновляем каждые 10 секунд
+setInterval(loadTournament, 10000);
+</script>
+
+</body>
+</html>
