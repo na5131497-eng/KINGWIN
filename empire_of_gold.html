@@ -520,7 +520,7 @@
     <div style="text-align: left; color: #fff; margin-top: 15px; font-weight: 800;">Спецсимволы:</div>
     <ul style="text-align: left; color: #b0b8c5; font-size: 13px; margin: 10px 0 15px 20px; line-height: 1.6;">
       <li><b>WILD (Слиток)</b> — заменяет любые символы для составления комбинации.</li>
-      <li><b>SCATTER (Колесо)</b> — выпадение 3-х и более запускает бонусную игру (3 Скаттера = 3 респина, 4 = 5 респинов, 5 = 7 респинов, 6+ = 10 респинов).</li>
+      <li><b>SCATTER (Колесо)</b> — выпадение 3-х и более запускает бонусную игру.</li>
       <li><b>COIN (Монета)</b> — выпадение 6+ активирует Hold & Win.</li>
     </ul>
 
@@ -737,6 +737,38 @@ async function refreshBalance() {
   } catch(e) {}
 }
 
+// ===== АНИМАЦИЯ ПАДЕНИЯ =====
+async function animateDrop() {
+  const wrap = $('reelsWrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const reel = document.createElement('div');
+    reel.className = 'reel';
+    reel.id = `reel-${i}`;
+    wrap.appendChild(reel);
+  }
+  
+  await new Promise(r => setTimeout(r, 100));
+  
+  for (let i = 0; i < 6; i++) {
+    const reel = document.getElementById(`reel-${i}`);
+    for (let j = 0; j < 5; j++) {
+      const el = document.createElement('div');
+      el.className = 'symbol';
+      el.style.transform = `translateY(${(j - 5) * 100}%)`;
+      el.innerHTML = `<div class="symbol-inner" style="background: rgba(255,255,255,0.02);"></div>`;
+      reel.appendChild(el);
+      
+      const delay = 50 + (i * 100) + (j * 50);
+      setTimeout(() => {
+        el.style.transform = `translateY(${j * 100}%)`;
+      }, delay);
+    }
+  }
+  
+  await new Promise(r => setTimeout(r, 1500));
+}
+
 // ===== СПИН С РЕАЛЬНЫМ БАЛАНСОМ =====
 async function spin() {
   if (isSpinning) return;
@@ -753,6 +785,9 @@ async function spin() {
   $('winAmount').style.color = 'var(--gold-light)';
   
   try {
+    // Запускаем анимацию падения
+    await animateDrop();
+    
     // Запрос на сервер
     const r = await fetch('/api/slots/empire/spin', {
       method: 'POST',
@@ -776,7 +811,29 @@ async function spin() {
     if (d.win > 0) {
       $('winAmount').textContent = d.win.toFixed(2);
       $('winAmount').style.color = '#00ff88';
+      playBonusFanfare(); // Звук выигрыша
       setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
+    } else {
+      // Показываем пустое поле
+      $('winAmount').textContent = '0';
+    }
+    
+    // Заполняем поле финальными символами (для визуала)
+    const wrap = $('reelsWrap');
+    wrap.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+      const reel = document.createElement('div');
+      reel.className = 'reel';
+      reel.id = `reel-${i}`;
+      for (let j = 0; j < 5; j++) {
+        const sym = getRandomSymbol();
+        const el = document.createElement('div');
+        el.className = 'symbol';
+        el.style.transform = `translateY(${j * 100}%)`;
+        el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
+        reel.appendChild(el);
+      }
+      wrap.appendChild(reel);
     }
     
     isSpinning = false;
