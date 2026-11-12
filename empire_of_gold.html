@@ -295,7 +295,6 @@
   .btn-spin:active { transform: translateY(6px); box-shadow: 0 0 0 #004d00, 0 0 30px rgba(0,230,118,0.6); }
   .btn-spin:disabled { filter: grayscale(1); cursor: not-allowed; transform: translateY(6px); box-shadow: 0 0 0 #004d00; }
 
-  /* МОДАЛЬНЫЕ ОКНА */
   .modal-overlay { 
     position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); 
     display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; 
@@ -469,8 +468,8 @@
     </a>
     <div class="balance-panel">
       <div class="coin-icon">₽</div>
-      <span id="balanceVal">1000.00</span>
-      <button onclick="window.location.href='/'">+</button>
+      <span id="balanceVal">0.00</span>
+      <button onclick="window.location.href='/pay.html'">+</button>
     </div>
   </div>
 
@@ -521,7 +520,7 @@
     <div style="text-align: left; color: #fff; margin-top: 15px; font-weight: 800;">Спецсимволы:</div>
     <ul style="text-align: left; color: #b0b8c5; font-size: 13px; margin: 10px 0 15px 20px; line-height: 1.6;">
       <li><b>WILD (Слиток)</b> — заменяет любые символы для составления комбинации.</li>
-      <li><b>SCATTER (Колесо)</b> — выпадение 3-х и более запускает бонусную игру.</li>
+      <li><b>SCATTER (Колесо)</b> — выпадение 3-х и более запускает бонусную игру (3 Скаттера = 3 респина, 4 = 5 респинов, 5 = 7 респинов, 6+ = 10 респинов).</li>
       <li><b>COIN (Монета)</b> — выпадение 6+ активирует Hold & Win.</li>
     </ul>
 
@@ -593,48 +592,33 @@
 
 <script>
 const $ = id => document.getElementById(id);
-let balance = 1000.00;
+let currentPlayer = null;
+let balance = 0;
 let isSpinning = false;
-let inBonus = false;
-let respinsLeft = 0;
-let bonusTotalWin = 0;
-let bonusBoard = [];
 let pendingBonusCost = 0;
 let pendingBonusType = 0;
 
+// Реальные ставки с сервера
 const BETS = [6, 16, 32, 48, 64, 120];
 let betIndex = 0;
 let bet = BETS[betIndex];
 
+// Символы (только те, что нужны)
 const SYMBOLS = {
-  '10': { id: '10', img: '/sym_10.png', weight: 30 },
-  'J': { id: 'J', img: '/sym_j.png', weight: 30 },
-  'Q': { id: 'Q', img: '/sym_q.png', weight: 30 },
-  'K': { id: 'K', img: '/sym_k.png', weight: 30 },
-  'A': { id: 'A', img: '/sym_a.png', weight: 30 },
+  '10': { id: '10', img: '/sym_10.png', weight: 25 },
+  'J': { id: 'J', img: '/sym_j.png', weight: 25 },
+  'Q': { id: 'Q', img: '/sym_q.png', weight: 25 },
+  'K': { id: 'K', img: '/sym_k.png', weight: 25 },
+  'A': { id: 'A', img: '/sym_a.png', weight: 25 },
   'diamond': { id: 'diamond', img: '/sym_diamond.png', weight: 10 },
   'scarab': { id: 'scarab', img: '/sym_scarab.png', weight: 6 },
   'crown': { id: 'crown', img: '/sym_crown.png', weight: 4 },
   'wild': { id: 'wild', img: '/sym_wild.png', weight: 2 },
-  'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 1 }, // Уменьшили шанс скаттера
+  'scatter': { id: 'scatter', img: '/sym_scatter.png', weight: 1 },
   'coin': { id: 'coin', img: '/sym_coin.png', weight: 2 }
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
-
-// Таблица выплат Olympus-стиля (за 8, 9, 10, 11, 12+ символов)
-// 8 - базовый, 12+ - максимум
-const PAYTABLE = {
-  '10': [0.2, 0.3, 0.5, 0.8, 2],
-  'J': [0.2, 0.3, 0.5, 0.8, 2],
-  'Q': [0.2, 0.3, 0.5, 0.8, 2],
-  'K': [0.2, 0.3, 0.5, 0.8, 2],
-  'A': [0.2, 0.3, 0.5, 0.8, 2],
-  'diamond': [0.5, 0.7, 1, 2, 5],
-  'scarab': [1, 1.5, 2, 4, 10],
-  'crown': [2, 3, 5, 10, 20],
-  'wild': [5, 8, 15, 30, 50]
-};
 
 function getRandomSymbol() {
   const totalWeight = Object.values(SYMBOLS).reduce((sum, s) => sum + s.weight, 0);
@@ -730,342 +714,81 @@ function playBonusFanfare() {
   } catch(e) {}
 }
 
-function checkWins(board, betAmount) {
-  let totalWin = 0;
-  let winPositions = [];
-  let scatterPositions = [];
-  let coinPositions = [];
-  const counts = {};
-  
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 5; j++) {
-      const sym = board[i][j];
-      if (sym.id === 'scatter') {
-        scatterPositions.push([i, j]);
-      } else if (sym.id === 'coin') {
-        coinPositions.push([i, j]);
-      } else {
-        if (!counts[sym.id]) counts[sym.id] = [];
-        counts[sym.id].push([i, j]);
-      }
-    }
-  }
-  
-  for (const symId in counts) {
-    const count = counts[symId].length;
-    // ВАЖНО: Теперь выигрыш начинается с 8 символов!
-    if (count >= 8 && PAYTABLE[symId]) {
-      let payoutIndex = Math.min(count - 8, 4); // 8->0, 9->1, 10->2, 11->3, 12+->4
-      let payout = PAYTABLE[symId][payoutIndex];
-      totalWin += payout * betAmount;
-      counts[symId].forEach(pos => winPositions.push(pos));
-    }
-  }
-  return { win: Math.round(totalWin * 100) / 100, positions: winPositions, scatters: scatterPositions, coins: coinPositions };
+// ===== ЗАГРУЗКА ИГРОКА И БАЛАНСА =====
+function loadMe() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlId = urlParams.get('id');
+    if (urlId) { localStorage.setItem('kingwin_guest_id', urlId); return { guestId: String(urlId) }; }
+    const savedId = localStorage.getItem('kingwin_guest_id');
+    if (savedId) return { guestId: String(savedId) };
+  } catch(e) {}
+  return null;
 }
 
-function highlightWinCells(positions) {
-  positions.forEach(pos => {
-    const reel = document.getElementById(`reel-${pos[0]}`);
-    if (!reel) return;
-    const symbols = reel.querySelectorAll('.symbol');
-    const el = symbols[pos[1]];
-    if (el) {
-      const inner = el.querySelector('.symbol-inner');
-      if (inner) inner.classList.add('win-highlight');
-    }
-  });
+async function refreshBalance() {
+  if (!currentPlayer) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.guestId));
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.balance && typeof data.balance.total === 'number') balance = data.balance.total;
+    $('balanceVal').textContent = balance.toFixed(2);
+  } catch(e) {}
 }
 
-function highlightScatters(positions) {
-  positions.forEach(pos => {
-    const reel = document.getElementById(`reel-${pos[0]}`);
-    if (!reel) return;
-    const symbols = reel.querySelectorAll('.symbol');
-    const el = symbols[pos[1]];
-    if (el) {
-      const inner = el.querySelector('.symbol-inner');
-      if (inner) {
-        inner.style.boxShadow = '0 0 30px #ff4d4d, inset 0 0 15px #ff4d4d';
-        inner.style.border = '2px solid #ff4d4d';
-        inner.style.animation = 'pulse-win 0.4s infinite alternate';
-      }
-    }
-  });
-}
-
-async function processCascades(board, totalWinSoFar = 0) {
-  const res = checkWins(board, bet);
+// ===== СПИН С РЕАЛЬНЫМ БАЛАНСОМ =====
+async function spin() {
+  if (isSpinning) return;
   
-  if (res.scatters.length >= 3) {
-    playBonusFanfare();
-    highlightScatters(res.scatters);
-    await new Promise(r => setTimeout(r, 1500));
-    startHoldAndWin(res.scatters);
-    return;
+  await refreshBalance();
+  if (balance < bet) { 
+    alert(`Недостаточно средств. Баланс: ${balance.toFixed(2)} ₽`); 
+    return; 
   }
-
-  if (res.coins.length >= 6) {
-    playCoinSound();
-    res.coins.forEach(pos => {
-      const reel = document.getElementById(`reel-${pos[0]}`);
-      if (!reel) return;
-      const symbols = reel.querySelectorAll('.symbol');
-      const el = symbols[pos[1]];
-      if (el) {
-        const inner = el.querySelector('.symbol-inner');
-        if (inner) inner.classList.add('coin-locked');
-      }
+  
+  isSpinning = true;
+  $('btnSpin').disabled = true;
+  $('winAmount').textContent = '0';
+  $('winAmount').style.color = 'var(--gold-light)';
+  
+  try {
+    // Запрос на сервер
+    const r = await fetch('/api/slots/empire/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.guestId, bet: bet })
     });
+    const d = await r.json();
     
-    setTimeout(() => {
-      startHoldAndWin(res.coins);
-    }, 1000);
-    return;
-  }
-
-  if (res.win > 0) {
-    totalWinSoFar += res.win;
-    $('winAmount').textContent = totalWinSoFar.toFixed(2);
-    $('winAmount').style.color = '#00ff88';
-    
-    highlightWinCells(res.positions);
-    await new Promise(r => setTimeout(r, 800)); 
-    
-    playExplosionSound();
-    res.positions.forEach(pos => {
-      const reel = document.getElementById(`reel-${pos[0]}`);
-      if (!reel) return;
-      const symbols = reel.querySelectorAll('.symbol');
-      const el = symbols[pos[1]];
-      if (el) {
-        const inner = el.querySelector('.symbol-inner');
-        if (inner) {
-          inner.classList.remove('win-highlight');
-          inner.classList.add('exploding');
-        }
-      }
-    });
-    
-    await new Promise(r => setTimeout(r, 400)); 
-    
-    const newBoard = JSON.parse(JSON.stringify(board));
-    
-    for (let i = 0; i < 6; i++) {
-      const reel = document.getElementById(`reel-${i}`);
-      if (!reel) continue;
-      
-      const remaining = [];
-      
-      for (let j = 0; j < 5; j++) {
-        const isWin = res.positions.some(pos => pos[0] === i && pos[1] === j);
-        if (!isWin) remaining.push(board[i][j]);
-      }
-      
-      const missingCount = 5 - remaining.length;
-      const newSymbols = [];
-      for (let k = 0; k < missingCount; k++) newSymbols.push(getRandomSymbol());
-      
-      const finalColumn = [...newSymbols, ...remaining];
-      for (let j = 0; j < 5; j++) newBoard[i][j] = finalColumn[j];
-      
-      reel.innerHTML = '';
-      
-      for (let j = 0; j < 5; j++) {
-        const sym = finalColumn[j];
-        const el = document.createElement('div');
-        el.className = 'symbol';
-        
-        let startY = 0;
-        if (j < missingCount) {
-          startY = (j - missingCount) * 100;
-        } else {
-          const oldRemainingIndex = j - missingCount;
-          let oldPos = -1;
-          let countFound = -1;
-          for (let oldJ = 0; oldJ < 5; oldJ++) {
-            const isWin = res.positions.some(pos => pos[0] === i && pos[1] === oldJ);
-            if (!isWin) {
-              countFound++;
-              if (countFound === oldRemainingIndex) {
-                oldPos = oldJ;
-                break;
-              }
-            }
-          }
-          if (oldPos !== -1) startY = oldPos * 100;
-          else startY = j * 100;
-        }
-        
-        el.style.transform = `translateY(${startY}%)`;
-        el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
-        reel.appendChild(el);
-        
-        const endY = j * 100;
-        setTimeout(() => {
-          el.style.transform = `translateY(${endY}%)`;
-        }, 20);
-      }
+    if (!r.ok) {
+      alert(d.error || 'Ошибка');
+      isSpinning = false;
+      $('btnSpin').disabled = false;
+      return;
     }
     
-    await new Promise(r => setTimeout(r, 900));
-    await processCascades(newBoard, totalWinSoFar);
+    // Обновляем баланс с сервера
+    balance = d.balance;
+    $('balanceVal').textContent = balance.toFixed(2);
     
-  } else {
-    if (totalWinSoFar > 0) {
-      balance += totalWinSoFar;
-      $('balanceVal').textContent = balance.toFixed(2);
+    // Показываем выигрыш
+    if (d.win > 0) {
+      $('winAmount').textContent = d.win.toFixed(2);
+      $('winAmount').style.color = '#00ff88';
+      setTimeout(() => { $('winAmount').style.color = 'var(--gold-light)'; }, 1000);
     }
+    
     isSpinning = false;
     $('btnSpin').disabled = false;
-    $('winAmount').style.color = 'var(--gold-light)';
+  } catch(e) {
+    alert('Ошибка соединения');
+    isSpinning = false;
+    $('btnSpin').disabled = false;
   }
 }
 
-// БОНУС HOLD & WIN
-async function startHoldAndWin(initialCoinPositions) {
-  inBonus = true;
-  respinsLeft = 3;
-  bonusTotalWin = 0;
-  
-  bonusBoard = Array(6).fill().map(() => Array(5).fill(null));
-  
-  const values = [1, 2, 3, 5, 10];
-  initialCoinPositions.forEach(pos => {
-    const val = values[Math.floor(Math.random() * values.length)];
-    bonusBoard[pos[0]][pos[1]] = { sym: SYMBOLS['coin'], value: val };
-    bonusTotalWin += val;
-  });
-  
-  $('bonusActivationOverlay').classList.add('show');
-  $('bonusSubtext').textContent = `HOLD & WIN`;
-  playBonusFanfare();
-  
-  await new Promise(r => setTimeout(r, 2500));
-  
-  $('bonusActivationOverlay').classList.remove('show');
-  
-  $('bonusIndicator').style.display = 'block';
-  updateBonusUI();
-  
-  await new Promise(r => setTimeout(r, 500));
-  renderBonusBoard();
-  
-  await runBonusRespins();
-}
-
-function updateBonusUI() {
-  $('spinsLeftVal').textContent = respinsLeft;
-}
-
-function renderBonusBoard() {
-  const wrap = $('reelsWrap');
-  wrap.innerHTML = '';
-  
-  for (let i = 0; i < 6; i++) {
-    const reel = document.createElement('div');
-    reel.className = 'reel';
-    reel.id = `reel-${i}`;
-    
-    for (let j = 0; j < 5; j++) {
-      const el = document.createElement('div');
-      el.className = 'symbol';
-      el.style.transform = `translateY(${j * 100}%)`;
-      
-      const cell = bonusBoard[i][j];
-      if (cell) {
-        el.innerHTML = `<div class="symbol-inner coin-locked">${createSymbolHTML(cell.sym, cell.value)}</div>`;
-      } else {
-        el.innerHTML = `<div class="symbol-inner" style="background: rgba(0,0,0,0.5); border: 1px solid #3a1c5c;"></div>`;
-      }
-      
-      reel.appendChild(el);
-    }
-    wrap.appendChild(reel);
-  }
-}
-
-async function runBonusRespins() {
-  while (respinsLeft > 0) {
-    respinsLeft--;
-    updateBonusUI();
-    
-    const emptyCells = [];
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 5; j++) {
-        if (!bonusBoard[i][j]) emptyCells.push([i, j]);
-      }
-    }
-    
-    if (emptyCells.length === 0) break;
-    
-    const reels = [];
-    for (let i = 0; i < 6; i++) {
-      const reel = document.getElementById(`reel-${i}`);
-      if (!reel) continue;
-      reels.push(reel);
-    }
-
-    for (let i = 0; i < 6; i++) {
-      const reel = reels[i];
-      const symbols = reel.querySelectorAll('.symbol');
-      
-      for (let j = 0; j < 5; j++) {
-        if (!bonusBoard[i][j]) {
-          const el = symbols[j];
-          const inner = el.querySelector('.symbol-inner');
-          if (inner) {
-            inner.innerHTML = createSymbolHTML(getRandomSymbol());
-            inner.style.opacity = '0.5';
-          }
-        }
-      }
-    }
-    
-    await new Promise(r => setTimeout(r, 800));
-    
-    let newCoinAdded = false;
-    const values = [1, 2, 3, 5, 10];
-    
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 5; j++) {
-        if (!bonusBoard[i][j] && Math.random() < 0.15) {
-          const val = values[Math.floor(Math.random() * values.length)];
-          bonusBoard[i][j] = { sym: SYMBOLS['coin'], value: val };
-          bonusTotalWin += val;
-          newCoinAdded = true;
-        }
-      }
-    }
-    
-    renderBonusBoard();
-    
-    if (newCoinAdded) {
-      playCoinSound();
-      respinsLeft = 3;
-      updateBonusUI();
-    }
-    
-    await new Promise(r => setTimeout(r, 1000));
-  }
-  
-  await new Promise(r => setTimeout(r, 1000));
-  
-  const finalWin = bonusTotalWin * bet;
-  balance += finalWin;
-  $('balanceVal').textContent = balance.toFixed(2);
-  
-  $('summaryCoins').textContent = bonusTotalWin;
-  $('summaryWin').textContent = `+${finalWin.toFixed(2)} ₽`;
-  
-  $('summaryModal').classList.add('show');
-  
-  $('bonusIndicator').style.display = 'none';
-  inBonus = false;
-  isSpinning = false;
-  $('btnSpin').disabled = false;
-}
-
+// ===== БОНУСЫ =====
 function confirmBonus(type, multiplier) {
   const cost = bet * multiplier;
   if (balance < cost) { alert(`Недостаточно средств. Нужно ${cost} ₽`); return; }
@@ -1083,129 +806,11 @@ async function executeBonusPurchase() {
   
   if (balance < pendingBonusCost) { alert('Недостаточно средств'); return; }
   
-  balance -= pendingBonusCost;
-  $('balanceVal').textContent = balance.toFixed(2);
-  
-  isSpinning = true;
-  $('btnSpin').disabled = true;
-  
-  const wrap = $('reelsWrap');
-  wrap.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const reel = document.createElement('div');
-    reel.className = 'reel';
-    reel.id = `reel-${i}`;
-    wrap.appendChild(reel);
-  }
-  
-  await new Promise(r => setTimeout(r, 200));
-  
-  const fakeBoard = [];
-  const scatterPositions = [];
-  
-  while (scatterPositions.length < 3) {
-    const col = Math.floor(Math.random() * 6);
-    const row = Math.floor(Math.random() * 5);
-    if (!scatterPositions.some(p => p[0] === col && p[1] === row)) {
-      scatterPositions.push([col, row]);
-    }
-  }
-  
-  for (let i = 0; i < 6; i++) {
-    const col = [];
-    for (let j = 0; j < 5; j++) {
-      if (scatterPositions.some(p => p[0] === i && p[1] === j)) {
-        col.push(SYMBOLS['scatter']);
-      } else {
-        col.push(getRandomSymbol());
-      }
-    }
-    fakeBoard.push(col);
-  }
-  
-  for (let i = 0; i < 6; i++) {
-    const reel = document.getElementById(`reel-${i}`);
-    for (let j = 0; j < 5; j++) {
-      const el = document.createElement('div');
-      el.className = 'symbol';
-      el.style.transform = `translateY(${(j - 5) * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(fakeBoard[i][j])}</div>`;
-      reel.appendChild(el);
-      
-      const delay = 50 + (i * 100) + (j * 50);
-      setTimeout(() => {
-        el.style.transform = `translateY(${j * 100}%)`;
-      }, delay);
-    }
-  }
-  
-  await new Promise(r => setTimeout(r, 1800));
-  
-  highlightScatters(scatterPositions);
-  
-  playBonusFanfare();
-  await new Promise(r => setTimeout(r, 1500));
-  
-  startHoldAndWin(scatterPositions.map(p => [p[0], p[1]]));
-}
-
-async function spin() {
-  if (isSpinning) return;
-  if (balance < bet) { alert('Недостаточно средств'); return; }
-  
-  balance -= bet;
-  $('balanceVal').textContent = balance.toFixed(2);
-  isSpinning = true;
-  $('btnSpin').disabled = true;
-  $('winAmount').textContent = '0';
-  $('winAmount').style.color = 'var(--gold-light)';
-  
-  const board = [];
-  for (let i = 0; i < 6; i++) {
-    const col = [];
-    for (let j = 0; j < 5; j++) col.push(getRandomSymbol());
-    board.push(col);
-  }
-  
-  const wrap = $('reelsWrap');
-  wrap.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const reel = document.createElement('div');
-    reel.className = 'reel';
-    reel.id = `reel-${i}`;
-    wrap.appendChild(reel);
-  }
-  
-  await new Promise(r => setTimeout(r, 200));
-  
-  for (let i = 0; i < 6; i++) {
-    const reel = document.getElementById(`reel-${i}`);
-    for (let j = 0; j < 5; j++) {
-      const el = document.createElement('div');
-      el.className = 'symbol';
-      el.style.transform = `translateY(${(j - 5) * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(board[i][j])}</div>`;
-      reel.appendChild(el);
-      
-      const delay = 50 + (i * 100) + (j * 50);
-      setTimeout(() => {
-        el.style.transform = `translateY(${j * 100}%)`;
-      }, delay);
-    }
-  }
-  
-  await new Promise(r => setTimeout(r, 1800));
-  await processCascades(board, 0);
+  // Списываем через сервер (пока просто показываем что купили)
+  alert('Покупка бонуса пока в разработке');
 }
 
 function initBoard() {
-  const initialBoard = [];
-  for (let i = 0; i < 6; i++) {
-    const col = [];
-    for (let j = 0; j < 5; j++) col.push(getRandomSymbol());
-    initialBoard.push(col);
-  }
-  
   const wrap = $('reelsWrap');
   wrap.innerHTML = '';
   for (let i = 0; i < 6; i++) {
@@ -1213,10 +818,11 @@ function initBoard() {
     reel.className = 'reel';
     reel.id = `reel-${i}`;
     for (let j = 0; j < 5; j++) {
+      const sym = getRandomSymbol();
       const el = document.createElement('div');
       el.className = 'symbol';
       el.style.transform = `translateY(${j * 100}%)`;
-      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(initialBoard[i][j])}</div>`;
+      el.innerHTML = `<div class="symbol-inner">${createSymbolHTML(sym)}</div>`;
       reel.appendChild(el);
     }
     wrap.appendChild(reel);
@@ -1224,8 +830,18 @@ function initBoard() {
 }
 
 window.onload = () => {
+  currentPlayer = loadMe();
+  if (currentPlayer) {
+    refreshBalance();
+    setInterval(refreshBalance, 3000);
+  } else {
+    alert('Войдите в аккаунт на главной странице');
+    setTimeout(() => { window.location.href = '/'; }, 1500);
+  }
+  
   changeBet(0);
   
+  // Анимация загрузки
   let progress = 0;
   const loadingInterval = setInterval(() => {
     progress += 1;
