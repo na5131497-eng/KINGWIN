@@ -34,13 +34,16 @@
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
   
-  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay):not(.modal-overlay) { position: relative; z-index: 1; }
+  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay):not(.modal-overlay):not(.waiting-overlay) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 12px; }
-  .menu-btn { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; display: flex; align-items: center; padding: 5px; }
+  .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+  .menu-btn:hover { background: rgba(255,255,255,0.1); }
+  
   .logo { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+  
   .header-right { display: flex; align-items: center; gap: 8px; }
   .balance-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 5px; color: #fff; }
   .btn-plus { width: 36px; height: 36px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; }
@@ -113,25 +116,79 @@
   .nav-btn-plus svg { fill: #000; width: 28px; height: 28px; }
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
-  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; }
+  /* ========================================================
+     САЙДБАР В СТИЛЕ KINGWIN (с пунктами как у UP-X)
+     ======================================================== */
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #0b0e14; z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
+  
+  .sidebar { 
+    position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; 
+    background: var(--bg-main); /* Твой темный фон */
+    z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.05);
+  }
   .sidebar.show { left: 0; }
-  .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .sidebar-close { background: rgba(255,255,255,0.05); border: none; color: #fff; width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-  .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
-  .sidebar-search { width: 100%; background: #1c2230; border: none; border-radius: 10px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 15px; outline: none; }
-  .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 5px; transition: 0.2s; }
-  .sidebar-item:hover, .sidebar-item.active { background: rgba(0,229,255,0.1); color: var(--accent); }
-  .sidebar-item svg { width: 20px; height: 20px; fill: currentColor; }
-  .sidebar-section-title { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin: 20px 0 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-  .sidebar-games-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 15px; }
-  .sidebar-games-list.show { max-height: 500px; }
-  .sidebar-game-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #d0d5e0; font-size: 14px; font-weight: 600; }
-  .sidebar-game-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-  /* === СТАРЫЕ МОДАЛКИ === */
-  .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 9999999 !important; padding: 20px !important; overflow-y: auto !important; }
+  /* Шапка сайдбара */
+  .sb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+  .sb-logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sb-balance-area { display: flex; align-items: center; gap: 10px; }
+  .sb-balance { font-size: 14px; font-weight: 800; color: #fff; }
+  .sb-plus-btn { background: var(--accent-green); color: #000; width: 30px; height: 30px; border-radius: 8px; border: none; font-size: 18px; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center;}
+
+  .sb-content { padding: 0 15px 20px; flex: 1; }
+
+  /* Поиск */
+  .sb-search { width: 100%; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 20px; outline: none; display: flex; align-items: center; gap: 10px; }
+  .sb-search input { background: transparent; border: none; color: #fff; width: 100%; outline: none; font-family: inherit; font-size: 14px; }
+  .sb-search input::placeholder { color: var(--text-muted); }
+
+  /* Баннеры внутри меню */
+  .sb-banner { 
+    border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 14px; position: relative;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .sb-banner-wheel { background: linear-gradient(90deg, rgba(126,34,206,0.8), rgba(76,29,149,0.8)); }
+  .sb-banner-store { background: linear-gradient(90deg, rgba(29,78,216,0.8), rgba(30,58,138,0.8)); }
+  .sb-banner-missions { background: linear-gradient(90deg, rgba(2,132,199,0.8), rgba(3,105,161,0.8)); }
+  
+  .sb-banner-badge { position: absolute; top: -6px; left: -6px; background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 8px; transform: rotate(-10deg); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+  .sb-banner-count { background: var(--red); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; font-weight: 800; margin-left: 5px; }
+  .sb-banner-icon { font-size: 24px; }
+
+  /* Пункты меню */
+  .sb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; text-decoration: none; color: var(--text-main); font-size: 15px; font-weight: 600; border-radius: 10px; margin-bottom: 2px; transition: 0.2s; cursor: pointer; }
+  .sb-item:hover { background: rgba(255,255,255,0.05); }
+  .sb-item-left { display: flex; align-items: center; gap: 15px; }
+  .sb-item-left svg { width: 22px; height: 22px; fill: var(--text-muted); }
+  .sb-item.active .sb-item-left svg { fill: var(--accent); }
+  .sb-item.active { color: var(--accent); }
+  
+  .sb-item-badge { background: var(--red); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
+
+  /* Выпадающий список игр */
+  .sb-games-toggle svg.arrow { width: 14px; height: 14px; fill: var(--text-muted); transition: 0.3s; }
+  .sb-games-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 10px; margin-bottom: 5px; }
+  .sb-games-list.show { max-height: 600px; }
+  
+  .sb-game-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 600; border-radius: 8px; }
+  .sb-game-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  
+  /* Разделитель */
+  .sb-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 15px 0; }
+
+  /* Соцсети */
+  .sb-socials { display: flex; gap: 10px; margin-top: 20px; }
+  .sb-social-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #fff; font-size: 20px; font-weight: 900; transition: 0.2s; }
+  .sb-social-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+  .sb-social-vk { background: #0077FF; }
+  .sb-social-tg { background: #2AABEE; }
+  .sb-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
+
+  /* === СТАРЫЕ МОДАЛКИ И ОКНА === */
+  .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
   .modal-close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: none; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
@@ -140,15 +197,8 @@
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
-  /* ========================================================
-     ОКНО 1: ВЫБОР БАНКА И СУММЫ
-     ======================================================== */
-  .payment-overlay {
-    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-    background: var(--bg-main); z-index: 9999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #fff;
-  }
+  .payment-overlay { position: fixed !important; inset: 0 !important; background: var(--bg-main); z-index: 9999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #fff; }
   .payment-overlay.show { display: flex !important; }
-  
   .pay-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-main); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .pay-logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .pay-account { text-align: right; font-size: 12px; color: var(--text-muted); margin-right: 15px;}
@@ -171,7 +221,6 @@
   .banks-screen.hide { display: none; }
 
   .pay-back-btn { background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
-  
   .selected-bank-display { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
   .selected-bank-display .bank-icon { width: 30px; height: 30px; margin: 0; font-size: 14px; }
 
@@ -203,90 +252,45 @@
   .amount-chips button:last-child { flex: 1 1 100%; }
 
   .promo-link { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--accent); font-weight: 700; font-size: 15px; margin: 25px 0; cursor: pointer; text-decoration: none; }
-  
-  /* КНОПКА "ПОПОЛНИТЬ" */
   .pay-submit-btn { background: var(--accent-green); color: #000; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 900; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,230,118,0.2); margin-top: 10px;}
 
-  /* ========================================================
-     ОКНО 2: САМА СТРАНИЦА ОПЛАТЫ (СВЕТЛАЯ)
-     ======================================================== */
-  .pay-page-overlay {
-    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-    background: #f4f5f7; z-index: 99999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #111;
-  }
+  .pay-page-overlay { position: fixed !important; inset: 0 !important; background: #f4f5f7; z-index: 99999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #111; }
   .pay-page-overlay.show { display: flex !important; }
-  
   .pp-header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
   .pp-logo { font-size: 18px; font-weight: 800; color: #005bff; }
   .pp-timer { background: #fff; border: 1px dashed #ccc; padding: 5px 15px; border-radius: 8px; font-size: 14px; font-weight: 700; }
-  
   .pp-content { padding: 20px; max-width: 500px; margin: 0 auto; width: 100%; flex: 1; }
-  
   .pp-title { text-align: center; font-size: 14px; color: #666; margin-bottom: 5px; }
   .pp-amount { text-align: center; font-size: 42px; font-weight: 900; color: #111; margin-bottom: 5px; }
   .pp-amount span { font-size: 30px; }
   .pp-id { text-align: center; font-size: 12px; color: #999; margin-bottom: 25px; }
-  
   .pp-card { background: #fdfaf3; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f0e6d2; }
   .pp-card-title { text-align: center; font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #111; }
-  
   .pp-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #666; }
   .pp-row b { color: #111; font-weight: 700; text-align: right; }
   .pp-card-num { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
-  
   .pp-btn-yellow { background: #ffcc00; color: #000; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; }
   .pp-btn-black { background: #1a1a1a; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-  
   .pp-instructions { margin-top: 25px; background: #fff; border-radius: 20px; padding: 20px; }
   .pp-inst-title { font-size: 16px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
   .pp-step { display: flex; gap: 12px; margin-bottom: 15px; font-size: 13px; color: #444; line-height: 1.4; }
   .pp-step-num { width: 24px; height: 24px; background: #e0f7fa; color: #00bcd4; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; flex-shrink: 0; font-size: 12px; }
-  
   .pp-bottom-btn { position: sticky; bottom: 0; background: #fff; padding: 15px 20px; border-top: 1px solid #eee; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
   .pp-btn-success { background: #00c853; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: 800; border: none; cursor: pointer; }
   
   .copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #323232; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; transition: 0.3s; z-index: 999999999; opacity: 0; }
   .copy-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* ========================================================
-     ПЛАШКА "ОЖИДАЙТЕ ЗАЧИСЛЕНИЯ"
-     ======================================================== */
-  .waiting-overlay {
-    position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.8);
-    display: none; align-items: center; justify-content: center; z-index: 999999999 !important;
-    padding: 20px; backdrop-filter: blur(4px);
-  }
+  .waiting-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 999999999 !important; padding: 20px; backdrop-filter: blur(4px); }
   .waiting-overlay.show { display: flex !important; }
-  
-  .waiting-box {
-    background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2);
-    border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 380px; text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: popIn 0.3s ease-out;
-  }
-  
-  @keyframes popIn {
-    0% { transform: scale(0.9); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .waiting-icon {
-    font-size: 50px; margin-bottom: 20px; display: inline-block;
-    animation: pulseIcon 1.5s infinite;
-  }
-  @keyframes pulseIcon {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-
+  .waiting-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: popIn 0.3s ease-out; }
+  @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .waiting-icon { font-size: 50px; margin-bottom: 20px; display: inline-block; animation: pulseIcon 1.5s infinite; }
+  @keyframes pulseIcon { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
   .waiting-box h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 10px; }
   .waiting-box p { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
-  .waiting-box .btn-ok {
-    background: var(--accent-green); color: #000; width: 100%; padding: 16px;
-    border-radius: 12px; font-size: 16px; font-weight: 900; border: none; cursor: pointer;
-  }
+  .waiting-box .btn-ok { background: var(--accent-green); color: #000; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 900; border: none; cursor: pointer; }
 
-  /* ТОСТЫ */
   .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; color: #fff;}
   .toast.show { transform: translateX(0); }
@@ -310,7 +314,7 @@
 <!-- ВЕРХНИЙ БАР -->
 <div class="topbar">
   <div class="header-left">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <button class="menu-btn" onclick="toggleSidebar()">✕</button>
     <a href="/" class="logo">KINGWIN</a>
   </div>
   <div class="header-right" id="userArea" style="display:none">
@@ -393,38 +397,139 @@
   </a>
 </div>
 
-<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ -->
+<!-- ======================================================== -->
+<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ (KINGWIN STYLE) -->
+<!-- ======================================================== -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <a href="/" class="logo">KINGWIN</a>
-    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  
+  <!-- Шапка меню -->
+  <div class="sb-header">
+    <div class="sb-logo">KINGWIN</div>
+    <div class="sb-balance-area">
+      <div class="sb-balance" id="sbBalance">0.00 ₽</div>
+      <button class="sb-plus-btn" onclick="actionRequireLogin('openNewPaymentScreen')">+</button>
+    </div>
   </div>
-  <div class="sidebar-content">
-    <input type="text" class="sidebar-search" placeholder="🔍 Поиск">
-    <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">Колесо бонусов</a>
-    <a href="/" class="sidebar-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
-    <div class="sidebar-section-title" onclick="toggleSidebarGames()">
-      <div style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Игры KINGWIN</div>
-      <span id="gamesArrow" style="font-size:10px; color:#fff;">▼</span>
+
+  <div class="sb-content">
+    <!-- Поиск -->
+    <div class="sb-search">
+      <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#8b92a5;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" placeholder="Search">
     </div>
-    <div class="sidebar-games-list" id="sidebarGamesList">
-      <a href="/crash.html" class="sidebar-game-item" onclick="return requireLogin(event)">🚀 Краш</a>
-      <a href="/cases.html" class="sidebar-game-item" onclick="return requireLogin(event)">📦 Кейсы</a>
-      <a href="/miner.html" class="sidebar-game-item" onclick="return requireLogin(event)">💣 Минёр</a>
+
+    <!-- Баннеры -->
+    <a href="#" class="sb-banner sb-banner-wheel">
+      <span>Bonus Wheel</span>
+      <span class="sb-banner-icon">🎡</span>
+    </a>
+
+    <a href="#" class="sb-banner sb-banner-store">
+      <span class="sb-banner-badge">NEW!</span>
+      <span>Store</span>
+      <span class="sb-banner-icon">🎁</span>
+    </a>
+
+    <a href="#" class="sb-banner sb-banner-missions">
+      <span class="sb-banner-badge">NEW!</span>
+      <span>Missions <span class="sb-banner-count">9</span></span>
+      <span class="sb-banner-icon">🎯</span>
+    </a>
+
+    <div class="sb-divider"></div>
+
+    <!-- Основные пункты -->
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
+        Bonuses
+      </div>
+    </a>
+
+    <a href="/tournament.html" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
+        Tournaments
+      </div>
+      <span class="sb-item-badge">3</span>
+    </a>
+
+    <a href="/cases.html" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>
+        Cases
+      </div>
+    </a>
+
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Ranks
+      </div>
+    </a>
+
+    <!-- Выпадашка Игры -->
+    <div class="sb-item sb-games-toggle" onclick="toggleSbGames()">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+        KINGWIN Games
+      </div>
+      <svg class="arrow" id="sbGamesArrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
     </div>
-    <div class="sidebar-section-title">Интересное</div>
-    <a href="#" class="sidebar-item">🎁 Бонусы</a>
-    <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">🏆 Турниры <span class="nav-badge" style="position:static;">3</span></a>
+    
+    <div class="sb-games-list" id="sbGamesList">
+      <a href="/crash.html" class="sb-game-item">🚀 Crash</a>
+      <a href="/roulette.html" class="sb-game-item">🎡 Roulette</a>
+      <a href="#" class="sb-game-item">🎰 Classic</a>
+      <a href="#" class="sb-game-item">🎲 Dice</a>
+      <a href="#" class="sb-game-item">🔮 Keno</a>
+      <a href="#" class="sb-game-item">🃏 HiLo</a>
+      <a href="/miner.html" class="sb-game-item">💣 Miner</a>
+      <a href="/ladder.html" class="sb-game-item">🪜 Ladder</a>
+      <a href="#" class="sb-game-item">🪙 Coinflip</a>
+      <a href="#" class="sb-game-item">🃏 Cards</a>
+      <a href="/plinko.html" class="sb-game-item">🟣 Plinko</a>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <!-- VIP и Кэшбек -->
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>
+        Become VIP
+      </div>
+    </a>
+
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Cashback
+      </div>
+      <span class="sb-banner-badge" style="position:static; transform:none;">NEW!</span>
+    </a>
+
+    <div class="sb-divider" style="margin-top: 25px;"></div>
+
+    <!-- Соцсети -->
+    <div class="sb-socials">
+      <a href="#" class="sb-social-btn sb-social-vk">VK</a>
+      <a href="#" class="sb-social-btn sb-social-tg">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#fff;"><path d="M9.04 15.47l-.38 5.36c.54 0 .78-.23 1.06-.5l2.54-2.42 5.27 3.85c.97.53 1.65.25 1.92-.9l3.48-16.26c.32-1.46-.53-2.03-1.46-1.68L1.1 10.22c-1.43.55-1.4 1.34-.25 1.69l5.18 1.62L18.06 5.7c.56-.37 1.08-.16.66.22l-9.68 9.55z"/></svg>
+      </a>
+      <a href="#" class="sb-social-btn sb-social-ig">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#fff;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </a>
+    </div>
+
   </div>
 </div>
 
 <!-- МОДАЛКА ВХОДА -->
 <div class="modal-overlay" id="loginModal"><div class="modal-box"><button class="modal-close" onclick="closeModal('loginModal')">✕</button><h2>Вход в аккаунт</h2><p>Введите номер карты и пароль</p><input type="text" id="loginId" placeholder="KING-0001"><input type="password" id="loginPass" placeholder="Пароль"><div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div><button class="btn-primary-full" onclick="doLogin()">Войти</button></div></div>
 
-<!-- ======================================================== -->
-<!-- НОВАЯ ПЛАШКА "ОЖИДАЙТЕ ЗАЧИСЛЕНИЯ" -->
-<!-- ======================================================== -->
+<!-- ПЛАШКА ОЖИДАНИЯ -->
 <div class="waiting-overlay" id="waitingOverlay">
   <div class="waiting-box">
     <div class="waiting-icon">⏳</div>
@@ -434,9 +539,7 @@
   </div>
 </div>
 
-<!-- ======================================================== -->
 <!-- ОКНО 1: ВЫБОР БАНКА И СУММЫ -->
-<!-- ======================================================== -->
 <div class="payment-overlay" id="newPaymentScreen">
   <div class="pay-header">
     <div style="display: flex; align-items: center;">
@@ -518,15 +621,13 @@
       </div>
       
       <a href="#" class="promo-link">🎁 У меня есть промокод</a>
-      
-      <!-- ДОБАВЛЕНА КНОПКА ПОПОЛНИТЬ -->
       <button class="pay-submit-btn" onclick="submitToPayPage()">Пополнить</button>
     </div>
   </div>
 </div>
 
 <!-- ======================================================== -->
-<!-- ОКНО 2: САМА СТРАНИЦА ОПЛАТЫ (КАК НА СКРИНШОТЕ) -->
+<!-- ОКНО 2: САМА СТРАНИЦА ОПЛАТЫ -->
 <!-- ======================================================== -->
 <div class="pay-page-overlay" id="payPageOverlay">
   <div class="pp-header">
@@ -542,7 +643,6 @@
     <div class="pp-card">
       <div class="pp-card-title">Перевод на карту</div>
       
-      <!-- Убраны чужие реквизиты, стоят заглушки -->
       <div class="pp-row"><span>Банк</span> <b>Ваш Банк</b></div>
       <div class="pp-row"><span>Страна банка</span> <b>Россия</b></div>
       
@@ -579,7 +679,6 @@
     </div>
   </div>
 
-  <!-- Кнопка возврата -->
   <div class="pp-bottom-btn">
     <button class="pp-btn-success" onclick="finishPayment()">Я перевел(а)</button>
   </div>
@@ -589,7 +688,23 @@
 let currentPlayer = null;
 let payTimerInterval;
 
-// --- ЛОГИКА 1: ОТКРЫТИЕ ОКНА ВЫБОРА ---
+// --- ЛОГИКА МЕНЮ ---
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('show');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function toggleSbGames() {
+  const list = document.getElementById('sbGamesList');
+  const arrow = document.getElementById('sbGamesArrow');
+  list.classList.toggle('show');
+  if (list.classList.contains('show')) {
+    arrow.style.transform = 'rotate(180deg)';
+  } else {
+    arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+// --- ЛОГИКА ОПЛАТЫ ---
 function openNewPaymentScreen() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   document.getElementById('banksScreen').classList.remove('hide');
@@ -611,10 +726,7 @@ function selectBank(bankName, color, fullBankName, code) {
   const icon = document.getElementById('displayBankIcon');
   icon.textContent = bankName.charAt(0);
   icon.style.background = color;
-
-  // Сохраняем выбранный банк для второго окна
   document.getElementById('ppBankName').textContent = fullBankName;
-
   document.getElementById('banksScreen').classList.add('hide');
   document.getElementById('formScreen').classList.add('show');
   document.getElementById('payBackBtn').style.display = 'block';
@@ -643,30 +755,16 @@ function setChipAmount(val) {
   calculateUniqueSum();
 }
 
-// --- ЛОГИКА 2: ПЕРЕХОД НА СТРАНИЦУ ОПЛАТЫ ---
 function submitToPayPage() {
   let finalSum = document.getElementById('quickPaySum').textContent;
-  if (finalSum.includes('Мин')) {
-    showToast('Минимальная сумма 100 ₽', 'error');
-    return;
-  }
-
-  // Скрываем окно выбора
+  if (finalSum.includes('Мин')) { showToast('Минимальная сумма 100 ₽', 'error'); return; }
   closeNewPaymentScreen();
-
-  // Заполняем данные на странице оплаты
   document.getElementById('ppAmountDisplay').innerHTML = finalSum.replace(' ₽', '') + ' <span>₽</span>';
   document.getElementById('ppAmountRight').textContent = finalSum;
-  
-  // Генерируем рандомный номер заказа
   const orderId = 'PI-' + Math.floor(10000000 + Math.random() * 90000000);
   document.getElementById('ppOrderId').textContent = orderId;
-
-  // Показываем страницу оплаты
   document.getElementById('payPageOverlay').classList.add('show');
   document.body.style.overflow = 'hidden';
-
-  // Запускаем таймер на 15 минут
   startPayTimer(15 * 60);
 }
 
@@ -676,15 +774,12 @@ function closePayPage() {
   clearInterval(payTimerInterval);
 }
 
-// --- ЛОГИКА 3: КОПИРОВАНИЕ И ТАЙМЕР ---
 function copyCardNumber() {
   const cardNum = document.getElementById('ppCardNumber').textContent;
   const cleanNum = cardNum.replace(/\s/g, '');
-  
   navigator.clipboard.writeText(cleanNum).then(() => {
     showCopyToast();
   }).catch(err => {
-    // Фоллбек для старых браузеров
     const el = document.createElement('textarea');
     el.value = cleanNum;
     document.body.appendChild(el);
@@ -704,7 +799,6 @@ function showCopyToast() {
 function startPayTimer(seconds) {
   clearInterval(payTimerInterval);
   const timerEl = document.getElementById('ppTimer');
-  
   payTimerInterval = setInterval(() => {
     if (seconds <= 0) {
       clearInterval(payTimerInterval);
@@ -718,11 +812,8 @@ function startPayTimer(seconds) {
   }, 1000);
 }
 
-// --- ЛОГИКА 4: ЗАВЕРШЕНИЕ ОПЛАТЫ ---
 function finishPayment() {
   closePayPage();
-  
-  // Показываем нашу новую плашку ожидания
   document.getElementById('waitingOverlay').classList.add('show');
 }
 
@@ -730,18 +821,7 @@ function closeWaitingOverlay() {
   document.getElementById('waitingOverlay').classList.remove('show');
 }
 
-// --- ОБЩИЕ ФУНКЦИИ САЙТА ---
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('show');
-  document.getElementById('sidebarOverlay').classList.toggle('show');
-}
-function toggleSidebarGames() {
-  const list = document.getElementById('sidebarGamesList');
-  const arrow = document.getElementById('gamesArrow');
-  list.classList.toggle('show');
-  arrow.textContent = list.classList.contains('show') ? '▲' : '▼';
-}
-
+// --- ОБЩИЕ ФУНКЦИИ ---
 function showToast(text, type) {
   type = type || 'success';
   const container = document.getElementById('toastContainer');
@@ -799,6 +879,7 @@ function updateUI() {
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
     document.getElementById('payBalance').textContent = total.toFixed(2) + ' ₽';
+    document.getElementById('sbBalance').textContent = total.toFixed(2) + ' ₽'; // Баланс в сайдбаре
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
