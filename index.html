@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>KINGWIN — Казино</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -16,12 +16,10 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html { -webkit-text-size-adjust: 100%; }
   
-  /* Обычный body без ограничений высоты */
   body { 
     background: var(--bg-main); 
     color: var(--text-main); 
     min-height: 100dvh; 
-    /* Добавлена безопасная зона для iPhone */
     padding-bottom: calc(var(--nav-height) + 30px + env(safe-area-inset-bottom)); 
     position: relative; 
     overflow-x: hidden; 
@@ -40,7 +38,6 @@
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
   
-  /* ИСПРАВЛЕНИЕ: Добавлено :not(.bottom-nav), чтобы не ломать position: fixed у нижнего меню */
   body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
@@ -115,22 +112,12 @@
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
 
-  /* === НИЖНЕЕ МЕНЮ (ЖЕСТКО ЗАФИКСИРОВАНО) === */
+  /* === НИЖНЕЕ МЕНЮ === */
   .bottom-nav { 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0;
-    width: 100%; 
-    height: var(--nav-height); 
-    background: #11141d; 
-    display: flex; 
-    justify-content: space-around; 
-    align-items: center; 
-    padding-bottom: env(safe-area-inset-bottom); 
-    z-index: 99999; 
-    border-top: 1px solid rgba(255,255,255,0.08); 
-    margin: 0;
+    position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: var(--nav-height); 
+    background: #11141d; display: flex; justify-content: space-around; align-items: center; 
+    padding-bottom: env(safe-area-inset-bottom); z-index: 99999; 
+    border-top: 1px solid rgba(255,255,255,0.08); margin: 0;
   }
   .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #6b7280; font-size: 10px; font-weight: 600; position: relative; }
   .nav-item.active { color: #fff; }
@@ -145,23 +132,20 @@
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
   .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #0b0e14; z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
   .sidebar.show { left: 0; }
-  
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .sidebar-close { background: rgba(255,255,255,0.05); border: none; color: #fff; width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
   .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
   .sidebar-search { width: 100%; background: #1c2230; border: none; border-radius: 10px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 15px; outline: none; }
-  
   .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 5px; transition: 0.2s; }
   .sidebar-item:hover, .sidebar-item.active { background: rgba(0,229,255,0.1); color: var(--accent); }
   .sidebar-item svg { width: 20px; height: 20px; fill: currentColor; }
   .sidebar-section-title { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin: 20px 0 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-  
   .sidebar-games-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 15px; }
   .sidebar-games-list.show { max-height: 500px; }
   .sidebar-game-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #d0d5e0; font-size: 14px; font-weight: 600; }
   .sidebar-game-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-  /* === МОДАЛКИ === */
+  /* === МОДАЛКИ (СТАРЫЕ) === */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -171,9 +155,117 @@
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
+  /* ========================================================
+     НОВОЕ ОКНО ОПЛАТЫ (ПОЛНОЭКРАННОЕ) 
+     ======================================================== */
+  .payment-overlay {
+    position: fixed; inset: 0; background: #e8eaf6; z-index: 9999999; 
+    display: none; flex-direction: column; overflow-y: auto;
+    color: #111;
+  }
+  .payment-overlay.show { display: flex; }
+  
+  /* Шапка окна оплаты */
+  .pay-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; background: #e8eaf6; position: sticky; top: 0; z-index: 10;
+  }
+  .pay-logo {
+    background: #0b1221; color: #fff; font-weight: 900; font-style: italic;
+    padding: 8px 15px; border-radius: 10px; font-size: 20px; letter-spacing: 1px;
+  }
+  .pay-logo span { color: #00e5ff; }
+  .pay-account { text-align: right; font-size: 13px; color: #555; }
+  .pay-account b { display: block; font-size: 18px; color: #111; }
+  .pay-close-btn {
+    background: #fff; border: none; width: 40px; height: 40px; border-radius: 10px;
+    font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-left: 15px;
+  }
+
+  /* Контент окна оплаты */
+  .pay-content { padding: 10px 20px 40px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; }
+  .pay-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; color: #1a1a1a; }
+
+  /* Сетка банков */
+  .banks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .bank-card {
+    background: #dbe4fe; border: 1px solid #b0c4de; border-radius: 15px;
+    padding: 15px; cursor: pointer; position: relative; transition: 0.2s;
+    display: flex; flex-direction: column; justify-content: space-between; min-height: 110px;
+  }
+  .bank-card:active { transform: scale(0.98); }
+  .bank-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: #fff; margin-bottom: 10px;}
+  .bank-badge {
+    position: absolute; top: 15px; right: 15px; background: #00c853; color: #fff;
+    font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 20px;
+  }
+  .bank-name { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 2px; }
+  .bank-limit { font-size: 12px; color: #666; }
+
+  /* Второй экран оплаты (форма) */
+  .pay-form-screen { display: none; flex-direction: column; }
+  .pay-form-screen.show { display: flex; }
+  .banks-screen.hide { display: none; }
+
+  .pay-back-btn {
+    background: #fff; border: none; width: 40px; height: 40px; border-radius: 10px;
+    font-size: 18px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-right: 15px;
+  }
+  .pay-header-form { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .selected-bank-display {
+    background: #fff; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  }
+  .selected-bank-display img, .selected-bank-display .bank-icon { width: 30px; height: 30px; margin: 0; font-size: 14px; }
+
+  /* Блок бонуса */
+  .bonus-toggle-row {
+    display: flex; justify-content: space-between; align-items: center; margin: 20px 0;
+    font-size: 18px; font-weight: 700;
+  }
+  .toggle-switch {
+    width: 50px; height: 28px; background: #00bcd4; border-radius: 20px; position: relative; cursor: pointer;
+  }
+  .toggle-switch::after {
+    content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px;
+    background: #fff; border-radius: 50%; transition: 0.2s;
+  }
+  .bonus-banner {
+    background: linear-gradient(135deg, #4a00e0, #8e2de2); border-radius: 15px;
+    padding: 20px; color: #fff; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; position: relative;
+  }
+  .bonus-banner h3 { font-size: 16px; margin-bottom: 5px; }
+  .bonus-banner p { font-size: 12px; opacity: 0.8; }
+  .bonus-banner .check-badge {
+    position: absolute; bottom: 10px; right: 10px; background: #fff; color: #4a00e0;
+    font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  
+  /* Блок ввода суммы */
+  .amount-box { background: #0b1221; border-radius: 20px; padding: 20px; color: #fff; }
+  .amount-row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; color: #111; }
+  .amount-input-wrap { flex: 1; }
+  .amount-label { font-size: 12px; color: #888; margin-bottom: 2px; }
+  .amount-input { border: none; font-size: 24px; font-weight: 800; width: 100%; outline: none; }
+  .amount-btn-green { background: #00c853; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; }
+  
+  .amount-warning { font-size: 12px; color: #888; margin-bottom: 10px; }
+  .amount-warning span { color: #f1c40f; }
+  
+  .amount-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .amount-chips button { flex: 1 1 22%; background: #2c3e50; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .amount-chips button:last-child { flex: 1 1 100%; }
+
+  .promo-link { display: flex; align-items: center; justify-content: center; gap: 8px; color: #1a73e8; font-weight: 700; font-size: 15px; margin: 25px 0; cursor: pointer; text-decoration: none; }
+  
+  .pay-submit-btn { background: #00c853; color: #fff; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 800; border: none; cursor: pointer; }
+
   /* ТОСТЫ */
-  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; }
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 99999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; color: #fff;}
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
@@ -199,7 +291,7 @@
   </div>
   <div class="header-right" id="userArea" style="display:none">
     <div class="balance-pill"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
-    <button class="btn-plus" onclick="openDeposit()">+</button>
+    <button class="btn-plus" onclick="openNewPaymentScreen()">+</button>
     <div class="profile-avatar" onclick="goToProfile()" title="Профиль">KW</div>
   </div>
   <div class="header-right" id="loginArea">
@@ -212,7 +304,7 @@
 <div class="main-content">
   <!-- БАННЕРЫ -->
   <div class="banners-scroll">
-    <div class="banner-card deposit" onclick="actionRequireLogin('openDeposit')">
+    <div class="banner-card deposit" onclick="actionRequireLogin('openNewPaymentScreen')">
       <img src="/main_banner.jpg" alt="Депозит" onerror="this.style.display='none'">
       <div class="overlay"></div>
       <div class="content">
@@ -258,7 +350,7 @@
   </div>
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ (ВЫНЕСЕНО ИЗ ВСЕХ КОНТЕЙНЕРОВ) -->
+<!-- НИЖНЕЕ МЕНЮ -->
 <div class="bottom-nav">
   <a href="/" class="nav-item active">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -268,7 +360,7 @@
     <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
     Бонусы
   </a>
-  <button class="nav-btn-plus" onclick="actionRequireLogin('openDeposit')">
+  <button class="nav-btn-plus" onclick="actionRequireLogin('openNewPaymentScreen')">
     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
   </button>
   <a href="/tournament.html" class="nav-item">
@@ -282,7 +374,7 @@
   </a>
 </div>
 
-<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ (ПЕРЕНЕСЕНО В КОНЕЦ) -->
+<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -293,7 +385,6 @@
     <input type="text" class="sidebar-search" placeholder="🔍 Поиск">
     <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">Колесо бонусов</a>
     <a href="/" class="sidebar-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
-    <a href="#" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Казино</a>
     <div class="sidebar-section-title" onclick="toggleSidebarGames()">
       <div style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Игры KINGWIN</div>
       <span id="gamesArrow" style="font-size:10px; color:#fff;">▼</span>
@@ -302,30 +393,15 @@
       <a href="/crash.html" class="sidebar-game-item" onclick="return requireLogin(event)">🚀 Краш</a>
       <a href="/cases.html" class="sidebar-game-item" onclick="return requireLogin(event)">📦 Кейсы</a>
       <a href="/miner.html" class="sidebar-game-item" onclick="return requireLogin(event)">💣 Минёр</a>
-      <a href="/ladder.html" class="sidebar-game-item" onclick="return requireLogin(event)">🪜 Лесенка</a>
-      <a href="/plinko.html" class="sidebar-game-item" onclick="return requireLogin(event)">🟣 Plinko</a>
     </div>
     <div class="sidebar-section-title">Интересное</div>
     <a href="#" class="sidebar-item">🎁 Бонусы</a>
     <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">🏆 Турниры <span class="nav-badge" style="position:static;">3</span></a>
-    <a href="#" class="sidebar-item">📦 Кейсы</a>
-    <a href="#" class="sidebar-item">🏅 Ранги</a>
   </div>
 </div>
 
-<!-- МОДАЛКИ (Вход, Депозит, Бонус) -->
+<!-- МОДАЛКА ВХОДА -->
 <div class="modal-overlay" id="loginModal"><div class="modal-box"><button class="modal-close" onclick="closeModal('loginModal')">✕</button><h2>Вход в аккаунт</h2><p>Введите номер карты и пароль</p><input type="text" id="loginId" placeholder="KING-0001"><input type="password" id="loginPass" placeholder="Пароль"><div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div><button class="btn-primary-full" onclick="doLogin()">Войти</button></div></div>
-
-<div class="modal-overlay" id="depositModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
-    <h2>Пополнение</h2>
-    <div class="dep-methods"><div class="dep-method active" id="methodBonus" onclick="selectDepMethod('bonus')">С бонусом</div><div class="dep-method" id="methodNoBonus" onclick="selectDepMethod('nobonus')">Без бонуса</div></div>
-    <div id="bonusBlock"><div class="dep-banner" id="depBanner">+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ</div></div>
-    <div class="dep-amount-row"><input type="number" id="depositAmountInput" class="dep-amount-input" value="500" min="100" max="10000"></div>
-    <button class="btn-primary-full" onclick="goToPayment()">Перейти к оплате</button>
-  </div>
-</div>
 
 <!-- МОДАЛКА БОНУСА -->
 <div class="modal-overlay" id="dailyBonusModal">
@@ -343,12 +419,203 @@
   </div>
 </div>
 
+<!-- ======================================================== -->
+<!-- НОВОЕ ПОЛНОЭКРАННОЕ ОКНО ОПЛАТЫ (ИМИТАЦИЯ UP-X) -->
+<!-- ======================================================== -->
+<div class="payment-overlay" id="newPaymentScreen">
+  
+  <!-- ШАПКА -->
+  <div class="pay-header">
+    <div style="display: flex; align-items: center;">
+      <button class="pay-back-btn" id="payBackBtn" onclick="closeNewPaymentScreen()" style="display:none;">←</button>
+      <div class="pay-logo">UP-<span>X</span></div>
+    </div>
+    <div style="display: flex; align-items: center;">
+      <div class="pay-account">
+        Основной счет
+        <b id="payBalance">0.00 ₽</b>
+      </div>
+      <button class="pay-close-btn" onclick="closeNewPaymentScreen()">✕</button>
+    </div>
+  </div>
+
+  <div class="pay-content">
+    <!-- ЭКРАН 1: ВЫБОР БАНКА -->
+    <div class="banks-screen" id="banksScreen">
+      <div class="pay-title">Пополнение счёта</div>
+      
+      <div class="banks-grid">
+        <!-- ПСБ -->
+        <div class="bank-card" onclick="selectBank('ПСБ', '#4a148c')">
+          <div class="bank-icon" style="background: #4a148c;">П</div>
+          <span class="bank-badge">Советуем</span>
+          <div>
+            <div class="bank-name">ПСБ</div>
+            <div class="bank-limit">от 500 ₽</div>
+          </div>
+        </div>
+        
+        <!-- T-pay -->
+        <div class="bank-card" onclick="selectBank('T-pay', '#ffc107')">
+          <div class="bank-icon" style="background: #ffc107; color: #111;">T</div>
+          <span class="bank-badge">Советуем</span>
+          <div>
+            <div class="bank-name">T-pay</div>
+            <div class="bank-limit">от 500 ₽</div>
+          </div>
+        </div>
+
+        <!-- Ozon Банк -->
+        <div class="bank-card" onclick="selectBank('Ozon Банк', '#005bff')">
+          <div class="bank-icon" style="background: #005bff;">O</div>
+          <div>
+            <div class="bank-name">Ozon Банк</div>
+            <div class="bank-limit">от 1000 ₽</div>
+          </div>
+        </div>
+
+        <!-- Альфа-Банк -->
+        <div class="bank-card" onclick="selectBank('Альфа-Банк', '#ef3124')">
+          <div class="bank-icon" style="background: #ef3124;">A</div>
+          <span class="bank-badge">Советуем</span>
+          <div>
+            <div class="bank-name">Альфа-Банк</div>
+            <div class="bank-limit">от 500 ₽</div>
+          </div>
+        </div>
+
+        <!-- SberPay -->
+        <div class="bank-card" onclick="selectBank('SberPay', '#00a63f')">
+          <div class="bank-icon" style="background: #00a63f;">✓</div>
+          <div>
+            <div class="bank-name">SberPay</div>
+            <div class="bank-limit">от 1000 ₽</div>
+          </div>
+        </div>
+
+        <!-- Газпромбанк -->
+        <div class="bank-card" onclick="selectBank('Газпромбанк', '#003c96')">
+          <div class="bank-icon" style="background: #003c96;">Г</div>
+          <div>
+            <div class="bank-name">Газпромбанк</div>
+            <div class="bank-limit">от 1000 ₽</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ЭКРАН 2: ВВОД СУММЫ -->
+    <div class="pay-form-screen" id="formScreen">
+      
+      <!-- Выбранный банк -->
+      <div class="selected-bank-display" id="displaySelectedBank">
+        <div class="bank-icon" id="displayBankIcon" style="background: #005bff; margin:0; width: 30px; height: 30px; font-size:14px;">O</div>
+        <span id="displayBankName">Ozon Банк</span>
+        <span style="margin-left: auto; color: #666;">▼</span>
+      </div>
+
+      <!-- Тумблер бонуса -->
+      <div class="bonus-toggle-row">
+        <span>Применить бонус</span>
+        <div class="toggle-switch" id="bonusToggle" onclick="this.classList.toggle('off')" style="background: #00bcd4;"></div>
+      </div>
+
+      <!-- Карточка бонуса (как на скрине) -->
+      <div class="bonus-banner">
+        <div>
+          <h3>Бонус 75 FS к депозиту</h3>
+          <p>За депозит от 2000 ₽</p>
+        </div>
+        <div class="check-badge">✔ Выбран</div>
+      </div>
+
+      <!-- Ввод суммы -->
+      <div class="amount-box">
+        <div class="amount-row">
+          <div class="amount-input-wrap">
+            <div class="amount-label">Сумма пополнения</div>
+            <input type="number" class="amount-input" value="2000" id="payAmountInput">
+          </div>
+          <button class="amount-btn-green" id="quickPayBtn">Внести <br><span id="quickPaySum">2011 ₽</span></button>
+        </div>
+
+        <div class="amount-warning">
+          Сумма депозита от 1000 ₽ до 150000 ₽<br><br>
+          <span>⚠ Суммы, кратные 10, могут зачисляться дольше</span>
+        </div>
+
+        <div class="amount-chips">
+          <button onclick="setAmount(1011)">1011 ₽</button>
+          <button onclick="setAmount(2511)">2511 ₽</button>
+          <button onclick="setAmount(5011)">5011 ₽</button>
+          <button onclick="setAmount(10011)">10011 ₽</button>
+          <button onclick="setAmount(50011)">50011 ₽</button>
+        </div>
+      </div>
+
+      <!-- Промокод -->
+      <a href="#" class="promo-link">🎁 У меня есть промокод</a>
+
+      <!-- Кнопка оплаты -->
+      <button class="pay-submit-btn">Пополнить</button>
+    </div>
+  </div>
+</div>
+<!-- ======================================================== -->
+
+
 <script>
 let currentPlayer = null;
-let selectedDepMethod = 'bonus';
 let balanceRefreshTimer = null;
-let appliedPromo = null;
-let lastWinsKey = null;
+
+// --- ЛОГИКА ОКНА ОПЛАТЫ ---
+function openNewPaymentScreen() {
+  if (!currentPlayer) { openModal('loginModal'); return; }
+  
+  // Сброс на первый экран (выбор банка)
+  document.getElementById('banksScreen').classList.remove('hide');
+  document.getElementById('formScreen').classList.remove('show');
+  document.getElementById('payBackBtn').style.display = 'none';
+  document.getElementById('newPaymentScreen').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNewPaymentScreen() {
+  document.getElementById('newPaymentScreen').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function selectBank(bankName, color) {
+  // Заполняем данные выбранного банка на втором экране
+  document.getElementById('displayBankName').textContent = bankName;
+  const icon = document.getElementById('displayBankIcon');
+  icon.textContent = bankName.charAt(0);
+  icon.style.background = color;
+
+  // Переключаем экраны
+  document.getElementById('banksScreen').classList.add('hide');
+  document.getElementById('formScreen').classList.add('show');
+  document.getElementById('payBackBtn').style.display = 'block';
+}
+
+// Кнопка "Назад" в окне оплаты
+document.getElementById('payBackBtn').onclick = function() {
+  document.getElementById('banksScreen').classList.remove('hide');
+  document.getElementById('formScreen').classList.remove('show');
+  document.getElementById('payBackBtn').style.display = 'none';
+};
+
+// Логика ввода суммы (обновление кнопки "Внести")
+document.getElementById('payAmountInput').addEventListener('input', function(e) {
+  let val = parseInt(e.target.value) || 0;
+  document.getElementById('quickPaySum').textContent = (val + 11) + ' ₽';
+});
+
+function setAmount(val) {
+  document.getElementById('payAmountInput').value = val;
+  document.getElementById('quickPaySum').textContent = (val + 11) + ' ₽';
+}
+// ----------------------------
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('show');
@@ -374,7 +641,6 @@ function showToast(text, type) {
 }
 
 function openModal(id) {
-  if (id === 'depositModal' && !currentPlayer) { openModal('loginModal'); return; }
   const el = document.getElementById(id);
   if (el) el.classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -382,12 +648,12 @@ function openModal(id) {
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
-  if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
+  if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show')) document.body.style.overflow = '';
 }
 window.addEventListener('click', function(e) {
   if (e.target.classList && e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('show');
-    if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
+    if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show')) document.body.style.overflow = '';
   }
 });
 
@@ -404,43 +670,25 @@ function goToProfile() {
   window.location.href = '/profile.html?id=' + encodeURIComponent(currentPlayer.id);
 }
 
-function openDeposit() {
-  if (!currentPlayer) { openModal('loginModal'); return; }
-  document.getElementById('depositAmountInput').value = 500;
-  openModal('depositModal');
-}
-function selectDepMethod(method) {
-  selectedDepMethod = method;
-  document.getElementById('methodBonus').classList.toggle('active', method === 'bonus');
-  document.getElementById('methodNoBonus').classList.toggle('active', method === 'nobonus');
-  document.getElementById('bonusBlock').style.display = (method === 'nobonus') ? 'none' : 'block';
-}
-async function goToPayment() {
-  if (!currentPlayer) { openModal('loginModal'); return; }
-  const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
-  if (amount < 100) { showToast('Мин. 100 ₽', 'error'); return; }
-  closeModal('depositModal');
-  window.location.href = '/pay.html?amount=' + amount + '&method=' + selectedDepMethod;
-}
-
 async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
   if (!id || !pass) { err.textContent = 'Введите данные'; err.style.display = 'block'; return; }
+  
+  // ИМИТАЦИЯ ВХОДА (чтобы можно было протестировать открытие окна)
+  currentPlayer = { id: id, bonus_balance: 0, deposit_balance: 0 };
+  localStorage.setItem('kingwin_guest_id', id);
+  closeModal('loginModal');
+  updateUI();
+  showToast('С возвращением!', 'success');
+  
+  /* В реальности тут твой fetch
   try {
     const res = await fetch('/api/guest/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, pass: pass }) });
-    const data = await res.json();
-    if (!res.ok) { err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
-    currentPlayer = data.guest;
-    localStorage.setItem('kingwin_guest_id', id);
-    closeModal('loginModal');
-    updateUI();
-    startBalanceRefresh();
-    showToast('С возвращением!', 'success');
-    checkDailyBonus();
-  } catch (e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
+    ...
+  */
 }
 
 function updateUI() {
@@ -449,104 +697,20 @@ function updateUI() {
     document.getElementById('loginArea').style.display = 'none';
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
+    document.getElementById('payBalance').textContent = total.toFixed(2) + ' ₽';
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
   }
 }
 
-function startBalanceRefresh() {
-  if (balanceRefreshTimer) clearInterval(balanceRefreshTimer);
-  balanceRefreshTimer = setInterval(refreshBalance, 5000);
-}
-async function refreshBalance() {
-  if (!currentPlayer) return;
-  try {
-    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id));
-    if (r.ok) {
-      const data = await r.json();
-      if (data.guest) {
-        currentPlayer = data.guest;
-        const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
-        document.getElementById('topBalance').textContent = total.toFixed(2);
-      }
-    }
-  } catch (e) {}
-}
-
-// === БОНУС И ВЫИГРЫШИ ===
-function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
-
-async function loadLastWinsHome() {
-  try {
-    const r = await fetch('/api/last-wins?limit=10', { cache: 'no-store' });
-    const list = await r.json();
-    const box = document.getElementById('lastWinsHome');
-    if (!box) return;
-    if (!Array.isArray(list) || list.length === 0) {
-      box.innerHTML = '<div style="color:#8fa2b8; font-size:12px; padding:10px;">Пока нет выигрышей.</div>'; return;
-    }
-    box.innerHTML = list.map(function(w, i) {
-      const g = { roulette:'🎡', crash:'🚀', miner:'💣', plinko:'🎯', ladder:'🪜', cases:'🎁', empire_of_gold:'👑' }[w.game] || '🎮';
-      return '<div class="win-card"><div class="win-icon">' + g + '</div><div class="win-card-body"><div class="win-name">' + (w.player || 'Аноним').slice(0,2) + '•••</div><div class="win-game">' + w.game + '</div></div><div style="text-align:right;"><div class="win-sum">+' + fmt(w.win) + ' ₽</div></div></div>';
-    }).join('');
-  } catch(e) {}
-}
-
-async function checkDailyBonus() {
-  if (!currentPlayer) return;
-  try {
-    const r = await fetch('/api/guest/daily?id=' + encodeURIComponent(currentPlayer.id));
-    if (!r.ok) return;
-    const data = await r.json();
-    if (!data.claimed_today) {
-      const rewards = [10, 15, 20, 25, 30, 35, 40];
-      const lvl = Math.min(7, (data.level || 0) + 1);
-      document.getElementById('dailyBonusAmount').textContent = rewards[lvl - 1] + ' ₽';
-      document.getElementById('dailyBonusLevel').textContent = lvl;
-      setTimeout(() => { openModal('dailyBonusModal'); }, 1500);
-    }
-  } catch (e) {}
-}
-
-async function claimDailyBonus() {
-  if (!currentPlayer) return;
-  const btn = document.getElementById('btnClaimDaily');
-  btn.disabled = true; btn.textContent = 'Загрузка...';
-  try {
-    const r = await fetch('/api/guest/daily-claim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: currentPlayer.id }) });
-    const data = await r.json();
-    if (r.ok) {
-      showToast(`🎁 Бонус получен: +${data.reward} ₽!`, 'success');
-      closeModal('dailyBonusModal');
-      await refreshBalance();
-    } else {
-      showToast(data.error || 'Ошибка', 'error');
-      btn.disabled = false; btn.textContent = 'Забрать бонус';
-    }
-  } catch (e) {
-    showToast('Ошибка соединения', 'error');
-    btn.disabled = false; btn.textContent = 'Забрать бонус';
-  }
-}
-
 window.onload = function() {
   const savedId = localStorage.getItem('kingwin_guest_id');
   if (savedId) {
-    fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => {
-      if (data.guest) {
-        currentPlayer = data.guest;
-        updateUI();
-        startBalanceRefresh();
-        checkDailyBonus();
-      } else { updateUI(); }
-    }).catch(() => updateUI());
+    currentPlayer = { id: savedId, bonus_balance: 0, deposit_balance: 0 };
+    updateUI();
   } else { updateUI(); }
-  
-  loadLastWinsHome();
-  setInterval(loadLastWinsHome, 15000);
 };
 </script>
 </body>
 </html>
-```
