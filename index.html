@@ -21,7 +21,8 @@
     background: var(--bg-main); 
     color: var(--text-main); 
     min-height: 100dvh; 
-    padding-bottom: calc(var(--nav-height) + 30px); 
+    /* Добавлена безопасная зона для iPhone */
+    padding-bottom: calc(var(--nav-height) + 30px + env(safe-area-inset-bottom)); 
     position: relative; 
     overflow-x: hidden; 
     -webkit-overflow-scrolling: touch;
@@ -38,7 +39,9 @@
     75% { transform: translateY(-20px) translateX(15px) rotate(6deg); }
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
-  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar) { position: relative; z-index: 1; }
+  
+  /* ИСПРАВЛЕНИЕ: Добавлено :not(.bottom-nav), чтобы не ломать position: fixed у нижнего меню */
+  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
@@ -120,12 +123,12 @@
     right: 0;
     width: 100%; 
     height: var(--nav-height); 
-    background: #11141d; /* Убрал прозрачность и размытие, чтобы не глючило на мобилках */
+    background: #11141d; 
     display: flex; 
     justify-content: space-around; 
     align-items: center; 
     padding-bottom: env(safe-area-inset-bottom); 
-    z-index: 99999; /* Максимальный приоритет */
+    z-index: 99999; 
     border-top: 1px solid rgba(255,255,255,0.08); 
     margin: 0;
   }
@@ -546,3 +549,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
+```
