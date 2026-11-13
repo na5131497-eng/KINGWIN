@@ -46,7 +46,7 @@
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 12px; }
-  .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+  .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
   .menu-btn:hover { background: rgba(255,255,255,0.1); }
   .logo { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   
@@ -354,7 +354,8 @@
 <!-- ВЕРХНИЙ БАР -->
 <div class="topbar">
   <div class="header-left">
-    <button class="menu-btn" onclick="toggleSidebar()">✕</button>
+    <!-- Иконка 3 полоски (бургер) -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <a href="#" class="logo" onclick="switchScreen('main'); return false;">KINGWIN</a>
   </div>
   <div class="header-right" id="userArea" style="display:none">
@@ -944,7 +945,7 @@ let isSpinning = false;
 let hasSpunToday = localStorage.getItem('wheel_spun_today') === 'true';
 let nextSpinTime = parseInt(localStorage.getItem('wheel_next_time')) || 0;
 
-// --- РЕФЕРАЛЬНАЯ СИСТЕМА (Теперь не записывает в аккаунт сразу) ---
+// --- РЕФЕРАЛЬНАЯ СИСТЕМА ---
 const urlParams = new URLSearchParams(window.location.search);
 const refId = urlParams.get('ref');
 
