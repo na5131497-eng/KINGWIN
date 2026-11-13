@@ -30,7 +30,7 @@
     75% { transform: translateY(-20px) translateX(15px) rotate(6deg); }
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
-  body > *:not(.bg-crowns) { position: relative; z-index: 1; }
+  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
@@ -51,13 +51,11 @@
   .banners-scroll::-webkit-scrollbar { display: none; }
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
   
-  /* Баннер Депозит */
   .banner-card.deposit { background: #1c2230; }
   .banner-card.deposit img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
   .banner-card.deposit .overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.4) 50%, transparent 100%); z-index: 2; }
   .banner-card.deposit .content { position: relative; z-index: 3; }
   
-  /* Баннер Турнир */
   .banner-card.tournament { background: linear-gradient(135deg, rgba(241,196,15,.2), rgba(255,77,77,.1)); border: 1px solid rgba(241,196,15,.4); }
   .banner-card.tournament::before { content: '🏆'; position: absolute; top: 10px; right: 10px; font-size: 60px; opacity: 0.2; transform: rotate(15deg); }
   
@@ -75,7 +73,6 @@
   /* === ИГРЫ === */
   .section-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
   .section-title { font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
-  .section-title svg { fill: var(--accent); width: 18px; height: 18px; }
   .games-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .games-scroll::-webkit-scrollbar { display: none; }
   .game-card { flex: 0 0 130px; background: var(--bg-card); border-radius: 14px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
@@ -107,12 +104,10 @@
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
 
-  /* === НИЖНЕЕ МЕНЮ (ПРИШИТО К НИЗУ) === */
+  /* === НИЖНЕЕ МЕНЮ (ПРИШИТО) === */
   .bottom-nav { 
     position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     width: 100%; 
     height: var(--nav-height); 
     background: rgba(17, 20, 29, 0.95); 
@@ -122,7 +117,7 @@
     justify-content: space-around; 
     align-items: center; 
     padding-bottom: env(safe-area-inset-bottom); 
-    z-index: 9999; /* Поверх всего */
+    z-index: 9999; 
     border-top: 1px solid rgba(255,255,255,0.08); 
     box-shadow: 0 -5px 25px rgba(0, 229, 255, 0.15);
     margin: 0;
@@ -135,10 +130,33 @@
   .nav-btn-plus svg { fill: #000; width: 28px; height: 28px; }
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
-  /* === ВЫЕЗЖАЮЩЕЕ МЕНЮ (SIDEBAR) === */
-  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 10000; opacity: 0; pointer-events: none; transition: 0.3s; }
+  /* === ВЫЕЗЖАЮЩЕЕ МЕНЮ (SIDEBAR) - НАЛОЖЕНИЕ ПОВЕРХ === */
+  .sidebar-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.7); 
+    backdrop-filter: blur(3px); 
+    z-index: 10000; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: 0.3s; 
+  }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #0b0e14; z-index: 10001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
+  
+  .sidebar { 
+    position: fixed; 
+    top: 0; 
+    left: -100%; 
+    width: 85%; 
+    max-width: 320px; 
+    height: 100dvh; 
+    background: #0b0e14; 
+    z-index: 10001; 
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    display: flex; 
+    flex-direction: column; 
+    border-right: 1px solid rgba(255,255,255,0.05); 
+  }
   .sidebar.show { left: 0; }
   
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -155,9 +173,6 @@
   .sidebar-games-list.show { max-height: 500px; }
   .sidebar-game-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #d0d5e0; font-size: 14px; font-weight: 600; }
   .sidebar-game-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  
-  .sidebar-socials { display: flex; gap: 10px; padding: 20px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); }
-  .sidebar-social-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; text-decoration: none; font-size: 18px; font-weight: 900; color: #fff; }
 
   /* === МОДАЛКИ === */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; overflow-y: auto !important; }
@@ -167,7 +182,6 @@
   .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; font-family: inherit; }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
-
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
   /* ТОСТЫ */
@@ -187,46 +201,11 @@
 </head>
 <body>
 
+<!-- ФОН -->
 <div class="bg-crowns" id="bgCrowns"></div>
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ (SIDEBAR) -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <a href="/" class="logo">KINGWIN</a>
-    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-  </div>
-  <div class="sidebar-content">
-    <input type="text" class="sidebar-search" placeholder="🔍 Поиск">
-    <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">Колесо бонусов</a>
-    <a href="/" class="sidebar-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
-    <a href="#" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Казино</a>
-    
-    <div class="sidebar-section-title" onclick="toggleSidebarGames()">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-        Игры KINGWIN
-      </div>
-      <span id="gamesArrow" style="font-size:10px; color:#fff;">▼</span>
-    </div>
-    <div class="sidebar-games-list" id="sidebarGamesList">
-      <a href="/crash.html" class="sidebar-game-item" onclick="return requireLogin(event)">🚀 Краш</a>
-      <a href="/cases.html" class="sidebar-game-item" onclick="return requireLogin(event)">📦 Кейсы</a>
-      <a href="/miner.html" class="sidebar-game-item" onclick="return requireLogin(event)">💣 Минёр</a>
-      <a href="/ladder.html" class="sidebar-game-item" onclick="return requireLogin(event)">🪜 Лесенка</a>
-      <a href="/plinko.html" class="sidebar-game-item" onclick="return requireLogin(event)">🟣 Plinko</a>
-    </div>
-
-    <div class="sidebar-section-title">Интересное</div>
-    <a href="#" class="sidebar-item">🎁 Бонусы</a>
-    <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">🏆 Турниры <span class="nav-badge" style="position:static;">3</span></a>
-    <a href="#" class="sidebar-item">📦 Кейсы</a>
-    <a href="#" class="sidebar-item">🏅 Ранги</a>
-  </div>
-</div>
-
-<!-- ТОП БАР -->
+<!-- ВЕРХНИЙ БАР -->
 <div class="topbar">
   <div class="header-left">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
@@ -243,6 +222,7 @@
   </div>
 </div>
 
+<!-- ОСНОВНОЙ КОНТЕНТ -->
 <div class="main-content">
   <!-- БАННЕРЫ -->
   <div class="banners-scroll">
@@ -270,9 +250,7 @@
   </div>
 
   <!-- ИГРЫ -->
-  <div class="section-header">
-    <div class="section-title">⭐ Игры KINGWIN</div>
-  </div>
+  <div class="section-header"><div class="section-title">⭐ Игры KINGWIN</div></div>
   <div class="games-scroll">
     <a href="/crash.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div><div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div></a>
     <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
@@ -292,7 +270,6 @@
     <div class="section-header" style="margin-top:0; margin-bottom:10px;"><div class="section-title">🏆 Последние выигрыши</div></div>
     <div class="wins-scroll" id="lastWinsHome"><div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div></div>
   </div>
-
 </div>
 
 <!-- НИЖНЕЕ МЕНЮ -->
@@ -317,6 +294,37 @@
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     Профиль
   </a>
+</div>
+
+<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ (ПЕРЕНЕСЕНО В КОНЕЦ, ЧТОБЫ НЕ ЛОМАТЬ ВЕРХ) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="/" class="logo">KINGWIN</a>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sidebar-content">
+    <input type="text" class="sidebar-search" placeholder="🔍 Поиск">
+    <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">Колесо бонусов</a>
+    <a href="/" class="sidebar-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+    <a href="#" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Казино</a>
+    <div class="sidebar-section-title" onclick="toggleSidebarGames()">
+      <div style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Игры KINGWIN</div>
+      <span id="gamesArrow" style="font-size:10px; color:#fff;">▼</span>
+    </div>
+    <div class="sidebar-games-list" id="sidebarGamesList">
+      <a href="/crash.html" class="sidebar-game-item" onclick="return requireLogin(event)">🚀 Краш</a>
+      <a href="/cases.html" class="sidebar-game-item" onclick="return requireLogin(event)">📦 Кейсы</a>
+      <a href="/miner.html" class="sidebar-game-item" onclick="return requireLogin(event)">💣 Минёр</a>
+      <a href="/ladder.html" class="sidebar-game-item" onclick="return requireLogin(event)">🪜 Лесенка</a>
+      <a href="/plinko.html" class="sidebar-game-item" onclick="return requireLogin(event)">🟣 Plinko</a>
+    </div>
+    <div class="sidebar-section-title">Интересное</div>
+    <a href="#" class="sidebar-item">🎁 Бонусы</a>
+    <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">🏆 Турниры <span class="nav-badge" style="position:static;">3</span></a>
+    <a href="#" class="sidebar-item">📦 Кейсы</a>
+    <a href="#" class="sidebar-item">🏅 Ранги</a>
+  </div>
 </div>
 
 <!-- МОДАЛКИ (Вход, Депозит, Бонус) -->
@@ -445,7 +453,7 @@ async function doLogin() {
     updateUI();
     startBalanceRefresh();
     showToast('С возвращением!', 'success');
-    checkDailyBonus(); // Проверяем бонус при входе
+    checkDailyBonus();
   } catch (e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
