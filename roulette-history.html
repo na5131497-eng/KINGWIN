@@ -16,100 +16,117 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; }
 
-  .container { max-width: 700px; margin: 0 auto; }
+  .container { max-width: 700px; margin: 0 auto; padding-top: 40px; }
 
   .back-btn {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
     color: #a0aec0; padding: 10px 18px; border-radius: 10px;
     text-decoration: none; font-size: 13px; font-weight: 700;
-    margin-bottom: 20px; transition: .2s;
+    margin-bottom: 30px; transition: .2s;
   }
   .back-btn:hover { border-color: #00e5ff; color: #00e5ff; }
 
-  .hero {
-    background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(63,191,127,.08));
-    border: 1px solid rgba(0,229,255,.4);
-    border-radius: 20px;
-    padding: 28px;
-    text-align: center;
-    margin-bottom: 24px;
-    position: relative;
+  /* История — без рамки, без шапки */
+  .history-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
     overflow: hidden;
+    position: relative;
   }
-  .hero::before {
-    content: '🎡';
-    position: absolute;
-    top: -30px; right: -30px;
-    font-size: 180px;
-    opacity: .08;
-    transform: rotate(15deg);
-    pointer-events: none;
-  }
-  .hero .label {
-    font-size: 11px; color: #00e5ff;
-    text-transform: uppercase; letter-spacing: 3px;
-    font-weight: 900; margin-bottom: 10px;
-  }
-  .hero h1 { font-size: 28px; font-weight: 900; line-height: 1.15; margin-bottom: 8px; }
-  .hero .sub { font-size: 13px; color: #a0aec0; }
 
-  .history-panel {
-    background: rgba(18,24,38,.85);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 20px;
-    padding: 24px;
+  .history-track {
+    display: flex;
+    gap: 12px;
+    transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+    will-change: transform;
   }
-  .history-panel .h-head {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
-  }
-  .history-panel .h-title { font-size: 16px; font-weight: 900; }
-  .history-panel .h-count { font-size: 12px; color: #8fa2b8; }
 
-  .history-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 10px;
-  }
   .history-ball {
-    aspect-ratio: 1;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
     color: #fff;
-    border: 2px solid rgba(255,255,255,.1);
-    transition: transform .2s;
+    border: 2px solid rgba(255,255,255,.12);
+    transition: transform .3s;
     cursor: default;
+    position: relative;
   }
-  .history-ball:hover { transform: scale(1.1); }
-  .history-ball.red { background: linear-gradient(135deg, #ff4d4d, #c0392b); box-shadow: 0 4px 15px rgba(255,77,77,.3); }
-  .history-ball.black { background: linear-gradient(135deg, #2a2a2a, #000); box-shadow: 0 4px 15px rgba(0,0,0,.5); }
-  .history-ball.green { background: linear-gradient(135deg, #3fbf7f, #1e7a4a); box-shadow: 0 4px 15px rgba(63,191,127,.3); }
-  .history-ball.new { animation: pop .5s ease; }
-  @keyframes pop {
-    0% { transform: scale(0.3); opacity: 0; }
-    60% { transform: scale(1.2); }
-    100% { transform: scale(1); opacity: 1; }
+  .history-ball:hover { transform: scale(1.08); }
+  .history-ball.red {
+    background: linear-gradient(135deg, #ff4d4d, #c0392b);
+    box-shadow: 0 6px 20px rgba(255,77,77,.4), inset 0 2px 4px rgba(255,255,255,.2);
+  }
+  .history-ball.black {
+    background: linear-gradient(135deg, #3a3a3a, #000);
+    box-shadow: 0 6px 20px rgba(0,0,0,.6), inset 0 2px 4px rgba(255,255,255,.1);
+  }
+  .history-ball.green {
+    background: linear-gradient(135deg, #3fbf7f, #1e7a4a);
+    box-shadow: 0 6px 20px rgba(63,191,127,.4), inset 0 2px 4px rgba(255,255,255,.2);
   }
 
+  /* Анимация появления нового шара (слева) */
+  .history-ball.new {
+    animation: ballDrop .6s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  @keyframes ballDrop {
+    0% {
+      transform: translateX(-80px) scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    60% {
+      transform: translateX(8px) scale(1.15) rotate(10deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Свечение при появлении */
+  .history-ball.new::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0;
+    animation: glowPulse .8s ease-out;
+    z-index: -1;
+  }
+  @keyframes glowPulse {
+    0% { opacity: .8; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.6); }
+  }
+
+  /* Пустое состояние */
   .empty-state {
-    text-align: center; padding: 40px 20px;
-    color: #8fa2b8; font-size: 13px; font-style: italic;
-  }
-  .refresh-note {
-    text-align: center; font-size: 11px;
-    color: #8fa2b8; margin-top: 14px;
+    text-align: center;
+    padding: 60px 20px;
+    color: #8fa2b8;
+    font-size: 13px;
+    font-style: italic;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
     body { padding: 12px; }
-    .hero { padding: 22px 18px; border-radius: 16px; }
-    .hero h1 { font-size: 22px; }
-    .hero::before { font-size: 120px; }
-    .history-panel { padding: 18px; }
-    .history-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .history-ball { font-size: 15px; }
+    .container { padding-top: 20px; }
+    .history-ball { width: 48px; height: 48px; font-size: 16px; }
+    .history-track { gap: 8px; }
+  }
+  @media (max-width: 500px) {
+    .history-ball { width: 42px; height: 42px; font-size: 14px; }
+    .history-track { gap: 6px; }
   }
 </style>
 </head>
@@ -119,26 +136,16 @@
 
   <a href="/" class="back-btn">← На главную</a>
 
-  <div class="hero">
-    <div class="label">🎡 Рулетка</div>
-    <h1>Последние 20 чисел</h1>
-    <div class="sub">Обновляется автоматически</div>
+  <div class="history-wrap">
+    <div class="history-track" id="historyTrack"></div>
   </div>
-
-  <div class="history-panel">
-    <div class="h-head">
-      <div class="h-title">📜 История выпадений</div>
-      <div class="h-count" id="historyCount">Загрузка...</div>
-    </div>
-    <div class="history-grid" id="historyGrid"></div>
-    <div class="empty-state" id="historyEmpty" style="display:none;">Пока нет выпадений</div>
-    <div class="refresh-note">Обновляется каждые 10 секунд</div>
-  </div>
+  <div class="empty-state" id="emptyState" style="display:none;">Пока нет выпадений</div>
 
 </div>
 
 <script>
-let lastRenderedId = null;
+let lastFirstId = null;
+let currentList = [];
 
 async function loadHistory() {
   try {
@@ -146,32 +153,42 @@ async function loadHistory() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const list = await r.json();
 
-    const grid = document.getElementById('historyGrid');
-    const empty = document.getElementById('historyEmpty');
-    const count = document.getElementById('historyCount');
+    const track = document.getElementById('historyTrack');
+    const empty = document.getElementById('emptyState');
 
     if (!Array.isArray(list) || list.length === 0) {
-      grid.innerHTML = '';
+      track.innerHTML = '';
       if (empty) empty.style.display = 'block';
-      if (count) count.textContent = '0 выпадений';
       return;
     }
 
     if (empty) empty.style.display = 'none';
-    if (count) count.textContent = list.length + ' чисел';
 
-    const isNew = lastRenderedId !== null && list[0].id !== lastRenderedId;
-    lastRenderedId = list[0].id;
+    const firstId = list[0].id;
+    const isNew = lastFirstId !== null && firstId !== lastFirstId;
 
-    grid.innerHTML = list.map((x, i) => {
-      const isNewest = i === 0 && isNew;
+    // Создаём шары. Первый (новый) — с анимацией, остальные — без
+    track.innerHTML = list.map((x, i) => {
       const colorClass = x.result_color === 'red' ? 'red' : x.result_color === 'black' ? 'black' : 'green';
-      return `<div class="history-ball ${colorClass}${isNewest ? ' new' : ''}" title="${x.result_color === 'red' ? 'Красное' : x.result_color === 'black' ? 'Чёрное' : 'Зеро'}">${x.result_number}</div>`;
+      const newClass = (i === 0 && isNew) ? ' new' : '';
+      return `<div class="history-ball ${colorClass}${newClass}" title="${x.result_color === 'red' ? 'Красное' : x.result_color === 'black' ? 'Чёрное' : 'Зеро'}">${x.result_number}</div>`;
     }).join('');
+
+    // Сдвиг вправо — все шары «приехали» на свои места
+    if (isNew) {
+      // Сначала сдвигаем весь трек на позицию нового шара, потом плавно возвращаем
+      track.style.transform = 'translateX(' + (track.children[0]?.offsetWidth + 12) + 'px)';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          track.style.transform = 'translateX(0)';
+        });
+      });
+    }
+
+    lastFirstId = firstId;
+    currentList = list;
   } catch (e) {
     console.warn('loadHistory error:', e);
-    const count = document.getElementById('historyCount');
-    if (count) count.textContent = 'Ошибка загрузки';
   }
 }
 
