@@ -1,3 +1,8 @@
+Понял тебя. Вот полный, готовый index.html, в который я уже встроил ту самую рабочую функцию оплаты. Тебе не нужно ничего искать и заменять.
+
+Просто скопируй этот код целиком и замени им свой текущий index.html:
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -578,12 +583,9 @@ const depositAmountParam = urlParams.get('deposit');
 
 // --- НАВИГАЦИЯ ПО ЭКРАНАМ ---
 function switchScreen(screenName) {
-  // Убираем класс active у всех экранов
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  // Добавляем нужному
   document.getElementById('screen-' + screenName).classList.add('active');
   
-  // Обновляем нижнее меню
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const navItem = document.querySelector(`.nav-item[onclick*="'${screenName}'"]`);
   if (navItem) navItem.classList.add('active');
@@ -716,9 +718,38 @@ function startPayTimer(seconds) {
   }, 1000);
 }
 
+// === ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАВЕРШЕНИЯ ОПЛАТЫ ===
 function finishPayment() {
   closePayPage();
-  document.getElementById('waitingOverlay').classList.add('show');
+  
+  // Получаем сумму и банк
+  let finalSumStr = document.getElementById('ppAmountRight').textContent;
+  let sumToPay = parseFloat(finalSumStr.replace(' ₽', '').replace(',', '.')) || 0;
+  let bankName = document.getElementById('ppBankName').textContent || 'СБП';
+
+  if (currentPlayer && sumToPay > 0) {
+    // Отправляем заявку на сервер
+    fetch('/api/deposits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nick: currentPlayer.name || currentPlayer.id,
+        sum: sumToPay,
+        email: bankName, 
+        status: 'pending'
+      })
+    }).then(res => res.json()).then(data => {
+      if(data.ok) {
+        document.getElementById('waitingOverlay').classList.add('show');
+      } else {
+        showToast('Ошибка: ' + (data.error || 'Неизвестно'), 'error');
+      }
+    }).catch(err => {
+      showToast('Ошибка сети', 'error');
+    });
+  } else {
+    showToast('Ошибка: не удалось определить сумму', 'error');
+  }
 }
 
 function closeWaitingOverlay() {
