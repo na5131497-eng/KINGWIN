@@ -103,8 +103,24 @@
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
 
-  /* === НИЖНЕЕ МЕНЮ === */
-  .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: #11141d; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
+  /* === НИЖНЕЕ МЕНЮ (СО СВЕЧЕНИЕМ) === */
+  .bottom-nav { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    height: var(--nav-height); 
+    background: rgba(17, 20, 29, 0.95); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    padding-bottom: env(safe-area-inset-bottom); 
+    z-index: 1000; 
+    border-top: 1px solid rgba(255,255,255,0.08); 
+    box-shadow: 0 -5px 25px rgba(0, 229, 255, 0.15); /* Маленькое голубое свечение вверх */
+  }
   .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #6b7280; font-size: 10px; font-weight: 600; position: relative; }
   .nav-item.active { color: #fff; }
   .nav-item.active svg { fill: #fff; }
