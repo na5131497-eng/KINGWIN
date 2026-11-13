@@ -215,7 +215,6 @@
   .toggle-switch.off { background: #333; }
   .toggle-switch.off::after { right: calc(100% - 25px); }
 
-  /* Обновленный блок бонуса (без фриспинов) */
   .bonus-banner {
     background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(255,77,77,0.1)); border-radius: 15px;
     padding: 20px; color: #fff; display: flex; justify-content: space-between; align-items: center;
@@ -231,7 +230,6 @@
   
   .amount-box { background: var(--bg-panel); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
   
-  /* Поле ввода и кнопка "Внести" */
   .amount-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
   .amount-input-wrap { flex: 1; }
   .amount-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
@@ -283,11 +281,13 @@
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <a href="/" class="logo">KINGWIN</a>
   </div>
+  <!-- Для авторизованных -->
   <div class="header-right" id="userArea" style="display:none">
     <div class="balance-pill"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
     <button class="btn-plus" onclick="openNewPaymentScreen()">+</button>
     <div class="profile-avatar" onclick="goToProfile()" title="Профиль">KW</div>
   </div>
+  <!-- Для гостей -->
   <div class="header-right" id="loginArea">
     <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
     <button class="btn-plus" onclick="openModal('loginModal')">+</button>
@@ -485,7 +485,7 @@
         <div class="toggle-switch" id="bonusToggle" onclick="this.classList.toggle('off')"></div>
       </div>
 
-      <!-- Обновленный блок бонуса без фриспинов -->
+      <!-- Блок бонуса -->
       <div class="bonus-banner">
         <div>
           <h3>Бонус +100% к депозиту</h3>
@@ -540,7 +540,7 @@ function openNewPaymentScreen() {
   document.getElementById('newPaymentScreen').classList.add('show');
   document.body.style.overflow = 'hidden';
 
-  // СБРОС СУММЫ ПРИ ОТКРЫТИИ: Ставим 100 и генерируем хвостик
+  // По умолчанию ставим 100 и генерируем хвостик
   document.getElementById('payAmountInput').value = 100;
   calculateUniqueSum();
 }
@@ -561,13 +561,14 @@ function selectBank(bankName, color) {
   document.getElementById('payBackBtn').style.display = 'block';
 }
 
+// Кнопка "Назад" в окне оплаты (возвращает к выбору банка)
 document.getElementById('payBackBtn').onclick = function() {
   document.getElementById('banksScreen').classList.remove('hide');
   document.getElementById('formScreen').classList.remove('show');
   document.getElementById('payBackBtn').style.display = 'none';
 };
 
-// ЛОГИКА УНИКАЛЬНОЙ СУММЫ
+// ЛОГИКА УНИКАЛЬНОЙ СУММЫ (ХВОСТИКА)
 function calculateUniqueSum() {
   let val = parseInt(document.getElementById('payAmountInput').value) || 0;
   let sumDisplay = document.getElementById('quickPaySum');
@@ -577,7 +578,7 @@ function calculateUniqueSum() {
     return;
   }
 
-  // Если число круглое (делится на 10 без остатка), добавляем хвостик от 2 до 9
+  // Если игрок ввел круглое число (оканчивается на 0) - добавляем хвостик от 2 до 9
   if (val % 10 === 0) {
     let tail = Math.floor(Math.random() * 8) + 2; // Случайное от 2 до 9
     sumDisplay.textContent = (val + tail) + ' ₽';
@@ -660,7 +661,7 @@ async function doLogin() {
   err.style.display = 'none';
   if (!id || !pass) { err.textContent = 'Введите данные'; err.style.display = 'block'; return; }
   
-  // Заглушка для теста
+  // Временная заглушка для теста
   currentPlayer = { id: id, bonus_balance: 0, deposit_balance: 0 };
   localStorage.setItem('kingwin_guest_id', id);
   closeModal('loginModal');
@@ -691,4 +692,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-```
