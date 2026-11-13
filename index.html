@@ -22,8 +22,9 @@
     position: relative; overflow-x: hidden; -webkit-overflow-scrolling: touch;
   }
 
-  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 5px; }
-  .screen { display: none; animation: fadeIn 0.3s ease; padding-bottom: 10px; }
+  /* УБРАЛ ПУСТОТУ СВЕРХУ */
+  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
+  .screen { display: none; animation: fadeIn 0.3s ease; padding-bottom: 10px; padding-top: 0; }
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   ::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -56,7 +57,7 @@
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
 
   /* === КОНТЕНТ === */
-  .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-top: 5px; }
   .banners-scroll::-webkit-scrollbar { display: none; }
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
   .banner-card.deposit { background: #1c2230; }
@@ -86,17 +87,7 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
   .game-sub { font-size: 10px; color: var(--text-muted); }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; margin-top: 15px; }
-  .mini-card { border-radius: 16px; padding: 16px; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; position: relative; overflow: hidden; }
-  .mini-card.wheel { background: linear-gradient(135deg, #7e22ce, #4c1d95); }
-  .mini-card.missions { background: linear-gradient(135deg, #1d4ed8, #1e3a8a); }
-  .mini-badge { background: #fff; color: #000; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 20px; width: fit-content; margin-bottom: 10px; z-index: 2; position: relative; }
-  .mini-badge span { background: #ff4d4d; color: #fff; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
-  .mini-title { font-size: 14px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 8px; z-index: 2; position: relative; }
-  .mini-link { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; display: flex; align-items: center; gap: 4px; z-index: 2; position: relative; }
-  .mini-card::after { content: ''; position: absolute; bottom: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); z-index: 1; }
-
-  .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+  .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); margin-top: 15px;}
   .wins-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .wins-scroll::-webkit-scrollbar { display: none; }
   .win-card { flex: 0 0 200px; background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(63,191,127,.1); }
@@ -137,10 +128,6 @@
   .sb-search { width: 100%; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 20px; outline: none; display: flex; align-items: center; gap: 10px; }
   .sb-search input { background: transparent; border: none; color: #fff; width: 100%; outline: none; font-family: inherit; font-size: 14px; }
   .sb-search input::placeholder { color: var(--text-muted); }
-  .sb-banner { border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 14px; position: relative; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-  .sb-banner-wheel { background: linear-gradient(90deg, rgba(126,34,206,0.8), rgba(76,29,149,0.8)); }
-  .sb-banner-count { background: var(--red); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; font-weight: 800; margin-left: 5px; }
-  .sb-banner-icon { font-size: 24px; }
   .sb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; text-decoration: none; color: var(--text-main); font-size: 15px; font-weight: 600; border-radius: 10px; margin-bottom: 2px; transition: 0.2s; cursor: pointer; }
   .sb-item:hover { background: rgba(255,255,255,0.05); }
   .sb-item-left { display: flex; align-items: center; gap: 15px; }
@@ -303,33 +290,6 @@
   .waiting-box p { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
   .waiting-box .btn-ok { background: var(--accent-green); color: #000; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 900; border: none; cursor: pointer; }
 
-  /* ========================================================
-     НОВОЕ ОКНО КОЛЕСА ФОРТУНЫ
-     ======================================================== */
-  .wheel-overlay { position: fixed !important; inset: 0 !important; background: rgba(11, 14, 20, 0.95); z-index: 99999999 !important; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto; backdrop-filter: blur(5px); }
-  .wheel-overlay.show { display: flex !important; }
-  .wheel-header { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; margin-top: 10px; }
-  .wheel-header h2 { font-size: 20px; font-weight: 800; color: #fff; }
-  .wheel-close-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-  .wheel-container { position: relative; width: 100%; max-width: 350px; aspect-ratio: 1/1; margin-bottom: 30px; }
-  .wheel-bg { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); border: 4px solid #151922; }
-  .wheel-spinner { position: absolute; inset: 5px; border-radius: 50%; transition: transform 5s cubic-bezier(0.17, 0.67, 0.1, 1); overflow: hidden; }
-  .wheel-spinner svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 10; text-align: center; }
-  .wheel-timer-text { font-size: 10px; font-weight: 700; color: #666; margin-bottom: 2px; text-transform: uppercase; }
-  .wheel-timer-val { font-size: 14px; font-weight: 900; color: #111; }
-  .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--accent); z-index: 20; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-  .wheel-pointer::after { content: ''; position: absolute; top: -30px; left: -10px; width: 20px; height: 20px; background: var(--accent); border-radius: 50%; }
-  .wheel-spin-btn { background: linear-gradient(135deg, var(--accent-green), #00b0ff); color: #000; padding: 16px 40px; border-radius: 30px; font-size: 18px; font-weight: 900; border: none; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); transition: 0.2s; margin-bottom: 30px; }
-  .wheel-spin-btn:disabled { background: #333; color: #888; box-shadow: none; cursor: not-allowed; }
-  .wheel-history { width: 100%; max-width: 500px; }
-  .wheel-history-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 15px; }
-  .wheel-history-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-  .wheel-history-scroll::-webkit-scrollbar { display: none; }
-  .wh-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 90px; border: 1px solid rgba(255,255,255,0.05); }
-  .wh-user { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-  .wh-prize { font-size: 14px; font-weight: 900; color: var(--accent-green); }
-
   .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; color: #fff;}
   .toast.show { transform: translateX(0); }
@@ -401,27 +361,7 @@
       <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
       <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
       <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
-      
-      <!-- ДОБАВЛЕНА КАРТОЧКА РУЛЕТКИ -->
-      <a href="/roulette.html" class="game-card" onclick="return requireLogin(event)">
-        <div class="game-img-wrap" style="background: radial-gradient(circle, #1a1f2b, #0b0e14);">
-          <div style="font-size: 60px;">🎡</div>
-        </div>
-        <div class="game-info"><div class="game-title">Рулетка</div><div class="game-sub">Крути и выигрывай</div></div>
-      </a>
-
       <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
-    </div>
-
-    <div class="grid-2">
-      <a href="#" class="mini-card wheel" onclick="actionRequireLogin('openWheelScreen'); return false;">
-        <div class="mini-badge">Вращений <span id="wheelBadgeCount">1</span></div>
-        <div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div>
-      </a>
-      <a href="#" class="mini-card missions" onclick="switchScreen('bonuses'); return false;">
-        <div class="mini-badge">Миссий <span>0</span></div>
-        <div><div class="mini-title">Награды за миссии</div><div class="mini-link">К миссиям ▶</div></div>
-      </a>
     </div>
 
     <div class="wins-block">
@@ -686,9 +626,9 @@
       <svg class="arrow" id="sbGamesArrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
     </div>
     
+    <!-- УБРАЛ РУЛЕТКУ ИЗ СПИСКА ИГР -->
     <div class="sb-games-list" id="sbGamesList">
       <a href="/crash.html" class="sb-game-item">🚀 Краш</a>
-      <a href="/roulette.html" class="sb-game-item">🎡 Рулетка</a>
       <a href="#" class="sb-game-item">🎰 Классик</a>
       <a href="#" class="sb-game-item">🎲 Dice</a>
       <a href="#" class="sb-game-item">🔮 Keno</a>
