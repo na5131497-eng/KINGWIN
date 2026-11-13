@@ -15,6 +15,8 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   html { -webkit-text-size-adjust: 100%; }
+  
+  /* Отступ снизу, чтобы контент не перекрывался нижним меню */
   body { background: var(--bg-main); color: var(--text-main); min-height: 100dvh; padding-bottom: calc(var(--nav-height) + 20px); position: relative; overflow-x: hidden; }
 
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
@@ -44,13 +46,12 @@
   /* === ОСНОВНОЙ КОНТЕНТ === */
   .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
 
-  /* === ГОРИЗОНТАЛЬНЫЙ СВАЙП БАННЕРОВ === */
+  /* === СВАЙП БАННЕРОВ === */
   .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .banners-scroll::-webkit-scrollbar { display: none; }
-  
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
   
-  /* Баннер Депозит (Девушка) */
+  /* Баннер Депозит */
   .banner-card.deposit { background: #1c2230; }
   .banner-card.deposit img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
   .banner-card.deposit .overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,14,20,0.9) 0%, rgba(11,14,20,0.4) 50%, transparent 100%); z-index: 2; }
@@ -71,14 +72,12 @@
   .cat-btn { flex: 0 0 auto; background: #1c2230; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
   .cat-btn.active { color: var(--accent); border-color: rgba(0,229,255,0.3); }
 
-  /* === СЕКЦИИ И ИГРЫ === */
+  /* === ИГРЫ === */
   .section-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
   .section-title { font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
   .section-title svg { fill: var(--accent); width: 18px; height: 18px; }
-
   .games-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .games-scroll::-webkit-scrollbar { display: none; }
-  
   .game-card { flex: 0 0 130px; background: var(--bg-card); border-radius: 14px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
   .game-img-wrap { width: 100%; height: 160px; position: relative; overflow: hidden; background: #0f1219; }
   .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
@@ -86,7 +85,7 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
   .game-sub { font-size: 10px; color: var(--text-muted); }
 
-  /* === КАРТОЧКИ КОЛЕСО И МИССИИ === */
+  /* === МИНИ-КАРТОЧКИ === */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; margin-top: 15px; }
   .mini-card { border-radius: 16px; padding: 16px; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; position: relative; overflow: hidden; }
   .mini-card.wheel { background: linear-gradient(135deg, #7e22ce, #4c1d95); }
@@ -97,7 +96,7 @@
   .mini-link { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; display: flex; align-items: center; gap: 4px; z-index: 2; position: relative; }
   .mini-card::after { content: ''; position: absolute; bottom: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); z-index: 1; }
 
-  /* === ПОСЛЕДНИЕ ВЫИГРЫШИ === */
+  /* === ВЫИГРЫШИ === */
   .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
   .wins-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .wins-scroll::-webkit-scrollbar { display: none; }
@@ -108,11 +107,12 @@
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
 
-  /* === НИЖНЕЕ МЕНЮ (СО СВЕЧЕНИЕМ) === */
+  /* === НИЖНЕЕ МЕНЮ (ПРИШИТО К НИЗУ) === */
   .bottom-nav { 
     position: fixed; 
     bottom: 0; 
     left: 0; 
+    right: 0;
     width: 100%; 
     height: var(--nav-height); 
     background: rgba(17, 20, 29, 0.95); 
@@ -122,9 +122,10 @@
     justify-content: space-around; 
     align-items: center; 
     padding-bottom: env(safe-area-inset-bottom); 
-    z-index: 1000; 
+    z-index: 9999; /* Поверх всего */
     border-top: 1px solid rgba(255,255,255,0.08); 
     box-shadow: 0 -5px 25px rgba(0, 229, 255, 0.15);
+    margin: 0;
   }
   .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #6b7280; font-size: 10px; font-weight: 600; position: relative; }
   .nav-item.active { color: #fff; }
@@ -135,25 +136,21 @@
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
   /* === ВЫЕЗЖАЮЩЕЕ МЕНЮ (SIDEBAR) === */
-  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; }
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 10000; opacity: 0; pointer-events: none; transition: 0.3s; }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #0b0e14; z-index: 2001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
+  .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #0b0e14; z-index: 10001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
   .sidebar.show { left: 0; }
   
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .sidebar-close { background: rgba(255,255,255,0.05); border: none; color: #fff; width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-  
   .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
-  
   .sidebar-search { width: 100%; background: #1c2230; border: none; border-radius: 10px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 15px; outline: none; }
   
   .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 10px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 5px; transition: 0.2s; }
   .sidebar-item:hover, .sidebar-item.active { background: rgba(0,229,255,0.1); color: var(--accent); }
   .sidebar-item svg { width: 20px; height: 20px; fill: currentColor; }
-  
   .sidebar-section-title { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin: 20px 0 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
   
-  /* Раскрывающийся список игр */
   .sidebar-games-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 15px; }
   .sidebar-games-list.show { max-height: 500px; }
   .sidebar-game-item { display: flex; align-items: center; gap: 12px; padding: 10px 15px; border-radius: 8px; text-decoration: none; color: #d0d5e0; font-size: 14px; font-weight: 600; }
@@ -166,23 +163,11 @@
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none !important; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
-  .modal-box::-webkit-scrollbar { width: 6px; }
-  .modal-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
   .modal-close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: none; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
   .modal-box h2 { font-size: 22px; margin-bottom: 15px; }
   .modal-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; outline: none; font-family: inherit; }
-  .modal-box input:focus { border-color: var(--accent); }
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
 
-  .dep-methods { display: flex; gap: 10px; margin-bottom: 20px; }
-  .dep-method { flex: 1; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-  .dep-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
-  .dep-banner { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-weight: 800; font-size: 14px; color: var(--accent-green); }
-  .dep-amount-row { display: flex; gap: 10px; margin-bottom: 15px; }
-  .dep-amount-input { flex: 1; background: #fff; border: none; border-radius: 8px; color: #000; font-size: 24px; font-weight: 900; text-align: center; outline: none; padding: 10px; font-family: inherit; }
-  .card-info { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
-  .card-info .note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-  .card-info .note b { color: #fff; }
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
   /* ТОСТЫ */
@@ -191,17 +176,12 @@
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
-  .toast.info { border-left-color: var(--gold); }
 
   @media (min-width: 768px) {
     .banner-card { flex: 0 0 45%; }
     .main-content { padding: 0 30px; }
-    .bottom-nav { display: none; } /* На ПК нижнее меню скрываем */
+    .bottom-nav { display: none; }
     body { padding-bottom: 20px; }
-  }
-  @media (max-width: 600px) {
-    .dep-methods { flex-direction: column; gap: 8px; }
-    .modal-box { padding: 24px 18px; }
   }
 </style>
 </head>
@@ -219,24 +199,13 @@
   </div>
   <div class="sidebar-content">
     <input type="text" class="sidebar-search" placeholder="🔍 Поиск">
+    <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">Колесо бонусов</a>
+    <a href="/" class="sidebar-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная</a>
+    <a href="#" class="sidebar-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Казино</a>
     
-    <a href="#" class="sidebar-item" style="background:linear-gradient(90deg, rgba(126,34,206,0.5), transparent); border-left:3px solid #7e22ce;">
-      Колесо бонусов
-    </a>
-
-    <a href="/" class="sidebar-item active">
-      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Главная
-    </a>
-    <a href="#" class="sidebar-item">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> Казино
-    </a>
-    <a href="#" class="sidebar-item">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Ставки
-    </a>
-
     <div class="sidebar-section-title" onclick="toggleSidebarGames()">
       <div style="display:flex; align-items:center; gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2z"/></svg>
+        <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:#00e5ff;"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
         Игры KINGWIN
       </div>
       <span id="gamesArrow" style="font-size:10px; color:#fff;">▼</span>
@@ -250,21 +219,10 @@
     </div>
 
     <div class="sidebar-section-title">Интересное</div>
-    <a href="#" class="sidebar-item" onclick="alert('В разработке')">🎁 Бонусы</a>
-    <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">
-      🏆 Турниры <span class="nav-badge" style="position:static;">3</span>
-    </a>
-    <a href="#" class="sidebar-item" onclick="alert('В разработке')">📦 Кейсы</a>
-    <a href="#" class="sidebar-item" onclick="alert('В разработке')">🏅 Ранги</a>
-    
-    <a href="#" class="sidebar-item" style="margin-top:20px; color:#f1c40f;">💎 Стать VIP</a>
-    <a href="#" class="sidebar-item" style="color:#00e5ff;">% Кэшбэк <span class="nav-badge" style="position:static; background:#f1c40f; color:#000;">NEW</span></a>
-  </div>
-  
-  <div class="sidebar-socials">
-    <a href="#" class="sidebar-social-btn" style="background:#4c75a3;">VK</a>
-    <a href="#" class="sidebar-social-btn" style="background:#0088cc;">TG</a>
-    <a href="#" class="sidebar-social-btn" style="background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);">IG</a>
+    <a href="#" class="sidebar-item">🎁 Бонусы</a>
+    <a href="/tournament.html" class="sidebar-item" style="justify-content:space-between;">🏆 Турниры <span class="nav-badge" style="position:static;">3</span></a>
+    <a href="#" class="sidebar-item">📦 Кейсы</a>
+    <a href="#" class="sidebar-item">🏅 Ранги</a>
   </div>
 </div>
 
@@ -274,13 +232,11 @@
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <a href="/" class="logo">KINGWIN</a>
   </div>
-  
   <div class="header-right" id="userArea" style="display:none">
     <div class="balance-pill"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
     <button class="btn-plus" onclick="openDeposit()">+</button>
     <div class="profile-avatar" onclick="goToProfile()" title="Профиль">KW</div>
   </div>
-  
   <div class="header-right" id="loginArea">
     <button class="btn-login" onclick="openModal('loginModal')">Войти</button>
     <button class="btn-plus" onclick="openModal('loginModal')">+</button>
@@ -288,9 +244,8 @@
 </div>
 
 <div class="main-content">
-  <!-- СВАЙП БАННЕРОВ -->
+  <!-- БАННЕРЫ -->
   <div class="banners-scroll">
-    <!-- 1. Баннер Депозит (Девушка) -->
     <div class="banner-card deposit" onclick="actionRequireLogin('openDeposit')">
       <img src="/main_banner.jpg" alt="Депозит" onerror="this.style.display='none'">
       <div class="overlay"></div>
@@ -300,8 +255,6 @@
         <button class="btn-action" style="background:var(--accent-green);">Забрать бонус</button>
       </div>
     </div>
-    
-    <!-- 2. Баннер Турнир -->
     <div class="banner-card tournament" onclick="location.href='/tournament.html'">
       <div class="banner-title">🏆 Турнир недели</div>
       <div class="banner-sub">Призовой фонд <span id="tPrizeBanner" style="color:#f1c40f; font-weight:900;">100 ₽</span></div>
@@ -316,94 +269,40 @@
     <a href="#" class="cat-btn">🔥 Слоты</a>
   </div>
 
-  <!-- ИГРЫ KINGWIN -->
+  <!-- ИГРЫ -->
   <div class="section-header">
-    <div class="section-title">
-      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      Игры KINGWIN
-    </div>
+    <div class="section-title">⭐ Игры KINGWIN</div>
   </div>
-  
   <div class="games-scroll">
-    <!-- Краш -->
-    <a href="/crash.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'" alt="Crash"></div>
-      <div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div>
-    </a>
-    <!-- Кейсы -->
-    <a href="/cases.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/cases_card.jpg" alt="Cases" onerror="this.style.display='none'"></div>
-      <div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div>
-    </a>
-    <!-- Минёр -->
-    <a href="/miner.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/miner_card.jpg" alt="Miner" onerror="this.style.display='none'"></div>
-      <div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div>
-    </a>
-    <!-- Лесенка -->
-    <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/ladder_card.jpg" alt="Ladder" onerror="this.style.display='none'"></div>
-      <div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div>
-    </a>
-    <!-- Плинко -->
-    <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/plinko_card.webp" alt="Plinko" onerror="this.src='/plinko_card.jpg'"></div>
-      <div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div>
-    </a>
+    <a href="/crash.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div><div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div></a>
+    <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
+    <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
+    <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
+    <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
   </div>
 
   <!-- КОЛЕСО И МИССИИ -->
   <div class="grid-2">
-    <a href="#" class="mini-card wheel" onclick="alert('Колесо в разработке')">
-      <div class="mini-badge">Доступно вращений <span>1</span></div>
-      <div>
-        <div class="mini-title">Бесплатное колесо с бонусами!</div>
-        <div class="mini-link">Открыть колесо ▶</div>
-      </div>
-    </a>
-    <a href="#" class="mini-card missions" onclick="alert('Миссии в разработке')">
-      <div class="mini-badge">Доступных миссий <span>0</span></div>
-      <div>
-        <div class="mini-title">Получай награды за миссии</div>
-        <div class="mini-link">К миссиям ▶</div>
-      </div>
-    </a>
+    <a href="#" class="mini-card wheel"><div class="mini-badge">Вращений <span>1</span></div><div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div></a>
+    <a href="#" class="mini-card missions"><div class="mini-badge">Миссий <span>0</span></div><div><div class="mini-title">Награды за миссии</div><div class="mini-link">К миссиям ▶</div></div></a>
   </div>
 
-  <!-- ПОСЛЕДНИЕ ВЫИГРЫШИ -->
+  <!-- ВЫИГРЫШИ -->
   <div class="wins-block">
-    <div class="section-header" style="margin-top:0; margin-bottom:10px;">
-      <div class="section-title">🏆 Последние выигрыши</div>
-    </div>
-    <div class="wins-scroll" id="lastWinsHome">
-      <div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div>
-    </div>
-  </div>
-
-  <!-- СЛОТЫ -->
-  <div class="section-header">
-    <div class="section-title">
-      <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-3c-.83 0-1.5-.67-1.5-1.5S17.17 9 18 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-      Наши слоты
-    </div>
-  </div>
-  <div class="games-scroll" style="margin-bottom:20px;">
-    <a href="/empire_of_gold.html" class="game-card" onclick="return requireLogin(event)">
-      <div class="game-img-wrap"><img src="/empire_of_gold.jpg" alt="Empire of Gold" onerror="this.style.display='none'"></div>
-      <div class="game-info"><div class="game-title">Empire of Gold</div><div class="game-sub">Слот</div></div>
-    </a>
+    <div class="section-header" style="margin-top:0; margin-bottom:10px;"><div class="section-title">🏆 Последние выигрыши</div></div>
+    <div class="wins-scroll" id="lastWinsHome"><div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div></div>
   </div>
 
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ (BOTTOM NAV) -->
+<!-- НИЖНЕЕ МЕНЮ -->
 <div class="bottom-nav">
   <a href="/" class="nav-item active">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Главная
   </a>
-  <a href="#" class="nav-item" onclick="alert('Бонусы в разработке')">
-    <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+  <a href="#" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
     Бонусы
   </a>
   <button class="nav-btn-plus" onclick="actionRequireLogin('openDeposit')">
@@ -411,7 +310,7 @@
   </button>
   <a href="/tournament.html" class="nav-item">
     <span class="nav-badge">3</span>
-    <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
     Турниры
   </a>
   <a href="/profile.html" class="nav-item" onclick="return requireLogin(event)">
@@ -420,45 +319,33 @@
   </a>
 </div>
 
-<!-- МОДАЛКИ -->
-<div class="modal-overlay" id="loginModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-    <h2>Вход в аккаунт</h2>
-    <p>Введите номер карты и пароль</p>
-    <input type="text" id="loginId" placeholder="KING-0001">
-    <input type="password" id="loginPass" placeholder="Пароль">
-    <div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div>
-    <button class="btn-primary-full" onclick="doLogin()">Войти</button>
-  </div>
-</div>
+<!-- МОДАЛКИ (Вход, Депозит, Бонус) -->
+<div class="modal-overlay" id="loginModal"><div class="modal-box"><button class="modal-close" onclick="closeModal('loginModal')">✕</button><h2>Вход в аккаунт</h2><p>Введите номер карты и пароль</p><input type="text" id="loginId" placeholder="KING-0001"><input type="password" id="loginPass" placeholder="Пароль"><div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div><button class="btn-primary-full" onclick="doLogin()">Войти</button></div></div>
 
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
     <h2>Пополнение</h2>
-    <div class="dep-methods">
-      <div class="dep-method active" id="methodBonus" onclick="selectDepMethod('bonus')">С бонусом</div>
-      <div class="dep-method" id="methodNoBonus" onclick="selectDepMethod('nobonus')">Без бонуса</div>
-    </div>
-    <div id="bonusBlock">
-      <div class="dep-banner" id="depBanner">+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ</div>
-      <div id="promoRow" style="display:none; margin-bottom: 15px;">
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="promoCodeInput" placeholder="Промокод" style="flex:1; background:rgba(0,0,0,.4); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; font-size:14px; text-transform:uppercase; font-family:inherit; outline:none; margin:0; text-align:left;">
-          <button class="btn-deposit" onclick="applyPromo()" style="padding:0 16px; font-size:12px; white-space:nowrap; background:#00e5ff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Применить</button>
-        </div>
-        <div id="promoResult" style="font-size:12px; margin-top:8px; min-height:16px;"></div>
-      </div>
-    </div>
-    <div class="dep-amount-row">
-      <input type="number" id="depositAmountInput" class="dep-amount-input" placeholder="500" value="500" min="100" max="10000">
-    </div>
-    <div style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Мин. 100 ₽ · Макс. 10 000 ₽</div>
-    <div class="card-info">
-      <div class="note">После нажатия «Перейти к оплате»<br><b>свяжитесь с администратором</b> для получения реквизитов.</div>
-    </div>
+    <div class="dep-methods"><div class="dep-method active" id="methodBonus" onclick="selectDepMethod('bonus')">С бонусом</div><div class="dep-method" id="methodNoBonus" onclick="selectDepMethod('nobonus')">Без бонуса</div></div>
+    <div id="bonusBlock"><div class="dep-banner" id="depBanner">+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ</div></div>
+    <div class="dep-amount-row"><input type="number" id="depositAmountInput" class="dep-amount-input" value="500" min="100" max="10000"></div>
     <button class="btn-primary-full" onclick="goToPayment()">Перейти к оплате</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА БОНУСА -->
+<div class="modal-overlay" id="dailyBonusModal">
+  <div class="modal-box" style="border-color: #f1c40f; background: radial-gradient(circle at top, #2a2412, #151922);">
+    <button class="modal-close" onclick="closeModal('dailyBonusModal')">✕</button>
+    <div style="font-size: 48px; margin-bottom: 10px;">🎁</div>
+    <h2 style="color: #f1c40f; margin-bottom: 5px;">Ежедневный бонус!</h2>
+    <p style="margin-bottom: 20px;">Заходи каждый день, чтобы получать всё больше!</p>
+    <div style="background: rgba(0,0,0,0.5); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+      <div style="font-size: 12px; color: #8b92a5; text-transform: uppercase; margin-bottom: 5px;">Бонус на сегодня</div>
+      <div style="font-size: 32px; font-weight: 900; color: #3fbf7f;" id="dailyBonusAmount">0 ₽</div>
+      <div style="font-size: 11px; color: #f1c40f; margin-top: 5px;">День <span id="dailyBonusLevel">1</span> из 7</div>
+    </div>
+    <button class="btn-primary-full" id="btnClaimDaily" onclick="claimDailyBonus()" style="background: #f1c40f; color: #000;">Забрать бонус</button>
   </div>
 </div>
 
@@ -473,36 +360,12 @@ function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('show');
   document.getElementById('sidebarOverlay').classList.toggle('show');
 }
-
 function toggleSidebarGames() {
   const list = document.getElementById('sidebarGamesList');
   const arrow = document.getElementById('gamesArrow');
   list.classList.toggle('show');
   arrow.textContent = list.classList.contains('show') ? '▲' : '▼';
 }
-
-(function initBackgroundCrowns() {
-  const c = document.getElementById('bgCrowns');
-  if (!c) return;
-  const isMobile = window.matchMedia('(max-width: 600px)').matches;
-  const count = isMobile ? 6 : 10;
-  const crownSvg = '<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgCrownGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8b0"/><stop offset="0.5" stop-color="#f1c40f"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><path d="M8 48 L8 22 L20 34 L32 14 L44 34 L56 22 L56 48 Z" fill="url(#bgCrownGrad)"/><rect x="8" y="46" width="48" height="4" fill="#b8860b"/></svg>';
-  const brokenSvg = '<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="bgBrokenGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b9b"/><stop offset="1" stop-color="#8b0000"/></linearGradient></defs><path d="M6 48 L6 22 L18 34 L26 24 L30 34 L30 48 Z" fill="url(#bgBrokenGrad)"/><path d="M36 48 L36 38 L42 32 L50 34 L58 22 L58 48 Z" fill="url(#bgBrokenGrad)" opacity="0.7"/></svg>';
-  for (let i = 0; i < count; i++) {
-    const isBroken = Math.random() < 0.4;
-    const el = document.createElement('div');
-    el.className = 'floating-crown' + (isBroken ? ' broken' : '');
-    el.innerHTML = isBroken ? brokenSvg : crownSvg;
-    const size = (isMobile ? 22 : 30) + Math.random() * (isMobile ? 36 : 50);
-    el.style.width = size + 'px';
-    el.style.height = size + 'px';
-    el.style.left = (Math.random() * 90) + '%';
-    el.style.top = (Math.random() * 90) + '%';
-    el.style.animationDuration = (15 + Math.random() * 20) + 's';
-    el.style.animationDelay = (-Math.random() * 20) + 's';
-    c.appendChild(el);
-  }
-})();
 
 function showToast(text, type) {
   type = type || 'success';
@@ -513,18 +376,11 @@ function showToast(text, type) {
   toast.textContent = text;
   container.appendChild(toast);
   setTimeout(function() { toast.classList.add('show'); }, 10);
-  setTimeout(function() {
-    toast.classList.remove('show');
-    setTimeout(function() { toast.remove(); }, 300);
-  }, 3000);
+  setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { toast.remove(); }, 300); }, 3000);
 }
 
 function openModal(id) {
-  if (id === 'depositModal' && !currentPlayer) {
-    document.getElementById('loginModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
-    return;
-  }
+  if (id === 'depositModal' && !currentPlayer) { openModal('loginModal'); return; }
   const el = document.getElementById(id);
   if (el) el.classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -532,9 +388,7 @@ function openModal(id) {
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
-  if (!document.querySelector('.modal-overlay.show')) {
-    document.body.style.overflow = '';
-  }
+  if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
 }
 window.addEventListener('click', function(e) {
   if (e.target.classList && e.target.classList.contains('modal-overlay')) {
@@ -544,11 +398,7 @@ window.addEventListener('click', function(e) {
 });
 
 function requireLogin(e) {
-  if (!currentPlayer) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    openModal('loginModal');
-    return false;
-  }
+  if (!currentPlayer) { if (e) { e.preventDefault(); e.stopPropagation(); } openModal('loginModal'); return false; }
   return true;
 }
 function actionRequireLogin(fnName) {
@@ -563,100 +413,20 @@ function goToProfile() {
 function openDeposit() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   document.getElementById('depositAmountInput').value = 500;
-  selectDepMethod('bonus');
-  document.getElementById('depBanner').textContent = '+100 ₽ НА ПЕРВЫЙ ДЕПОЗИТ';
-  const promo = document.getElementById('promoCodeInput');
-  const promoRow = document.getElementById('promoRow');
-  const promoResult = document.getElementById('promoResult');
-  if (promo) promo.value = '';
-  if (promoRow) promoRow.style.display = 'none';
-  if (promoResult) promoResult.textContent = '';
-  appliedPromo = null;
   openModal('depositModal');
-
-  fetch('/api/deposits', { cache: 'no-store' })
-    .then(function(r) { return r.json(); })
-    .then(function(deps) {
-      if (!Array.isArray(deps)) return;
-      const myDeps = deps.filter(function(d) {
-        return String(d.nick || '').toLowerCase() === String(currentPlayer.name || '').toLowerCase();
-      });
-      if (myDeps.length > 0) {
-        document.getElementById('depBanner').textContent = 'ВВЕДИТЕ ПРОМОКОД';
-        document.getElementById('promoRow').style.display = 'block';
-      }
-    })
-    .catch(function() {});
 }
-
 function selectDepMethod(method) {
   selectedDepMethod = method;
   document.getElementById('methodBonus').classList.toggle('active', method === 'bonus');
   document.getElementById('methodNoBonus').classList.toggle('active', method === 'nobonus');
   document.getElementById('bonusBlock').style.display = (method === 'nobonus') ? 'none' : 'block';
 }
-
-async function applyPromo() {
-  if (!currentPlayer) { openModal('loginModal'); return; }
-  const code = (document.getElementById('promoCodeInput').value || '').trim().toUpperCase();
-  const amount = parseInt(document.getElementById('depositAmountInput').value) || 0;
-  const res = document.getElementById('promoResult');
-  if (!code) { res.style.color = '#ff8a8a'; res.textContent = 'Введите код'; return; }
-  res.style.color = '#8b92a5';
-  res.textContent = 'Проверка...';
-  try {
-    const r = await fetch('/api/promo/check', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: code, guest_id: currentPlayer.id, deposit_amount: amount })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      appliedPromo = null;
-      res.style.color = '#ff8a8a';
-      res.textContent = d.error || 'Ошибка';
-      return;
-    }
-    appliedPromo = { code: d.code, bonus: d.bonus };
-    res.style.color = '#3fbf7f';
-    res.textContent = '✓ Промокод «' + d.code + '» даст +' + d.bonus.toFixed(2) + ' ₽ бонусом';
-  } catch (e) {
-    res.style.color = '#ff8a8a';
-    res.textContent = 'Ошибка соединения';
-  }
-}
-
-async function activatePromoAfterDeposit() {
-  if (!appliedPromo || !currentPlayer) return;
-  const amount = parseInt(document.getElementById('depositAmountInput').value) || 0;
-  try {
-    const r = await fetch('/api/promo/activate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: appliedPromo.code, guest_id: currentPlayer.id, deposit_amount: amount })
-    });
-    const d = await r.json();
-    if (r.ok) {
-      showToast('Промокод активирован: +' + d.bonus.toFixed(2) + ' ₽', 'success');
-      await refreshBalance();
-    } else {
-      showToast(d.error || 'Промокод не активирован', 'error');
-    }
-  } catch (e) {}
-}
-
 async function goToPayment() {
   if (!currentPlayer) { openModal('loginModal'); return; }
   const amount = parseInt(document.getElementById('depositAmountInput').value) || 500;
-  if (amount < 100) { showToast('Минимальное пополнение — 100 ₽', 'error'); return; }
-  if (amount > 10000) { showToast('Максимальное пополнение — 10 000 ₽', 'error'); return; }
-  if (appliedPromo) await activatePromoAfterDeposit();
+  if (amount < 100) { showToast('Мин. 100 ₽', 'error'); return; }
   closeModal('depositModal');
-  let url = '/pay.html?amount=' + amount + '&method=' + selectedDepMethod;
-  if (selectedDepMethod === 'bonus') {
-    const promoInput = document.getElementById('promoCodeInput');
-    const promo = promoInput ? promoInput.value.trim() : '';
-    if (promo) url += '&promo=' + encodeURIComponent(promo);
-  }
-  window.location.href = url;
+  window.location.href = '/pay.html?amount=' + amount + '&method=' + selectedDepMethod;
 }
 
 async function doLogin() {
@@ -664,25 +434,19 @@ async function doLogin() {
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
-  if (!id || !pass) { err.textContent = 'Введите номер карты и пароль'; err.style.display = 'block'; return; }
+  if (!id || !pass) { err.textContent = 'Введите данные'; err.style.display = 'block'; return; }
   try {
-    const res = await fetch('/api/guest/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, pass: pass })
-    });
+    const res = await fetch('/api/guest/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, pass: pass }) });
     const data = await res.json();
-    if (!res.ok) { err.textContent = data.error || 'Ошибка входа'; err.style.display = 'block'; return; }
+    if (!res.ok) { err.textContent = data.error || 'Ошибка'; err.style.display = 'block'; return; }
     currentPlayer = data.guest;
     localStorage.setItem('kingwin_guest_id', id);
-    localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
     closeModal('loginModal');
     updateUI();
     startBalanceRefresh();
-    showToast('С возвращением, ' + currentPlayer.name + '!', 'success');
-  } catch (e) {
-    err.textContent = 'Ошибка соединения';
-    err.style.display = 'block';
-  }
+    showToast('С возвращением!', 'success');
+    checkDailyBonus(); // Проверяем бонус при входе
+  } catch (e) { err.textContent = 'Ошибка соединения'; err.style.display = 'block'; }
 }
 
 function updateUI() {
@@ -691,8 +455,6 @@ function updateUI() {
     document.getElementById('loginArea').style.display = 'none';
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
-    const av = document.querySelector('.profile-avatar');
-    if (av) av.textContent = (currentPlayer.name || 'KW').slice(0, 2).toUpperCase();
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
@@ -703,7 +465,6 @@ function startBalanceRefresh() {
   if (balanceRefreshTimer) clearInterval(balanceRefreshTimer);
   balanceRefreshTimer = setInterval(refreshBalance, 5000);
 }
-
 async function refreshBalance() {
   if (!currentPlayer) return;
   try {
@@ -719,38 +480,7 @@ async function refreshBalance() {
   } catch (e) {}
 }
 
-async function loadTournamentBanner() {
-  try {
-    const r = await fetch('/api/tournament/active', { cache: 'no-store' });
-    const data = await r.json();
-    if (!data || !data.tournament) {
-      document.getElementById('tPrizeBanner').textContent = '—';
-      document.getElementById('tParticipantsBanner').textContent = '—';
-      document.getElementById('tTimerText').textContent = 'Скоро новый турнир';
-      return;
-    }
-    document.getElementById('tPrizeBanner').textContent = data.tournament.prize_pool + ' ₽';
-    document.getElementById('tParticipantsBanner').textContent = data.participants;
-    if (data.tournament.end_at) {
-      const end = new Date(data.tournament.end_at).getTime();
-      const now = Date.now();
-      const diff = Math.max(0, end - now);
-      if (diff <= 0) {
-        document.getElementById('tTimerText').textContent = 'Турнир завершён';
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      document.getElementById('tTimerText').textContent =
-        days > 0 ? ('До конца: ' + days + 'д ' + hours + 'ч') : ('До конца: ' + hours + 'ч ' + mins + 'м');
-    }
-  } catch (e) {
-    document.getElementById('tTimerText').textContent = 'Турнир';
-  }
-}
-
-/* === ПОСЛЕДНИЕ ВЫИГРЫШИ === */
+// === БОНУС И ВЫИГРЫШИ ===
 function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('ru-RU'); }
 
 async function loadLastWinsHome() {
@@ -759,72 +489,67 @@ async function loadLastWinsHome() {
     const list = await r.json();
     const box = document.getElementById('lastWinsHome');
     if (!box) return;
-
     if (!Array.isArray(list) || list.length === 0) {
-      box.innerHTML = '<div style="color:#8fa2b8; font-size:12px; padding:10px;">Пока нет крупных выигрышей. Стань первым!</div>';
-      return;
+      box.innerHTML = '<div style="color:#8fa2b8; font-size:12px; padding:10px;">Пока нет выигрышей.</div>'; return;
     }
-
-    const firstKey = list[0].game + '_' + list[0].created_at;
-    const hasNew = lastWinsKey !== null && firstKey !== lastWinsKey;
-
-    const GAME_LABELS = {
-      roulette: { icon: '🎡', name: 'Рулетка' },
-      crash: { icon: '🚀', name: 'Crash' },
-      miner: { icon: '💣', name: 'Miner' },
-      plinko: { icon: '🎯', name: 'Plinko' },
-      ladder: { icon: '🪜', name: 'Ladder' },
-      cases: { icon: '🎁', name: 'Кейсы' },
-      empire_of_gold: { icon: '👑', name: 'Empire' }
-    };
-
     box.innerHTML = list.map(function(w, i) {
-      const g = GAME_LABELS[w.game] || { icon: '🎮', name: w.game };
-      const mult = parseFloat(w.mult) || 0;
-      const isNew = i === 0 && hasNew;
-      const name = w.player || 'Аноним';
-      const masked = name.length > 2 ? name.slice(0, 2) + '•••' : name;
-      return '<div class="win-card' + (isNew ? ' new' : '') + '">' +
-        '<div class="win-icon">' + g.icon + '</div>' +
-        '<div class="win-card-body">' +
-          '<div class="win-name">' + masked + '</div>' +
-          '<div class="win-game">' + g.name + '</div>' +
-        '</div>' +
-        '<div style="text-align:right;">' +
-          '<div class="win-sum">+' + fmt(w.win) + ' ₽</div>' +
-          '<div style="font-size:10px; font-weight:800; color:#f1c40f;">×' + mult.toFixed(2) + '</div>' +
-        '</div>' +
-      '</div>';
+      const g = { roulette:'🎡', crash:'🚀', miner:'💣', plinko:'🎯', ladder:'🪜', cases:'🎁', empire_of_gold:'👑' }[w.game] || '🎮';
+      return '<div class="win-card"><div class="win-icon">' + g + '</div><div class="win-card-body"><div class="win-name">' + (w.player || 'Аноним').slice(0,2) + '•••</div><div class="win-game">' + w.game + '</div></div><div style="text-align:right;"><div class="win-sum">+' + fmt(w.win) + ' ₽</div></div></div>';
     }).join('');
+  } catch(e) {}
+}
 
-    lastWinsKey = firstKey;
-  } catch(e) {
-    console.warn('lastWinsHome error:', e);
+async function checkDailyBonus() {
+  if (!currentPlayer) return;
+  try {
+    const r = await fetch('/api/guest/daily?id=' + encodeURIComponent(currentPlayer.id));
+    if (!r.ok) return;
+    const data = await r.json();
+    if (!data.claimed_today) {
+      const rewards = [10, 15, 20, 25, 30, 35, 40];
+      const lvl = Math.min(7, (data.level || 0) + 1);
+      document.getElementById('dailyBonusAmount').textContent = rewards[lvl - 1] + ' ₽';
+      document.getElementById('dailyBonusLevel').textContent = lvl;
+      setTimeout(() => { openModal('dailyBonusModal'); }, 1500);
+    }
+  } catch (e) {}
+}
+
+async function claimDailyBonus() {
+  if (!currentPlayer) return;
+  const btn = document.getElementById('btnClaimDaily');
+  btn.disabled = true; btn.textContent = 'Загрузка...';
+  try {
+    const r = await fetch('/api/guest/daily-claim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: currentPlayer.id }) });
+    const data = await r.json();
+    if (r.ok) {
+      showToast(`🎁 Бонус получен: +${data.reward} ₽!`, 'success');
+      closeModal('dailyBonusModal');
+      await refreshBalance();
+    } else {
+      showToast(data.error || 'Ошибка', 'error');
+      btn.disabled = false; btn.textContent = 'Забрать бонус';
+    }
+  } catch (e) {
+    showToast('Ошибка соединения', 'error');
+    btn.disabled = false; btn.textContent = 'Забрать бонус';
   }
 }
 
 window.onload = function() {
   const savedId = localStorage.getItem('kingwin_guest_id');
   if (savedId) {
-    fetch('/api/guest/me?id=' + savedId)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.guest) {
-          currentPlayer = data.guest;
-          localStorage.setItem('kingwin_guest', JSON.stringify({ id: String(data.guest.id), name: String(data.guest.name) }));
-          updateUI();
-          startBalanceRefresh();
-        } else {
-          updateUI();
-        }
-      })
-      .catch(function() { updateUI(); });
-  } else {
-    updateUI();
-  }
-  loadTournamentBanner();
+    fetch('/api/guest/me?id=' + savedId).then(r => r.json()).then(data => {
+      if (data.guest) {
+        currentPlayer = data.guest;
+        updateUI();
+        startBalanceRefresh();
+        checkDailyBonus();
+      } else { updateUI(); }
+    }).catch(() => updateUI());
+  } else { updateUI(); }
+  
   loadLastWinsHome();
-  setInterval(loadTournamentBanner, 30000);
   setInterval(loadLastWinsHome, 15000);
 };
 </script>
