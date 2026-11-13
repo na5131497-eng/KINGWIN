@@ -863,6 +863,322 @@ const server = http.createServer(async (req, res) => {
     }
 
     // === РАЗДАЧА СТАТИКИ ===
+    // === ИГРА: CRASH ===
+if (url === '/api/crash/current' && method === 'GET') {
+  let multiplier = 1;
+  if (crashState.status === 'flying' && crashState.startTime) { const elapsed = Date.now() - crashState.startTime; multiplier = Math.pow(1.00006, elapsed); if (multiplier >= crashState.crashPoint) multiplier = crashState.crashPoint; }
+  else if (crashState.status === 'crashed') multiplier = crashState.crashPoint;
+  let bets = [];
+  if (crashState.roundId) { try { const betsRes = await pool.query(`SELECT id, player_id, player_name, player_rank, amount, cashout_mult, cashed_out FROM crash_bets WHERE round_id=$1 ORDER BY id ASC`, [crashState.roundId]); bets = betsRes.rows; } catch(e) {} }
+  let history = [];
+  try { const histRes = await pool.query(`SELECT crash_point FROM crash_rounds WHERE status='crashed' ORDER BY id DESC LIMIT 15`); history = histRes.rows.map(r => parseFloat(r.crash_point)); } catch(e) {}
+  return sendJSON(res, 200, { roundId: crashState.roundId, status: crashState.status, startTime: crashState.startTime, crashPoint: crashState.status === 'crashed' ? crashState.crashPoint : null, multiplier, bets, history, hasRealBet: crashState.hasRealBet, queuedCount: queuedBets.length });
+}
+if (url === '/api/crash/bet' && method === 'POST') {
+  const b = await parseBody(req);
+  const amt = parseFloat(b.amount) || 0;
+  if (amt < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
+  if (amt > 200) return sendJSON(res, 400, { error: 'Макс 200 ₽' });
+  if (crashState.status !== 'waiting') {
+    if (!b.player_id) return sendJSON(res, 400, { error: 'Войдите' });
+    const bal = await getBalance(String(b.player_id));
+    if (bal.total < amt) return sendJSON(res, 400, { error: 'Недостаточно' });
+    queuedBets.push({ player_id: String(b.player_id), amount: amt, queued_at: Date.now() });
+    return sendJSON(res, 200, { ok: true, queued: true, amount: amt, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+  }
+  let maskName = '••••', playerRank = 'Bronze', isBonus = false;
+  if (b.player_id) {
+    const debited = await debitBet(String(b.player_id), amt);
+    if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+    isBonus = debited.fromBonus > 0 && debited.fromDeposit === 0;
+    const gRes = await pool.query(`SELECT id, rank FROM guests WHERE id=$1`, [String(b.player_id)]);
+    if (gRes.rows.length > 0) { const s = String(gRes.rows[0].id); maskName = s.length <= 4 ? s : s.slice(0, 4) + '••••'; playerRank = gRes.rows[0].rank || 'Bronze'; }
+  }
+  const r = await pool.query(`INSERT INTO crash_bets (round_id, player_id, player_name, player_rank, amount, is_bonus) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [crashState.roundId, b.player_id || null, maskName, playerRank, amt, isBonus]);
+  if (b.player_id) crashState.hasRealBet = true;
+  tryStartFlightCountdown();
+  if (b.player_id) {
+    try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [String(b.player_id)]); if (gRes.rows.length > 0) { await accruePointsByNick(gRes.rows[0].name, amt, 'crash'); await trackTournamentBet(String(b.player_id), gRes.rows[0].name, 'crash', amt, 0); } } catch(e){}
+  }
+  const bal = b.player_id ? await getBalance(String(b.player_id)) : null;
+  return sendJSON(res, 200, { ok: true, bet: r.rows[0], balance: bal ? bal.total : 0, deposit_balance: bal ? bal.deposit : 0, bonus_balance: bal ? bal.bonus : 0 });
+}
+if (url === '/api/crash/cashout' && method === 'POST') {
+  const b = await parseBody(req);
+  if (crashState.status !== 'flying') return sendJSON(res, 400, { error: 'Не в полёте' });
+  const elapsed = Date.now() - crashState.startTime;
+  let mult = Math.pow(1.00006, elapsed);
+  if (mult >= crashState.crashPoint) return sendJSON(res, 400, { error: 'Поздно' });
+  const betRes = await pool.query(`SELECT * FROM crash_bets WHERE id=$1 AND round_id=$2 AND cashed_out=false`, [b.bet_id, crashState.roundId]);
+  if (!betRes.rows.length) return sendJSON(res, 400, { error: 'Ставка не найдена' });
+  const bet = betRes.rows[0];
+  const winAmount = (parseFloat(bet.amount) * mult);
+  await pool.query(`UPDATE crash_bets SET cashed_out=true, cashout_mult=$1 WHERE id=$2`, [mult, b.bet_id]);
+  let bal = null;
+  if (bet.player_id && !String(bet.player_id).startsWith('BOT')) {
+    await creditWin(bet.player_id, winAmount, parseFloat(bet.amount) || 0);
+    bal = await getBalance(bet.player_id);
+    try { const gRes = await pool.query(`SELECT name FROM guests WHERE id=$1`, [bet.player_id]); if (gRes.rows.length) await trackTournamentBet(bet.player_id, gRes.rows[0].name, 'crash', parseFloat(bet.amount) || 0, winAmount); } catch(e){}
+  }
+  return sendJSON(res, 200, { ok: true, mult, win: winAmount, balance: bal ? bal.total : 0, deposit_balance: bal ? bal.deposit : 0, bonus_balance: bal ? bal.bonus : 0 });
+}
+
+// === ИГРА: МИНЕР ===
+if (url === '/api/miner/start' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const bet = parseFloat(b.bet) || 0;
+  let mines = parseInt(b.mines, 10) || 3;
+  if (mines < 1) mines = 1; if (mines > 24) mines = 24;
+  if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+  if (bet < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
+  const debited = await debitBet(guestId, bet);
+  if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+  const TOTAL = 25;
+  const mineSet = new Set();
+  while (mineSet.size < mines) mineSet.add(Math.floor(Math.random() * TOTAL));
+  const sessionId = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  minerSessions[sessionId] = { guestId, bet, mines: [...mineSet], revealed: [], createdAt: Date.now(), debitResult: debited };
+  for (const sid in minerSessions) { if (Date.now() - minerSessions[sid].createdAt > 3600000) delete minerSessions[sid]; }
+  const bal = await getBalance(guestId);
+  return sendJSON(res, 200, { ok: true, session_id: sessionId, bet, size: 5, mines, revealed: [], multiplier: 1.0, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+}
+if (url === '/api/miner/open' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const sessionId = String(b.session_id || '').trim();
+  const cell = parseInt(b.cell, 10);
+  const sess = minerSessions[sessionId];
+  if (!sess) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+  if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая' });
+  if (!Number.isInteger(cell) || cell < 0 || cell >= 25) return sendJSON(res, 400, { error: 'Неверная клетка' });
+  if (sess.revealed.includes(cell)) return sendJSON(res, 400, { error: 'Уже открыта' });
+  if (sess.finished) return sendJSON(res, 400, { error: 'Завершена' });
+  let forceLose = false;
+  try { const fp = await pool.query(`SELECT 1 FROM miner_force_lose_players WHERE guest_id=$1`, [guestId]); if (fp.rows.length > 0) forceLose = true; } catch(e) {}
+  if (!forceLose) { try { const fr = await pool.query(`SELECT value FROM settings WHERE key='miner_force_lose'`); forceLose = (fr.rows.length && String(fr.rows[0].value) === '1'); } catch(e) {} }
+  const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+  if (forceLose) {
+    sess.finished = true;
+    const forcedMines = [cell];
+    try {
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', isBonusGame ? 0 : sess.bet, `Miner LOSS (forced) (${guestId})`]);
+      await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, forcedMines.length, sess.revealed.length + 1, 0, 'lose', guestId]);
+      const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+      if (gName.rows.length) { await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); await trackTournamentBet(guestId, gName.rows[0].name, 'miner', sess.bet, 0); }
+    } catch(e) {}
+    const bal = await getBalance(guestId);
+    const result = { ok: true, mine: true, cell, mines: forcedMines, session_id: sessionId, forced: true, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
+    delete minerSessions[sessionId];
+    return sendJSON(res, 200, result);
+  }
+  let isMine = sess.mines.includes(cell);
+  if (!isMine) {
+    const targetRTP = await getTargetRTP(guestId);
+    const cheatChance = Math.max(0, (0.99 - targetRTP) / 0.99);
+    const effectiveCheat = cheatChance * 0.35;
+    if (Math.random() < effectiveCheat) { isMine = true; sess.mines.push(cell); }
+  }
+  if (isMine) {
+    sess.finished = true;
+    try {
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', isBonusGame ? 0 : sess.bet, `Miner LOSS (${guestId})`]);
+      await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, 0, sess.mines.length, sess.revealed.length, 0, 'lose', guestId]);
+      const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+      if (gName.rows.length) { await accruePointsByNick(gName.rows[0].name, sess.bet, 'miner'); await trackTournamentBet(guestId, gName.rows[0].name, 'miner', sess.bet, 0); }
+    } catch(e) {}
+    const bal = await getBalance(guestId);
+    const result = { ok: true, mine: true, cell, mines: sess.mines, session_id: sessionId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
+    delete minerSessions[sessionId];
+    return sendJSON(res, 200, result);
+  }
+  sess.revealed.push(cell);
+  const safeOpened = sess.revealed.length;
+  const safeTotal = 25 - sess.mines.length;
+  let surviveProb = 1;
+  for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
+  const multiplier = Math.round((1 / surviveProb) * 100) / 100;
+  const result = { ok: true, mine: false, cell, revealed: sess.revealed, multiplier, bet: sess.bet, potential_win: Math.round(sess.bet * multiplier * 100) / 100 };
+  if (sess.revealed.length >= safeTotal) {
+    const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
+    sess.finished = true;
+    await creditWin(guestId, winAmount, sess.bet);
+    try {
+      await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
+      if (!isBonusGame) { const net = sess.bet - winAmount; await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]); }
+      const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+      if (gName.rows.length) await trackTournamentBet(guestId, gName.rows[0].name, 'miner', sess.bet, winAmount);
+    } catch(e) {}
+    delete minerSessions[sessionId];
+    const bal = await getBalance(guestId);
+    result.auto_cashout = true; result.win = winAmount; result.mines = sess.mines; result.balance = bal.total; result.deposit_balance = bal.deposit; result.bonus_balance = bal.bonus;
+  } else {
+    const bal = await getBalance(guestId);
+    result.balance = bal.total; result.deposit_balance = bal.deposit; result.bonus_balance = bal.bonus;
+  }
+  return sendJSON(res, 200, result);
+}
+if (url === '/api/miner/cashout' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const sessionId = String(b.session_id || '').trim();
+  const sess = minerSessions[sessionId];
+  if (!sess) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+  if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая' });
+  if (sess.finished) return sendJSON(res, 400, { error: 'Завершена' });
+  if (sess.revealed.length === 0) return sendJSON(res, 400, { error: 'Откройте клетку' });
+  const safeOpened = sess.revealed.length;
+  const safeTotal = 25 - sess.mines.length;
+  let surviveProb = 1;
+  for (let i = 0; i < safeOpened; i++) { surviveProb *= (safeTotal - i) / (25 - i); }
+  const multiplier = Math.round((1 / surviveProb) * 100) / 100;
+  const winAmount = Math.round(sess.bet * multiplier * 100) / 100;
+  sess.finished = true;
+  await creditWin(guestId, winAmount, sess.bet);
+  const isBonusGame = sess.debitResult && sess.debitResult.fromBonus > 0 && sess.debitResult.fromDeposit === 0;
+  try {
+    await pool.query(`INSERT INTO game_history (game, player_name, bet, result, mines, revealed, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`, ['miner', guestId, sess.bet, winAmount, sess.mines.length, sess.revealed.length, multiplier, 'win', guestId]);
+    if (!isBonusGame) { const net = sess.bet - winAmount; await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Miner WIN (${guestId})`]); }
+    const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+    if (gName.rows.length) await trackTournamentBet(guestId, gName.rows[0].name, 'miner', sess.bet, winAmount);
+  } catch(e) {}
+  const bal = await getBalance(guestId);
+  const result = { ok: true, win: winAmount, multiplier, bet: sess.bet, mines: sess.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus };
+  delete minerSessions[sessionId];
+  return sendJSON(res, 200, result);
+}
+
+// === ИГРА: PLINKO ===
+if (url === '/api/plinko/drop' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const bet = Math.round((parseFloat(b.bet) || 0) * 100) / 100;
+  const risk = String(b.risk || 'low');
+  if (!guestId) return sendJSON(res, 400, { error: 'Войдите' });
+  if (!PLINKO_MULTIPLIERS[risk]) return sendJSON(res, 400, { error: 'Неверный риск' });
+  if (bet < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
+  const debited = await debitBet(guestId, bet);
+  if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+  const pathArr = [];
+  for (let i = 0; i < PLINKO_ROWS; i++) pathArr.push(Math.random() < 0.5 ? 0 : 1);
+  let slot = pathArr.reduce((a, x) => a + x, 0);
+  const multiplier = PLINKO_MULTIPLIERS[risk][slot];
+  const winAmount = Math.round(bet * multiplier * 100) / 100;
+  if (winAmount > 0) await creditWin(guestId, winAmount, bet);
+  try {
+    await pool.query(`INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`, ['plinko', guestId, bet, winAmount, multiplier, winAmount > bet ? 'win' : 'lose', guestId]);
+    const net = bet - winAmount;
+    await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Plinko ${risk} (${guestId})`]);
+    const gName = await pool.query('SELECT name FROM guests WHERE id=$1', [guestId]);
+    if (gName.rows.length) await trackTournamentBet(guestId, gName.rows[0].name, 'plinko', bet, winAmount);
+  } catch(e) {}
+  const bal = await getBalance(guestId);
+  return sendJSON(res, 200, { ok: true, path: pathArr, slot, multiplier, win: winAmount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+}
+
+// === ИГРА: CASES ===
+if (url === '/api/cases/open' && method === 'POST') {
+  const b = await parseBody(req);
+  const { guest_id, case_name } = b;
+  if (!guest_id || !case_name) return sendJSON(res, 400, { error: 'no data' });
+  const c = CASES[case_name];
+  if (!c) return sendJSON(res, 400, { error: 'Кейс не найден' });
+  const g = await pool.query('SELECT * FROM guests WHERE id=$1', [guest_id]);
+  if (!g.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+  const guest = g.rows[0];
+  const debited = await debitBet(guest.id, c.price);
+  if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+  const prize = pickPrize(c.prizes);
+  await creditWin(guest.id, prize, c.price);
+  await pool.query(`INSERT INTO cases_log (date, guest_id, guest_name, case_name, case_price, prize) VALUES ($1,$2,$3,$4,$5,$6)`, [todayStr(), guest.id, guest.name, case_name, c.price, prize]);
+  await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1, $2, $3, $4, NOW(), $5)`, ['cases', guest.name, c.price, prize, guest.id]);
+  const net = c.price - prize;
+  await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest.name})`]);
+  const bal = await getBalance(guest.id);
+  return sendJSON(res, 200, { ok: true, prize, new_balance: bal.total, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, case_name, price: c.price });
+}
+
+// === ИГРА: LADDER ===
+if (url === '/api/ladder/start' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const bet = parseFloat(b.bet) || 0;
+  const minesCount = parseInt(b.mines, 10) || 1;
+  if (!guestId) return sendJSON(res, 400, { error: 'no guest_id' });
+  if (bet < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
+  const debited = await debitBet(guestId, bet);
+  if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+  const levelsCount = 13, cellsCount = 20;
+  const ladder = [];
+  for (let i = 0; i < levelsCount; i++) {
+    const mines = [];
+    while (mines.length < minesCount) { const r = Math.floor(Math.random() * cellsCount); if (!mines.includes(r)) mines.push(r); }
+    ladder.push({ cellsCount, mines });
+  }
+  const sessionId = 'lad_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  ladderSessions[sessionId] = { guestId, bet, minesCount, ladder, currentStep: 0, finished: false, createdAt: Date.now(), debitResult: debited };
+  const bal = await getBalance(guestId);
+  return sendJSON(res, 200, { ok: true, session_id: sessionId, ladder: ladder.map(l => ({ cellsCount: l.cellsCount, mines: l.mines })), bet, mines: minesCount, levels: levelsCount, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+}
+if (url === '/api/ladder/cashout' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const sessionId = String(b.session_id || '').trim();
+  if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+  const sess = ladderSessions[sessionId];
+  if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая' });
+  if (sess.finished) return sendJSON(res, 400, { error: 'Завершена' });
+  if (sess.currentStep === 0) return sendJSON(res, 400, { error: 'Нет пройденных' });
+  const mults = LADDER_MULTS[sess.minesCount];
+  const winMult = mults[sess.currentStep - 1];
+  const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+  sess.finished = true;
+  await creditWin(guestId, winAmount, sess.bet);
+  try {
+    await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
+    await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder CASHOUT (${guestId})`]);
+  } catch(e){}
+  const bal = await getBalance(guestId);
+  return sendJSON(res, 200, { ok: true, result: 'cashout', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+}
+if (url === '/api/ladder/step' && method === 'POST') {
+  const b = await parseBody(req);
+  const guestId = String(b.guest_id || '').trim();
+  const sessionId = String(b.session_id || '').trim();
+  const cellIdx = parseInt(b.cell, 10);
+  if (!sessionId || !ladderSessions[sessionId]) return sendJSON(res, 404, { error: 'Сессия не найдена' });
+  const sess = ladderSessions[sessionId];
+  if (sess.guestId !== guestId) return sendJSON(res, 403, { error: 'Чужая сессия' });
+  if (sess.finished) return sendJSON(res, 400, { error: 'Завершена' });
+  if (sess.currentStep >= 13) return sendJSON(res, 400, { error: 'Завершена' });
+  if (!Number.isInteger(cellIdx) || cellIdx < 0 || cellIdx >= 20) return sendJSON(res, 400, { error: 'Неверная клетка' });
+  const currentLevel = sess.ladder[sess.currentStep];
+  if (currentLevel.mines.includes(cellIdx)) {
+    sess.finished = true;
+    try {
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'доход', sess.bet, `Ladder LOSS (${guestId})`]);
+      await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, 0, guestId]);
+    } catch(e){}
+    const bal = await getBalance(guestId);
+    return sendJSON(res, 200, { ok: true, result: 'lose', correct_cells: currentLevel.mines, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+  }
+  sess.currentStep++;
+  if (sess.currentStep >= 13) {
+    sess.finished = true;
+    const mults = LADDER_MULTS[sess.minesCount];
+    const winMult = mults[12];
+    const winAmount = Math.round(sess.bet * winMult * 100) / 100;
+    await creditWin(guestId, winAmount, sess.bet);
+    try {
+      await pool.query(`INSERT INTO game_history (game, player_name, bet, result, created_at, guest_id) VALUES ($1,$2,$3,$4,NOW(),$5)`, ['ladder', guestId, sess.bet, winMult, guestId]);
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), 'расход', winAmount, `Ladder WIN (${guestId})`]);
+    } catch(e){}
+    const bal = await getBalance(guestId);
+    return sendJSON(res, 200, { ok: true, result: 'win', win: winAmount, mult: winMult, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+  }
+  const bal = await getBalance(guestId);
+  return sendJSON(res, 200, { ok: true, result: 'safe', next_step: sess.currentStep, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus });
+}
     let file = url === '/' ? '/index.html' : decodeURIComponent(url);
     const safeRelative = path.normalize(file).replace(/^(\.\.[\/\\])+/, '').replace(/^[\/\\]+/, '');
     const filePath = path.join(__dirname, safeRelative);
