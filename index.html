@@ -22,12 +22,11 @@
     position: relative; overflow-x: hidden; -webkit-overflow-scrolling: touch;
   }
 
-  /* УБРАН ПРОБЕЛ СВЕРХУ И СКРЫТЫ 3 ТОЧКИ */
   .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 5px; }
   .screen { display: none; animation: fadeIn 0.3s ease; padding-bottom: 10px; }
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  ::-webkit-scrollbar { width: 0px; background: transparent; } /* Убрали полосы прокрутки */
+  ::-webkit-scrollbar { width: 0px; background: transparent; }
 
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .floating-crown { position: absolute; opacity: 0.12; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.3)); will-change: transform; }
@@ -81,7 +80,7 @@
   .games-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .games-scroll::-webkit-scrollbar { display: none; }
   .game-card { flex: 0 0 130px; background: var(--bg-card); border-radius: 14px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
-  .game-img-wrap { width: 100%; height: 160px; position: relative; overflow: hidden; background: #0f1219; }
+  .game-img-wrap { width: 100%; height: 160px; position: relative; overflow: hidden; background: #0f1219; display: flex; justify-content: center; align-items: center; font-size: 50px; }
   .game-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .game-info { padding: 10px; text-align: center; }
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
@@ -354,7 +353,6 @@
 <!-- ВЕРХНИЙ БАР -->
 <div class="topbar">
   <div class="header-left">
-    <!-- Иконка 3 полоски (бургер) -->
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <a href="#" class="logo" onclick="switchScreen('main'); return false;">KINGWIN</a>
   </div>
@@ -403,6 +401,15 @@
       <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
       <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
       <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
+      
+      <!-- ДОБАВЛЕНА КАРТОЧКА РУЛЕТКИ -->
+      <a href="/roulette.html" class="game-card" onclick="return requireLogin(event)">
+        <div class="game-img-wrap" style="background: radial-gradient(circle, #1a1f2b, #0b0e14);">
+          <div style="font-size: 60px;">🎡</div>
+        </div>
+        <div class="game-info"><div class="game-title">Рулетка</div><div class="game-sub">Крути и выигрывай</div></div>
+      </a>
+
       <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
     </div>
 
@@ -459,7 +466,6 @@
         <div class="bp-empty-desc">У тебя нет персональных бонусов.<br>Активируй промокод или участвуй в акциях</div>
       </div>
 
-      <!-- Адский спринт -->
       <div class="bp-promo-banner bp-banner-dark" style="background: linear-gradient(135deg, #0a1833, #1a3b6e);">
         <h3>Адский<br>бонусный<br>спринт</h3>
         <p>Открывай новые бонусы ежедневно!</p>
@@ -467,7 +473,6 @@
         <div style="position: absolute; right: -10px; bottom: -10px; font-size: 100px; opacity: 0.3;">🎃</div>
       </div>
 
-      <!-- Колесо -->
       <div class="bp-promo-banner bp-banner-dark" style="display: flex; justify-content: space-between; align-items: center; padding: 25px;">
         <div>
           <h3 style="font-size: 18px; color: #fff; margin-bottom: 5px;">Крути колесо<br>и получай бонусы</h3>
@@ -477,7 +482,6 @@
         <div style="font-size: 60px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.5));">🎡</div>
       </div>
 
-      <!-- Рефералка -->
       <div class="bp-promo-banner bp-banner-purple">
         <h3 style="color: #d8b4e2;">До 10%<br>Бонус<br>за реферала</h3>
         <p>Приглашай друзей и зарабатывай до 10% от их пополнений!</p>
@@ -490,14 +494,12 @@
         <button class="btn" style="background: #7e22ce;">Пригласить</button>
       </div>
 
-      <!-- Ежедневные миссии -->
       <div class="bp-promo-banner bp-banner-dark" style="text-align: center;">
         <h3 style="color: #fff;">Ежедневные миссии</h3>
         <p>Выполняй задания, получай звезды и меняй их на бонусы</p>
         <button class="btn" style="background: #00b0ff;">Перейти</button>
       </div>
 
-      <!-- Ранги -->
       <div class="bp-promo-banner bp-banner-dark" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
           <h3 style="color: #fff; font-size: 20px;">Ранги</h3>
@@ -507,7 +509,6 @@
         <div style="font-size: 60px;">🏆</div>
       </div>
 
-      <!-- Кэшбек -->
       <div class="bp-promo-banner bp-banner-green" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
           <h3 style="color: #fff; font-size: 24px;">Кэшбэк<br>до 30%</h3>
@@ -517,7 +518,6 @@
         <div style="font-size: 60px;">📈</div>
       </div>
 
-      <!-- FAQ -->
       <div class="bp-faq">
         <h3 style="font-size: 18px; margin-bottom: 15px; color: #fff;">Частые вопросы</h3>
         
@@ -562,7 +562,6 @@
         </div>
       </div>
 
-      <!-- УСЛОВИЯ И ОТВЕТСТВЕННАЯ ИГРА -->
       <div class="legal-block">
         <div class="legal-title">📜 Условия использования</div>
         <div class="legal-text">
@@ -1337,3 +1336,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
+```
