@@ -34,8 +34,7 @@
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
   
-  /* ИСКЛЮЧАЕМ ОКНО ОПЛАТЫ ИЗ ОБЩЕГО ПРАВИЛА */
-  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay) { position: relative; z-index: 1; }
+  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
@@ -141,55 +140,28 @@
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
   /* ========================================================
-     НОВОЕ ОКНО ОПЛАТЫ (В СТИЛЕ KINGWIN)
+     НОВОЕ ОКНО ОПЛАТЫ (В СТИЛЕ KINGWIN) - ШАГ 1
      ======================================================== */
   .payment-overlay {
-    position: fixed !important; 
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: var(--bg-main); 
-    z-index: 9999999 !important; 
-    display: none; 
-    flex-direction: column; 
-    overflow-y: auto;
-    color: #fff;
+    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    background: var(--bg-main); z-index: 9999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #fff;
   }
   .payment-overlay.show { display: flex !important; }
   
-  .pay-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 20px; background: var(--bg-main); position: sticky; top: 0; z-index: 10;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .pay-logo {
-    font-size: 20px; font-weight: 900; letter-spacing: 1px; 
-    background: linear-gradient(135deg, #00e5ff, #0077ff); 
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-  }
+  .pay-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-main); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .pay-logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .pay-account { text-align: right; font-size: 12px; color: var(--text-muted); margin-right: 15px;}
   .pay-account b { display: block; font-size: 16px; color: #fff; }
-  .pay-close-btn {
-    background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px;
-    font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
+  .pay-close-btn { background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
   .pay-content { padding: 20px 20px 40px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; }
   .pay-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; }
 
   .banks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .bank-card {
-    background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px;
-    padding: 15px; cursor: pointer; position: relative; transition: 0.2s;
-    display: flex; flex-direction: column; justify-content: space-between; min-height: 110px;
-  }
+  .bank-card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 110px; }
   .bank-card:active { transform: scale(0.98); border-color: var(--accent); }
   .bank-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: #fff; margin-bottom: 10px;}
-  .bank-badge {
-    position: absolute; top: 15px; right: 15px; background: var(--accent-green); color: #000;
-    font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 20px;
-  }
+  .bank-badge { position: absolute; top: 15px; right: 15px; background: var(--accent-green); color: #000; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 20px; }
   .bank-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
   .bank-limit { font-size: 12px; color: var(--text-muted); }
 
@@ -197,59 +169,28 @@
   .pay-form-screen.show { display: flex; }
   .banks-screen.hide { display: none; }
 
-  .pay-back-btn {
-    background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px;
-    font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 15px;
-  }
-  .pay-header-form { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .pay-back-btn { background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
   
-  .selected-bank-display {
-    background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
-    font-weight: 700; font-size: 16px; 
-  }
+  .selected-bank-display { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
   .selected-bank-display .bank-icon { width: 30px; height: 30px; margin: 0; font-size: 14px; }
 
-  .bonus-toggle-row {
-    display: flex; justify-content: space-between; align-items: center; margin: 20px 0;
-    font-size: 16px; font-weight: 700; color: var(--text-main);
-  }
-  .toggle-switch {
-    width: 50px; height: 28px; background: var(--accent); border-radius: 20px; position: relative; cursor: pointer;
-    transition: 0.3s;
-  }
-  .toggle-switch::after {
-    content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px;
-    background: #fff; border-radius: 50%; transition: 0.2s;
-  }
+  .bonus-toggle-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; font-size: 16px; font-weight: 700; color: var(--text-main); }
+  .toggle-switch { width: 50px; height: 28px; background: var(--accent); border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
+  .toggle-switch::after { content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: 0.2s; }
   .toggle-switch.off { background: #333; }
   .toggle-switch.off::after { right: calc(100% - 25px); }
 
-  .bonus-banner {
-    background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(255,77,77,0.1)); border-radius: 15px;
-    padding: 20px; color: #fff; display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; position: relative; border: 1px solid rgba(241,196,15,0.4);
-  }
+  .bonus-banner { background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(255,77,77,0.1)); border-radius: 15px; padding: 20px; color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; border: 1px solid rgba(241,196,15,0.4); }
   .bonus-banner h3 { font-size: 16px; margin-bottom: 5px; color: var(--gold); }
   .bonus-banner p { font-size: 12px; opacity: 0.8; }
-  .bonus-banner .check-badge {
-    position: absolute; bottom: 10px; right: 10px; background: #fff; color: #000;
-    font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px;
-    display: flex; align-items: center; gap: 4px;
-  }
+  .bonus-banner .check-badge { position: absolute; bottom: 10px; right: 10px; background: #fff; color: #000; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
   
   .amount-box { background: var(--bg-panel); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
-  
   .amount-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
   .amount-input-wrap { flex: 1; }
   .amount-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
   .amount-input { background: transparent; border: none; font-size: 24px; font-weight: 800; color: #fff; width: 100%; outline: none; }
-  .amount-input::placeholder { color: #555; }
-  
-  .amount-btn-green { 
-    background: var(--accent-green); color: #000; border: none; padding: 10px 15px; border-radius: 8px; 
-    font-weight: 800; font-size: 14px; cursor: pointer; text-align: center; line-height: 1.2; min-width: 110px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
+  .amount-btn-green { background: var(--accent-green); color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; text-align: center; line-height: 1.2; min-width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .amount-btn-green span { font-size: 11px; font-weight: 700; opacity: 0.8; }
   
   .amount-warning { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
@@ -261,11 +202,51 @@
   .amount-chips button:last-child { flex: 1 1 100%; }
 
   .promo-link { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--accent); font-weight: 700; font-size: 15px; margin: 25px 0; cursor: pointer; text-decoration: none; }
-  
   .pay-submit-btn { background: var(--accent-green); color: #000; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 900; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,230,118,0.2); }
 
-  /* ТОСТЫ */
-  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 99999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  /* ========================================================
+     СТРАНИЦА ОПЛАТЫ (СВЕТЛАЯ, КАК НА СКРИНШОТЕ) - ШАГ 2
+     ======================================================== */
+  .pay-page-overlay {
+    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    background: #f4f5f7; z-index: 99999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #111;
+  }
+  .pay-page-overlay.show { display: flex !important; }
+  
+  .pp-header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .pp-logo { font-size: 18px; font-weight: 800; color: #005bff; }
+  .pp-timer { background: #fff; border: 1px dashed #ccc; padding: 5px 15px; border-radius: 8px; font-size: 14px; font-weight: 700; }
+  
+  .pp-content { padding: 20px; max-width: 500px; margin: 0 auto; width: 100%; flex: 1; }
+  
+  .pp-title { text-align: center; font-size: 14px; color: #666; margin-bottom: 5px; }
+  .pp-amount { text-align: center; font-size: 42px; font-weight: 900; color: #111; margin-bottom: 5px; }
+  .pp-amount span { font-size: 30px; }
+  .pp-id { text-align: center; font-size: 12px; color: #999; margin-bottom: 25px; }
+  
+  .pp-card { background: #fdfaf3; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f0e6d2; }
+  .pp-card-title { text-align: center; font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #111; }
+  
+  .pp-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #666; }
+  .pp-row b { color: #111; font-weight: 700; text-align: right; }
+  .pp-card-num { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+  
+  .pp-btn-yellow { background: #ffcc00; color: #000; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+  .pp-btn-black { background: #1a1a1a; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+  
+  .pp-instructions { margin-top: 25px; background: #fff; border-radius: 20px; padding: 20px; }
+  .pp-inst-title { font-size: 16px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+  .pp-step { display: flex; gap: 12px; margin-bottom: 15px; font-size: 13px; color: #444; line-height: 1.4; }
+  .pp-step-num { width: 24px; height: 24px; background: #e0f7fa; color: #00bcd4; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; flex-shrink: 0; font-size: 12px; }
+  
+  .pp-bottom-btn { position: sticky; bottom: 0; background: #fff; padding: 15px 20px; border-top: 1px solid #eee; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+  .pp-btn-success { background: #00c853; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: 800; border: none; cursor: pointer; }
+  
+  .copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #323232; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; transition: 0.3s; z-index: 999999999; opacity: 0; }
+  .copy-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ТОСТЫ ДЛЯ САЙТА */
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 999999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; color: #fff;}
   .toast.show { transform: translateX(0); }
   .toast.success { border-left-color: var(--accent-green); }
@@ -283,6 +264,7 @@
 
 <div class="bg-crowns" id="bgCrowns"></div>
 <div class="toast-container" id="toastContainer"></div>
+<div class="copy-toast" id="copyToast">📋 Номер скопирован</div>
 
 <!-- ВЕРХНИЙ БАР -->
 <div class="topbar">
@@ -400,20 +382,16 @@
 <div class="modal-overlay" id="loginModal"><div class="modal-box"><button class="modal-close" onclick="closeModal('loginModal')">✕</button><h2>Вход в аккаунт</h2><p>Введите номер карты и пароль</p><input type="text" id="loginId" placeholder="KING-0001"><input type="password" id="loginPass" placeholder="Пароль"><div id="loginErr" style="color:#ff4d4d;font-size:13px;margin-bottom:10px;display:none;"></div><button class="btn-primary-full" onclick="doLogin()">Войти</button></div></div>
 
 <!-- ======================================================== -->
-<!-- НОВОЕ ОКНО ОПЛАТЫ -->
+<!-- ОКНО 1: ВЫБОР БАНКА И СУММЫ -->
 <!-- ======================================================== -->
 <div class="payment-overlay" id="newPaymentScreen">
-  
   <div class="pay-header">
     <div style="display: flex; align-items: center;">
       <button class="pay-back-btn" id="payBackBtn" onclick="closeNewPaymentScreen()" style="display:none;">←</button>
       <div class="pay-logo">KINGWIN</div>
     </div>
     <div style="display: flex; align-items: center;">
-      <div class="pay-account">
-        Основной счет
-        <b id="payBalance">0.00 ₽</b>
-      </div>
+      <div class="pay-account">Основной счет <b id="payBalance">0.00 ₽</b></div>
       <button class="pay-close-btn" onclick="closeNewPaymentScreen()">✕</button>
     </div>
   </div>
@@ -421,67 +399,33 @@
   <div class="pay-content">
     <div class="banks-screen" id="banksScreen">
       <div class="pay-title">Пополнение счёта</div>
-      
       <div class="banks-grid">
-        <div class="bank-card" onclick="selectBank('ПСБ', '#4a148c')">
-          <div class="bank-icon" style="background: #4a148c;">П</div>
+        <div class="bank-card" onclick="selectBank('СБП', '#00a63f', 'СБП (Система быстрых платежей)', 'SBER')">
+          <div class="bank-icon" style="background: #00a63f;">С</div>
           <span class="bank-badge">Советуем</span>
-          <div>
-            <div class="bank-name">ПСБ</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
+          <div><div class="bank-name">СБП</div><div class="bank-limit">от 100 ₽</div></div>
         </div>
-        
-        <div class="bank-card" onclick="selectBank('T-pay', '#ffc107')">
+        <div class="bank-card" onclick="selectBank('T-pay', '#ffc107', 'Т-Банк', 'TINKOFF')">
           <div class="bank-icon" style="background: #ffc107; color: #111;">T</div>
           <span class="bank-badge">Советуем</span>
-          <div>
-            <div class="bank-name">T-pay</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
+          <div><div class="bank-name">T-pay</div><div class="bank-limit">от 100 ₽</div></div>
         </div>
-
-        <div class="bank-card" onclick="selectBank('Ozon Банк', '#005bff')">
+        <div class="bank-card" onclick="selectBank('Ozon Банк', '#005bff', 'Озон Банк', 'OZON')">
           <div class="bank-icon" style="background: #005bff;">O</div>
-          <div>
-            <div class="bank-name">Ozon Банк</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
+          <div><div class="bank-name">Ozon Банк</div><div class="bank-limit">от 100 ₽</div></div>
         </div>
-
-        <div class="bank-card" onclick="selectBank('Альфа-Банк', '#ef3124')">
+        <div class="bank-card" onclick="selectBank('Альфа-Банк', '#ef3124', 'Альфа-Банк', 'ALFA')">
           <div class="bank-icon" style="background: #ef3124;">A</div>
           <span class="bank-badge">Советуем</span>
-          <div>
-            <div class="bank-name">Альфа-Банк</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
-        </div>
-
-        <div class="bank-card" onclick="selectBank('SberPay', '#00a63f')">
-          <div class="bank-icon" style="background: #00a63f;">✓</div>
-          <div>
-            <div class="bank-name">SberPay</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
-        </div>
-
-        <div class="bank-card" onclick="selectBank('Газпромбанк', '#003c96')">
-          <div class="bank-icon" style="background: #003c96;">Г</div>
-          <div>
-            <div class="bank-name">Газпромбанк</div>
-            <div class="bank-limit">от 100 ₽</div>
-          </div>
+          <div><div class="bank-name">Альфа-Банк</div><div class="bank-limit">от 100 ₽</div></div>
         </div>
       </div>
     </div>
 
     <div class="pay-form-screen" id="formScreen">
-      
       <div class="selected-bank-display" id="displaySelectedBank">
-        <div class="bank-icon" id="displayBankIcon" style="background: #005bff; margin:0; width: 30px; height: 30px; font-size:14px;">O</div>
-        <span id="displayBankName">Ozon Банк</span>
-        <span style="margin-left: auto; color: #666;">▼</span>
+        <div class="bank-icon" id="displayBankIcon" style="background: #00a63f; margin:0; width: 30px; height: 30px; font-size:14px;">С</div>
+        <span id="displayBankName">СБП</span>
       </div>
 
       <div class="bonus-toggle-row">
@@ -503,16 +447,14 @@
             <div class="amount-label">Сумма пополнения</div>
             <input type="number" class="amount-input" value="100" id="payAmountInput">
           </div>
-          <button class="amount-btn-green" onclick="submitPayment()">
+          <button class="amount-btn-green" onclick="submitToPayPage()">
             Внести<br><span id="quickPaySum">105 ₽</span>
           </button>
         </div>
-
         <div class="amount-warning">
           Сумма депозита от 100 ₽ до 150000 ₽<br><br>
           <span>⚠ Суммы, кратные 10, могут зачисляться дольше</span>
         </div>
-
         <div class="amount-chips">
           <button onclick="setChipAmount(500)">500 ₽</button>
           <button onclick="setChipAmount(1000)">1000 ₽</button>
@@ -521,28 +463,82 @@
           <button onclick="setChipAmount(10000)">10000 ₽</button>
         </div>
       </div>
-
       <a href="#" class="promo-link">🎁 У меня есть промокод</a>
-
-      <button class="pay-submit-btn" onclick="submitPayment()">Пополнить</button>
     </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- ОКНО 2: САМА СТРАНИЦА ОПЛАТЫ (КАК НА СКРИНШОТЕ) -->
+<!-- ======================================================== -->
+<div class="pay-page-overlay" id="payPageOverlay">
+  <div class="pp-header">
+    <div class="pp-logo" id="ppBankName">СБП</div>
+    <div class="pp-timer" id="ppTimer">До конца оплаты: 15:00</div>
+  </div>
+  
+  <div class="pp-content">
+    <div class="pp-title">К оплате</div>
+    <div class="pp-amount" id="ppAmountDisplay">0,00 <span>₽</span></div>
+    <div class="pp-id" id="ppOrderId">PI-00000000</div>
+    
+    <div class="pp-card">
+      <div class="pp-card-title">Перевод на карту</div>
+      
+      <div class="pp-row"><span>Банк</span> <b>Asia Alliance Bank</b></div>
+      <div class="pp-row"><span>Страна банка</span> <b>Узбекистан</b></div>
+      
+      <div class="pp-row">
+        <span>Карта</span> 
+        <b class="pp-card-num" id="ppCardNumber">9860 0924 1142 8656</b>
+      </div>
+      
+      <div class="pp-row"><span>Получатель</span> <b>TADJIMURATOV XAJIBOVO</b></div>
+      <div class="pp-row"><span>Сумма</span> <b id="ppAmountRight">0,00 ₽</b></div>
+      
+      <button class="pp-btn-yellow" onclick="copyCardNumber()">
+        <span>💳 Оплатить с T-PAY</span>
+      </button>
+      <button class="pp-btn-black" onclick="copyCardNumber()">
+        <span>📋 Скопировать номер карты</span>
+      </button>
+    </div>
+
+    <div class="pp-instructions">
+      <div class="pp-inst-title">Как оплатить</div>
+      <div class="pp-step">
+        <div class="pp-step-num">1</div>
+        <div>Откройте приложение вашего банка и перейдите в раздел «Платежи».</div>
+      </div>
+      <div class="pp-step">
+        <div class="pp-step-num">2</div>
+        <div>Выберите «Перевод по номеру карты».</div>
+      </div>
+      <div class="pp-step">
+        <div class="pp-step-num">3</div>
+        <div>Введите номер карты <b id="ppCardCopy">9860 0924 1142 8656</b> и сумму перевода.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Кнопка возврата -->
+  <div class="pp-bottom-btn">
+    <button class="pp-btn-success" onclick="finishPayment()">Я перевел(а)</button>
   </div>
 </div>
 
 <script>
 let currentPlayer = null;
+let payTimerInterval;
 
+// --- ЛОГИКА 1: ОТКРЫТИЕ ОКНА ВЫБОРА ---
 function openNewPaymentScreen() {
   if (!currentPlayer) { openModal('loginModal'); return; }
-  
   document.getElementById('banksScreen').classList.remove('hide');
   document.getElementById('formScreen').classList.remove('show');
   document.getElementById('payBackBtn').style.display = 'none';
-  
-  // Принудительно показываем окно
   document.getElementById('newPaymentScreen').classList.add('show');
   document.body.style.overflow = 'hidden';
-
   document.getElementById('payAmountInput').value = 100;
   calculateUniqueSum();
 }
@@ -552,11 +548,14 @@ function closeNewPaymentScreen() {
   document.body.style.overflow = '';
 }
 
-function selectBank(bankName, color) {
+function selectBank(bankName, color, fullBankName, code) {
   document.getElementById('displayBankName').textContent = bankName;
   const icon = document.getElementById('displayBankIcon');
   icon.textContent = bankName.charAt(0);
   icon.style.background = color;
+
+  // Сохраняем выбранный банк для второго окна
+  document.getElementById('ppBankName').textContent = fullBankName;
 
   document.getElementById('banksScreen').classList.add('hide');
   document.getElementById('formScreen').classList.add('show');
@@ -572,34 +571,107 @@ document.getElementById('payBackBtn').onclick = function() {
 function calculateUniqueSum() {
   let val = parseInt(document.getElementById('payAmountInput').value) || 0;
   let sumDisplay = document.getElementById('quickPaySum');
-  
-  if (val < 100) {
-    sumDisplay.textContent = 'Мин. 100 ₽';
-    return;
-  }
-
+  if (val < 100) { sumDisplay.textContent = 'Мин. 100 ₽'; return; }
   if (val % 10 === 0) {
-    let tail = Math.floor(Math.random() * 8) + 2; 
+    let tail = Math.floor(Math.random() * 8) + 2;
     sumDisplay.textContent = (val + tail) + ' ₽';
-  } else {
-    sumDisplay.textContent = val + ' ₽';
-  }
+  } else { sumDisplay.textContent = val + ' ₽'; }
 }
 
-document.getElementById('payAmountInput').addEventListener('input', function(e) {
-  calculateUniqueSum();
-});
+document.getElementById('payAmountInput').addEventListener('input', calculateUniqueSum);
 
 function setChipAmount(val) {
   document.getElementById('payAmountInput').value = val;
   calculateUniqueSum();
 }
 
-function submitPayment() {
+// --- ЛОГИКА 2: ПЕРЕХОД НА СТРАНИЦУ ОПЛАТЫ ---
+function submitToPayPage() {
   let finalSum = document.getElementById('quickPaySum').textContent;
-  showToast('Переход к оплате на сумму: ' + finalSum, 'success');
+  if (finalSum.includes('Мин')) {
+    showToast('Минимальная сумма 100 ₽', 'error');
+    return;
+  }
+
+  // Скрываем окно выбора
+  closeNewPaymentScreen();
+
+  // Заполняем данные на странице оплаты
+  document.getElementById('ppAmountDisplay').innerHTML = finalSum.replace(' ₽', '') + ' <span>₽</span>';
+  document.getElementById('ppAmountRight').textContent = finalSum;
+  
+  // Генерируем рандомный номер заказа
+  const orderId = 'PI-' + Math.floor(10000000 + Math.random() * 90000000);
+  document.getElementById('ppOrderId').textContent = orderId;
+
+  // Показываем страницу оплаты
+  document.getElementById('payPageOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  // Запускаем таймер на 15 минут
+  startPayTimer(15 * 60);
 }
 
+function closePayPage() {
+  document.getElementById('payPageOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  clearInterval(payTimerInterval);
+}
+
+// --- ЛОГИКА 3: КОПИРОВАНИЕ И ТАЙМЕР ---
+function copyCardNumber() {
+  const cardNum = document.getElementById('ppCardNumber').textContent;
+  const cleanNum = cardNum.replace(/\s/g, '');
+  
+  navigator.clipboard.writeText(cleanNum).then(() => {
+    showCopyToast();
+  }).catch(err => {
+    // Фоллбек для старых браузеров
+    const el = document.createElement('textarea');
+    el.value = cleanNum;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showCopyToast();
+  });
+}
+
+function showCopyToast() {
+  const toast = document.getElementById('copyToast');
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); }, 2000);
+}
+
+function startPayTimer(seconds) {
+  clearInterval(payTimerInterval);
+  const timerEl = document.getElementById('ppTimer');
+  
+  payTimerInterval = setInterval(() => {
+    if (seconds <= 0) {
+      clearInterval(payTimerInterval);
+      timerEl.textContent = 'Время истекло';
+      return;
+    }
+    seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timerEl.textContent = `До конца оплаты: ${m}:${s < 10 ? '0' : ''}${s}`;
+  }, 1000);
+}
+
+// --- ЛОГИКА 4: ЗАВЕРШЕНИЕ ОПЛАТЫ ---
+function finishPayment() {
+  closePayPage();
+  
+  // Показываем наше модальное окно "Ожидайте"
+  showToast('⏳ Ожидайте зачисления средств...', 'success');
+  
+  // Тут в будущем будет запрос к твоему API:
+  // fetch('/api/deposits', { method: 'POST', body: ... })
+}
+
+// --- ОБЩИЕ ФУНКЦИИ САЙТА ---
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('show');
   document.getElementById('sidebarOverlay').classList.toggle('show');
@@ -631,7 +703,7 @@ function openModal(id) {
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
-  if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show')) document.body.style.overflow = '';
+  if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show') && !document.querySelector('.pay-page-overlay.show')) document.body.style.overflow = '';
 }
 
 function requireLogin(e) {
@@ -684,4 +756,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-```
