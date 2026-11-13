@@ -19,392 +19,133 @@
 
   .container { max-width: 1200px; margin: 0 auto; width: 100%; }
 
-  .top-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    gap: 10px;
-  }
+  .top-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; }
 
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
-    color: #a0aec0; padding: 10px 18px; border-radius: 10px;
-    text-decoration: none; font-size: 13px; font-weight: 700;
-    transition: .2s;
-  }
+  .back-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15); color: #a0aec0; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 700; transition: .2s; }
   .back-btn:hover { border-color: #00e5ff; color: #00e5ff; }
 
-  .fullscreen-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 8px;
-    background: rgba(0,229,255,.1);
-    border: 1px solid rgba(0,229,255,.4);
-    color: #00e5ff;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: .2s;
-    flex-shrink: 0;
-  }
-  .fullscreen-btn:hover {
-    background: rgba(0,229,255,.2);
-    border-color: #00e5ff;
-    box-shadow: 0 0 15px rgba(0,229,255,.3);
-  }
+  .fullscreen-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,229,255,.1); border: 1px solid rgba(0,229,255,.4); color: #00e5ff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: .2s; flex-shrink: 0; }
+  .fullscreen-btn:hover { background: rgba(0,229,255,.2); border-color: #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,.3); }
   .fullscreen-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-  /* === БАННЕР === */
-  .hero-banner {
-    position: relative;
-    width: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 24px;
-    background: linear-gradient(135deg, #1c2230, #0f1219);
-    border: 1px solid var(--border);
-    min-height: 240px;
-    display: flex;
-    align-items: center;
-  }
-  .hero-banner img.bg-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 30%;
-    z-index: 1;
-  }
-  .hero-banner .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(11,14,20,0.85) 0%, rgba(11,14,20,0.4) 50%, transparent 100%);
-    z-index: 2;
-  }
-  .hero-content {
-    position: relative;
-    z-index: 3;
-    padding: 40px;
-    max-width: 500px;
-  }
-  .hero-content h1 {
-    font-size: 36px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.15;
-    margin-bottom: 10px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-  }
-  .hero-content p {
-    font-size: 16px;
-    font-weight: 600;
-    color: #d0d5e0;
-    line-height: 1.4;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-  }
+  .hero-banner { position: relative; width: 100%; border-radius: 20px; overflow: hidden; margin-bottom: 24px; background: linear-gradient(135deg, #1c2230, #0f1219); border: 1px solid var(--border); min-height: 240px; display: flex; align-items: center; }
+  .hero-banner img.bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; z-index: 1; }
+  .hero-banner .overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,14,20,0.85) 0%, rgba(11,14,20,0.4) 50%, transparent 100%); z-index: 2; }
+  .hero-content { position: relative; z-index: 3; padding: 40px; max-width: 500px; }
+  .hero-content h1 { font-size: 36px; font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+  .hero-content p { font-size: 16px; font-weight: 600; color: #d0d5e0; line-height: 1.4; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
 
-  /* === СЕТКА === */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 20px;
-    align-items: start;
-  }
+  .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
 
-  /* === ИСТОРИЯ === */
-  .history-block {
-    background: rgba(18,24,38,.85);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px;
-    backdrop-filter: blur(10px);
-    min-width: 0;
-  }
-  .history-title {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .history-title h2 {
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    line-height: 1.2;
-    margin-bottom: 6px;
-    color: var(--accent);
-  }
-  .history-title .sub {
-    font-size: 13px;
-    color: #8fa2b8;
-    font-weight: 600;
-  }
+  .history-block { background: rgba(18,24,38,.85); border: 1px solid var(--border); border-radius: 20px; padding: 28px; backdrop-filter: blur(10px); min-width: 0; }
+  .history-title { text-align: center; margin-bottom: 24px; }
+  .history-title h2 { font-size: 24px; font-weight: 900; letter-spacing: 0.5px; line-height: 1.2; margin-bottom: 6px; color: var(--accent); }
+  .history-title .sub { font-size: 13px; color: #8fa2b8; font-weight: 600; }
 
-  .history-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 0;
-    overflow: hidden;
-    position: relative;
-    min-height: 84px;
-  }
+  .history-wrap { display: flex; justify-content: center; align-items: center; padding: 10px 0; overflow: hidden; position: relative; min-height: 84px; }
+  .history-track { display: flex; gap: 12px; transition: transform .5s cubic-bezier(.4, 0, .2, 1); will-change: transform; }
 
-  .history-track {
-    display: flex;
-    gap: 12px;
-    transition: transform .5s cubic-bezier(.4, 0, .2, 1);
-    will-change: transform;
-  }
-
-  .history-ball {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 900;
-    color: #fff;
-    border: 2px solid rgba(255,255,255,.12);
-    transition: transform .3s;
-    cursor: default;
-    position: relative;
-  }
+  .history-ball { width: 60px; height: 60px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff; border: 2px solid rgba(255,255,255,.12); transition: transform .3s; cursor: default; position: relative; }
   .history-ball:hover { transform: scale(1.08); }
-  .history-ball.red {
-    background: linear-gradient(135deg, #ff4d4d, #c0392b);
-    box-shadow: 0 6px 20px rgba(255,77,77,.4), inset 0 2px 4px rgba(255,255,255,.2);
-  }
-  .history-ball.black {
-    background: linear-gradient(135deg, #3a3a3a, #000);
-    box-shadow: 0 6px 20px rgba(0,0,0,.6), inset 0 2px 4px rgba(255,255,255,.1);
-  }
-  .history-ball.green {
-    background: linear-gradient(135deg, #3fbf7f, #1e7a4a);
-    box-shadow: 0 6px 20px rgba(63,191,127,.4), inset 0 2px 4px rgba(255,255,255,.2);
-  }
-  .history-ball.new {
-    animation: ballDrop .6s cubic-bezier(.34, 1.56, .64, 1);
-  }
-  @keyframes ballDrop {
-    0% { transform: translateX(-80px) scale(0) rotate(-180deg); opacity: 0; }
-    60% { transform: translateX(8px) scale(1.15) rotate(10deg); opacity: 1; }
-    100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
-  }
-  .history-ball.new::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    background: inherit;
-    opacity: 0;
-    animation: glowPulse .8s ease-out;
-    z-index: -1;
-  }
-  @keyframes glowPulse {
-    0% { opacity: .8; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.6); }
-  }
+  .history-ball.red { background: linear-gradient(135deg, #ff4d4d, #c0392b); box-shadow: 0 6px 20px rgba(255,77,77,.4), inset 0 2px 4px rgba(255,255,255,.2); }
+  .history-ball.black { background: linear-gradient(135deg, #3a3a3a, #000); box-shadow: 0 6px 20px rgba(0,0,0,.6), inset 0 2px 4px rgba(255,255,255,.1); }
+  .history-ball.green { background: linear-gradient(135deg, #3fbf7f, #1e7a4a); box-shadow: 0 6px 20px rgba(63,191,127,.4), inset 0 2px 4px rgba(255,255,255,.2); }
+  .history-ball.new { animation: ballDrop .6s cubic-bezier(.34, 1.56, .64, 1); }
+  @keyframes ballDrop { 0% { transform: translateX(-80px) scale(0) rotate(-180deg); opacity: 0; } 60% { transform: translateX(8px) scale(1.15) rotate(10deg); opacity: 1; } 100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; } }
+  .history-ball.new::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: inherit; opacity: 0; animation: glowPulse .8s ease-out; z-index: -1; }
+  @keyframes glowPulse { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
 
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #8fa2b8;
-    font-size: 13px;
-    font-style: italic;
-  }
+  .empty-state { text-align: center; padding: 40px 20px; color: #8fa2b8; font-size: 13px; font-style: italic; }
+
+  /* === ЛИМИТЫ СТАВОК === */
+  .limits-block { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08); }
+  .limits-title { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .limits-title::before { content: '💰'; font-size: 20px; }
+  .limits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .limit-item { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: .2s; }
+  .limit-item:hover { border-color: rgba(0,229,255,.3); background: rgba(0,229,255,.05); }
+  .limit-label { font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .limit-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .limit-icon.red-bg { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
+  .limit-icon.black-bg { background: linear-gradient(135deg, #3a3a3a, #000); }
+  .limit-icon.green-bg { background: linear-gradient(135deg, #3fbf7f, #1e7a4a); }
+  .limit-icon.gold-bg { background: linear-gradient(135deg, #f1c40f, #b8860b); color: #000; }
+  .limit-icon.blue-bg { background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; }
+  .limit-icon.purple-bg { background: linear-gradient(135deg, #a855f7, #7e22ce); font-size: 11px; font-weight: 900; }
+  .limit-values { text-align: right; font-size: 12px; font-weight: 800; line-height: 1.3; }
+  .limit-values .min { color: #3fbf7f; }
+  .limit-values .max { color: #f1c40f; }
+  .limit-values .sep { color: #8fa2b8; font-size: 10px; margin: 0 3px; }
 
   /* === ТУРНИР === */
-  .tournament-banner {
-    background: linear-gradient(135deg, rgba(241,196,15,.18), rgba(255,77,77,.08));
-    border: 2px solid rgba(241,196,15,.5);
-    border-radius: 20px;
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: .3s;
-    min-height: 320px;
-    text-decoration: none;
-    color: #fff;
-  }
-  .tournament-banner:hover {
-    border-color: #f1c40f;
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(241,196,15,.3);
-  }
-  .tournament-banner::before {
-    content: '🏆';
-    position: absolute;
-    top: 10px; right: 15px;
-    font-size: 80px;
-    opacity: .15;
-    transform: rotate(15deg);
-    pointer-events: none;
-  }
-  .tournament-banner .t-label {
-    font-size: 11px;
-    color: #f1c40f;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-  .tournament-banner .t-title {
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 6px;
-    color: #fff;
-  }
-  .tournament-banner .t-prize {
-    font-size: 40px;
-    font-weight: 900;
-    color: #f1c40f;
-    line-height: 1;
-    margin-bottom: 4px;
-    text-shadow: 0 0 20px rgba(241,196,15,.5);
-  }
-  .tournament-banner .t-sub {
-    font-size: 11px;
-    color: #d0d5e0;
-    margin-bottom: 14px;
-  }
-  .tournament-banner .t-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .tournament-banner .t-info-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 6px 10px;
-    background: rgba(0,0,0,.3);
-    border-radius: 8px;
-  }
+  .tournament-banner { background: linear-gradient(135deg, rgba(241,196,15,.18), rgba(255,77,77,.08)); border: 2px solid rgba(241,196,15,.5); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer; transition: .3s; min-height: 320px; text-decoration: none; color: #fff; }
+  .tournament-banner:hover { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 12px 40px rgba(241,196,15,.3); }
+  .tournament-banner::before { content: '🏆'; position: absolute; top: 10px; right: 15px; font-size: 80px; opacity: .15; transform: rotate(15deg); pointer-events: none; }
+  .tournament-banner .t-label { font-size: 11px; color: #f1c40f; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 6px; }
+  .tournament-banner .t-title { font-size: 20px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; color: #fff; }
+  .tournament-banner .t-prize { font-size: 40px; font-weight: 900; color: #f1c40f; line-height: 1; margin-bottom: 4px; text-shadow: 0 0 20px rgba(241,196,15,.5); }
+  .tournament-banner .t-sub { font-size: 11px; color: #d0d5e0; margin-bottom: 14px; }
+  .tournament-banner .t-info { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .tournament-banner .t-info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 10px; background: rgba(0,0,0,.3); border-radius: 8px; }
   .tournament-banner .t-info-row span:first-child { color: #8fa2b8; }
   .tournament-banner .t-info-row b { color: #fff; }
-  .tournament-banner .t-timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding: 10px 14px;
-    background: rgba(255,77,77,.15);
-    border: 1px solid rgba(255,77,77,.4);
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 800;
-    color: #ff8a8a;
-  }
-  .tournament-banner .t-timer .t-dot {
-    width: 8px; height: 8px;
-    background: #ff4d4d;
-    border-radius: 50%;
-    animation: pulseDot 1.5s infinite;
-    flex-shrink: 0;
-  }
-  @keyframes pulseDot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: .5; transform: scale(1.3); }
-  }
+  .tournament-banner .t-timer { display: flex; align-items: center; gap: 8px; margin-top: auto; padding: 10px 14px; background: rgba(255,77,77,.15); border: 1px solid rgba(255,77,77,.4); border-radius: 10px; font-size: 12px; font-weight: 800; color: #ff8a8a; }
+  .tournament-banner .t-timer .t-dot { width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; animation: pulseDot 1.5s infinite; flex-shrink: 0; }
+  @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.3); } }
 
   /* === FULLSCREEN === */
-  body.fullscreen-active {
-    padding: 16px !important;
-    overflow-y: auto !important;
-  }
-  body.fullscreen-active .container {
-    max-width: 100% !important;
-    width: 100% !important;
-  }
+  body.fullscreen-active { padding: 16px !important; overflow-y: auto !important; }
+  body.fullscreen-active .container { max-width: 100% !important; width: 100% !important; }
   body.fullscreen-active .top-actions { display: none !important; }
-
-  body.fullscreen-active .hero-banner {
-    min-height: 160px !important;
-    margin-bottom: 16px !important;
-  }
+  body.fullscreen-active .hero-banner { min-height: 160px !important; margin-bottom: 16px !important; }
   body.fullscreen-active .hero-content { padding: 24px !important; }
   body.fullscreen-active .hero-content h1 { font-size: 28px !important; }
   body.fullscreen-active .hero-content p { font-size: 13px !important; }
-
-  body.fullscreen-active .main-grid {
-    grid-template-columns: 1fr 300px !important;
-    gap: 16px !important;
-  }
-
+  body.fullscreen-active .main-grid { grid-template-columns: 1fr 300px !important; gap: 16px !important; }
   body.fullscreen-active .history-block { padding: 24px !important; }
   body.fullscreen-active .history-title h2 { font-size: 24px !important; }
   body.fullscreen-active .history-title .sub { font-size: 13px !important; }
   body.fullscreen-active .history-wrap { min-height: 100px !important; }
   body.fullscreen-active .history-track { gap: 12px !important; }
-  body.fullscreen-active .history-ball {
-    width: 68px !important;
-    height: 68px !important;
-    font-size: 24px !important;
-    border-width: 2px !important;
-  }
-
-  body.fullscreen-active .tournament-banner {
-    display: flex !important;
-    min-height: 340px !important;
-    padding: 20px !important;
-  }
+  body.fullscreen-active .history-ball { width: 68px !important; height: 68px !important; font-size: 24px !important; border-width: 2px !important; }
+  body.fullscreen-active .tournament-banner { display: flex !important; min-height: 340px !important; padding: 20px !important; }
   body.fullscreen-active .tournament-banner::before { font-size: 60px !important; }
   body.fullscreen-active .tournament-banner .t-title { font-size: 18px !important; }
   body.fullscreen-active .tournament-banner .t-prize { font-size: 40px !important; }
   body.fullscreen-active .tournament-banner .t-sub { font-size: 11px !important; }
   body.fullscreen-active .tournament-banner .t-info-row { font-size: 12px !important; padding: 6px 10px !important; }
   body.fullscreen-active .tournament-banner .t-timer { font-size: 12px !important; padding: 10px 14px !important; }
+  body.fullscreen-active .limits-title { font-size: 20px !important; }
+  body.fullscreen-active .limits-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; }
+  body.fullscreen-active .limit-item { padding: 14px 18px !important; }
+  body.fullscreen-active .limit-label { font-size: 14px !important; }
 
-  /* Планшет (900px и меньше) */
   @media (max-width: 900px) {
     .main-grid { grid-template-columns: 1fr; }
     .tournament-banner { min-height: auto; }
     .hero-content { padding: 28px; }
     .hero-content h1 { font-size: 26px; }
     .hero-content p { font-size: 14px; }
-
-    body.fullscreen-active .main-grid {
-      grid-template-columns: 1fr !important;
-      gap: 14px !important;
-    }
+    body.fullscreen-active .main-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
     body.fullscreen-active .hero-banner { min-height: 120px !important; margin-bottom: 12px !important; }
     body.fullscreen-active .hero-content { padding: 18px !important; }
     body.fullscreen-active .hero-content h1 { font-size: 20px !important; }
     body.fullscreen-active .hero-content p { font-size: 11px !important; }
-
     body.fullscreen-active .history-block { padding: 18px !important; }
     body.fullscreen-active .history-title { margin-bottom: 14px !important; }
     body.fullscreen-active .history-title h2 { font-size: 18px !important; }
     body.fullscreen-active .history-title .sub { font-size: 11px !important; }
     body.fullscreen-active .history-wrap { min-height: 60px !important; }
     body.fullscreen-active .history-track { gap: 8px !important; }
-    body.fullscreen-active .history-ball {
-      width: 48px !important;
-      height: 48px !important;
-      font-size: 17px !important;
-    }
-
-    body.fullscreen-active .tournament-banner {
-      min-height: auto !important;
-      padding: 16px !important;
-    }
+    body.fullscreen-active .history-ball { width: 48px !important; height: 48px !important; font-size: 17px !important; }
+    body.fullscreen-active .tournament-banner { min-height: auto !important; padding: 16px !important; }
     body.fullscreen-active .tournament-banner::before { font-size: 40px !important; }
     body.fullscreen-active .tournament-banner .t-prize { font-size: 32px !important; }
     body.fullscreen-active .tournament-banner .t-title { font-size: 16px !important; }
     body.fullscreen-active .tournament-banner .t-info-row { font-size: 11px !important; padding: 5px 8px !important; }
     body.fullscreen-active .tournament-banner .t-timer { font-size: 11px !important; padding: 8px 10px !important; }
+    body.fullscreen-active .limits-grid { grid-template-columns: 1fr !important; }
+    body.fullscreen-active .limits-title { font-size: 16px !important; }
   }
 
   @media (max-width: 600px) {
@@ -422,12 +163,11 @@
     .top-actions { margin-bottom: 14px; }
     .fullscreen-btn { padding: 8px 14px; font-size: 12px; }
     .back-btn { padding: 8px 14px; font-size: 12px; }
-
-    body.fullscreen-active .history-ball {
-      width: 40px !important;
-      height: 40px !important;
-      font-size: 14px !important;
-    }
+    .limits-grid { grid-template-columns: 1fr; }
+    .limit-item { padding: 10px 12px; }
+    .limit-label { font-size: 12px; }
+    .limit-icon { width: 24px; height: 24px; font-size: 12px; }
+    body.fullscreen-active .history-ball { width: 40px !important; height: 40px !important; font-size: 14px !important; }
     body.fullscreen-active .history-track { gap: 6px !important; }
   }
   @media (max-width: 500px) {
@@ -468,6 +208,110 @@
         <div class="history-track" id="historyTrack"></div>
       </div>
       <div class="empty-state" id="emptyState" style="display:none;">Пока нет выпадений</div>
+
+      <!-- ЛИМИТЫ СТАВОК -->
+      <div class="limits-block">
+        <div class="limits-title">Лимиты ставок</div>
+        <div class="limits-grid">
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon blue-bg">🔢</span>
+              На число
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon red-bg">🔴</span>
+              Красное
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon black-bg">⚫</span>
+              Чёрное
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon gold-bg">2</span>
+              Чёт / Нечет
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon green-bg">0</span>
+              Зеро
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon purple-bg">1-12</span>
+              Дюжина 1–12
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon purple-bg">13-24</span>
+              Дюжина 13–24
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+          <div class="limit-item">
+            <div class="limit-label">
+              <span class="limit-icon purple-bg">25-36</span>
+              Дюжина 25–36
+            </div>
+            <div class="limit-values">
+              <span class="min">от 10 ₽</span>
+              <span class="sep">·</span>
+              <span class="max">до 100 ₽</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
     <a href="/tournament.html" class="tournament-banner">
