@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<title>KINGWIN — История рулетки</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-main: #0b0e14; --bg-panel: #151922;
+    --accent: #00e5ff;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --red: #ff4d4d; --green: #3fbf7f; --gold: #f1c40f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; }
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
+    color: #a0aec0; padding: 10px 18px; border-radius: 10px;
+    text-decoration: none; font-size: 13px; font-weight: 700;
+    margin-bottom: 20px; transition: .2s;
+  }
+  .back-btn:hover { border-color: #00e5ff; color: #00e5ff; }
+
+  .hero {
+    background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(63,191,127,.08));
+    border: 1px solid rgba(0,229,255,.4);
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🎡';
+    position: absolute;
+    top: -30px; right: -30px;
+    font-size: 180px;
+    opacity: .08;
+    transform: rotate(15deg);
+    pointer-events: none;
+  }
+  .hero .label {
+    font-size: 11px; color: #00e5ff;
+    text-transform: uppercase; letter-spacing: 3px;
+    font-weight: 900; margin-bottom: 10px;
+  }
+  .hero h1 { font-size: 32px; font-weight: 900; line-height: 1.15; margin-bottom: 10px; }
+  .hero .sub { font-size: 13px; color: #a0aec0; }
+
+  .last-result-card {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .last-result-card .lbl {
+    font-size: 11px; color: #8fa2b8;
+    text-transform: uppercase; letter-spacing: 2px;
+    font-weight: 800; margin-bottom: 14px;
+  }
+  .last-ball {
+    width: 100px; height: 100px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; font-weight: 900;
+    color: #fff;
+    transition: all .5s ease;
+    border: 4px solid rgba(255,255,255,.15);
+  }
+  .last-ball.red { background: linear-gradient(135deg, #ff4d4d, #c0392b); box-shadow: 0 0 40px rgba(255,77,77,.6); }
+  .last-ball.black { background: linear-gradient(135deg, #2a2a2a, #000); box-shadow: 0 0 40px rgba(0,0,0,.8); }
+  .last-ball.green { background: linear-gradient(135deg, #3fbf7f, #1e7a4a); box-shadow: 0 0 40px rgba(63,191,127,.6); }
+  .last-ball.empty { background: rgba(255,255,255,.05); color: #8fa2b8; font-size: 24px; }
+  .last-result-card .meta { font-size: 12px; color: #8fa2b8; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .slbl {
+    font-size: 10px; color: #8fa2b8;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 700; margin-bottom: 8px;
+  }
+  .stat-card .sval { font-size: 24px; font-weight: 900; line-height: 1; }
+  .stat-card.red .sval { color: var(--red); }
+  .stat-card.black .sval { color: #fff; }
+  .stat-card.green .sval { color: var(--green); }
+  .stat-card.gold .sval { color: var(--gold); }
+
+  .history-panel {
+    background: rgba(18,24,38,.85);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .history-panel .h-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+  }
+  .history-panel .h-title { font-size: 16px; font-weight: 900; }
+  .history-panel .h-count { font-size: 12px; color: #8fa2b8; }
+
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 8px;
+  }
+  .history-ball {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,.1);
+    transition: transform .2s;
+    cursor: default;
+  }
+  .history-ball:hover { transform: scale(1.1); }
+  .history-ball.red { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
+  .history-ball.black { background: linear-gradient(135deg, #2a2a2a, #000); }
+  .history-ball.green { background: linear-gradient(135deg, #3fbf7f, #1e7a4a); }
+  .history-ball.new { animation: pop .5s ease; }
+  @keyframes pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: #8fa2b8; font-size: 13px; font-style: italic;
+  }
+  .refresh-note {
+    text-align: center; font-size: 11px;
+    color: #8fa2b8; margin-top: 12px;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .hero { padding: 22px 18px; border-radius: 16px; }
+    .hero h1 { font-size: 24px; }
+    .hero::before { font-size: 120px; }
+    .last-ball { width: 80px; height: 80px; font-size: 34px; }
+    .history-panel { padding: 18px; }
+    .history-grid { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; }
+    .history-ball { font-size: 14px; }
+    .stat-card .sval { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <a href="/" class="back-btn">← На главную</a>
+
+  <div class="hero">
+    <div class="label">🎡 Рулетка</div>
+    <h1>История выпадений</h1>
+    <div class="sub">Последние выпавшие числа. Обновляется автоматически.</div>
+  </div>
+
+  <div class="last-result-card">
+    <div class="lbl">Последнее выпадение</div>
+    <div id="lastBall" class="last-ball empty">—</div>
+    <div id="lastMeta" class="meta">Ожидание...</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card red"><div class="slbl">🔴 Красное</div><div class="sval" id="statRed">0</div></div>
+    <div class="stat-card black"><div class="slbl">⚫ Чёрное</div><div class="sval" id="statBlack">0</div></div>
+    <div class="stat-card green"><div class="slbl">🟢 Зеро</div><div class="sval" id="statGreen">0</div></div>
+    <div class="stat-card gold"><div class="slbl">Всего</div><div class="sval" id="statTotal">0</div></div>
+  </div>
+
+  <div class="history-panel">
+    <div class="h-head">
+      <div class="h-title">📜 Последние 50 чисел</div>
+      <div class="h-count" id="historyCount">Загрузка...</div>
+    </div>
+    <div class="history-grid" id="historyGrid"></div>
+    <div class="empty-state" id="historyEmpty" style="display:none;">Пока нет выпадений</div>
+    <div class="refresh-note">Обновляется каждые 10 секунд</div>
+  </div>
+
+</div>
+
+<script>
+let lastRenderedId = null;
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/roulette/history?limit=50', { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const list = await r.json();
+
+    const grid = document.getElementById('historyGrid');
+    const empty = document.getElementById('historyEmpty');
+    const count = document.getElementById('historyCount');
+
+    if (!Array.isArray(list) || list.length === 0) {
+      grid.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      if (count) count.textContent = '0 выпадений';
+      document.getElementById('lastBall').className = 'last-ball empty';
+      document.getElementById('lastBall').textContent = '—';
+      document.getElementById('lastMeta').textContent = 'Ожидание...';
+      return;
+    }
+
+    if (empty) empty.style.display = 'none';
+    if (count) count.textContent = list.length + ' выпадений';
+
+    const last = list[0];
+    const lastBall = document.getElementById('lastBall');
+    lastBall.className = 'last-ball ' + last.result_color;
+    lastBall.textContent = last.result_number;
+
+    const time = last.created_at ? new Date(last.created_at).toLocaleString('ru-RU', {
+      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }) : '';
+    const colorLabel = last.result_color === 'red' ? '🔴 Красное' : last.result_color === 'black' ? '⚫ Чёрное' : '🟢 Зеро';
+    document.getElementById('lastMeta').textContent = colorLabel + (time ? ' · ' + time : '');
+
+    const isNew = lastRenderedId !== null && last.id !== lastRenderedId;
+    lastRenderedId = last.id;
+
+    grid.innerHTML = list.map((x, i) => {
+      const isNewest = i === 0 && isNew;
+      return `<div class="history-ball ${x.result_color}${isNewest ? ' new' : ''}" title="${x.result_color === 'red' ? 'Красное' : x.result_color === 'black' ? 'Чёрное' : 'Зеро'}">${x.result_number}</div>`;
+    }).join('');
+  } catch (e) {
+    console.warn('loadHistory error:', e);
+    const count = document.getElementById('historyCount');
+    if (count) count.textContent = 'Ошибка загрузки';
+  }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/roulette/stats', { cache: 'no-store' });
+    if (!r.ok) return;
+    const s = await r.json();
+    document.getElementById('statRed').textContent = s.red || 0;
+    document.getElementById('statBlack').textContent = s.black || 0;
+    document.getElementById('statGreen').textContent = s.green || 0;
+    document.getElementById('statTotal').textContent = s.total || 0;
+  } catch(e) {}
+}
+
+function refreshAll() {
+  loadHistory();
+  loadStats();
+}
+
+refreshAll();
+setInterval(refreshAll, 10000);
+</script>
+
+</body>
+</html>
