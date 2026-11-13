@@ -15,7 +15,7 @@
     --border: rgba(255,255,255,0.05);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; }
+  body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; overflow-x: hidden; }
 
   .container { max-width: 1200px; margin: 0 auto; }
 
@@ -319,26 +319,52 @@
   }
 
   /* === ПОЛНОЭКРАННЫЙ РЕЖИМ — ВСЁ ВИДНО === */
-  .fullscreen-active body,
-  body.fullscreen-active { padding: 20px; }
-  body.fullscreen-active .container { max-width: none; width: 100%; }
-  body.fullscreen-active .top-actions { display: none; }
-  body.fullscreen-active .hero-banner { min-height: 220px; border-radius: 24px; margin-bottom: 24px; }
-  body.fullscreen-active .hero-content h1 { font-size: 42px; }
-  body.fullscreen-active .hero-content p { font-size: 18px; }
-  body.fullscreen-active .main-grid { grid-template-columns: 1fr 380px; gap: 24px; }
-  body.fullscreen-active .history-block { padding: 40px; }
-  body.fullscreen-active .history-title h2 { font-size: 36px; }
-  body.fullscreen-active .history-title .sub { font-size: 16px; }
-  body.fullscreen-active .history-wrap { min-height: 140px; }
-  body.fullscreen-active .history-track { gap: 18px; }
-  body.fullscreen-active .history-ball { width: 100px; height: 100px; font-size: 34px; border-width: 3px; }
-  body.fullscreen-active .tournament-banner { min-height: 420px; padding: 32px; }
-  body.fullscreen-active .tournament-banner .t-title { font-size: 28px; }
-  body.fullscreen-active .tournament-banner .t-prize { font-size: 64px; }
-  body.fullscreen-active .tournament-banner .t-sub { font-size: 14px; }
-  body.fullscreen-active .tournament-banner .t-info-row { font-size: 14px; padding: 10px 14px; }
-  body.fullscreen-active .tournament-banner .t-timer { font-size: 14px; padding: 14px 18px; }
+  body.fullscreen-active {
+    padding: 20px !important;
+    overflow-y: auto !important;
+  }
+  body.fullscreen-active .container {
+    max-width: 1400px !important;
+    width: 100% !important;
+  }
+  body.fullscreen-active .top-actions { display: none !important; }
+
+  body.fullscreen-active .hero-banner {
+    min-height: 220px !important;
+    margin-bottom: 24px !important;
+  }
+  body.fullscreen-active .hero-content h1 { font-size: 42px !important; }
+  body.fullscreen-active .hero-content p { font-size: 18px !important; }
+
+  body.fullscreen-active .main-grid {
+    grid-template-columns: 1fr 380px !important;
+    gap: 24px !important;
+  }
+
+  body.fullscreen-active .history-block {
+    padding: 36px !important;
+  }
+  body.fullscreen-active .history-title h2 { font-size: 32px !important; }
+  body.fullscreen-active .history-title .sub { font-size: 15px !important; }
+  body.fullscreen-active .history-wrap { min-height: 130px !important; }
+  body.fullscreen-active .history-track { gap: 16px !important; }
+  body.fullscreen-active .history-ball {
+    width: 90px !important;
+    height: 90px !important;
+    font-size: 32px !important;
+    border-width: 3px !important;
+  }
+
+  body.fullscreen-active .tournament-banner {
+    display: flex !important;
+    min-height: 420px !important;
+    padding: 28px !important;
+  }
+  body.fullscreen-active .tournament-banner .t-title { font-size: 26px !important; }
+  body.fullscreen-active .tournament-banner .t-prize { font-size: 60px !important; }
+  body.fullscreen-active .tournament-banner .t-sub { font-size: 13px !important; }
+  body.fullscreen-active .tournament-banner .t-info-row { font-size: 14px !important; padding: 10px 14px !important; }
+  body.fullscreen-active .tournament-banner .t-timer { font-size: 14px !important; padding: 14px 18px !important; }
 
   @media (max-width: 900px) {
     .main-grid { grid-template-columns: 1fr; }
@@ -346,6 +372,29 @@
     .hero-content { padding: 28px; }
     .hero-content h1 { font-size: 26px; }
     .hero-content p { font-size: 14px; }
+
+    /* Fullscreen на узком — турнир вниз, но виден */
+    body.fullscreen-active .main-grid {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+    body.fullscreen-active .tournament-banner {
+      min-height: auto !important;
+      padding: 20px !important;
+    }
+    body.fullscreen-active .tournament-banner .t-prize { font-size: 40px !important; }
+    body.fullscreen-active .tournament-banner .t-title { font-size: 20px !important; }
+    body.fullscreen-active .history-ball {
+      width: 56px !important;
+      height: 56px !important;
+      font-size: 18px !important;
+    }
+    body.fullscreen-active .history-track { gap: 10px !important; }
+    body.fullscreen-active .history-wrap { min-height: 80px !important; }
+    body.fullscreen-active .hero-banner { min-height: 140px !important; }
+    body.fullscreen-active .hero-content h1 { font-size: 22px !important; }
+    body.fullscreen-active .hero-content p { font-size: 12px !important; }
+    body.fullscreen-active .history-title h2 { font-size: 20px !important; }
   }
 
   @media (max-width: 600px) {
@@ -427,7 +476,6 @@
 <script>
 let lastFirstId = null;
 
-/* === ПОЛНОЭКРАННЫЙ РЕЖИМ === */
 function toggleFullscreen() {
   const doc = document.documentElement;
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -470,7 +518,6 @@ document.addEventListener('webkitfullscreenchange', () => {
   }
 });
 
-/* === ИСТОРИЯ === */
 async function loadHistory() {
   try {
     const r = await fetch('/api/roulette/history?limit=10', { cache: 'no-store' });
@@ -499,7 +546,7 @@ async function loadHistory() {
 
     if (isNew) {
       const ballWidth = track.children[0]?.offsetWidth || 60;
-      const gap = document.body.classList.contains('fullscreen-active') ? 18 : 12;
+      const gap = document.body.classList.contains('fullscreen-active') ? 16 : 12;
       track.style.transform = 'translateX(' + (ballWidth + gap) + 'px)';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -514,7 +561,6 @@ async function loadHistory() {
   }
 }
 
-/* === ТУРНИР === */
 async function loadTournament() {
   try {
     const r = await fetch('/api/tournament/active', { cache: 'no-store' });
