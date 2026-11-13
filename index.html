@@ -34,14 +34,13 @@
     100% { transform: translateY(0) translateX(0) rotate(0deg); }
   }
   
-  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay):not(.modal-overlay):not(.waiting-overlay) { position: relative; z-index: 1; }
+  body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay):not(.modal-overlay):not(.waiting-overlay):not(.wheel-overlay) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 12px; }
   .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
   .menu-btn:hover { background: rgba(255,255,255,0.1); }
-  
   .logo { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
   
   .header-right { display: flex; align-items: center; gap: 8px; }
@@ -117,68 +116,40 @@
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
   /* ========================================================
-     САЙДБАР В СТИЛЕ KINGWIN
+     САЙДБАР
      ======================================================== */
   .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  
-  .sidebar { 
-    position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; 
-    background: var(--bg-main);
-    z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.05);
-  }
+  .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: var(--bg-main); z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.05); }
   .sidebar.show { left: 0; }
-
-  /* Шапка сайдбара */
   .sb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
   .sb-logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .sb-balance-area { display: flex; align-items: center; gap: 10px; }
   .sb-balance { font-size: 14px; font-weight: 800; color: #fff; }
   .sb-plus-btn { background: var(--accent-green); color: #000; width: 30px; height: 30px; border-radius: 8px; border: none; font-size: 18px; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center;}
-
   .sb-content { padding: 0 15px 20px; flex: 1; }
-
-  /* Поиск */
   .sb-search { width: 100%; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; color: #fff; font-size: 14px; margin-bottom: 20px; outline: none; display: flex; align-items: center; gap: 10px; }
   .sb-search input { background: transparent; border: none; color: #fff; width: 100%; outline: none; font-family: inherit; font-size: 14px; }
   .sb-search input::placeholder { color: var(--text-muted); }
-
-  /* Баннеры внутри меню */
-  .sb-banner { 
-    border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; 
-    margin-bottom: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 14px; position: relative;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
+  .sb-banner { border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 14px; position: relative; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
   .sb-banner-wheel { background: linear-gradient(90deg, rgba(126,34,206,0.8), rgba(76,29,149,0.8)); }
   .sb-banner-store { background: linear-gradient(90deg, rgba(29,78,216,0.8), rgba(30,58,138,0.8)); }
   .sb-banner-missions { background: linear-gradient(90deg, rgba(2,132,199,0.8), rgba(3,105,161,0.8)); }
-  
   .sb-banner-count { background: var(--red); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; font-weight: 800; margin-left: 5px; }
   .sb-banner-icon { font-size: 24px; }
-
-  /* Пункты меню */
   .sb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; text-decoration: none; color: var(--text-main); font-size: 15px; font-weight: 600; border-radius: 10px; margin-bottom: 2px; transition: 0.2s; cursor: pointer; }
   .sb-item:hover { background: rgba(255,255,255,0.05); }
   .sb-item-left { display: flex; align-items: center; gap: 15px; }
   .sb-item-left svg { width: 22px; height: 22px; fill: var(--text-muted); }
   .sb-item.active .sb-item-left svg { fill: var(--accent); }
   .sb-item.active { color: var(--accent); }
-  
   .sb-item-badge { background: var(--red); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
-
-  /* Выпадающий список игр */
   .sb-games-toggle svg.arrow { width: 14px; height: 14px; fill: var(--text-muted); transition: 0.3s; }
   .sb-games-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 10px; margin-bottom: 5px; }
   .sb-games-list.show { max-height: 600px; }
-  
   .sb-game-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 600; border-radius: 8px; }
   .sb-game-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  
-  /* Разделитель */
   .sb-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 15px 0; }
-
-  /* Соцсети */
   .sb-socials { display: flex; gap: 10px; margin-top: 20px; }
   .sb-social-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #fff; font-size: 20px; font-weight: 900; transition: 0.2s; }
   .sb-social-btn:hover { opacity: 0.8; transform: translateY(-2px); }
@@ -186,7 +157,7 @@
   .sb-social-tg { background: #2AABEE; }
   .sb-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
 
-  /* === СТАРЫЕ МОДАЛКИ И ОКНА === */
+  /* === МОДАЛКИ === */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -203,10 +174,8 @@
   .pay-account { text-align: right; font-size: 12px; color: var(--text-muted); margin-right: 15px;}
   .pay-account b { display: block; font-size: 16px; color: #fff; }
   .pay-close-btn { background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
   .pay-content { padding: 20px 20px 40px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; }
   .pay-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; }
-
   .banks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   .bank-card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 110px; }
   .bank-card:active { transform: scale(0.98); border-color: var(--accent); }
@@ -214,26 +183,21 @@
   .bank-badge { position: absolute; top: 15px; right: 15px; background: var(--accent-green); color: #000; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 20px; }
   .bank-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
   .bank-limit { font-size: 12px; color: var(--text-muted); }
-
   .pay-form-screen { display: none; flex-direction: column; }
   .pay-form-screen.show { display: flex; }
   .banks-screen.hide { display: none; }
-
   .pay-back-btn { background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
   .selected-bank-display { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
   .selected-bank-display .bank-icon { width: 30px; height: 30px; margin: 0; font-size: 14px; }
-
   .bonus-toggle-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; font-size: 16px; font-weight: 700; color: var(--text-main); }
   .toggle-switch { width: 50px; height: 28px; background: var(--accent); border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
   .toggle-switch::after { content: ''; position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: 0.2s; }
   .toggle-switch.off { background: #333; }
   .toggle-switch.off::after { right: calc(100% - 25px); }
-
   .bonus-banner { background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(255,77,77,0.1)); border-radius: 15px; padding: 20px; color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; border: 1px solid rgba(241,196,15,0.4); }
   .bonus-banner h3 { font-size: 16px; margin-bottom: 5px; color: var(--gold); }
   .bonus-banner p { font-size: 12px; opacity: 0.8; }
   .bonus-banner .check-badge { position: absolute; bottom: 10px; right: 10px; background: #fff; color: #000; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
-  
   .amount-box { background: var(--bg-panel); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
   .amount-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
   .amount-input-wrap { flex: 1; }
@@ -241,15 +205,12 @@
   .amount-input { background: transparent; border: none; font-size: 24px; font-weight: 800; color: #fff; width: 100%; outline: none; }
   .amount-btn-green { background: var(--accent-green); color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; text-align: center; line-height: 1.2; min-width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .amount-btn-green span { font-size: 11px; font-weight: 700; opacity: 0.8; }
-  
   .amount-warning { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
   .amount-warning span { color: var(--gold); }
-  
   .amount-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
   .amount-chips button { flex: 1 1 22%; background: var(--bg-card); color: #fff; border: 1px solid rgba(255,255,255,0.05); padding: 12px 0; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
   .amount-chips button:hover { border-color: var(--accent); }
   .amount-chips button:last-child { flex: 1 1 100%; }
-
   .promo-link { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--accent); font-weight: 700; font-size: 15px; margin: 25px 0; cursor: pointer; text-decoration: none; }
   .pay-submit-btn { background: var(--accent-green); color: #000; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 900; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,230,118,0.2); margin-top: 10px;}
 
@@ -289,6 +250,70 @@
   .waiting-box h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 10px; }
   .waiting-box p { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
   .waiting-box .btn-ok { background: var(--accent-green); color: #000; width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 900; border: none; cursor: pointer; }
+
+  /* ========================================================
+     НОВОЕ ОКНО КОЛЕСА ФОРТУНЫ
+     ======================================================== */
+  .wheel-overlay {
+    position: fixed !important; inset: 0 !important; background: rgba(11, 14, 20, 0.95);
+    z-index: 99999999 !important; display: none; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 20px; overflow-y: auto; backdrop-filter: blur(5px);
+  }
+  .wheel-overlay.show { display: flex !important; }
+  
+  .wheel-header { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; margin-top: 10px; }
+  .wheel-header h2 { font-size: 20px; font-weight: 800; color: #fff; }
+  .wheel-close-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+  .wheel-container { position: relative; width: 100%; max-width: 350px; aspect-ratio: 1/1; margin-bottom: 30px; }
+  
+  .wheel-bg { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); border: 4px solid #151922; }
+  
+  .wheel-spinner { 
+    position: absolute; inset: 5px; border-radius: 50%; 
+    transition: transform 5s cubic-bezier(0.17, 0.67, 0.1, 1); 
+    overflow: hidden;
+  }
+  .wheel-spinner svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+  .wheel-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90px; height: 90px; background: #fff; border-radius: 50%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 10; text-align: center;
+  }
+  .wheel-timer-text { font-size: 10px; font-weight: 700; color: #666; margin-bottom: 2px; text-transform: uppercase; }
+  .wheel-timer-val { font-size: 14px; font-weight: 900; color: #111; }
+
+  .wheel-pointer {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+    border-top: 30px solid var(--accent); z-index: 20;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  }
+  .wheel-pointer::after {
+    content: ''; position: absolute; top: -30px; left: -10px;
+    width: 20px; height: 20px; background: var(--accent); border-radius: 50%;
+  }
+
+  /* Кнопка спина */
+  .wheel-spin-btn {
+    background: linear-gradient(135deg, var(--accent-green), #00b0ff); color: #000;
+    padding: 16px 40px; border-radius: 30px; font-size: 18px; font-weight: 900; border: none;
+    cursor: pointer; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); transition: 0.2s;
+    margin-bottom: 30px;
+  }
+  .wheel-spin-btn:disabled { background: #333; color: #888; box-shadow: none; cursor: not-allowed; }
+
+  /* История выигрышей */
+  .wheel-history { width: 100%; max-width: 500px; }
+  .wheel-history-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 15px; }
+  .wheel-history-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+  .wheel-history-scroll::-webkit-scrollbar { display: none; }
+  
+  .wh-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 90px; border: 1px solid rgba(255,255,255,0.05); }
+  .wh-user { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .wh-prize { font-size: 14px; font-weight: 900; color: var(--accent-green); }
 
   .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
   .toast { background: rgba(24,26,36,0.95); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; min-width: 250px; max-width: 340px; transform: translateX(120%); transition: 0.3s; font-weight: 600; font-size: 14px; pointer-events: auto; color: #fff;}
@@ -362,7 +387,11 @@
   </div>
 
   <div class="grid-2">
-    <a href="#" class="mini-card wheel"><div class="mini-badge">Вращений <span>1</span></div><div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div></a>
+    <!-- Кнопка открытия колеса -->
+    <a href="#" class="mini-card wheel" onclick="actionRequireLogin('openWheelScreen'); return false;">
+      <div class="mini-badge">Вращений <span id="wheelBadgeCount">1</span></div>
+      <div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div>
+    </a>
     <a href="#" class="mini-card missions"><div class="mini-badge">Миссий <span>0</span></div><div><div class="mini-title">Награды за миссии</div><div class="mini-link">К миссиям ▶</div></div></a>
   </div>
 
@@ -397,12 +426,10 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ (KINGWIN STYLE) -->
+<!-- САЙДБАР -->
 <!-- ======================================================== -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
-  
-  <!-- Шапка меню -->
   <div class="sb-header">
     <div class="sb-logo">KINGWIN</div>
     <div class="sb-balance-area">
@@ -410,16 +437,13 @@
       <button class="sb-plus-btn" onclick="actionRequireLogin('openNewPaymentScreen')">+</button>
     </div>
   </div>
-
   <div class="sb-content">
-    <!-- Поиск -->
     <div class="sb-search">
       <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#8b92a5;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input type="text" placeholder="Поиск">
     </div>
 
-    <!-- Баннеры -->
-    <a href="#" class="sb-banner sb-banner-wheel">
+    <a href="#" class="sb-banner sb-banner-wheel" onclick="toggleSidebar(); openWheelScreen(); return false;">
       <span>Колесо бонусов</span>
       <span class="sb-banner-icon">🎡</span>
     </a>
@@ -436,42 +460,16 @@
 
     <div class="sb-divider"></div>
 
-    <!-- Основные пункты -->
-    <a href="#" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
-        Бонусы
-      </div>
-    </a>
+    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>Бонусы</div></a>
 
-    <a href="/tournament.html" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
-        Турниры
-      </div>
-      <span class="sb-item-badge">3</span>
-    </a>
+    <a href="/tournament.html" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>Турниры</div><span class="sb-item-badge">3</span></a>
 
-    <a href="/cases.html" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>
-        Кейсы
-      </div>
-    </a>
+    <a href="/cases.html" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>Кейсы</div></a>
 
-    <a href="#" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Ранги
-      </div>
-    </a>
+    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Ранги</div></a>
 
-    <!-- Выпадашка Игры -->
     <div class="sb-item sb-games-toggle" onclick="toggleSbGames()">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-        Игры KINGWIN
-      </div>
+      <div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>Игры KINGWIN</div>
       <svg class="arrow" id="sbGamesArrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
     </div>
     
@@ -491,24 +489,12 @@
 
     <div class="sb-divider"></div>
 
-    <!-- VIP и Кэшбек -->
-    <a href="#" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>
-        Стать VIP
-      </div>
-    </a>
+    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>Стать VIP</div></a>
 
-    <a href="#" class="sb-item">
-      <div class="sb-item-left">
-        <svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-        Кэшбек
-      </div>
-    </a>
+    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>Кэшбек</div></a>
 
     <div class="sb-divider" style="margin-top: 25px;"></div>
 
-    <!-- Соцсети -->
     <div class="sb-socials">
       <a href="#" class="sb-social-btn sb-social-vk">VK</a>
       <a href="#" class="sb-social-btn sb-social-tg">
@@ -518,7 +504,6 @@
         <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#fff;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
       </a>
     </div>
-
   </div>
 </div>
 
@@ -680,9 +665,65 @@
   </div>
 </div>
 
+<!-- ======================================================== -->
+<!-- ОКНО 3: КОЛЕСО ФОРТУНЫ -->
+<!-- ======================================================== -->
+<div class="wheel-overlay" id="wheelOverlay">
+  <div class="wheel-header">
+    <h2>Колесо фортуны</h2>
+    <button class="wheel-close-btn" onclick="closeWheelScreen()">✕</button>
+  </div>
+
+  <div class="wheel-container">
+    <div class="wheel-pointer"></div>
+    <div class="wheel-bg"></div>
+    <!-- Колесо -->
+    <div class="wheel-spinner" id="wheelSpinner">
+      <svg viewBox="0 0 100 100">
+        <!-- Сектора генерируются через JS, но для верстки оставим базовые цвета -->
+        <path d="M50 50 L50 0 A50 50 0 0 1 85.35 14.65 Z" fill="#7e22ce" />
+        <path d="M50 50 L85.35 14.65 A50 50 0 0 1 100 50 Z" fill="#1d4ed8" />
+        <path d="M50 50 L100 50 A50 50 0 0 1 85.35 85.35 Z" fill="#0284c7" />
+        <path d="M50 50 L85.35 85.35 A50 50 0 0 1 50 100 Z" fill="#0f766e" />
+        <path d="M50 50 L50 100 A50 50 0 0 1 14.65 85.35 Z" fill="#b45309" />
+        <path d="M50 50 L14.65 85.35 A50 50 0 0 1 0 50 Z" fill="#991b1b" />
+        <path d="M50 50 L0 50 A50 50 0 0 1 14.65 14.65 Z" fill="#4c1d95" />
+        <path d="M50 50 L14.65 14.65 A50 50 0 0 1 50 0 Z" fill="#1e3a8a" />
+      </svg>
+      <!-- Текст на колесе -->
+      <div style="position: absolute; top: 10%; left: 65%; transform: rotate(45deg); color: #fff; font-weight: 900; font-size: 12px;">50 ₽</div>
+      <div style="position: absolute; top: 35%; left: 85%; transform: rotate(90deg); color: #fff; font-weight: 900; font-size: 12px;">200 ₽</div>
+      <div style="position: absolute; top: 65%; left: 80%; transform: rotate(135deg); color: #fff; font-weight: 900; font-size: 12px;">10%</div>
+      <div style="position: absolute; top: 85%; left: 55%; transform: rotate(180deg); color: #fff; font-weight: 900; font-size: 12px;">Пусто</div>
+      <div style="position: absolute; top: 80%; left: 25%; transform: rotate(225deg); color: #fff; font-weight: 900; font-size: 12px;">100 ₽</div>
+      <div style="position: absolute; top: 55%; left: 10%; transform: rotate(270deg); color: #fff; font-weight: 900; font-size: 12px;">5%</div>
+      <div style="position: absolute; top: 25%; left: 15%; transform: rotate(315deg); color: #fff; font-weight: 900; font-size: 12px;">15 ₽</div>
+      <div style="position: absolute; top: 15%; left: 25%; transform: rotate(0deg); color: #fff; font-weight: 900; font-size: 12px;">25 ₽</div>
+    </div>
+    
+    <div class="wheel-center">
+      <div class="wheel-timer-text">Доступно через</div>
+      <div class="wheel-timer-val" id="wheelTimerVal">00:00:00</div>
+    </div>
+  </div>
+
+  <button class="wheel-spin-btn" id="spinBtn" onclick="spinWheel()">Крутить</button>
+
+  <div class="wheel-history">
+    <div class="wheel-history-title">Последние выигрыши</div>
+    <div class="wheel-history-scroll" id="wheelHistoryList">
+      <!-- Заполняется скриптом -->
+    </div>
+  </div>
+</div>
+
 <script>
 let currentPlayer = null;
 let payTimerInterval;
+let wheelTimerInterval;
+let isSpinning = false;
+let hasSpunToday = localStorage.getItem('wheel_spun_today') === 'true';
+let nextSpinTime = parseInt(localStorage.getItem('wheel_next_time')) || 0;
 
 // --- ЛОГИКА МЕНЮ ---
 function toggleSidebar() {
@@ -711,12 +752,10 @@ function openNewPaymentScreen() {
   document.getElementById('payAmountInput').value = 100;
   calculateUniqueSum();
 }
-
 function closeNewPaymentScreen() {
   document.getElementById('newPaymentScreen').classList.remove('show');
   document.body.style.overflow = '';
 }
-
 function selectBank(bankName, color, fullBankName, code) {
   document.getElementById('displayBankName').textContent = bankName;
   const icon = document.getElementById('displayBankIcon');
@@ -727,13 +766,11 @@ function selectBank(bankName, color, fullBankName, code) {
   document.getElementById('formScreen').classList.add('show');
   document.getElementById('payBackBtn').style.display = 'block';
 }
-
 document.getElementById('payBackBtn').onclick = function() {
   document.getElementById('banksScreen').classList.remove('hide');
   document.getElementById('formScreen').classList.remove('show');
   document.getElementById('payBackBtn').style.display = 'none';
 };
-
 function calculateUniqueSum() {
   let val = parseInt(document.getElementById('payAmountInput').value) || 0;
   let sumDisplay = document.getElementById('quickPaySum');
@@ -743,14 +780,11 @@ function calculateUniqueSum() {
     sumDisplay.textContent = (val + tail) + ' ₽';
   } else { sumDisplay.textContent = val + ' ₽'; }
 }
-
 document.getElementById('payAmountInput').addEventListener('input', calculateUniqueSum);
-
 function setChipAmount(val) {
   document.getElementById('payAmountInput').value = val;
   calculateUniqueSum();
 }
-
 function submitToPayPage() {
   let finalSum = document.getElementById('quickPaySum').textContent;
   if (finalSum.includes('Мин')) { showToast('Минимальная сумма 100 ₽', 'error'); return; }
@@ -763,13 +797,11 @@ function submitToPayPage() {
   document.body.style.overflow = 'hidden';
   startPayTimer(15 * 60);
 }
-
 function closePayPage() {
   document.getElementById('payPageOverlay').classList.remove('show');
   document.body.style.overflow = '';
   clearInterval(payTimerInterval);
 }
-
 function copyCardNumber() {
   const cardNum = document.getElementById('ppCardNumber').textContent;
   const cleanNum = cardNum.replace(/\s/g, '');
@@ -785,36 +817,160 @@ function copyCardNumber() {
     showCopyToast();
   });
 }
-
 function showCopyToast() {
   const toast = document.getElementById('copyToast');
   toast.classList.add('show');
   setTimeout(() => { toast.classList.remove('show'); }, 2000);
 }
-
 function startPayTimer(seconds) {
   clearInterval(payTimerInterval);
   const timerEl = document.getElementById('ppTimer');
   payTimerInterval = setInterval(() => {
-    if (seconds <= 0) {
-      clearInterval(payTimerInterval);
-      timerEl.textContent = 'Время истекло';
-      return;
-    }
+    if (seconds <= 0) { clearInterval(payTimerInterval); timerEl.textContent = 'Время истекло'; return; }
     seconds--;
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     timerEl.textContent = `До конца оплаты: ${m}:${s < 10 ? '0' : ''}${s}`;
   }, 1000);
 }
-
 function finishPayment() {
   closePayPage();
   document.getElementById('waitingOverlay').classList.add('show');
 }
-
 function closeWaitingOverlay() {
   document.getElementById('waitingOverlay').classList.remove('show');
+}
+
+// --- ЛОГИКА КОЛЕСА ---
+const WHEEL_PRIZES = [
+  { label: '50 ₽', amount: 50, type: 'money', color: '#7e22ce' },
+  { label: '200 ₽', amount: 200, type: 'money', color: '#1d4ed8' },
+  { label: '10%', amount: 10, type: 'cashback', color: '#0284c7' },
+  { label: 'Пусто', amount: 0, type: 'none', color: '#0f766e' },
+  { label: '100 ₽', amount: 100, type: 'money', color: '#b45309' },
+  { label: '5%', amount: 5, type: 'cashback', color: '#991b1b' },
+  { label: '15 ₽', amount: 15, type: 'money', color: '#4c1d95' },
+  { label: '25 ₽', amount: 25, type: 'money', color: '#1e3a8a' }
+];
+
+function openWheelScreen() {
+  if (!currentPlayer) { openModal('loginModal'); return; }
+  document.getElementById('wheelOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  updateWheelState();
+  renderWheelHistory();
+}
+
+function closeWheelScreen() {
+  document.getElementById('wheelOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function updateWheelState() {
+  const spinBtn = document.getElementById('spinBtn');
+  const timerVal = document.getElementById('wheelTimerVal');
+  const badgeCount = document.getElementById('wheelBadgeCount');
+  
+  const now = Date.now();
+  
+  if (hasSpunToday && now < nextSpinTime) {
+    // Таймер идет
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'Ожидайте';
+    badgeCount.textContent = '0';
+    
+    clearInterval(wheelTimerInterval);
+    wheelTimerInterval = setInterval(() => {
+      const remaining = nextSpinTime - Date.now();
+      if (remaining <= 0) {
+        clearInterval(wheelTimerInterval);
+        hasSpunToday = false;
+        localStorage.setItem('wheel_spun_today', 'false');
+        updateWheelState();
+        return;
+      }
+      const h = Math.floor(remaining / (1000 * 60 * 60));
+      const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((remaining % (1000 * 60)) / 1000);
+      timerVal.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
+  } else {
+    // Можно крутить
+    spinBtn.disabled = false;
+    spinBtn.textContent = 'Крутить';
+    badgeCount.textContent = '1';
+    timerVal.textContent = 'Готово!';
+    clearInterval(wheelTimerInterval);
+  }
+}
+
+function spinWheel() {
+  if (isSpinning) return;
+  if (hasSpunToday && Date.now() < nextSpinTime) return;
+  
+  isSpinning = true;
+  const spinBtn = document.getElementById('spinBtn');
+  const spinner = document.getElementById('wheelSpinner');
+  spinBtn.disabled = true;
+  
+  // Выбираем случайный приз
+  const winIndex = Math.floor(Math.random() * WHEEL_PRIZES.length);
+  const prize = WHEEL_PRIZES[winIndex];
+  
+  // Угол для выпадения (сектор 45 градусов)
+  // Крутим на 5-8 полных оборотов + нужный угол
+  const baseRotation = 5 * 360; 
+  // Сектора идут против часовой стрелки в SVG (0 - это 3 часа, но у нас верх - это 270 градусов)
+  // Центр верхнего сектора - 270 градусов. Шаг = 45. 
+  // Чтобы выпал нужный сектор, его центр должен оказаться наверху (270).
+  const targetAngle = 270 - (winIndex * 45); 
+  
+  // Чтобы колесо крутилось, задаем финальный угол
+  const currentRotation = parseInt(spinner.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+  
+  // Вычисляем, сколько нужно докрутить, чтобы targetAngle оказался наверху
+  let finalRotation = currentRotation + baseRotation + (targetAngle - (currentRotation % 360) + 360) % 360;
+  
+  spinner.style.transform = `rotate(${finalRotation}deg)`;
+  
+  setTimeout(() => {
+    isSpinning = false;
+    hasSpunToday = true;
+    nextSpinTime = Date.now() + 24 * 60 * 60 * 1000;
+    localStorage.setItem('wheel_spun_today', 'true');
+    localStorage.setItem('wheel_next_time', nextSpinTime.toString());
+    
+    // Показываем результат
+    if (prize.type === 'money') {
+      showToast(`Вы выиграли: ${prize.label}!`, 'success');
+      // Тут будет вызов API для начисления денег на бонусный баланс
+    } else if (prize.type === 'cashback') {
+      showToast(`Вы выиграли кэшбек: ${prize.label}!`, 'success');
+    } else {
+      showToast(`Повезет в следующий раз!`, 'error');
+    }
+    
+    updateWheelState();
+  }, 5000); // Ждем окончания анимации (5 сек)
+}
+
+function renderWheelHistory() {
+  const list = document.getElementById('wheelHistoryList');
+  const names = ['Ano***', 'Iva***', 'Pet***', 'Max***', 'Ego***', 'Kir***'];
+  const prizes = ['50 ₽', '75 ₽', '100 ₽', '15 ₽', '25 ₽', '200 ₽'];
+  
+  let html = '';
+  for (let i = 0; i < 6; i++) {
+    const n = names[Math.floor(Math.random() * names.length)];
+    const p = prizes[Math.floor(Math.random() * prizes.length)];
+    html += `
+      <div class="wh-card">
+        <div class="wh-user">${n}</div>
+        <div class="wh-prize">${p}</div>
+      </div>
+    `;
+  }
+  list.innerHTML = html;
 }
 
 // --- ОБЩИЕ ФУНКЦИИ ---
@@ -838,7 +994,7 @@ function openModal(id) {
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('show');
-  if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show') && !document.querySelector('.pay-page-overlay.show')) document.body.style.overflow = '';
+  if (!document.querySelector('.modal-overlay.show') && !document.querySelector('.payment-overlay.show') && !document.querySelector('.pay-page-overlay.show') && !document.querySelector('.wheel-overlay.show')) document.body.style.overflow = '';
 }
 
 function requireLogin(e) {
@@ -875,7 +1031,7 @@ function updateUI() {
     const total = (parseFloat(currentPlayer.bonus_balance) || 0) + (parseFloat(currentPlayer.deposit_balance) || 0);
     document.getElementById('topBalance').textContent = total.toFixed(2);
     document.getElementById('payBalance').textContent = total.toFixed(2) + ' ₽';
-    document.getElementById('sbBalance').textContent = total.toFixed(2) + ' ₽'; // Баланс в сайдбаре
+    document.getElementById('sbBalance').textContent = total.toFixed(2) + ' ₽';
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
@@ -892,4 +1048,3 @@ window.onload = function() {
 </script>
 </body>
 </html>
-```
