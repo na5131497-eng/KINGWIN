@@ -51,6 +51,10 @@
 
   /* === ОСНОВНОЙ КОНТЕНТ === */
   .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
   .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .banners-scroll::-webkit-scrollbar { display: none; }
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
@@ -101,13 +105,14 @@
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
 
+  /* === НИЖНЕЕ МЕНЮ === */
   .bottom-nav { 
     position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: var(--nav-height); 
     background: #11141d; display: flex; justify-content: space-around; align-items: center; 
     padding-bottom: env(safe-area-inset-bottom); z-index: 99999; 
     border-top: 1px solid rgba(255,255,255,0.08); margin: 0;
   }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #6b7280; font-size: 10px; font-weight: 600; position: relative; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #6b7280; font-size: 10px; font-weight: 600; position: relative; cursor: pointer; }
   .nav-item.active { color: #fff; }
   .nav-item.active svg { fill: #fff; }
   .nav-item svg { width: 24px; height: 24px; fill: #6b7280; }
@@ -133,8 +138,6 @@
   .sb-search input::placeholder { color: var(--text-muted); }
   .sb-banner { border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 14px; position: relative; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
   .sb-banner-wheel { background: linear-gradient(90deg, rgba(126,34,206,0.8), rgba(76,29,149,0.8)); }
-  .sb-banner-store { background: linear-gradient(90deg, rgba(29,78,216,0.8), rgba(30,58,138,0.8)); }
-  .sb-banner-missions { background: linear-gradient(90deg, rgba(2,132,199,0.8), rgba(3,105,161,0.8)); }
   .sb-banner-count { background: var(--red); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; font-weight: 800; margin-left: 5px; }
   .sb-banner-icon { font-size: 24px; }
   .sb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; text-decoration: none; color: var(--text-main); font-size: 15px; font-weight: 600; border-radius: 10px; margin-bottom: 2px; transition: 0.2s; cursor: pointer; }
@@ -157,7 +160,54 @@
   .sb-social-tg { background: #2AABEE; }
   .sb-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
 
-  /* === МОДАЛКИ === */
+  /* ========================================================
+     СТРАНИЦА БОНУСОВ
+     ======================================================== */
+  .bonuses-page { padding-bottom: 40px; }
+  
+  .bp-header-img { width: 100%; height: 200px; border-radius: 20px; background: linear-gradient(135deg, #1c2230, #0b0e14); position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; }
+  .bp-header-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%); }
+  
+  .bp-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
+  .bp-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.4; }
+  
+  .bp-balance-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+  .bp-balance-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; background: rgba(255,255,255,0.05); }
+  .bp-balance-info { flex: 1; }
+  .bp-balance-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
+  .bp-balance-val { font-size: 18px; font-weight: 800; color: #fff; }
+  .bp-sync-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+
+  .bp-promo-link { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 700; font-size: 15px; margin: 20px 0; cursor: pointer; text-decoration: none; }
+
+  .bp-empty-state { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 15px; padding: 30px 20px; text-align: center; margin-bottom: 20px; }
+  .bp-empty-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+  .bp-empty-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+  .bp-promo-banner { border-radius: 20px; padding: 25px 20px; position: relative; overflow: hidden; margin-bottom: 20px; color: #fff; }
+  .bp-promo-banner h3 { font-size: 22px; font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 10px; }
+  .bp-promo-banner p { font-size: 14px; margin-bottom: 20px; opacity: 0.9; }
+  .bp-promo-banner .btn { background: #00b0ff; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+  
+  .bp-banner-dark { background: linear-gradient(135deg, #0b1424, #1a2a4a); border: 1px solid rgba(255,255,255,0.1); }
+  .bp-banner-purple { background: linear-gradient(135deg, #2b1055, #1a0b2e); }
+  .bp-banner-gold { background: linear-gradient(135deg, #1f1c00, #3d3500); border: 1px solid rgba(241,196,15,0.2); }
+  .bp-banner-green { background: linear-gradient(135deg, #052e16, #0f5132); }
+
+  .bp-faq { margin-top: 30px; }
+  .bp-faq-item { background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .bp-faq-q { padding: 15px 20px; font-size: 15px; font-weight: 700; color: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .bp-faq-q svg { width: 20px; height: 20px; fill: var(--text-muted); transition: 0.3s; }
+  .bp-faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 20px; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+  .bp-faq-item.open .bp-faq-a { padding-bottom: 15px; }
+  .bp-faq-item.open .bp-faq-q svg { transform: rotate(180deg); fill: var(--accent); }
+
+  .bp-back-to-top { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; margin-bottom: 20px; }
+  .bp-socials { display: flex; gap: 10px; }
+  .bp-social-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 18px; text-decoration: none; }
+  .bp-up-btn { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: #000; border: none; cursor: pointer; }
+
+  /* === СТАРЫЕ МОДАЛКИ === */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -266,51 +316,20 @@
   .wheel-close-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
   .wheel-container { position: relative; width: 100%; max-width: 350px; aspect-ratio: 1/1; margin-bottom: 30px; }
-  
   .wheel-bg { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); border: 4px solid #151922; }
-  
-  .wheel-spinner { 
-    position: absolute; inset: 5px; border-radius: 50%; 
-    transition: transform 5s cubic-bezier(0.17, 0.67, 0.1, 1); 
-    overflow: hidden;
-  }
+  .wheel-spinner { position: absolute; inset: 5px; border-radius: 50%; transition: transform 5s cubic-bezier(0.17, 0.67, 0.1, 1); overflow: hidden; }
   .wheel-spinner svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-
-  .wheel-center {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 90px; height: 90px; background: #fff; border-radius: 50%;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 10; text-align: center;
-  }
+  .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 10; text-align: center; }
   .wheel-timer-text { font-size: 10px; font-weight: 700; color: #666; margin-bottom: 2px; text-transform: uppercase; }
   .wheel-timer-val { font-size: 14px; font-weight: 900; color: #111; }
-
-  .wheel-pointer {
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
-    border-top: 30px solid var(--accent); z-index: 20;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-  }
-  .wheel-pointer::after {
-    content: ''; position: absolute; top: -30px; left: -10px;
-    width: 20px; height: 20px; background: var(--accent); border-radius: 50%;
-  }
-
-  /* Кнопка спина */
-  .wheel-spin-btn {
-    background: linear-gradient(135deg, var(--accent-green), #00b0ff); color: #000;
-    padding: 16px 40px; border-radius: 30px; font-size: 18px; font-weight: 900; border: none;
-    cursor: pointer; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); transition: 0.2s;
-    margin-bottom: 30px;
-  }
+  .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--accent); z-index: 20; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+  .wheel-pointer::after { content: ''; position: absolute; top: -30px; left: -10px; width: 20px; height: 20px; background: var(--accent); border-radius: 50%; }
+  .wheel-spin-btn { background: linear-gradient(135deg, var(--accent-green), #00b0ff); color: #000; padding: 16px 40px; border-radius: 30px; font-size: 18px; font-weight: 900; border: none; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); transition: 0.2s; margin-bottom: 30px; }
   .wheel-spin-btn:disabled { background: #333; color: #888; box-shadow: none; cursor: not-allowed; }
-
-  /* История выигрышей */
   .wheel-history { width: 100%; max-width: 500px; }
   .wheel-history-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 15px; }
   .wheel-history-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
   .wheel-history-scroll::-webkit-scrollbar { display: none; }
-  
   .wh-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 90px; border: 1px solid rgba(255,255,255,0.05); }
   .wh-user { font-size: 11px; color: var(--text-muted); font-weight: 600; }
   .wh-prize { font-size: 14px; font-weight: 900; color: var(--accent-green); }
@@ -339,7 +358,7 @@
 <div class="topbar">
   <div class="header-left">
     <button class="menu-btn" onclick="toggleSidebar()">✕</button>
-    <a href="/" class="logo">KINGWIN</a>
+    <a href="#" class="logo" onclick="switchScreen('main'); return false;">KINGWIN</a>
   </div>
   <div class="header-right" id="userArea" style="display:none">
     <div class="balance-pill"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
@@ -354,60 +373,240 @@
 
 <!-- ОСНОВНОЙ КОНТЕНТ -->
 <div class="main-content">
-  <div class="banners-scroll">
-    <div class="banner-card deposit" onclick="actionRequireLogin('openNewPaymentScreen')">
-      <img src="/main_banner.jpg" alt="Депозит" onerror="this.style.display='none'">
-      <div class="overlay"></div>
-      <div class="content">
-        <div class="banner-title">+100 ₽</div>
-        <div class="banner-sub">к первому депозиту от 200 ₽</div>
-        <button class="btn-action" style="background:var(--accent-green);">Забрать бонус</button>
+  
+  <!-- ЭКРАН 1: ГЛАВНАЯ -->
+  <div class="screen active" id="screen-main">
+    <div class="banners-scroll">
+      <div class="banner-card deposit" onclick="actionRequireLogin('openNewPaymentScreen')">
+        <img src="/main_banner.jpg" alt="Депозит" onerror="this.style.display='none'">
+        <div class="overlay"></div>
+        <div class="content">
+          <div class="banner-title">+100 ₽</div>
+          <div class="banner-sub">к первому депозиту от 200 ₽</div>
+          <button class="btn-action" style="background:var(--accent-green);">Забрать бонус</button>
+        </div>
+      </div>
+      <div class="banner-card tournament" onclick="switchScreen('bonuses')">
+        <div class="banner-title">🏆 Турнир недели</div>
+        <div class="banner-sub">Призовой фонд <span id="tPrizeBanner" style="color:#f1c40f; font-weight:900;">100 ₽</span></div>
+        <button class="btn-action">Участвовать</button>
       </div>
     </div>
-    <div class="banner-card tournament" onclick="location.href='/tournament.html'">
-      <div class="banner-title">🏆 Турнир недели</div>
-      <div class="banner-sub">Призовой фонд <span id="tPrizeBanner" style="color:#f1c40f; font-weight:900;">100 ₽</span></div>
-      <button class="btn-action">Участвовать</button>
+
+    <div class="categories">
+      <a href="#" class="cat-btn active">🎰 Все игры</a>
+      <a href="#" class="cat-btn">🎲 KINGWIN Originals</a>
+      <a href="#" class="cat-btn">🔥 Слоты</a>
+    </div>
+
+    <div class="section-header"><div class="section-title">⭐ Игры KINGWIN</div></div>
+    <div class="games-scroll">
+      <a href="/crash.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div><div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div></a>
+      <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
+      <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
+      <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
+      <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
+    </div>
+
+    <div class="grid-2">
+      <a href="#" class="mini-card wheel" onclick="actionRequireLogin('openWheelScreen'); return false;">
+        <div class="mini-badge">Вращений <span id="wheelBadgeCount">1</span></div>
+        <div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div>
+      </a>
+      <a href="#" class="mini-card missions" onclick="switchScreen('bonuses'); return false;">
+        <div class="mini-badge">Миссий <span>0</span></div>
+        <div><div class="mini-title">Награды за миссии</div><div class="mini-link">К миссиям ▶</div></div>
+      </a>
+    </div>
+
+    <div class="wins-block">
+      <div class="section-header" style="margin-top:0; margin-bottom:10px;"><div class="section-title">🏆 Последние выигрыши</div></div>
+      <div class="wins-scroll" id="lastWinsHome"><div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div></div>
     </div>
   </div>
 
-  <div class="categories">
-    <a href="#" class="cat-btn active">🎰 Все игры</a>
-    <a href="#" class="cat-btn">🎲 KINGWIN Originals</a>
-    <a href="#" class="cat-btn">🔥 Слоты</a>
+  <!-- ЭКРАН 2: БОНУСЫ (НОВЫЙ) -->
+  <div class="screen" id="screen-bonuses">
+    <div class="bonuses-page">
+      <!-- Шапка с картинкой -->
+      <div class="bp-header-img">
+        <div style="font-size: 60px;">🎁</div>
+      </div>
+      
+      <div class="bp-title">Твои бонусы</div>
+      <div class="bp-subtitle">Чтобы перенести бонусы на реальный счёт, их нужно отыграть</div>
+
+      <!-- Балансы -->
+      <div class="bp-balance-card">
+        <div class="bp-balance-icon" style="background: rgba(0,230,118,0.1); color: var(--accent-green);">💳</div>
+        <div class="bp-balance-info">
+          <div class="bp-balance-label">Реальный</div>
+          <div class="bp-balance-val" id="bpRealBalance">0.00 ₽</div>
+        </div>
+      </div>
+      
+      <div class="bp-balance-card">
+        <div class="bp-balance-icon" style="background: rgba(241,196,15,0.1); color: var(--gold);">💰</div>
+        <div class="bp-balance-info">
+          <div class="bp-balance-label">Бонусный</div>
+          <div class="bp-balance-val" id="bpBonusBalance">0.00 ₽</div>
+        </div>
+        <button class="bp-sync-btn" onclick="showToast('Баланс обновлен', 'success')">↻</button>
+      </div>
+
+      <!-- Промокод -->
+      <a href="#" class="bp-promo-link" onclick="showToast('Введите промокод в профиле', 'error'); return false;">
+        <span style="font-size: 20px;">🎫</span> У меня есть промокод
+      </a>
+
+      <!-- Пустое состояние -->
+      <div class="bp-empty-state">
+        <div class="bp-empty-title">Бонусов пока нет</div>
+        <div class="bp-empty-desc">У тебя нет персональных бонусов.<br>Активируй промокод или участвуй в акциях</div>
+      </div>
+
+      <!-- Адский спринт -->
+      <div class="bp-promo-banner bp-banner-dark" style="background: linear-gradient(135deg, #0a1833, #1a3b6e);">
+        <h3>Адский<br>бонусный<br>спринт</h3>
+        <p>Открывай новые бонусы ежедневно!</p>
+        <button class="btn">Получить темный бонус</button>
+        <div style="position: absolute; right: -10px; bottom: -10px; font-size: 100px; opacity: 0.3;">🎃</div>
+      </div>
+
+      <!-- Колесо -->
+      <div class="bp-promo-banner bp-banner-dark" style="display: flex; justify-content: space-between; align-items: center; padding: 25px;">
+        <div>
+          <h3 style="font-size: 18px; color: #fff; margin-bottom: 5px;">Крути колесо<br>и получай бонусы</h3>
+          <p style="font-size: 12px; color: #aaa;">Бонусы и другие ценные призы ждут тебя!</p>
+          <button class="btn" style="margin-top: 10px; background: var(--accent); color: #000; padding: 8px 16px; font-size: 12px;" onclick="openWheelScreen(); return false;">Крутить</button>
+        </div>
+        <div style="font-size: 60px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.5));">🎡</div>
+      </div>
+
+      <!-- Рефералка -->
+      <div class="bp-promo-banner bp-banner-purple">
+        <h3 style="color: #d8b4e2;">До 10%<br>Бонус<br>за реферала</h3>
+        <p>Приглашай друзей и зарабатывай до 10% от их пополнений!</p>
+        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: #aaa;">Ссылка:</span>
+          <span style="color: var(--accent);">kingwin.com/p/XAf3Ju</span>
+          <span style="cursor: pointer;" onclick="showToast('Ссылка скопирована', 'success')">📋</span>
+        </div>
+        <button class="btn" style="background: #7e22ce;">Пригласить</button>
+      </div>
+
+      <!-- Ежедневные миссии -->
+      <div class="bp-promo-banner bp-banner-dark" style="text-align: center;">
+        <h3 style="color: #fff;">Ежедневные миссии</h3>
+        <p>Выполняй задания, получай звезды и меняй их на бонусы</p>
+        <button class="btn" style="background: #00b0ff;">Перейти</button>
+      </div>
+
+      <!-- Ежедневные турниры -->
+      <div class="bp-promo-banner bp-banner-gold" style="text-align: center;">
+        <div style="font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">до</div>
+        <h3 style="color: var(--gold); font-size: 26px;">100K ₽</h3>
+        <h3 style="color: #fff; font-size: 18px; margin-bottom: 10px;">Ежедневные турниры</h3>
+        <p>Зарабатывай очки в играх и выигрывай до 100000 ₽</p>
+        <button class="btn" style="background: var(--gold); color: #000;">Перейти</button>
+      </div>
+
+      <!-- Ранги -->
+      <div class="bp-promo-banner bp-banner-dark" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="color: #fff; font-size: 20px;">Ранги</h3>
+          <p>Прокачивай ранг, получай до 1000 ₽ и доступ к особым кейсам</p>
+          <a href="#" style="color: #fff; font-size: 12px; text-decoration: none;">Подробнее ></a>
+        </div>
+        <div style="font-size: 60px;">🏆</div>
+      </div>
+
+      <!-- Кэшбек -->
+      <div class="bp-promo-banner bp-banner-green" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="color: #fff; font-size: 24px;">Кэшбэк<br>до 30%</h3>
+          <p>Забирай каждый понедельник.<br><span style="color: var(--gold);">Вейджер x5!</span></p>
+          <button class="btn" style="background: #fff; color: #000;">Подробнее</button>
+        </div>
+        <div style="font-size: 60px;">📈</div>
+      </div>
+
+      <!-- Бонус за уведомления -->
+      <div class="bp-promo-banner bp-banner-dark" style="text-align: center; opacity: 0.7;">
+        <div style="font-size: 12px; color: #aaa; text-transform: uppercase;">5 ₽</div>
+        <h3 style="color: #ff4d4d;">Бонус<br>за уведомления</h3>
+        <p>Разреши уведомления и получи 5 ₽ на баланс</p>
+        <div style="font-size: 30px; margin: 10px 0; color: #00b0ff;">✖</div>
+        <p style="font-size: 14px; font-weight: bold; color: #fff;">Бонус недоступен, так как Вы зарегистрированы не через ВКонтакте.</p>
+      </div>
+
+      <!-- FAQ -->
+      <div class="bp-faq">
+        <h3 style="font-size: 18px; margin-bottom: 15px; color: #fff;">Частые вопросы</h3>
+        
+        <div class="bp-faq-item" onclick="toggleFaq(this)">
+          <div class="bp-faq-q">
+            Как начисляются средства?
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+          <div class="bp-faq-a">Средства начисляются мгновенно после подтверждения платежа или выдачи бонуса.</div>
+        </div>
+
+        <div class="bp-faq-item" onclick="toggleFaq(this)">
+          <div class="bp-faq-q">
+            Как посмотреть мои бонусы?
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+          <div class="bp-faq-a">Все ваши активные бонусы отображаются на этой странице в самом верху.</div>
+        </div>
+
+        <div class="bp-faq-item" onclick="toggleFaq(this)">
+          <div class="bp-faq-q">
+            Как открыть бонусы?
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+          <div class="bp-faq-a">Для активации бонуса необходимо выполнить условия отыгрыша (вейджер).</div>
+        </div>
+
+        <div class="bp-faq-item" onclick="toggleFaq(this)">
+          <div class="bp-faq-q">
+            Как играть на бонусы?
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+          <div class="bp-faq-a">Бонусные средства автоматически используются при игре, если на реальном балансе недостаточно средств.</div>
+        </div>
+
+        <div class="bp-faq-item" onclick="toggleFaq(this)">
+          <div class="bp-faq-q">
+            Что произойдет, если я купил бонусный раунд, но запустил его после истечения времени жизни бонуса?
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+          </div>
+          <div class="bp-faq-a">К сожалению, бонусный раунд будет аннулирован, а средства не вернутся на баланс.</div>
+        </div>
+      </div>
+
+      <!-- Низ страницы -->
+      <div class="bp-back-to-top">
+        <div class="bp-socials">
+          <a href="#" class="bp-social-btn sb-social-tg"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff;"><path d="M9.04 15.47l-.38 5.36c.54 0 .78-.23 1.06-.5l2.54-2.42 5.27 3.85c.97.53 1.65.25 1.92-.9l3.48-16.26c.32-1.46-.53-2.03-1.46-1.68L1.1 10.22c-1.43.55-1.4 1.34-.25 1.69l5.18 1.62L18.06 5.7c.56-.37 1.08-.16.66.22l-9.68 9.55z"/></svg></a>
+          <a href="#" class="bp-social-btn sb-social-vk">VK</a>
+          <a href="#" class="bp-social-btn sb-social-ig"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        </div>
+        <button class="bp-up-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+      </div>
+
+    </div>
   </div>
 
-  <div class="section-header"><div class="section-title">⭐ Игры KINGWIN</div></div>
-  <div class="games-scroll">
-    <a href="/crash.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div><div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div></a>
-    <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
-    <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
-    <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
-    <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
-  </div>
-
-  <div class="grid-2">
-    <!-- Кнопка открытия колеса -->
-    <a href="#" class="mini-card wheel" onclick="actionRequireLogin('openWheelScreen'); return false;">
-      <div class="mini-badge">Вращений <span id="wheelBadgeCount">1</span></div>
-      <div><div class="mini-title">Колесо бонусов!</div><div class="mini-link">Открыть ▶</div></div>
-    </a>
-    <a href="#" class="mini-card missions"><div class="mini-badge">Миссий <span>0</span></div><div><div class="mini-title">Награды за миссии</div><div class="mini-link">К миссиям ▶</div></div></a>
-  </div>
-
-  <div class="wins-block">
-    <div class="section-header" style="margin-top:0; margin-bottom:10px;"><div class="section-title">🏆 Последние выигрыши</div></div>
-    <div class="wins-scroll" id="lastWinsHome"><div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div></div>
-  </div>
 </div>
 
 <!-- НИЖНЕЕ МЕНЮ -->
 <div class="bottom-nav">
-  <a href="/" class="nav-item active">
+  <a href="#" class="nav-item active" id="nav-main" onclick="switchScreen('main'); return false;">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Главная
   </a>
-  <a href="#" class="nav-item">
+  <a href="#" class="nav-item" id="nav-bonuses" onclick="switchScreen('bonuses'); return false;">
     <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
     Бонусы
   </a>
@@ -448,28 +647,43 @@
       <span class="sb-banner-icon">🎡</span>
     </a>
 
-    <a href="#" class="sb-banner sb-banner-store">
-      <span>Магазин</span>
-      <span class="sb-banner-icon">🎁</span>
-    </a>
-
-    <a href="#" class="sb-banner sb-banner-missions">
-      <span>Миссии <span class="sb-banner-count">9</span></span>
-      <span class="sb-banner-icon">🎯</span>
-    </a>
-
     <div class="sb-divider"></div>
 
-    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>Бонусы</div></a>
+    <!-- Убрал магазин и миссии из сайдбара, оставил только на странице бонусов -->
+    <a href="#" class="sb-item" onclick="toggleSidebar(); switchScreen('bonuses'); return false;">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
+        Бонусы
+      </div>
+    </a>
 
-    <a href="/tournament.html" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>Турниры</div><span class="sb-item-badge">3</span></a>
+    <a href="/tournament.html" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
+        Турниры
+      </div>
+      <span class="sb-item-badge">3</span>
+    </a>
 
-    <a href="/cases.html" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>Кейсы</div></a>
+    <a href="/cases.html" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>
+        Кейсы
+      </div>
+    </a>
 
-    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Ранги</div></a>
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Ранги
+      </div>
+    </a>
 
     <div class="sb-item sb-games-toggle" onclick="toggleSbGames()">
-      <div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>Игры KINGWIN</div>
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+        Игры KINGWIN
+      </div>
       <svg class="arrow" id="sbGamesArrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
     </div>
     
@@ -489,9 +703,19 @@
 
     <div class="sb-divider"></div>
 
-    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>Стать VIP</div></a>
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>
+        Стать VIP
+      </div>
+    </a>
 
-    <a href="#" class="sb-item"><div class="sb-item-left"><svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>Кэшбек</div></a>
+    <a href="#" class="sb-item">
+      <div class="sb-item-left">
+        <svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Кэшбек
+      </div>
+    </a>
 
     <div class="sb-divider" style="margin-top: 25px;"></div>
 
@@ -677,10 +901,8 @@
   <div class="wheel-container">
     <div class="wheel-pointer"></div>
     <div class="wheel-bg"></div>
-    <!-- Колесо -->
     <div class="wheel-spinner" id="wheelSpinner">
       <svg viewBox="0 0 100 100">
-        <!-- Сектора генерируются через JS, но для верстки оставим базовые цвета -->
         <path d="M50 50 L50 0 A50 50 0 0 1 85.35 14.65 Z" fill="#7e22ce" />
         <path d="M50 50 L85.35 14.65 A50 50 0 0 1 100 50 Z" fill="#1d4ed8" />
         <path d="M50 50 L100 50 A50 50 0 0 1 85.35 85.35 Z" fill="#0284c7" />
@@ -690,7 +912,6 @@
         <path d="M50 50 L0 50 A50 50 0 0 1 14.65 14.65 Z" fill="#4c1d95" />
         <path d="M50 50 L14.65 14.65 A50 50 0 0 1 50 0 Z" fill="#1e3a8a" />
       </svg>
-      <!-- Текст на колесе -->
       <div style="position: absolute; top: 10%; left: 65%; transform: rotate(45deg); color: #fff; font-weight: 900; font-size: 12px;">50 ₽</div>
       <div style="position: absolute; top: 35%; left: 85%; transform: rotate(90deg); color: #fff; font-weight: 900; font-size: 12px;">200 ₽</div>
       <div style="position: absolute; top: 65%; left: 80%; transform: rotate(135deg); color: #fff; font-weight: 900; font-size: 12px;">10%</div>
@@ -712,7 +933,6 @@
   <div class="wheel-history">
     <div class="wheel-history-title">Последние выигрыши</div>
     <div class="wheel-history-scroll" id="wheelHistoryList">
-      <!-- Заполняется скриптом -->
     </div>
   </div>
 </div>
@@ -724,6 +944,21 @@ let wheelTimerInterval;
 let isSpinning = false;
 let hasSpunToday = localStorage.getItem('wheel_spun_today') === 'true';
 let nextSpinTime = parseInt(localStorage.getItem('wheel_next_time')) || 0;
+
+// --- НАВИГАЦИЯ ПО ЭКРАНАМ (ГЛАВНАЯ / БОНУСЫ) ---
+function switchScreen(screenName) {
+  // Убираем класс active у всех экранов
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Добавляем нужному
+  document.getElementById('screen-' + screenName).classList.add('active');
+  
+  // Обновляем нижнее меню
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + screenName).classList.add('active');
+
+  // Скролл наверх при переходе
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
 
 // --- ЛОГИКА МЕНЮ ---
 function toggleSidebar() {
@@ -738,6 +973,22 @@ function toggleSbGames() {
     arrow.style.transform = 'rotate(180deg)';
   } else {
     arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+// --- ЛОГИКА FAQ НА СТРАНИЦЕ БОНУСОВ ---
+function toggleFaq(element) {
+  const isOpen = element.classList.contains('open');
+  // Закрываем все остальные
+  document.querySelectorAll('.bp-faq-item').forEach(item => {
+    item.classList.remove('open');
+    item.querySelector('.bp-faq-a').style.maxHeight = null;
+  });
+  // Если текущий был закрыт, открываем его
+  if (!isOpen) {
+    element.classList.add('open');
+    const answer = element.querySelector('.bp-faq-a');
+    answer.style.maxHeight = answer.scrollHeight + "px";
   }
 }
 
@@ -874,7 +1125,6 @@ function updateWheelState() {
   const now = Date.now();
   
   if (hasSpunToday && now < nextSpinTime) {
-    // Таймер идет
     spinBtn.disabled = true;
     spinBtn.textContent = 'Ожидайте';
     badgeCount.textContent = '0';
@@ -895,7 +1145,6 @@ function updateWheelState() {
       timerVal.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }, 1000);
   } else {
-    // Можно крутить
     spinBtn.disabled = false;
     spinBtn.textContent = 'Крутить';
     badgeCount.textContent = '1';
@@ -913,22 +1162,12 @@ function spinWheel() {
   const spinner = document.getElementById('wheelSpinner');
   spinBtn.disabled = true;
   
-  // Выбираем случайный приз
   const winIndex = Math.floor(Math.random() * WHEEL_PRIZES.length);
   const prize = WHEEL_PRIZES[winIndex];
   
-  // Угол для выпадения (сектор 45 градусов)
-  // Крутим на 5-8 полных оборотов + нужный угол
   const baseRotation = 5 * 360; 
-  // Сектора идут против часовой стрелки в SVG (0 - это 3 часа, но у нас верх - это 270 градусов)
-  // Центр верхнего сектора - 270 градусов. Шаг = 45. 
-  // Чтобы выпал нужный сектор, его центр должен оказаться наверху (270).
   const targetAngle = 270 - (winIndex * 45); 
-  
-  // Чтобы колесо крутилось, задаем финальный угол
   const currentRotation = parseInt(spinner.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-  
-  // Вычисляем, сколько нужно докрутить, чтобы targetAngle оказался наверху
   let finalRotation = currentRotation + baseRotation + (targetAngle - (currentRotation % 360) + 360) % 360;
   
   spinner.style.transform = `rotate(${finalRotation}deg)`;
@@ -940,18 +1179,15 @@ function spinWheel() {
     localStorage.setItem('wheel_spun_today', 'true');
     localStorage.setItem('wheel_next_time', nextSpinTime.toString());
     
-    // Показываем результат
     if (prize.type === 'money') {
       showToast(`Вы выиграли: ${prize.label}!`, 'success');
-      // Тут будет вызов API для начисления денег на бонусный баланс
     } else if (prize.type === 'cashback') {
       showToast(`Вы выиграли кэшбек: ${prize.label}!`, 'success');
     } else {
       showToast(`Повезет в следующий раз!`, 'error');
     }
-    
     updateWheelState();
-  }, 5000); // Ждем окончания анимации (5 сек)
+  }, 5000);
 }
 
 function renderWheelHistory() {
@@ -1032,6 +1268,10 @@ function updateUI() {
     document.getElementById('topBalance').textContent = total.toFixed(2);
     document.getElementById('payBalance').textContent = total.toFixed(2) + ' ₽';
     document.getElementById('sbBalance').textContent = total.toFixed(2) + ' ₽';
+    
+    // Обновление на странице бонусов
+    document.getElementById('bpRealBalance').textContent = (parseFloat(currentPlayer.deposit_balance) || 0).toFixed(2) + ' ₽';
+    document.getElementById('bpBonusBalance').textContent = (parseFloat(currentPlayer.bonus_balance) || 0).toFixed(2) + ' ₽';
   } else {
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('loginArea').style.display = 'flex';
