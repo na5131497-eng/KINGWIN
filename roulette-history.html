@@ -108,7 +108,7 @@
     text-shadow: 0 2px 5px rgba(0,0,0,0.8);
   }
 
-  /* === СЕТКА: ИСТОРИЯ + ТУРНИР === */
+  /* === СЕТКА === */
   .main-grid {
     display: grid;
     grid-template-columns: 1fr 340px;
@@ -318,40 +318,27 @@
     50% { opacity: .5; transform: scale(1.3); }
   }
 
-  /* === ПОЛНОЭКРАННЫЙ РЕЖИМ === */
-  .fullscreen-active .top-actions,
-  .fullscreen-active .hero-banner,
-  .fullscreen-active .main-grid > .tournament-banner { display: none; }
-  .fullscreen-active .container {
-    max-width: none;
-    width: 100%;
-    height: 100vh;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .fullscreen-active .main-grid {
-    display: block;
-    width: 100%;
-  }
-  .fullscreen-active .history-block {
-    max-width: 100%;
-    border: none;
-    background: transparent;
-  }
-  .fullscreen-active .history-title h2 { font-size: 48px; }
-  .fullscreen-active .history-title .sub { font-size: 18px; }
-  .fullscreen-active .history-wrap { width: 100%; min-height: 180px; }
-  .fullscreen-active .history-track { gap: 24px; }
-  .fullscreen-active .history-ball {
-    width: 120px;
-    height: 120px;
-    font-size: 44px;
-    border-width: 4px;
-  }
-  .fullscreen-active .history-ball:hover { transform: none; }
+  /* === ПОЛНОЭКРАННЫЙ РЕЖИМ — ВСЁ ВИДНО === */
+  .fullscreen-active body,
+  body.fullscreen-active { padding: 20px; }
+  body.fullscreen-active .container { max-width: none; width: 100%; }
+  body.fullscreen-active .top-actions { display: none; }
+  body.fullscreen-active .hero-banner { min-height: 220px; border-radius: 24px; margin-bottom: 24px; }
+  body.fullscreen-active .hero-content h1 { font-size: 42px; }
+  body.fullscreen-active .hero-content p { font-size: 18px; }
+  body.fullscreen-active .main-grid { grid-template-columns: 1fr 380px; gap: 24px; }
+  body.fullscreen-active .history-block { padding: 40px; }
+  body.fullscreen-active .history-title h2 { font-size: 36px; }
+  body.fullscreen-active .history-title .sub { font-size: 16px; }
+  body.fullscreen-active .history-wrap { min-height: 140px; }
+  body.fullscreen-active .history-track { gap: 18px; }
+  body.fullscreen-active .history-ball { width: 100px; height: 100px; font-size: 34px; border-width: 3px; }
+  body.fullscreen-active .tournament-banner { min-height: 420px; padding: 32px; }
+  body.fullscreen-active .tournament-banner .t-title { font-size: 28px; }
+  body.fullscreen-active .tournament-banner .t-prize { font-size: 64px; }
+  body.fullscreen-active .tournament-banner .t-sub { font-size: 14px; }
+  body.fullscreen-active .tournament-banner .t-info-row { font-size: 14px; padding: 10px 14px; }
+  body.fullscreen-active .tournament-banner .t-timer { font-size: 14px; padding: 14px 18px; }
 
   @media (max-width: 900px) {
     .main-grid { grid-template-columns: 1fr; }
@@ -395,7 +382,6 @@
     </button>
   </div>
 
-  <!-- Баннер с главной -->
   <div class="hero-banner">
     <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus" onerror="this.style.display='none'">
     <div class="overlay"></div>
@@ -407,7 +393,6 @@
 
   <div class="main-grid">
 
-    <!-- История -->
     <div class="history-block">
       <div class="history-title">
         <h2>История выпадений</h2>
@@ -419,7 +404,6 @@
       <div class="empty-state" id="emptyState" style="display:none;">Пока нет выпадений</div>
     </div>
 
-    <!-- Турнир -->
     <a href="/tournament.html" class="tournament-banner">
       <div class="t-label">🏆 Турнир</div>
       <div class="t-title" id="tTitle">Розыгрыш недели</div>
@@ -515,7 +499,7 @@ async function loadHistory() {
 
     if (isNew) {
       const ballWidth = track.children[0]?.offsetWidth || 60;
-      const gap = document.body.classList.contains('fullscreen-active') ? 24 : 12;
+      const gap = document.body.classList.contains('fullscreen-active') ? 18 : 12;
       track.style.transform = 'translateX(' + (ballWidth + gap) + 'px)';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
