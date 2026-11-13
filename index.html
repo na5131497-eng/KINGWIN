@@ -117,14 +117,14 @@
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
   /* ========================================================
-     САЙДБАР В СТИЛЕ KINGWIN (с пунктами как у UP-X)
+     САЙДБАР В СТИЛЕ KINGWIN
      ======================================================== */
   .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
   
   .sidebar { 
     position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; 
-    background: var(--bg-main); /* Твой темный фон */
+    background: var(--bg-main);
     z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.05);
   }
@@ -154,7 +154,6 @@
   .sb-banner-store { background: linear-gradient(90deg, rgba(29,78,216,0.8), rgba(30,58,138,0.8)); }
   .sb-banner-missions { background: linear-gradient(90deg, rgba(2,132,199,0.8), rgba(3,105,161,0.8)); }
   
-  .sb-banner-badge { position: absolute; top: -6px; left: -6px; background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 8px; transform: rotate(-10deg); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
   .sb-banner-count { background: var(--red); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; font-weight: 800; margin-left: 5px; }
   .sb-banner-icon { font-size: 24px; }
 
@@ -416,24 +415,22 @@
     <!-- Поиск -->
     <div class="sb-search">
       <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#8b92a5;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      <input type="text" placeholder="Search">
+      <input type="text" placeholder="Поиск">
     </div>
 
     <!-- Баннеры -->
     <a href="#" class="sb-banner sb-banner-wheel">
-      <span>Bonus Wheel</span>
+      <span>Колесо бонусов</span>
       <span class="sb-banner-icon">🎡</span>
     </a>
 
     <a href="#" class="sb-banner sb-banner-store">
-      <span class="sb-banner-badge">NEW!</span>
-      <span>Store</span>
+      <span>Магазин</span>
       <span class="sb-banner-icon">🎁</span>
     </a>
 
     <a href="#" class="sb-banner sb-banner-missions">
-      <span class="sb-banner-badge">NEW!</span>
-      <span>Missions <span class="sb-banner-count">9</span></span>
+      <span>Миссии <span class="sb-banner-count">9</span></span>
       <span class="sb-banner-icon">🎯</span>
     </a>
 
@@ -443,14 +440,14 @@
     <a href="#" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
-        Bonuses
+        Бонусы
       </div>
     </a>
 
     <a href="/tournament.html" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
-        Tournaments
+        Турниры
       </div>
       <span class="sb-item-badge">3</span>
     </a>
@@ -458,14 +455,14 @@
     <a href="/cases.html" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>
-        Cases
+        Кейсы
       </div>
     </a>
 
     <a href="#" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Ranks
+        Ранги
       </div>
     </a>
 
@@ -473,22 +470,22 @@
     <div class="sb-item sb-games-toggle" onclick="toggleSbGames()">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-        KINGWIN Games
+        Игры KINGWIN
       </div>
       <svg class="arrow" id="sbGamesArrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
     </div>
     
     <div class="sb-games-list" id="sbGamesList">
-      <a href="/crash.html" class="sb-game-item">🚀 Crash</a>
-      <a href="/roulette.html" class="sb-game-item">🎡 Roulette</a>
-      <a href="#" class="sb-game-item">🎰 Classic</a>
+      <a href="/crash.html" class="sb-game-item">🚀 Краш</a>
+      <a href="/roulette.html" class="sb-game-item">🎡 Рулетка</a>
+      <a href="#" class="sb-game-item">🎰 Классик</a>
       <a href="#" class="sb-game-item">🎲 Dice</a>
       <a href="#" class="sb-game-item">🔮 Keno</a>
       <a href="#" class="sb-game-item">🃏 HiLo</a>
-      <a href="/miner.html" class="sb-game-item">💣 Miner</a>
-      <a href="/ladder.html" class="sb-game-item">🪜 Ladder</a>
-      <a href="#" class="sb-game-item">🪙 Coinflip</a>
-      <a href="#" class="sb-game-item">🃏 Cards</a>
+      <a href="/miner.html" class="sb-game-item">💣 Минёр</a>
+      <a href="/ladder.html" class="sb-game-item">🪜 Лесенка</a>
+      <a href="#" class="sb-game-item">🪙 Монетка</a>
+      <a href="#" class="sb-game-item">🃏 Карточки</a>
       <a href="/plinko.html" class="sb-game-item">🟣 Plinko</a>
     </div>
 
@@ -498,16 +495,15 @@
     <a href="#" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M12 2L2 22h20L12 2zm0 3.8l6.2 12.2H5.8L12 5.8z"/></svg>
-        Become VIP
+        Стать VIP
       </div>
     </a>
 
     <a href="#" class="sb-item">
       <div class="sb-item-left">
         <svg viewBox="0 0 24 24" style="fill:var(--red);"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-        Cashback
+        Кэшбек
       </div>
-      <span class="sb-banner-badge" style="position:static; transform:none;">NEW!</span>
     </a>
 
     <div class="sb-divider" style="margin-top: 25px;"></div>
@@ -896,3 +892,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
+```
