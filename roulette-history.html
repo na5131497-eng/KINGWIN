@@ -8,22 +8,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #0b0e14; --bg-panel: #151922;
+    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
     --accent: #00e5ff;
     --text-main: #fff; --text-muted: #8b92a5;
-    --red: #ff4d4d; --green: #3fbf7f;
+    --red: #ff4d4d; --green: #3fbf7f; --gold: #f1c40f;
+    --border: rgba(255,255,255,0.05);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: var(--text-main); min-height: 100dvh; padding: 20px; }
 
-  .container { max-width: 750px; margin: 0 auto; position: relative; }
+  .container { max-width: 1200px; margin: 0 auto; }
 
-  /* Кнопки сверху */
   .top-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     gap: 10px;
   }
 
@@ -58,17 +58,83 @@
   }
   .fullscreen-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-  /* Заголовок */
+  /* === БАННЕР === */
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #1c2230, #0f1219);
+    border: 1px solid var(--border);
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+  }
+  .hero-banner img.bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    z-index: 1;
+  }
+  .hero-banner .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(11,14,20,0.85) 0%, rgba(11,14,20,0.4) 50%, transparent 100%);
+    z-index: 2;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 40px;
+    max-width: 500px;
+  }
+  .hero-content h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .hero-content p {
+    font-size: 16px;
+    font-weight: 600;
+    color: #d0d5e0;
+    line-height: 1.4;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+  }
+
+  /* === СЕТКА: ИСТОРИЯ + ТУРНИР === */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* === ИСТОРИЯ === */
+  .history-block {
+    background: rgba(18,24,38,.85);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    backdrop-filter: blur(10px);
+  }
   .history-title {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
-  .history-title h1 {
-    font-size: 26px;
+  .history-title h2 {
+    font-size: 24px;
     font-weight: 900;
     letter-spacing: 0.5px;
     line-height: 1.2;
     margin-bottom: 6px;
+    color: var(--accent);
   }
   .history-title .sub {
     font-size: 13px;
@@ -76,7 +142,6 @@
     font-weight: 600;
   }
 
-  /* Лента */
   .history-wrap {
     display: flex;
     justify-content: center;
@@ -95,8 +160,8 @@
   }
 
   .history-ball {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     flex-shrink: 0;
     border-radius: 50%;
     display: flex;
@@ -123,7 +188,6 @@
     background: linear-gradient(135deg, #3fbf7f, #1e7a4a);
     box-shadow: 0 6px 20px rgba(63,191,127,.4), inset 0 2px 4px rgba(255,255,255,.2);
   }
-
   .history-ball.new {
     animation: ballDrop .6s cubic-bezier(.34, 1.56, .64, 1);
   }
@@ -132,7 +196,6 @@
     60% { transform: translateX(8px) scale(1.15) rotate(10deg); opacity: 1; }
     100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
   }
-
   .history-ball.new::after {
     content: '';
     position: absolute;
@@ -150,14 +213,115 @@
 
   .empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 40px 20px;
     color: #8fa2b8;
     font-size: 13px;
     font-style: italic;
   }
 
+  /* === ТУРНИР === */
+  .tournament-banner {
+    background: linear-gradient(135deg, rgba(241,196,15,.18), rgba(255,77,77,.08));
+    border: 2px solid rgba(241,196,15,.5);
+    border-radius: 20px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .3s;
+    min-height: 320px;
+    text-decoration: none;
+    color: #fff;
+  }
+  .tournament-banner:hover {
+    border-color: #f1c40f;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(241,196,15,.3);
+  }
+  .tournament-banner::before {
+    content: '🏆';
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 80px;
+    opacity: .15;
+    transform: rotate(15deg);
+    pointer-events: none;
+  }
+  .tournament-banner .t-label {
+    font-size: 11px;
+    color: #f1c40f;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .tournament-banner .t-title {
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .tournament-banner .t-prize {
+    font-size: 40px;
+    font-weight: 900;
+    color: #f1c40f;
+    line-height: 1;
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(241,196,15,.5);
+  }
+  .tournament-banner .t-sub {
+    font-size: 11px;
+    color: #d0d5e0;
+    margin-bottom: 14px;
+  }
+  .tournament-banner .t-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .tournament-banner .t-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 10px;
+    background: rgba(0,0,0,.3);
+    border-radius: 8px;
+  }
+  .tournament-banner .t-info-row span:first-child { color: #8fa2b8; }
+  .tournament-banner .t-info-row b { color: #fff; }
+  .tournament-banner .t-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding: 10px 14px;
+    background: rgba(255,77,77,.15);
+    border: 1px solid rgba(255,77,77,.4);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ff8a8a;
+  }
+  .tournament-banner .t-timer .t-dot {
+    width: 8px; height: 8px;
+    background: #ff4d4d;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(1.3); }
+  }
+
   /* === ПОЛНОЭКРАННЫЙ РЕЖИМ === */
-  .fullscreen-active .top-actions { display: none; }
+  .fullscreen-active .top-actions,
+  .fullscreen-active .hero-banner,
+  .fullscreen-active .main-grid > .tournament-banner { display: none; }
   .fullscreen-active .container {
     max-width: none;
     width: 100%;
@@ -168,34 +332,54 @@
     justify-content: center;
     align-items: center;
   }
-  .fullscreen-active .history-title { margin-bottom: 60px; }
-  .fullscreen-active .history-title h1 { font-size: 64px; }
-  .fullscreen-active .history-title .sub { font-size: 22px; }
+  .fullscreen-active .main-grid {
+    display: block;
+    width: 100%;
+  }
+  .fullscreen-active .history-block {
+    max-width: 100%;
+    border: none;
+    background: transparent;
+  }
+  .fullscreen-active .history-title h2 { font-size: 48px; }
+  .fullscreen-active .history-title .sub { font-size: 18px; }
   .fullscreen-active .history-wrap { width: 100%; min-height: 180px; }
   .fullscreen-active .history-track { gap: 24px; }
   .fullscreen-active .history-ball {
-    width: 140px;
-    height: 140px;
-    font-size: 48px;
+    width: 120px;
+    height: 120px;
+    font-size: 44px;
     border-width: 4px;
   }
   .fullscreen-active .history-ball:hover { transform: none; }
 
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .tournament-banner { min-height: auto; }
+    .hero-content { padding: 28px; }
+    .hero-content h1 { font-size: 26px; }
+    .hero-content p { font-size: 14px; }
+  }
+
+  @media (max-width: 600px) {
     body { padding: 12px; }
-    .history-title h1 { font-size: 20px; }
+    .hero-banner { min-height: 180px; border-radius: 16px; }
+    .hero-content { padding: 20px; }
+    .hero-content h1 { font-size: 20px; }
+    .hero-content p { font-size: 12px; }
+    .history-block { padding: 20px 16px; border-radius: 16px; }
+    .history-title h2 { font-size: 20px; }
     .history-title .sub { font-size: 12px; }
-    .history-ball { width: 48px; height: 48px; font-size: 16px; }
+    .history-ball { width: 44px; height: 44px; font-size: 15px; }
     .history-track { gap: 8px; }
     .history-wrap { min-height: 64px; }
-    .top-actions { margin-bottom: 20px; }
+    .top-actions { margin-bottom: 14px; }
     .fullscreen-btn { padding: 8px 14px; font-size: 12px; }
     .back-btn { padding: 8px 14px; font-size: 12px; }
   }
   @media (max-width: 500px) {
-    .history-ball { width: 42px; height: 42px; font-size: 14px; }
+    .history-ball { width: 40px; height: 40px; font-size: 13px; }
     .history-track { gap: 6px; }
-    .history-title h1 { font-size: 18px; }
   }
 </style>
 </head>
@@ -211,15 +395,48 @@
     </button>
   </div>
 
-  <div class="history-title">
-    <h1>История выпадений</h1>
-    <div class="sub">Последние <span style="color:#00e5ff;font-weight:800;">10</span> раундов</div>
+  <!-- Баннер с главной -->
+  <div class="hero-banner">
+    <img src="/main_banner.jpg" class="bg-img" alt="KINGWIN Bonus" onerror="this.style.display='none'">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <h1>Удачи в раундах! 🍀</h1>
+      <p>История последних выпадений рулетки — следи за числами и лови свою удачу.</p>
+    </div>
   </div>
 
-  <div class="history-wrap">
-    <div class="history-track" id="historyTrack"></div>
+  <div class="main-grid">
+
+    <!-- История -->
+    <div class="history-block">
+      <div class="history-title">
+        <h2>История выпадений</h2>
+        <div class="sub">Последние <span style="color:#00e5ff;font-weight:800;">10</span> раундов</div>
+      </div>
+      <div class="history-wrap">
+        <div class="history-track" id="historyTrack"></div>
+      </div>
+      <div class="empty-state" id="emptyState" style="display:none;">Пока нет выпадений</div>
+    </div>
+
+    <!-- Турнир -->
+    <a href="/tournament.html" class="tournament-banner">
+      <div class="t-label">🏆 Турнир</div>
+      <div class="t-title" id="tTitle">Розыгрыш недели</div>
+      <div class="t-prize" id="tPrize">100 ₽</div>
+      <div class="t-sub">бонусными фишками · вейджер x3</div>
+      <div class="t-info">
+        <div class="t-info-row"><span>Вход</span><b style="color:#3fbf7f;">Бесплатный</b></div>
+        <div class="t-info-row"><span>Условие</span><b>5 ставок от 30₽</b></div>
+        <div class="t-info-row"><span>Участников</span><b id="tParticipants">—</b></div>
+      </div>
+      <div class="t-timer">
+        <span class="t-dot"></span>
+        <span id="tTimerText">Загрузка...</span>
+      </div>
+    </a>
+
   </div>
-  <div class="empty-state" id="emptyState" style="display:none;">Пока нет выпадений</div>
 
 </div>
 
@@ -229,44 +446,29 @@ let lastFirstId = null;
 /* === ПОЛНОЭКРАННЫЙ РЕЖИМ === */
 function toggleFullscreen() {
   const doc = document.documentElement;
-
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    // Заходим в полноэкранный режим
     if (doc.requestFullscreen) {
-      doc.requestFullscreen().catch(() => {
-        // Fallback для iOS Safari — просто разворачиваем на весь экран через CSS
-        activateCssFullscreen();
-      });
+      doc.requestFullscreen().catch(() => activateCssFullscreen());
     } else if (doc.webkitRequestFullscreen) {
       doc.webkitRequestFullscreen();
     } else {
-      // Браузер не поддерживает — включаем CSS-режим
       activateCssFullscreen();
     }
   } else {
-    // Выходим из полноэкранного режима
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     deactivateCssFullscreen();
   }
 }
-
 function activateCssFullscreen() {
   document.body.classList.add('fullscreen-active');
   document.getElementById('fsBtnText').textContent = 'Выйти';
-  // На iOS Safari — прячем адресную строку скроллом
   setTimeout(() => window.scrollTo(0, 1), 100);
 }
-
 function deactivateCssFullscreen() {
   document.body.classList.remove('fullscreen-active');
   document.getElementById('fsBtnText').textContent = 'На весь экран';
 }
-
-/* Следим за сменой состояния fullscreen (в т.ч. по Esc) */
 document.addEventListener('fullscreenchange', () => {
   if (document.fullscreenElement) {
     document.getElementById('fsBtnText').textContent = 'Выйти';
@@ -312,7 +514,7 @@ async function loadHistory() {
     }).join('');
 
     if (isNew) {
-      const ballWidth = track.children[0]?.offsetWidth || 64;
+      const ballWidth = track.children[0]?.offsetWidth || 60;
       const gap = document.body.classList.contains('fullscreen-active') ? 24 : 12;
       track.style.transform = 'translateX(' + (ballWidth + gap) + 'px)';
       requestAnimationFrame(() => {
@@ -328,8 +530,41 @@ async function loadHistory() {
   }
 }
 
+/* === ТУРНИР === */
+async function loadTournament() {
+  try {
+    const r = await fetch('/api/tournament/active', { cache: 'no-store' });
+    const data = await r.json();
+    if (!data || !data.tournament) {
+      document.getElementById('tTitle').textContent = 'Скоро новый турнир';
+      document.getElementById('tPrize').textContent = '—';
+      document.getElementById('tParticipants').textContent = '—';
+      document.getElementById('tTimerText').textContent = 'Ожидание';
+      return;
+    }
+    const t = data.tournament;
+    document.getElementById('tTitle').textContent = t.title || 'Розыгрыш недели';
+    document.getElementById('tPrize').textContent = t.prize_pool + ' ₽';
+    document.getElementById('tParticipants').textContent = data.participants || 0;
+    if (t.end_at) {
+      const end = new Date(t.end_at).getTime();
+      const nowT = Date.now();
+      const diff = Math.max(0, end - nowT);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      document.getElementById('tTimerText').textContent =
+        diff <= 0 ? 'Завершён' : (days > 0 ? `До конца: ${days}д ${hours}ч` : `До конца: ${hours}ч ${mins}м`);
+    }
+  } catch(e) {
+    document.getElementById('tTimerText').textContent = 'Турнир';
+  }
+}
+
 loadHistory();
+loadTournament();
 setInterval(loadHistory, 10000);
+setInterval(loadTournament, 30000);
 </script>
 
 </body>
