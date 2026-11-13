@@ -29,30 +29,30 @@ pool.on('error', (err) => console.error('PG Pool error:', err.message));
 
 const POINTS_PER_RUB = 0.2;
 const RANKS = {
-  Bronze:   { min: 0, gift: 0 }, Silver: { min: 100, gift: 0 },
-  Gold:     { min: 300, gift: 0 }, Platinum: { min: 600, gift: 0 },
-  Diamond:  { min: 1000, gift: 0 }, VIP: { min: 1500, gift: 0 }
+  Bronze: { min: 0, gift: 0 }, Silver: { min: 100, gift: 0 },
+  Gold: { min: 300, gift: 0 }, Platinum: { min: 600, gift: 0 },
+  Diamond: { min: 1000, gift: 0 }, VIP: { min: 1500, gift: 0 }
 };
 const RANK_ORDER = ['Bronze','Silver','Gold','Platinum','Diamond','VIP'];
 const RANK_INDEX = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5, 'VIP': 6 };
 
 function rankByPoints(p){
-  if (p >= RANKS.VIP.min)      return 'VIP';
-  if (p >= RANKS.Diamond.min)  return 'Diamond';
+  if (p >= RANKS.VIP.min) return 'VIP';
+  if (p >= RANKS.Diamond.min) return 'Diamond';
   if (p >= RANKS.Platinum.min) return 'Platinum';
-  if (p >= RANKS.Gold.min)     return 'Gold';
-  if (p >= RANKS.Silver.min)   return 'Silver';
+  if (p >= RANKS.Gold.min) return 'Gold';
+  if (p >= RANKS.Silver.min) return 'Silver';
   return 'Bronze';
 }
 
 const DEALER_POINTS_PER_RUB = 0.2;
 const DEALER_RANKS = [
-  { key: 'Trainee', label: 'Стажёр',    min: 0,    percent: 10, bonus: 0,   color: '#cd7f32' },
-  { key: 'Dealer',  label: 'Дилер',     min: 200,  percent: 11, bonus: 0,   color: '#c0c0c0' },
-  { key: 'Senior',  label: 'Ст. дилер', min: 600,  percent: 12, bonus: 100, color: '#f1c40f' },
-  { key: 'Master',  label: 'Мастер',    min: 1200, percent: 13, bonus: 200, color: '#e5e4e2' },
-  { key: 'Elite',   label: 'Элит',      min: 2000, percent: 14, bonus: 300, color: '#b9f2ff' },
-  { key: 'VIP',     label: 'VIP',       min: 3000, percent: 15, bonus: 500, color: '#ffe066' }
+  { key: 'Trainee', label: 'Стажёр', min: 0, percent: 10, bonus: 0, color: '#cd7f32' },
+  { key: 'Dealer', label: 'Дилер', min: 200, percent: 11, bonus: 0, color: '#c0c0c0' },
+  { key: 'Senior', label: 'Ст. дилер', min: 600, percent: 12, bonus: 100, color: '#f1c40f' },
+  { key: 'Master', label: 'Мастер', min: 1200, percent: 13, bonus: 200, color: '#e5e4e2' },
+  { key: 'Elite', label: 'Элит', min: 2000, percent: 14, bonus: 300, color: '#b9f2ff' },
+  { key: 'VIP', label: 'VIP', min: 3000, percent: 15, bonus: 500, color: '#ffe066' }
 ];
 function getDealerRank(points){
   let rank = DEALER_RANKS[0];
@@ -95,10 +95,10 @@ async function getActualJackpot() {
 
 const CASES = {
   'Новичок': { price: 39.99, minRank: 0, prizes: [
-    { v:10,   w:42000 }, { v:15,   w:24000 }, { v:25,   w:13000 },
-    { v:50,   w:8500  }, { v:100,  w:5500  }, { v:115,  w:3200  },
-    { v:200,  w:1800  }, { v:250,  w:900   }, { v:500,  w:500   },
-    { v:650,  w:300   }, { v:1000, w:50    }
+    { v:10, w:42000 }, { v:15, w:24000 }, { v:25, w:13000 },
+    { v:50, w:8500 }, { v:100, w:5500 }, { v:115, w:3200 },
+    { v:200, w:1800 }, { v:250, w:900 }, { v:500, w:500 },
+    { v:650, w:300 }, { v:1000, w:50 }
   ]},
   'Сильвер': { price: 199, minRank: 2, prizes: [
     { v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },
@@ -136,9 +136,9 @@ const LADDER_MULTS = {
 
 const PLINKO_ROWS = 8;
 const PLINKO_MULTIPLIERS = {
-  low:    [2.4, 1.5, 1.1, 0.9, 0.6, 0.9, 1.1, 1.5, 2.4],
+  low: [2.4, 1.5, 1.1, 0.9, 0.6, 0.9, 1.1, 1.5, 2.4],
   medium: [7.0, 2.2, 1.0, 0.5, 0.25, 0.5, 1.0, 2.2, 7.0],
-  high:   [15.0, 3.5, 0.8, 0.25, 0.1, 0.25, 0.8, 3.5, 15.0]
+  high: [15.0, 3.5, 0.8, 0.25, 0.1, 0.25, 0.8, 3.5, 15.0]
 };
 
 const MAX_WIN_SLOT = 5000;
@@ -197,18 +197,12 @@ async function getBalance(guestId) {
 async function getCasinoStats(period = 'all') {
   try {
     let where = `WHERE
-      note NOT ILIKE '%бонус%'
-      AND note NOT ILIKE '%bonus%'
-      AND note NOT ILIKE '%ранг%'
-      AND note NOT ILIKE '%rank%'
-      AND note NOT ILIKE '%daily%'
-      AND note NOT ILIKE '%подарок%'
-      AND note NOT ILIKE '%gift%'
-      AND note NOT ILIKE '%admin%'
-      AND note NOT ILIKE '%refuse%'
-      AND note NOT ILIKE '%cancel%'
-      AND note NOT ILIKE '%withdraw request%'
-      AND note NOT ILIKE '%withdraw reject%'`;
+      note NOT ILIKE '%бонус%' AND note NOT ILIKE '%bonus%'
+      AND note NOT ILIKE '%ранг%' AND note NOT ILIKE '%rank%'
+      AND note NOT ILIKE '%daily%' AND note NOT ILIKE '%подарок%'
+      AND note NOT ILIKE '%gift%' AND note NOT ILIKE '%admin%'
+      AND note NOT ILIKE '%refuse%' AND note NOT ILIKE '%cancel%'
+      AND note NOT ILIKE '%withdraw request%' AND note NOT ILIKE '%withdraw reject%'`;
     const params = [];
     if (period === 'today') { where += ` AND date = $1`; params.push(todayStr()); }
     const r = await pool.query(`
@@ -263,30 +257,14 @@ async function getHouseRTP() {
   let mode = 'base';
   if (turnover >= 100) {
     const overpay = actualRTP - HOUSE_TARGET;
-    if (overpay > 0) {
-      rtp = HOUSE_TARGET - Math.min(0.20, overpay * 2.5);
-      mode = 'drain';
-    } else if (overpay < -0.10) {
-      rtp = HOUSE_TARGET - Math.min(0.05, Math.abs(overpay) * 0.3);
-      mode = 'catchup';
-    } else {
-      rtp = HOUSE_TARGET;
-      mode = 'base';
-    }
+    if (overpay > 0) { rtp = HOUSE_TARGET - Math.min(0.20, overpay * 2.5); mode = 'drain'; }
+    else if (overpay < -0.10) { rtp = HOUSE_TARGET - Math.min(0.05, Math.abs(overpay) * 0.3); mode = 'catchup'; }
   }
-  if (t.treasury < -5000) {
-    rtp -= Math.min(0.10, Math.abs(t.treasury) / 50000);
-    mode = 'drain';
-  }
+  if (t.treasury < -5000) { rtp -= Math.min(0.10, Math.abs(t.treasury) / 50000); mode = 'drain'; }
   rtp *= 0.985 + Math.random() * 0.03;
   rtp = Math.max(HOUSE_RTP_FLOOR, Math.min(HOUSE_RTP_CAP, rtp));
   HOUSE_CACHE = { rtp, ts: now, treasury: t.treasury, actualRTP, mode };
   return HOUSE_CACHE;
-}
-
-async function getHousePayoutFactor() {
-  const h = await getHouseRTP();
-  return { factor: h.rtp / 0.80, rtp: h.rtp, treasury: h.treasury, actualRTP: h.actualRTP, mode: h.mode };
 }
 
 async function getPlayerTodayProfit(guestId) {
@@ -302,12 +280,10 @@ async function getPlayerTodayProfit(guestId) {
     const plinko = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='plinko' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     const ladder = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='ladder' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
     const empire = await pool.query(`SELECT COALESCE(SUM(bet - result), 0)::numeric AS p FROM game_history WHERE game='empire_of_gold' AND guest_id=$1 AND created_at::date = $2::date`, [guestId, today]);
-    return (
-      (parseFloat(bj.rows[0].p) || 0) + (parseFloat(bac.rows[0].s) || 0) +
+    return (parseFloat(bj.rows[0].p) || 0) + (parseFloat(bac.rows[0].s) || 0) +
       (parseFloat(miner.rows[0].p) || 0) + (parseFloat(cases.rows[0].p) || 0) +
       (parseFloat(plinko.rows[0].p) || 0) + (parseFloat(ladder.rows[0].p) || 0) +
-      (parseFloat(empire.rows[0].p) || 0)
-    );
+      (parseFloat(empire.rows[0].p) || 0);
   } catch (e) { return 0; }
 }
 
@@ -323,7 +299,6 @@ async function getTargetRTP(guestId) {
   return Math.max(0.55, Math.min(HOUSE_RTP_CAP, rtp));
 }
 
-// === ТУРНИР: трекинг ставок ===
 async function trackTournamentBet(guestId, guestName, game, betAmount, winAmount) {
   try {
     const t = await pool.query(`SELECT * FROM tournaments WHERE status = 'active' ORDER BY id DESC LIMIT 1`);
@@ -392,7 +367,7 @@ function crashClearTimers() {
 
 const CRASH_HOUSE_EDGE = 0.0605;
 const CRASH_INSTA_PROB = 1 / 33;
-const CRASH_MAX_MULT    = 100;
+const CRASH_MAX_MULT = 100;
 
 function crashGeneratePoint() {
   const r = Math.random();
@@ -714,19 +689,7 @@ async function accruePointsByNick(nick, rubAmount, source){
   const addWagerReqRank = giftMoney * 5;
   await pool.query(`UPDATE guests SET points = $1, rank = $2, last_rank = $3, bonus_text = $4, bonus_code = $5, bonus_balance = bonus_balance + $6, wagering_required = wagering_required + $7 WHERE id = $8`, [newPoints, newRank, newRank, giftText, giftCode, giftMoney, addWagerReqRank, guest.id]);
   await pool.query(`UPDATE guests SET wagering_done = wagering_done + $1 WHERE id=$2`, [rubAmount, guest.id]);
-  try {
-    const gCheck = await pool.query(`SELECT id, bonus_balance, wagering_required, wagering_done FROM guests WHERE id=$1`, [guest.id]);
-    if (gCheck.rows.length > 0) {
-      const gg = gCheck.rows[0];
-      const req = parseFloat(gg.wagering_required) || 0;
-      const done = parseFloat(gg.wagering_done) || 0;
-      const bonus = parseFloat(gg.bonus_balance) || 0;
-      if (req > 0 && done >= req && bonus > 0) {
-        await pool.query(`UPDATE guests SET deposit_balance = deposit_balance + $1, bonus_balance = 0, wagering_required = 0, wagering_done = 0 WHERE id = $2`, [bonus * 2, gg.id]);
-      }
-    }
-  } catch(e) {}
-  return { guestId: guest.id, newPoints, newRank, giftMoney };
+  return { guestId: guest.id, newRank, giftMoney };
 }
 
 async function addBalanceByNick(nick, amount, isBonus = false){
@@ -739,6 +702,13 @@ async function addBalanceByNick(nick, amount, isBonus = false){
 }
 
 async function getGuestById(id){ const r = await pool.query('SELECT * FROM guests WHERE id=$1', [String(id)]); return r.rows[0] || null; }
+
+async function getGuestByName(nick) {
+  try {
+    const r = await pool.query(`SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [String(nick).trim()]);
+    return r.rows[0] || null;
+  } catch (e) { return null; }
+}
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
@@ -747,6 +717,128 @@ const server = http.createServer(async (req, res) => {
     // === HEALTH ===
     if (url === '/health' && method === 'GET') {
       return sendJSON(res, 200, { ok: true, time: new Date().toISOString() });
+    }
+
+    // === 7: ПОСЛЕДНИЕ ВЫИГРЫШИ ===
+    if (url === '/api/last-wins' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(50, parseInt(u.searchParams.get('limit'), 10) || 20);
+      try {
+        const r = await pool.query(`
+          SELECT 
+            'roulette' AS game,
+            nick AS player,
+            bet,
+            win,
+            CASE WHEN bet > 0 THEN ROUND((win / bet)::numeric, 2) ELSE 0 END AS mult,
+            result_number,
+            result_color,
+            created_at
+          FROM roulette_sessions
+          WHERE win > 0 AND win >= bet * 1.5
+          UNION ALL
+          SELECT 
+            'crash' AS game,
+            player_name AS player,
+            amount AS bet,
+            amount * cashout_mult AS win,
+            ROUND(cashout_mult::numeric, 2) AS mult,
+            NULL AS result_number,
+            NULL AS result_color,
+            created_at
+          FROM crash_bets
+          WHERE cashed_out = TRUE AND cashout_mult >= 2 AND player_id NOT LIKE 'BOT%'
+          UNION ALL
+          SELECT 
+            game AS game,
+            player_name AS player,
+            bet,
+            result AS win,
+            CASE WHEN bet > 0 THEN ROUND((result / bet)::numeric, 2) ELSE 0 END AS mult,
+            NULL AS result_number,
+            NULL AS result_color,
+            created_at
+          FROM game_history
+          WHERE result > bet AND result >= bet * 1.5 AND game IN ('miner','plinko','ladder','cases','empire_of_gold')
+          ORDER BY created_at DESC
+          LIMIT $1
+        `, [limit]);
+        return sendJSON(res, 200, r.rows);
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    // === 14: СТАТИСТИКА ЗА НЕДЕЛЮ ===
+    if (url === '/api/admin/week-stats' && method === 'GET') {
+      try {
+        const today = new Date();
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const twoDaysAgo = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+        const incomeRes = await pool.query(`
+          SELECT 
+            COALESCE(SUM(CASE WHEN type = 'доход' THEN sum ELSE 0 END), 0)::numeric AS income,
+            COALESCE(SUM(CASE WHEN type = 'расход' THEN sum ELSE 0 END), 0)::numeric AS expense
+          FROM online
+          WHERE date >= $1 AND note NOT ILIKE '%бонус%' AND note NOT ILIKE '%ранг%'
+        `, [weekAgo]);
+        const income = (parseFloat(incomeRes.rows[0].income) || 0) - (parseFloat(incomeRes.rows[0].expense) || 0);
+
+        const playersRes = await pool.query(`
+          SELECT COUNT(DISTINCT nick)::int AS cnt FROM (
+            SELECT nick FROM sessions WHERE date >= $1
+            UNION SELECT nick FROM withdrawals WHERE date >= $1
+          ) t
+        `, [weekAgo]);
+        const newPlayersRes = await pool.query(`SELECT COUNT(*)::int AS cnt FROM guests WHERE created_at >= $1`, [weekAgo + ' 00:00:00']);
+        const depRes = await pool.query(`SELECT COALESCE(AVG(sum), 0)::numeric AS avg FROM deposits WHERE date >= $1 AND status = 'approved'`, [weekAgo]);
+        const wdRes = await pool.query(`SELECT COALESCE(AVG(sum), 0)::numeric AS avg FROM withdrawals WHERE date >= $1 AND status = 'approved'`, [weekAgo]);
+
+        const d1Res = await pool.query(`
+          SELECT COUNT(DISTINCT g.id)::int AS returned
+          FROM guests g
+          WHERE g.last_visit >= $1 AND g.created_at <= $2
+        `, [twoDaysAgo + ' 00:00:00', twoDaysAgo + ' 23:59:59']);
+        const d1Total = await pool.query(`SELECT COUNT(*)::int AS total FROM guests WHERE created_at <= $1`, [twoDaysAgo + ' 23:59:59']);
+        const totalOld = d1Total.rows[0].total || 1;
+        const retention_d1 = Math.round((d1Res.rows[0].returned / totalOld) * 100);
+
+        return sendJSON(res, 200, {
+          income,
+          players_count: playersRes.rows[0].cnt || 0,
+          new_players: newPlayersRes.rows[0].cnt || 0,
+          avg_deposit: parseFloat(depRes.rows[0].avg) || 0,
+          avg_withdraw: parseFloat(wdRes.rows[0].avg) || 0,
+          retention_d1
+        });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    // === 15: КТО СКОЛЬКО ПРИНЁС ===
+    if (url === '/api/admin/player-losses' && method === 'GET') {
+      try {
+        const r = await pool.query(`
+          SELECT 
+            g.id,
+            g.name,
+            g.rank,
+            COALESCE(g.deposit_balance, 0)::numeric AS balance,
+            COALESCE((SELECT SUM(sum) FROM deposits WHERE LOWER(nick) = LOWER(g.name) AND status = 'approved'), 0)::numeric AS total_deposits,
+            COALESCE((SELECT SUM(sum) FROM withdrawals WHERE LOWER(nick) = LOWER(g.name) AND status = 'approved'), 0)::numeric AS total_withdrawals
+          FROM guests g
+          ORDER BY (COALESCE((SELECT SUM(sum) FROM deposits WHERE LOWER(nick) = LOWER(g.name) AND status = 'approved'), 0) 
+                  - COALESCE((SELECT SUM(sum) FROM withdrawals WHERE LOWER(nick) = LOWER(g.name) AND status = 'approved'), 0)) DESC
+        `);
+        const list = r.rows.map(x => ({
+          id: x.id,
+          name: x.name,
+          rank: x.rank,
+          balance: parseFloat(x.balance) || 0,
+          deposits: parseFloat(x.total_deposits) || 0,
+          withdrawals: parseFloat(x.total_withdrawals) || 0,
+          net: (parseFloat(x.total_deposits) || 0) - (parseFloat(x.total_withdrawals) || 0)
+        }));
+        return sendJSON(res, 200, list);
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     // === РУЛЕТКА: ИСТОРИЯ ===
@@ -969,7 +1061,7 @@ const server = http.createServer(async (req, res) => {
       catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
-    if(url === '/api/jackpot' && method === 'GET'){ const jackpot = await getActualJackpot(); return sendJSON(res, 200, { jackpot }); }
+    if (url === '/api/jackpot' && method === 'GET') { const jackpot = await getActualJackpot(); return sendJSON(res, 200, { jackpot }); }
 
     if (url === '/api/admin/house/stats' && method === 'GET') {
       const all = await getCasinoStats('all');
@@ -1005,32 +1097,8 @@ const server = http.createServer(async (req, res) => {
       const b = await parseBody(req);
       if (String(b.pass || '') !== '56UpahoS') return sendJSON(res, 401, { error: 'Неверный пароль' });
       try {
-        await pool.query('DELETE FROM sessions');
-        await pool.query('DELETE FROM baccarat');
-        await pool.query('DELETE FROM deposits');
-        await pool.query('DELETE FROM withdrawals');
-        await pool.query('DELETE FROM payouts');
-        await pool.query('DELETE FROM online');
-        await pool.query('DELETE FROM audit');
-        await pool.query('DELETE FROM guests');
-        await pool.query('DELETE FROM crash_bets');
-        await pool.query('DELETE FROM crash_rounds');
-        await pool.query('DELETE FROM cases_log');
-        await pool.query('DELETE FROM game_history');
-        await pool.query('DELETE FROM dealer_reviews');
-        await pool.query('DELETE FROM news');
-        await pool.query('DELETE FROM promo_uses');
-        await pool.query('DELETE FROM promo_codes');
-        await pool.query('DELETE FROM cash_safe');
-        await pool.query('DELETE FROM dealer_tasks');
-        await pool.query('DELETE FROM dealer_daily');
-        await pool.query('DELETE FROM dealer_balance');
-        await pool.query('DELETE FROM dealer_withdrawals');
-        await pool.query('DELETE FROM miner_force_lose_players');
-        await pool.query('DELETE FROM roulette_sessions');
-        await pool.query('DELETE FROM tournament_entries');
-        await pool.query('DELETE FROM tournament_bets');
-        await pool.query('DELETE FROM tournaments');
+        const tables = ['sessions','baccarat','deposits','withdrawals','payouts','online','audit','guests','crash_bets','crash_rounds','cases_log','game_history','dealer_reviews','news','promo_uses','promo_codes','cash_safe','dealer_tasks','dealer_daily','dealer_balance','dealer_withdrawals','miner_force_lose_players','roulette_sessions','tournament_entries','tournament_bets','tournaments'];
+        for (const tbl of tables) { try { await pool.query(`DELETE FROM ${tbl}`); } catch(e) {} }
         queuedBets = [];
         Object.keys(ladderSessions).forEach(k => delete ladderSessions[k]);
         return sendJSON(res, 200, { ok: true });
@@ -2010,8 +2078,6 @@ const server = http.createServer(async (req, res) => {
         if (!guest) return sendJSON(res, 404, { error: 'Гость не найден' });
         const r = await pool.query(`INSERT INTO sessions (dealer, game_type, nick, dep, out_sum, fee, bet, win, jackpot, date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
           [dealer, 'bj', nick, betAmount, winAmount, 0, betAmount, winAmount, jackpot ? 1 : 0, todayStr()]);
-        const d = await pool.query(`SELECT id FROM dealers WHERE name=$1`, [dealer]);
-        if (d.rows.length) await pool.query(`UPDATE dealer_balance SET balance = balance + 0 WHERE dealer_id=$1`, [d.rows[0].id]);
         await trackTournamentBet(guest.id, guest.name, 'bj', betAmount, winAmount);
         return sendJSON(res, 200, { id: r.rows[0].id, ok: true, jackpot_won: jackpot ? winAmount : 0 });
       }
@@ -2042,13 +2108,6 @@ const server = http.createServer(async (req, res) => {
     try { sendJSON(res, 500, { error: e.message }); } catch(err) {}
   }
 });
-
-async function getGuestByName(nick) {
-  try {
-    const r = await pool.query(`SELECT * FROM guests WHERE LOWER(name) = LOWER($1) LIMIT 1`, [String(nick).trim()]);
-    return r.rows[0] || null;
-  } catch (e) { return null; }
-}
 
 /* ============ LIVEKIT + БЛЭКДЖЕК ============ */
 const LIVEKIT_API_KEY    = process.env.LIVEKIT_API_KEY    || '';
@@ -2280,5 +2339,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  Админ:   /admin.html');
   console.log('  Дилер:   /dealer.html');
   console.log('  История: /roulette-history.html');
+  console.log('  Выигрыши: /last-wins.html');
   console.log('');
 });
