@@ -31,13 +31,12 @@
   .balance-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 5px; color: #fff; }
   .btn-plus { width: 36px; height: 36px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-  /* === ЗАГОЛОВОК ИГРЫ === */
-  .game-header { padding: 15px; display: flex; align-items: center; gap: 10px; }
+  /* === ЗАГОЛОВОК === */
+  .game-header { padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
   .game-title { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-  .icon-btn { width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; justify-content: center; align-items: center; border: none; color: var(--text-muted); font-size: 14px; }
 
   /* === ИСТОРИЯ (Кружочки) === */
-  .history-row { display: flex; gap: 8px; padding: 0 15px 15px; overflow-x: auto; scrollbar-width: none; }
+  .history-row { display: flex; gap: 8px; padding: 0 15px 10px; overflow-x: auto; scrollbar-width: none; }
   .history-row::-webkit-scrollbar { display: none; }
   .h-dot { flex: 0 0 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 800; color: #fff; }
   .h-dot.red { background: #d32f2f; }
@@ -45,58 +44,81 @@
   .h-dot.green { background: #00c853; }
 
   /* === ИГРОВОЕ ПОЛЕ === */
-  .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 20px 0; }
+  .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; position: relative; }
   
-  .wheel-container { position: relative; width: 90%; max-width: 350px; aspect-ratio: 1/1; }
+  .wheel-container { position: relative; width: 90%; max-width: 320px; aspect-ratio: 1/1; }
   
-  /* Указатель сверху */
-  .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-  .pointer svg { fill: var(--gold); }
+  /* Указатель сверху, направлен вниз */
+  .pointer { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 36px; height: 24px; z-index: 20; }
+  .pointer svg { fill: var(--gold); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
 
   .wheel { 
     width: 100%; height: 100%; border-radius: 50%; position: relative;
-    background: #11141d; border: 8px solid #1a1f2b;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
-    transition: transform 4s cubic-bezier(0.15, 0.9, 0.1, 1);
+    background: #11141d; border: 6px solid #1a1f2b;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.5);
+    transition: transform 5s cubic-bezier(0.15, 0.9, 0.1, 1);
   }
   
   .wheel svg { width: 100%; height: 100%; transform: rotate(-90deg); border-radius: 50%; }
   
   /* Текст на колесе */
-  .wheel-text { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
-  .wheel-text span { position: absolute; font-weight: 800; font-size: 14px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+  .wheel-text-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+  .wheel-text-container span { 
+    position: absolute; top: 50%; left: 50%; 
+    font-weight: 900; font-size: 14px; color: #fff; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    transform-origin: 0 0;
+    margin-top: -7px; /* Центровка по высоте */
+    margin-left: 10px; /* Отступ от центра */
+  }
 
   /* Центр колеса */
   .wheel-center { 
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 110px; height: 110px; background: #0b0e14; border-radius: 50%;
+    width: 100px; height: 100px; background: #0b0e14; border-radius: 50%;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.05); z-index: 10; text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8), inset 0 0 8px rgba(255,255,255,0.05); z-index: 10; text-align: center;
   }
   .wc-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
-  .wc-val { font-size: 16px; font-weight: 900; color: #fff; text-transform: uppercase; }
+  .wc-val { font-size: 20px; font-weight: 900; color: #fff; text-transform: uppercase; line-height: 1; }
+  .wc-color { font-size: 11px; font-weight: 700; margin-top: 4px; }
+
+  /* === СТАВКИ (Таблица) === */
+  .bets-panel { padding: 0 15px; margin-top: 10px; }
+  .bets-table { background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+  .bets-table-header { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+  .bets-table-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 8px 15px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; align-items: center; }
+  .bets-table-row:last-child { border-bottom: none; }
+  .btr-name { display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 600; }
+  .btr-avatar { width: 20px; height: 20px; border-radius: 50%; background: #333; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: 800; }
+  .btr-bet { font-weight: 800; text-align: right; }
+  .btr-bet.red { color: #ff4d4d; }
+  .btr-bet.black { color: #aaa; }
+  .btr-bet.green { color: #00e676; }
+  .btr-mult { text-align: right; color: var(--accent-green); font-weight: 800; }
 
   /* === ПАНЕЛЬ СТАВОК === */
   .bet-panel { padding: 15px; background: var(--bg-main); position: sticky; bottom: 0; z-index: 50; }
   
-  .bet-input-box { background: var(--bg-panel); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-  .bet-input { background: transparent; border: none; font-size: 24px; font-weight: 900; color: #fff; width: 100%; outline: none; }
-  .bet-currency { font-size: 20px; font-weight: 900; color: var(--text-muted); }
+  .bet-input-box { background: var(--bg-panel); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+  .bet-input { background: transparent; border: none; font-size: 22px; font-weight: 900; color: #fff; width: 100%; outline: none; }
+  .bet-currency { font-size: 18px; font-weight: 900; color: var(--text-muted); }
 
-  .bet-buttons { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 8px; margin-bottom: 15px; }
-  .btn-bet { border: none; border-radius: 10px; padding: 12px 5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; color: #fff; position: relative; overflow: hidden; }
+  .bet-buttons { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 8px; margin-bottom: 12px; }
+  .btn-bet { border: none; border-radius: 10px; padding: 10px 5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; color: #fff; position: relative; overflow: hidden; }
   .btn-bet:active { transform: scale(0.95); }
+  .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   
   .btn-bet.red { background: linear-gradient(180deg, #ff4d4d, #b71c1c); }
   .btn-bet.green { background: linear-gradient(180deg, #00e676, #00a843); }
   .btn-bet.black { background: linear-gradient(180deg, #333, #111); border: 1px solid rgba(255,255,255,0.1); }
   
-  .bb-mult { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
-  .bb-sum { font-size: 12px; font-weight: 700; opacity: 0.9; }
+  .bb-mult { font-size: 16px; font-weight: 900; margin-bottom: 2px; }
+  .bb-sum { font-size: 11px; font-weight: 700; opacity: 0.9; }
 
-  .quick-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; }
+  .quick-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
   .quick-chips::-webkit-scrollbar { display: none; }
-  .chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; }
   .chip:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
   /* Тост */
@@ -122,32 +144,41 @@
 <!-- ЗАГОЛОВОК -->
 <div class="game-header">
   <div class="game-title">Рулетка</div>
-  <button class="icon-btn">✓</button>
-  <button class="icon-btn">?</button>
-  <button class="icon-btn">🔇</button>
 </div>
 
 <!-- ИСТОРИЯ -->
-<div class="history-row" id="historyRow">
-  <!-- Заполняется через JS -->
-</div>
+<div class="history-row" id="historyRow"></div>
 
 <!-- ИГРОВОЕ ПОЛЕ -->
 <div class="game-area">
   <div class="wheel-container">
     <div class="pointer">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg>
+      <svg viewBox="0 0 36 24"><path d="M18 24L0 0h36L18 24z"/></svg>
     </div>
     
     <div class="wheel" id="wheel">
-      <svg viewBox="0 0 100 100" id="wheelSvg">
-        <!-- Сектора генерируются в JS -->
-      </svg>
-      <div class="wheel-text" id="wheelText"></div>
+      <svg viewBox="0 0 100 100" id="wheelSvg"></svg>
+      <div class="wheel-text-container" id="wheelTextContainer"></div>
+      
       <div class="wheel-center">
         <div class="wc-title" id="wcTitle">Ждем</div>
-        <div class="wc-val" id="wcVal">ПЕРВУЮ<br>СТАВКУ</div>
+        <div class="wc-val" id="wcVal">СТАВКУ</div>
+        <div class="wc-color" id="wcColor"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ТАБЛИЦА СТАВОК (Имитация ботов как в Краше) -->
+<div class="bets-panel">
+  <div class="bets-table" id="betsTable">
+    <div class="bets-table-header">
+      <div>Игрок</div>
+      <div style="text-align:right;">Ставка</div>
+      <div style="text-align:right;">Выигрыш</div>
+    </div>
+    <div id="betsTableBody">
+      <!-- Заполняется через JS -->
     </div>
   </div>
 </div>
@@ -160,16 +191,16 @@
   </div>
 
   <div class="bet-buttons">
-    <button class="btn-bet red" onclick="placeBet('red')">
-      <div class="bb-mult">x1.98</div>
+    <button class="btn-bet red" onclick="placeBet('red')" id="btnRed">
+      <div class="bb-mult">x1.97</div>
       <div class="bb-sum" id="betSumRed">0.00 ₽</div>
     </button>
-    <button class="btn-bet green" onclick="placeBet('green')">
+    <button class="btn-bet green" onclick="placeBet('green')" id="btnGreen">
       <div class="bb-mult">x13.8</div>
       <div class="bb-sum" id="betSumGreen">0.00 ₽</div>
     </button>
-    <button class="btn-bet black" onclick="placeBet('black')">
-      <div class="bb-mult">x1.98</div>
+    <button class="btn-bet black" onclick="placeBet('black')" id="btnBlack">
+      <div class="bb-mult">x1.97</div>
       <div class="bb-sum" id="betSumBlack">0.00 ₽</div>
     </button>
   </div>
@@ -202,35 +233,24 @@ function loadUser() {
     userBalance = savedBalance;
     updateUI();
   } else {
-    // Если не авторизован, кидаем на главную
     window.location.href = '/';
   }
 }
 
 function updateUI() {
   document.getElementById('topBalance').textContent = userBalance.toFixed(2);
-  // В реальном проекте тут был бы запрос к серверу:
-  // fetch('/api/guest/me?id=' + currentPlayer.id)...
 }
 
 // --- ЛОГИКА РУЛЕТКИ ---
-// Генерируем 15 секторов (7 красных, 7 черных, 1 зеленый - как на скрине)
-// Чтобы было как на скрине, сделаем последовательность: R, B, R, B... и 0
+// 15 секторов: 7 красных, 7 черных, 1 зеленый
 const SECTORS = [
-  { num: 4, color: 'red' },
-  { num: 14, color: 'black' },
-  { num: 11, color: 'red' },
-  { num: 12, color: 'black' },
-  { num: 5, color: 'red' },
-  { num: 6, color: 'black' },
-  { num: 13, color: 'red' },
-  { num: 7, color: 'black' },
-  { num: 0, color: 'green' },
-  { num: 1, color: 'red' },
-  { num: 8, color: 'black' },
-  { num: 2, color: 'red' },
-  { num: 9, color: 'black' },
-  { num: 3, color: 'red' },
+  { num: 4, color: 'red' }, { num: 14, color: 'black' },
+  { num: 11, color: 'red' }, { num: 12, color: 'black' },
+  { num: 5, color: 'red' }, { num: 6, color: 'black' },
+  { num: 13, color: 'red' }, { num: 7, color: 'black' },
+  { num: 0, color: 'green' }, { num: 1, color: 'red' },
+  { num: 8, color: 'black' }, { num: 2, color: 'red' },
+  { num: 9, color: 'black' }, { num: 3, color: 'red' },
   { num: 10, color: 'black' }
 ];
 
@@ -244,7 +264,7 @@ let currentRotation = 0;
 // Инициализация колеса (SVG)
 function initWheel() {
   const svg = document.getElementById('wheelSvg');
-  const textContainer = document.getElementById('wheelText');
+  const textContainer = document.getElementById('wheelTextContainer');
   
   SECTORS.forEach((sector, i) => {
     const startAngle = i * ANGLE_PER_SECTOR;
@@ -265,25 +285,16 @@ function initWheel() {
     else if (sector.color === 'black') path.setAttribute('fill', '#1a1a1a');
     else path.setAttribute('fill', '#00c853');
     
-    path.setAttribute('stroke', '#11141d');
-    path.setAttribute('stroke-width', '1');
+    // Четкие границы
+    path.setAttribute('stroke', '#0b0e14');
+    path.setAttribute('stroke-width', '0.8');
     svg.appendChild(path);
     
-    // Текст поверх
+    // Текст по центру сектора
     const textAngle = startAngle + (ANGLE_PER_SECTOR / 2);
-    const textEl = document.createElement('div');
+    const textEl = document.createElement('span');
     textEl.textContent = sector.num;
-    textEl.style.position = 'absolute';
-    textEl.style.top = '50%';
-    textEl.style.left = '50%';
-    // Позиционируем текст
-    textEl.style.transform = `rotate(${textAngle}deg) translateY(-75px)`;
-    textEl.style.transformOrigin = '0 0';
-    textEl.style.color = '#fff';
-    textEl.style.fontWeight = '900';
-    textEl.style.fontSize = '16px';
-    textEl.style.textShadow = '0 1px 2px rgba(0,0,0,0.8)';
-    // Чтобы текст был читаемым, немного его повернем (не обязательно)
+    textEl.style.transform = `rotate(${textAngle}deg) translateX(80px) rotate(-${textAngle}deg)`; // Выравниваем текст горизонтально
     textContainer.appendChild(textEl);
   });
 }
@@ -298,6 +309,35 @@ function initHistory() {
     el.textContent = s.num;
     row.appendChild(el);
   }
+}
+
+// Боты (имитация как в Краше)
+function simulateBots() {
+  const body = document.getElementById('betsTableBody');
+  body.innerHTML = '';
+  
+  const botNames = ['Bot_Alex', 'Bot_Max', 'Bot_Kate', 'Bot_Ivan', 'Bot_John', 'Bot_Sara', 'Bot_Mike', 'Bot_Anna'];
+  const numBets = 3 + Math.floor(Math.random() * 4); // 3-6 ботов
+  
+  const shuffled = botNames.sort(() => 0.5 - Math.random()).slice(0, numBets);
+  
+  shuffled.forEach(name => {
+    const color = ['red', 'black', 'green'][Math.floor(Math.random() * 3)];
+    const amount = [10, 20, 50, 100, 200, 500][Math.floor(Math.random() * 6)];
+    
+    const row = document.createElement('div');
+    row.className = 'bets-table-row';
+    
+    let colorClass = color;
+    let colorText = color === 'red' ? 'Красное' : color === 'black' ? 'Черное' : 'Зеленое';
+    
+    row.innerHTML = `
+      <div class="btr-name"><div class="btr-avatar" style="background:${color === 'red' ? '#b71c1c' : color === 'black' ? '#222' : '#008839'}; color:#fff;">${name[4]}</div> ${name}</div>
+      <div class="btr-bet ${colorClass}">${amount} ₽</div>
+      <div class="btr-mult">${color === 'red' ? 'x1.97' : color === 'black' ? 'x1.97' : 'x13.8'}</div>
+    `;
+    body.appendChild(row);
+  });
 }
 
 // Управление ставками
@@ -352,40 +392,30 @@ function updateBetButtons() {
 function spinWheel(chosenColor) {
   isSpinning = true;
   
+  // Блокируем кнопки
+  document.getElementById('btnRed').disabled = true;
+  document.getElementById('btnGreen').disabled = true;
+  document.getElementById('btnBlack').disabled = true;
+  
+  // Обновляем центральный текст
   const wcTitle = document.getElementById('wcTitle');
   const wcVal = document.getElementById('wcVal');
+  const wcColor = document.getElementById('wcColor');
+  
   wcTitle.textContent = 'Ждем';
-  wcVal.innerHTML = 'РЕЗУЛЬТАТ...';
+  wcVal.textContent = 'РЕЗУЛЬТАТ...';
+  wcColor.textContent = '';
   
   // Определяем выигрышный сектор (математика)
   // Красное: 7/15, Черное: 7/15, Зеленое: 1/15
-  let winIndex;
-  const rand = Math.random() * SECTOR_COUNT;
-  
-  if (rand < 1) winIndex = 8; // Зеленый (индекс 8 в массиве)
-  else if (rand < 8) winIndex = Math.floor(Math.random() * 8); // Красные (индексы 0,2,4,6)
-  else winIndex = Math.floor(Math.random() * 8) + 1; // Черные
-  
-  // Корректируем, чтобы цвета соответствовали
-  // (В нашем массиве цвета чередуются, поэтому просто берем индекс)
-  // Для честности берем случайный индекс, но с нужным шансом (у нас 15 секторов)
-  // На самом деле в массиве 7 красных, 7 черных, 1 зеленый.
-  // Зеленый - индекс 8.
-  // Выберем случайный сектор, но если игрок поставил на красное, 
-  // мы можем немного подкрутить шанс в зависимости от RTP. 
-  // Пока что просто рандом из массива:
-  
-  winIndex = Math.floor(Math.random() * SECTOR_COUNT);
+  let winIndex = Math.floor(Math.random() * SECTOR_COUNT);
   const winningSector = SECTORS[winIndex];
   
   // Крутим колесо так, чтобы нужный сектор оказался наверху (270 градусов)
-  // Сектор winIndex начинается с winIndex * ANGLE_PER_SECTOR
-  // Нам нужно, чтобы центр сектора (winIndex * ANGLE_PER_SECTOR + ANGLE_PER_SECTOR/2)
-  // оказался на 270 градусах (наверху)
-  
+  // Центр сектора winIndex находится на угле: winIndex * ANGLE_PER_SECTOR + ANGLE_PER_SECTOR/2
   const targetAngle = 270 - (winIndex * ANGLE_PER_SECTOR + ANGLE_PER_SECTOR / 2);
   
-  // Добавляем обороты (5 полных кругов)
+  // Добавляем 5 полных оборотов
   const spins = 5;
   const totalRotation = currentRotation + (spins * 360) + (targetAngle - (currentRotation % 360) + 360) % 360;
   
@@ -393,7 +423,7 @@ function spinWheel(chosenColor) {
   wheel.style.transform = `rotate(${totalRotation}deg)`;
   currentRotation = totalRotation;
   
-  // Через 4 секунды (время анимации) показываем результат
+  // Через 5 секунд (время анимации) показываем результат
   setTimeout(() => {
     isSpinning = false;
     
@@ -404,9 +434,9 @@ function spinWheel(chosenColor) {
     if (resultColor === 'green') {
       winAmount = bets.green * 13.8;
     } else if (resultColor === 'red') {
-      winAmount = bets.red * 1.98;
+      winAmount = bets.red * 1.97;
     } else if (resultColor === 'black') {
-      winAmount = bets.black * 1.98;
+      winAmount = bets.black * 1.97;
     }
     
     // Начисляем выигрыш
@@ -417,13 +447,14 @@ function spinWheel(chosenColor) {
       
       wcTitle.textContent = 'ВЫИГРЫШ';
       wcVal.innerHTML = `+${winAmount.toFixed(2)} ₽`;
-      wcVal.style.color = 'var(--accent-green)';
+      wcColor.textContent = '';
       
       showToast(`Вы выиграли ${winAmount.toFixed(2)} ₽!`, 'success');
     } else {
       wcTitle.textContent = 'ВЫПАЛО';
-      wcVal.innerHTML = `${winningSector.num} <br><span style="font-size:12px; color:#888;">${resultColor === 'red' ? 'Красное' : resultColor === 'black' ? 'Черное' : 'Зеленое'}</span>`;
-      wcVal.style.color = '#fff';
+      wcVal.innerHTML = `${winningSector.num}`;
+      wcColor.textContent = resultColor === 'red' ? 'Красное' : resultColor === 'black' ? 'Черное' : 'Зеленое';
+      wcColor.style.color = resultColor === 'red' ? '#ff4d4d' : resultColor === 'black' ? '#aaa' : '#00c853';
       
       showToast(`Выпало ${winningSector.num} (${resultColor === 'red' ? 'Красное' : resultColor === 'black' ? 'Черное' : 'Зеленое'})`, 'error');
     }
@@ -431,6 +462,11 @@ function spinWheel(chosenColor) {
     // Сбрасываем ставки
     bets = { red: 0, black: 0, green: 0 };
     updateBetButtons();
+    
+    // Разблокируем кнопки
+    document.getElementById('btnRed').disabled = false;
+    document.getElementById('btnGreen').disabled = false;
+    document.getElementById('btnBlack').disabled = false;
     
     // Добавляем в историю
     const row = document.getElementById('historyRow');
@@ -440,16 +476,20 @@ function spinWheel(chosenColor) {
     row.prepend(el);
     if (row.children.length > 10) row.lastChild.remove();
     
+    // Обновляем таблицу ботов
+    simulateBots();
+    
     // Сбрасываем текст в центре через 3 секунды
     setTimeout(() => {
       if (!isSpinning) {
         wcTitle.textContent = 'Ждем';
-        wcVal.innerHTML = 'ПЕРВУЮ<br>СТАВКУ';
-        wcVal.style.color = '#fff';
+        wcVal.textContent = 'СТАВКУ';
+        wcColor.textContent = '';
+        wcColor.style.color = '';
       }
     }, 3000);
     
-  }, 4000);
+  }, 5000);
 }
 
 // Тост
@@ -467,6 +507,7 @@ window.onload = () => {
   loadUser();
   initWheel();
   initHistory();
+  simulateBots();
 };
 </script>
 </body>
