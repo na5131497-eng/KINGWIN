@@ -22,6 +22,13 @@
     position: relative; overflow-x: hidden; -webkit-overflow-scrolling: touch;
   }
 
+  /* УБРАН ПРОБЕЛ СВЕРХУ И СКРЫТЫ 3 ТОЧКИ */
+  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 5px; }
+  .screen { display: none; animation: fadeIn 0.3s ease; padding-bottom: 10px; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  ::-webkit-scrollbar { width: 0px; background: transparent; } /* Убрали полосы прокрутки */
+
   .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .floating-crown { position: absolute; opacity: 0.12; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.3)); will-change: transform; }
   .floating-crown.broken { opacity: 0.1; filter: drop-shadow(0 0 6px rgba(255,77,77,.3)); }
@@ -49,12 +56,7 @@
   .profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #0077ff); color: #000; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; cursor: pointer; flex-shrink: 0; }
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
 
-  /* === ОСНОВНОЙ КОНТЕНТ === */
-  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
-  .screen { display: none; animation: fadeIn 0.3s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+  /* === КОНТЕНТ === */
   .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .banners-scroll::-webkit-scrollbar { display: none; }
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
@@ -164,39 +166,32 @@
      СТРАНИЦА БОНУСОВ
      ======================================================== */
   .bonuses-page { padding-bottom: 40px; }
-  
   .bp-header-img { width: 100%; height: 200px; border-radius: 20px; background: linear-gradient(135deg, #1c2230, #0b0e14); position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; }
   .bp-header-img::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%); }
-  
   .bp-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; }
   .bp-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.4; }
-  
   .bp-balance-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
   .bp-balance-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; background: rgba(255,255,255,0.05); }
   .bp-balance-info { flex: 1; }
   .bp-balance-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
   .bp-balance-val { font-size: 18px; font-weight: 800; color: #fff; }
   .bp-sync-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
-
   .bp-promo-link { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 700; font-size: 15px; margin: 20px 0; cursor: pointer; text-decoration: none; }
-
   .bp-empty-state { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 15px; padding: 30px 20px; text-align: center; margin-bottom: 20px; }
   .bp-empty-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 5px; }
   .bp-empty-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
   .bp-promo-banner { border-radius: 20px; padding: 25px 20px; position: relative; overflow: hidden; margin-bottom: 20px; color: #fff; }
   .bp-promo-banner h3 { font-size: 22px; font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 10px; }
   .bp-promo-banner p { font-size: 14px; margin-bottom: 20px; opacity: 0.9; }
   .bp-promo-banner .btn { background: #00b0ff; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
-  
   .bp-banner-dark { background: linear-gradient(135deg, #0b1424, #1a2a4a); border: 1px solid rgba(255,255,255,0.1); }
   .bp-banner-purple { background: linear-gradient(135deg, #2b1055, #1a0b2e); }
   .bp-banner-green { background: linear-gradient(135deg, #052e16, #0f5132); }
-
   .bp-ref-box { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
   .bp-ref-link { color: var(--accent); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
   .bp-ref-copy { cursor: pointer; color: #fff; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 6px; font-size: 12px; }
 
+  /* FAQ и ПРАВИЛА */
   .bp-faq { margin-top: 30px; }
   .bp-faq-item { background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
   .bp-faq-q { padding: 15px 20px; font-size: 15px; font-weight: 700; color: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -205,12 +200,17 @@
   .bp-faq-item.open .bp-faq-a { padding-bottom: 15px; }
   .bp-faq-item.open .bp-faq-q svg { transform: rotate(180deg); fill: var(--accent); }
 
+  .legal-block { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
+  .legal-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .legal-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 15px; text-align: justify; }
+  .legal-text b { color: #fff; }
+
   .bp-back-to-top { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; margin-bottom: 20px; }
   .bp-socials { display: flex; gap: 10px; }
   .bp-social-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 18px; text-decoration: none; }
   .bp-up-btn { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: #000; border: none; cursor: pointer; }
 
-  /* === СТАРЫЕ МОДАЛКИ === */
+  /* === МОДАЛКИ === */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -307,17 +307,11 @@
   /* ========================================================
      НОВОЕ ОКНО КОЛЕСА ФОРТУНЫ
      ======================================================== */
-  .wheel-overlay {
-    position: fixed !important; inset: 0 !important; background: rgba(11, 14, 20, 0.95);
-    z-index: 99999999 !important; display: none; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding: 20px; overflow-y: auto; backdrop-filter: blur(5px);
-  }
+  .wheel-overlay { position: fixed !important; inset: 0 !important; background: rgba(11, 14, 20, 0.95); z-index: 99999999 !important; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto; backdrop-filter: blur(5px); }
   .wheel-overlay.show { display: flex !important; }
-  
   .wheel-header { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; margin-top: 10px; }
   .wheel-header h2 { font-size: 20px; font-weight: 800; color: #fff; }
   .wheel-close-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-
   .wheel-container { position: relative; width: 100%; max-width: 350px; aspect-ratio: 1/1; margin-bottom: 30px; }
   .wheel-bg { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); border: 4px solid #151922; }
   .wheel-spinner { position: absolute; inset: 5px; border-radius: 50%; transition: transform 5s cubic-bezier(0.17, 0.67, 0.1, 1); overflow: hidden; }
@@ -564,6 +558,31 @@
             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
           </div>
           <div class="bp-faq-a">К сожалению, бонусный раунд будет аннулирован, а средства не вернутся на баланс.</div>
+        </div>
+      </div>
+
+      <!-- УСЛОВИЯ И ОТВЕТСТВЕННАЯ ИГРА -->
+      <div class="legal-block">
+        <div class="legal-title">📜 Условия использования</div>
+        <div class="legal-text">
+          <b>1. Общие положения.</b> Используя сайт KINGWIN, вы подтверждаете, что достигли совершеннолетия (18+) и не находитесь под запретом на участие в азартных играх в вашей юрисдикции.
+          <br><br>
+          <b>2. Игровой процесс.</b> Все игры предоставляются «как есть». Администрация не несет ответственности за технические сбои на стороне провайдера или интернет-соединения игрока.
+          <br><br>
+          <b>3. Выплаты.</b> Вывод средств осуществляется только на реквизиты, указанные при регистрации. Срок обработки заявки — до 24 часов.
+          <br><br>
+          <b>4. Бонусы.</b> Бонусные средства имеют вейджер (условия отыгрыша). Вывод бонусных средств до полного отыгрыша невозможен.
+        </div>
+
+        <div class="legal-title" style="margin-top: 30px;">🛡 Ответственная игра</div>
+        <div class="legal-text">
+          <b>1. Контроль.</b> Азартные игры — это развлечение, а не способ заработка. Устанавливайте лимиты на депозиты и время игры.
+          <br><br>
+          <b>2. Проблемы.</b> Если вы чувствуете, что теряете контроль над игрой, рекомендуем обратиться за помощью к специалистам.
+          <br><br>
+          <b>3. Самоисключение.</b> Вы можете запросить временную или постоянную блокировку аккаунта, написав в службу поддержки.
+          <br><br>
+          <b>4. Помните:</b> Играйте только на те средства, потерю которых вы можете себе позволить.
         </div>
       </div>
 
@@ -925,13 +944,9 @@ let isSpinning = false;
 let hasSpunToday = localStorage.getItem('wheel_spun_today') === 'true';
 let nextSpinTime = parseInt(localStorage.getItem('wheel_next_time')) || 0;
 
-// --- РЕФЕРАЛЬНАЯ СИСТЕМА ---
+// --- РЕФЕРАЛЬНАЯ СИСТЕМА (Теперь не записывает в аккаунт сразу) ---
 const urlParams = new URLSearchParams(window.location.search);
 const refId = urlParams.get('ref');
-if (refId) {
-  localStorage.setItem('kingwin_referrer', refId);
-  showToast(`Вас пригласил пользователь ID: ${refId}`, 'success');
-}
 
 // --- НАВИГАЦИЯ ПО ЭКРАНАМ ---
 function switchScreen(screenName) {
@@ -943,7 +958,6 @@ function switchScreen(screenName) {
 
   window.scrollTo({top: 0, behavior: 'smooth'});
   
-  // Если перешли в бонусы - обновляем реферальную ссылку
   if (screenName === 'bonuses') {
     updateRefLink();
   }
@@ -952,7 +966,7 @@ function switchScreen(screenName) {
 function updateRefLink() {
   const refDisplay = document.getElementById('refLinkDisplay');
   if (refDisplay) {
-    const host = window.location.origin; // Берет текущий домен (например, https://kingwin-production.up.railway.app)
+    const host = window.location.origin; 
     const userId = currentPlayer ? currentPlayer.id : 'guest';
     refDisplay.textContent = `${host}/?ref=${userId}`;
   }
@@ -1192,21 +1206,20 @@ function spinWheel() {
     localStorage.setItem('wheel_spun_today', 'true');
     localStorage.setItem('wheel_next_time', nextSpinTime.toString());
     
-    // ЛОГИКА ЗАЧИСЛЕНИЯ ДЕНЕГ НА БАЛАНС
+    // ЗАЧИСЛЕНИЕ ДЕНЕГ
     if (prize.type === 'money') {
       if (currentPlayer) {
-        // Зачисляем в депозитный баланс (на реальный)
         currentPlayer.deposit_balance = (parseFloat(currentPlayer.deposit_balance) || 0) + prize.amount;
         localStorage.setItem('kingwin_balance', currentPlayer.deposit_balance);
       }
-      showToast(`Вы выиграли: ${prize.label}! Деньги зачислены на баланс.`, 'success');
+      showToast(`Вы выиграли: ${prize.label}! Деньги зачислены.`, 'success');
     } else if (prize.type === 'cashback') {
       showToast(`Вы выиграли кэшбек: ${prize.label}!`, 'success');
     } else {
       showToast(`Повезет в следующий раз!`, 'error');
     }
     
-    updateUI(); // Обновляем баланс в шапке
+    updateUI();
     updateWheelState();
   }, 5000);
 }
@@ -1274,7 +1287,6 @@ async function doLogin() {
   err.style.display = 'none';
   if (!id || !pass) { err.textContent = 'Введите данные'; err.style.display = 'block'; return; }
   
-  // Проверяем сохраненный баланс
   const savedBalance = parseFloat(localStorage.getItem('kingwin_balance')) || 0;
   
   currentPlayer = { id: id, bonus_balance: 0, deposit_balance: savedBalance };
@@ -1283,7 +1295,13 @@ async function doLogin() {
   updateUI();
   showToast('С возвращением!', 'success');
   
-  // Обновляем реферальную ссылку при входе
+  // Если перешли по рефералке, показываем уведомление после входа
+  if (refId) {
+    setTimeout(() => {
+      showToast(`Вы вошли по реферальной ссылке от ${refId}`, 'success');
+    }, 1000);
+  }
+  
   updateRefLink();
 }
 
@@ -1313,10 +1331,8 @@ window.onload = function() {
     updateUI();
   } else { updateUI(); }
   
-  // Инициализация ссылки, если сразу открыли бонусы
   updateRefLink();
 };
 </script>
 </body>
 </html>
-```
