@@ -2,1005 +2,239 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>KINGWIN — Рабочая панель</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KINGWIN — Дилерская панель</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at top left, #1a2332, #0a0d14); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
-
-  .login-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; }
-  .logo-text { font-size: 32px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #00e5ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-  .login-subtitle { font-size: 14px; color: #a0aec0; font-weight: 600; margin-bottom: 35px; text-transform: uppercase; letter-spacing: 1px; }
-  .input-group { position: relative; margin-bottom: 25px; text-align: left; }
-  .input-group label { display: block; font-size: 14px; color: #a0aec0; margin-bottom: 8px; font-weight: 600; }
-  .input-group input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 16px; padding: 10px 0; font-family: inherit; }
-  .input-group input:focus { outline: none; border-bottom-color: #00e5ff; }
-  .btn-glow { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); font-family: inherit; }
-  .btn-glow:hover { background: #33ebff; transform: translateY(-2px); }
-  .login-err { color: #ff4d4d; font-size: 13px; margin-top: 15px; height: 18px; font-weight: 600; }
-
-  .main-container { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; width: 100%; max-width: 720px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); gap: 10px; }
-  .topbar .name { font-size: 14px; color: #a0aec0; min-width: 0; }
-  .topbar .name b { color: #00e5ff; }
-  .topbar .balance { font-size: 13px; color: #3fbf7f; font-weight: 700; margin-top: 4px; }
-  .logout { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aec0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-family: inherit; flex-shrink: 0; }
-  .logout:hover { border-color: #ff4d4d; color: #ff4d4d; }
-
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tabs button { flex: 1 0 auto; min-width: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; color: #a0aec0; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .tabs button.active { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
-  .tab { display: none; } .tab.active { display: block; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-  h2 { font-size: 18px; margin-bottom: 6px; }
-  .sub { color: #a0aec0; font-size: 13px; margin-bottom: 18px; }
-
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 11px; color: #a0aec0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 16px; color: #fff; font-family: inherit; }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-  .row { display: flex; gap: 12px; } .row .form-group { flex: 1; }
-  .btn-submit { width: 100%; background: #00e5ff; color: #000; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; }
-  .btn-submit:hover:not(:disabled) { background: #33ebff; }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-  .msg { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; text-align: center; font-weight: 600; }
-  .msg.ok { background: rgba(63, 191, 127, 0.15); color: #3fbf7f; border: 1px solid rgba(63, 191, 127, 0.3); display: block; }
-  .msg.err { background: rgba(224, 74, 95, 0.15); color: #ff4d4d; border: 1px solid rgba(224, 74, 95, 0.3); display: block; }
-  .hidden { display: none !important; }
-
-  .jackpot-check { display: flex; align-items: center; gap: 12px; cursor: pointer; background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(255,77,77,.06)); border: 1px solid rgba(241,196,15,.35); border-radius: 12px; padding: 14px; margin: 6px 0 4px; user-select: none; }
-  .jackpot-check input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .jackpot-check .box { width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px; border: 2px solid rgba(241,196,15,.5); background: rgba(0,0,0,.3); display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 900; color: #000; }
-  .jackpot-check input:checked ~ .box { background: #f1c40f; border-color: #f1c40f; }
-  .jackpot-check input:checked ~ .box::after { content: '✓'; }
-  .jackpot-check .txt { font-size: 13px; font-weight: 600; line-height: 1.35; }
-  .jackpot-check .txt small { display: block; color: #8fa2b8; font-size: 11px; font-weight: 500; margin-top: 2px; }
-
-  .silence-card { background: linear-gradient(135deg, rgba(0,229,255,.10), rgba(63,191,127,.08)); border: 1px solid rgba(0,229,255,.35); border-radius: 16px; padding: 18px; margin-bottom: 18px; }
-  .silence-card .s-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-  .silence-card .s-title { font-size: 14px; font-weight: 800; color: #00e5ff; text-transform: uppercase; letter-spacing: .5px; }
-  .silence-card .s-percent { font-size: 26px; font-weight: 900; line-height: 1; color: #3fbf7f; }
-  .silence-card .s-bar { height: 10px; background: rgba(255,255,255,.08); border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
-  .silence-card .s-bar > div { height: 100%; background: linear-gradient(90deg, #00e5ff, #3fbf7f); }
-
-  .balance-card { background: linear-gradient(135deg, rgba(63,191,127,.15), rgba(0,229,255,.08)); border: 1px solid rgba(63,191,127,.35); border-radius: 16px; padding: 20px; margin-bottom: 18px; text-align: center; }
-  .balance-card .lbl { font-size: 11px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
-  .balance-card .amount { font-size: 38px; font-weight: 900; color: #3fbf7f; line-height: 1; }
-  .balance-card .sub { font-size: 12px; color: #8fa2b8; margin-top: 6px; }
-
-  .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; gap: 10px; flex-wrap: wrap; }
-  .status { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-  .status.pending { background: rgba(241,196,15,.15); color: #f1c40f; }
-  .status.approved { background: rgba(63,191,127,.15); color: #3fbf7f; }
-  .status.rejected { background: rgba(255,77,77,.15); color: #ff4d4d; }
-
-  .profile-head { text-align: center; margin-bottom: 20px; }
-  .profile-avatar { width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; }
-  .profile-head .pname { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
-  .profile-head .pid { font-size: 12px; color: #8fa2b8; font-family: 'Courier New', monospace; letter-spacing: 1px; }
-  .rank-badge-custom { display: inline-block; margin-top: 12px; padding: 8px 22px; border-radius: 22px; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; border: 1.5px solid; }
-
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .stat-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px 12px; text-align: center; }
-  .stat-lbl { font-size: 10px; color: #8fa2b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
-  .stat-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
-
-  .progress-card { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-  .progress-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
-  .progress-pct { color: #00e5ff; font-size: 13px; }
-  .progress-bar-big { height: 12px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
-  .progress-bar-big > div { height: 100%; border-radius: 6px; }
-  .progress-foot { display: flex; justify-content: space-between; font-size: 11px; color: #8fa2b8; gap: 8px; flex-wrap: wrap; }
-  .progress-foot b { color: #fff; }
-
-  .info-list { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 6px 16px; }
-  .info-line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; gap: 10px; flex-wrap: wrap; }
-  .info-line:last-child { border-bottom: none; }
-  .info-line span:first-child { color: #8fa2b8; }
-  .info-line b { color: #fff; }
-
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; overflow-y: auto; }
-  .modal-overlay.show { display: flex; }
-  .modal-box { background: rgba(18, 24, 38, 0.98); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 420px; text-align: center; margin: auto; }
-  .modal-box h3 { font-size: 20px; margin-bottom: 10px; }
-  .modal-box p { font-size: 14px; color: #a0aec0; margin-bottom: 18px; line-height: 1.5; }
-  .modal-box input { width: 100%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 8px; padding: 12px; font-size: 16px; margin-bottom: 12px; font-family: inherit; text-align: center; }
-  .modal-box label { display: block; font-size: 11px; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; text-align: left; }
-  .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
-  .btn-cancel { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn-confirm { flex: 1; background: #00e5ff; border: none; color: #000; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
-
-  .player-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,229,255,.15); border: 1px solid rgba(0,229,255,.4); color: #00e5ff; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .player-chip .del { color: #ff4d4d; cursor: pointer; font-weight: 900; padding-left: 2px; }
-  .chips-empty { color: #8fa2b8; font-size: 12px; font-style: italic; padding: 4px 0; }
-  .session-counter { display: inline-block; background: rgba(63,191,127,.15); color: #3fbf7f; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
-
-  .roulette-bet-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .rb-type-btn { background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.1); color: #a0aec0; padding: 12px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; line-height: 1.3; }
-  .rb-type-btn.active { background: rgba(0,229,255,.15); border-color: #00e5ff; color: #00e5ff; }
-  .rb-type-btn .mult { display: block; font-size: 10px; color: #8fa2b8; margin-top: 2px; font-weight: 800; }
-  .rb-type-btn.active .mult { color: #00e5ff; }
-  .rb-type-btn.red-type.active { background: rgba(255,77,77,.15); border-color: #ff4d4d; color: #ff4d4d; }
-  .rb-type-btn.black-type.active { background: rgba(255,255,255,.1); border-color: #fff; color: #fff; }
-  .rb-type-btn.zero-type.active { background: rgba(63,191,127,.15); border-color: #3fbf7f; color: #3fbf7f; }
-
-  .payout-preview { background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
-  .payout-preview .pp-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
-  .payout-preview .pp-row span:first-child { color: #8fa2b8; }
-  .payout-preview .pp-row.total { border-top: 1px solid rgba(255,255,255,.1); margin-top: 6px; padding-top: 8px; font-size: 16px; font-weight: 900; }
-  .payout-preview .pp-row.total .val { color: #3fbf7f; }
-
-  .result-number-field { font-size: 24px !important; font-weight: 900 !important; text-align: center !important; padding: 14px !important; border: 2px solid rgba(0,229,255,.5) !important; background: rgba(0,229,255,.05) !important; }
-
-  @media (max-width: 600px) {
-    body { padding: 12px; }
-    .main-container { padding: 18px 14px; border-radius: 16px; }
-    .login-container { padding: 30px 22px; }
-    .tabs button { min-width: 95px; font-size: 12px; padding: 11px 10px; }
-    .row { flex-direction: column; gap: 0; }
-    .roulette-bet-types { grid-template-columns: repeat(2, 1fr); }
+  :root {
+    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
+    --accent: #00e5ff; --accent-green: #00e676;
+    --text-main: #fff; --text-muted: #8b92a5;
+    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
   }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+  body { background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; padding: 20px; }
+
+  /* Логин */
+  .login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+  .login-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 380px; text-align: center; }
+  .login-box .name { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 5px; }
+  .login-box input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 14px; text-align: center; font-family: inherit;}
+  .login-box input:focus { border-color: var(--accent); }
+  .login-box button { width: 100%; padding: 14px; font-size: 14px; margin-top: 10px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: inherit;}
+
+  /* Рабочий интерфейс */
+  .dealer-panel { display: none; flex-direction: column; max-width: 600px; width: 100%; margin: 0 auto; }
+  .dealer-panel.active { display: flex; }
+  
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  .header h1 { font-size: 22px; }
+  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: inherit;}
+
+  .panel { background: var(--bg-panel); border-radius: 15px; padding: 25px; border: 1px solid var(--border); margin-bottom: 20px; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
+  .form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 14px; font-family: inherit;}
+  .form-control:focus { border-color: var(--accent); }
+  
+  .btn-submit { width: 100%; padding: 15px; border-radius: 10px; background: var(--accent-green); color: #000; font-weight: 900; font-size: 16px; border: none; cursor: pointer; margin-top: 10px; font-family: inherit;}
+  .btn-submit:hover { filter: brightness(1.1); }
+
+  .toast { position: fixed; top: 20px; right: 20px; background: var(--bg-panel); border-left: 4px solid var(--accent); padding: 15px 25px; border-radius: 8px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: translateX(150%); transition: 0.3s; z-index: 9999; }
+  .toast.show { transform: translateX(0); }
+  .toast.error { border-left-color: var(--red); }
 </style>
 </head>
 <body>
 
-<div id="loginScreen" class="login-container">
-  <div class="logo-text">KINGWIN</div>
-  <div class="login-subtitle">Рабочая панель</div>
-  <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="dealer" autocomplete="username"></div>
-  <div class="input-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password"></div>
-  <div class="login-err" id="loginErr"></div>
-  <button class="btn-glow" onclick="doLogin()">Войти</button>
+<!-- ЭКРАН ЛОГИНА -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="name">KINGWIN DEALER</div>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:25px;">Введите логин и пароль дилера</p>
+    <input type="text" id="loginInput" placeholder="Логин (dealer)" value="dealer">
+    <input type="password" id="passInput" placeholder="Пароль" value="56UpahoS">
+    <button onclick="doLogin()">Войти</button>
+    <div id="loginErr" style="color:var(--red); font-size:12px; margin-top:15px; height:15px;"></div>
+  </div>
 </div>
 
-<div id="mainScreen" class="main-container hidden">
-  <div class="topbar">
-    <div class="name">
-      Сотрудник: <b id="dealerName">—</b>
-      <div class="balance">Баланс: <span id="dealerBalanceTop">0</span> ₽</div>
-    </div>
-    <button class="logout" onclick="confirmLogout()">Выйти</button>
+<!-- РАБОЧАЯ ПАНЕЛЬ -->
+<div class="dealer-panel" id="dealerPanel">
+  <div class="header">
+    <h1>Панель дилера</h1>
+    <button class="logout-btn" onclick="logout()">Выйти</button>
   </div>
 
-  <div class="tabs">
-    <button class="active" data-tab="profile" onclick="switchTab('profile')">👤 Профиль</button>
-    <button data-tab="data" onclick="switchTab('data')">🎲 Внести сессию</button>
-    <button data-tab="roulette" onclick="switchTab('roulette')">🎡 Рулетка</button>
-    <button data-tab="cash" onclick="switchTab('cash')">💰 Наличные</button>
-    <button data-tab="tasks" onclick="switchTab('tasks')">📋 Задания</button>
-  </div>
-
-  <!-- ПРОФИЛЬ -->
-  <div class="tab active" id="tab-profile">
-    <h2>Мой профиль</h2>
-    <div class="sub">Баланс, вывод, статистика</div>
-    <div id="profileContent"><div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div></div>
-    <div style="margin-top:20px;">
-      <h3 style="font-size:16px; margin-bottom:12px;">💸 Вывод средств</h3>
-      <div class="balance-card" style="margin-bottom:14px;">
-        <div class="lbl">Доступно к выводу</div>
-        <div class="amount"><span id="dealerBalance">0</span> ₽</div>
-        <div class="sub">Вывод на карту (комиссия 7%)</div>
-      </div>
-      <button class="btn-submit" onclick="openWithdrawModal()">💳 Запросить вывод на карту</button>
-      <div class="msg" id="msgWithdraw"></div>
-    </div>
-    <h3 style="font-size:16px; margin:24px 0 12px;">📜 История выводов</h3>
-    <div id="withdrawHistory"></div>
-  </div>
-
-  <!-- ВНЕСТИ СЕССИЮ -->
-  <div class="tab" id="tab-data">
-    <h2>Новый раунд <span id="roundCounter" class="session-counter" style="display:none">Сегодня: 0</span></h2>
-    <div class="sub">Кликните по игроку, заполните ставку и нажмите Enter.</div>
-
+  <div class="panel">
+    <h3 style="margin-bottom: 20px;">Ввод результата игры</h3>
+    
     <div class="form-group">
-      <label>Игроки за столом <span style="color:#8fa2b8;font-size:10px;text-transform:none;">(клик — выбрать)</span></label>
-      <div id="playersChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
-        <span class="chips-empty">Пока никого. Добавьте игрока ↓</span>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <input type="text" id="newPlayerNick" placeholder="Ник нового игрока" style="flex:1;" autocomplete="off">
-        <button class="btn-submit" style="width:auto;padding:0 16px;margin:0;background:#3fbf7f;color:#000;" onclick="addPlayerChip()">+</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Игра</label>
-      <select id="gameType">
+      <label>Тип игры</label>
+      <select id="gameType" class="form-control">
         <option value="bj">Блэкджек</option>
         <option value="bac">Баккара</option>
+        <option value="roulette">Рулетка (выпадение числа)</option>
       </select>
     </div>
 
-    <div class="form-group">
-      <label>Ник игрока</label>
-      <input type="text" id="playerNick" placeholder="Выберите из списка или введите" list="playersDatalist" autocomplete="off">
-      <datalist id="playersDatalist"></datalist>
+    <div class="form-group" id="numberGroup" style="display:none;">
+      <label>Выпавшее число (0-36)</label>
+      <input type="number" id="rouletteNumber" class="form-control" placeholder="Например: 17" min="0" max="36">
     </div>
 
-    <div class="row">
-      <div class="form-group">
-        <label>Ставка игрока (₽)</label>
-        <input type="number" id="betAmount" min="10" max="10000" placeholder="100" inputmode="numeric">
-      </div>
-      <div class="form-group">
-        <label>Выигрыш игрока (₽)</label>
-        <input type="number" id="winAmount" min="0" max="100000" placeholder="0" inputmode="numeric">
-      </div>
+    <div class="form-group" id="playerGroup">
+      <label>Ник игрока (или ID карты)</label>
+      <input type="text" id="playerNick" class="form-control" placeholder="Например: 12345678">
     </div>
 
-    <label class="jackpot-check" for="jackpotCheck">
-      <input type="checkbox" id="jackpotCheck">
-      <span class="box"></span>
-      <span class="txt">Джекпот выпал <small>Прогрессирующий джекпот сбросится до 0 ₽</small></span>
-    </label>
-
-    <div style="display:flex;gap:8px;margin-top:6px;">
-      <button class="btn-submit" id="btnSubmit" onclick="saveRound()" style="flex:2;">Внести раунд</button>
-      <button class="btn-submit" onclick="repeatLastRound()" style="flex:1;background:rgba(255,255,255,0.1);color:#fff;">🔁</button>
-    </div>
-    <div class="msg" id="msgData"></div>
-  </div>
-
-  <!-- РУЛЕТКА -->
-  <div class="tab" id="tab-roulette">
-    <h2>🎡 Рулетка</h2>
-    <div class="sub">Введите ставку игрока и какое число выпало.</div>
-
-    <div class="form-group">
-      <label>Игроки за столом</label>
-      <div id="roulettePlayersChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
-        <span class="chips-empty">Пока никого. Добавьте игрока ↓</span>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <input type="text" id="rouletteNewPlayer" placeholder="Ник нового игрока" style="flex:1;" autocomplete="off">
-        <button class="btn-submit" style="width:auto;padding:0 16px;margin:0;background:#3fbf7f;color:#000;" onclick="addRoulettePlayer()">+</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Ник игрока</label>
-      <input type="text" id="rNick" placeholder="Выберите из списка или введите" autocomplete="off">
-    </div>
-
-    <div class="form-group">
-      <label style="color:#00e5ff; font-size:12px;">🎯 Какое число выпало (0–36)</label>
-      <input type="number" id="rResultNumber" min="0" max="36" placeholder="17" inputmode="numeric" oninput="onResultNumberChange()" class="result-number-field">
-      <div id="rResultColorHint" style="text-align:center; font-size:12px; font-weight:700; margin-top:6px; color:#8fa2b8;">—</div>
-    </div>
-
-    <div class="form-group">
-      <label>На что поставил игрок</label>
-      <div class="roulette-bet-types" id="rBetTypes">
-        <button class="rb-type-btn red-type" data-type="red" onclick="selectRouletteType('red')">🔴 Красное<span class="mult">×1.7</span></button>
-        <button class="rb-type-btn black-type" data-type="black" onclick="selectRouletteType('black')">⚫ Чёрное<span class="mult">×1.7</span></button>
-        <button class="rb-type-btn" data-type="even" onclick="selectRouletteType('even')">Чёт<span class="mult">×1.7</span></button>
-        <button class="rb-type-btn" data-type="odd" onclick="selectRouletteType('odd')">Нечет<span class="mult">×1.7</span></button>
-        <button class="rb-type-btn zero-type" data-type="zero" onclick="selectRouletteType('zero')">🟢 Зеро<span class="mult">×30</span></button>
-        <button class="rb-type-btn" data-type="number" onclick="selectRouletteType('number')">🔢 Число<span class="mult">×30</span></button>
-      </div>
-    </div>
-
-    <div class="form-group" id="rNumberWrap" style="display:none;">
-      <label>На какое число поставил (0–36)</label>
-      <input type="number" id="rNumber" min="0" max="36" placeholder="17" inputmode="numeric" oninput="updateRoulettePreview()">
-    </div>
-
-    <div class="form-group">
+    <div class="form-group" id="betGroup">
       <label>Ставка (₽)</label>
-      <input type="number" id="rBetAmount" min="10" max="10000" placeholder="100" inputmode="numeric" oninput="updateRoulettePreview()">
+      <input type="number" id="betAmount" class="form-control" placeholder="100" min="1">
     </div>
 
-    <div class="payout-preview" id="rPreview">
-      <div class="pp-row"><span>Результат</span><span class="val">—</span></div>
-      <div class="pp-row"><span>Ставка</span><span class="val">0 ₽</span></div>
-      <div class="pp-row"><span>Коэффициент</span><span class="val">—</span></div>
-      <div class="pp-row total"><span>Выигрыш игрока</span><span class="val">0 ₽</span></div>
+    <div class="form-group" id="winGroup">
+      <label>Выигрыш игрока (₽)</label>
+      <input type="number" id="winAmount" class="form-control" placeholder="200" min="0">
     </div>
 
-    <button class="btn-submit" id="btnRouletteSubmit" onclick="saveRouletteRound()">Внести раунд</button>
-    <div class="msg" id="msgRoulette"></div>
-
-    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size: 15px; color: #3fbf7f; margin: 0;">📜 Последние раунды</h3>
-        <button class="btn-submit" style="width:auto;padding:6px 12px;margin:0;font-size:11px;background:rgba(63,191,127,0.15);color:#3fbf7f;" onclick="loadRouletteHistory()">🔄</button>
-      </div>
-      <div id="rouletteHistory" style="font-size:13px;">
-        <div style="text-align:center; padding:20px; color:#8fa2b8;">Загрузка...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- НАЛИЧНЫЕ -->
-  <div class="tab" id="tab-cash">
-    <h2>💰 Наличные / Сейф</h2>
-    <div class="sub">Принимайте наличные от игроков.</div>
-    <div class="balance-card">
-      <div class="lbl">📦 В сейфе сейчас</div>
-      <div class="amount" id="safeTotal">0 ₽</div>
-      <div class="sub" id="safeDetails">Принято 0 ₽ · Выдано 0 ₽</div>
-    </div>
-    <div style="background: rgba(63,191,127,.1); border: 1px solid rgba(63,191,127,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #3fbf7f;">💰 Принять наличные</h3>
-      <div class="form-group">
-        <label>Ник игрока</label>
-        <input type="text" id="cashInNick" placeholder="Иван" autocomplete="off">
-      </div>
-      <div class="form-group">
-        <label>Сумма (₽)</label>
-        <input type="number" id="cashInSum" placeholder="500" min="1" inputmode="numeric">
-      </div>
-      <button class="btn-submit" onclick="doCashIn()" style="background: #3fbf7f; color: #000;">💰 Принял наличные</button>
-      <div class="msg" id="msgCashIn"></div>
-    </div>
-    <div style="background: rgba(255,77,77,.1); border: 1px solid rgba(255,77,77,.4); border-radius: 16px; padding: 18px; margin-bottom: 14px;">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #ff6b6b;">💸 Выдать наличные</h3>
-      <div class="form-group">
-        <label>Ник игрока</label>
-        <input type="text" id="cashOutNick" placeholder="Иван" autocomplete="off">
-      </div>
-      <div class="form-group">
-        <label>Сумма (₽)</label>
-        <input type="number" id="cashOutSum" placeholder="300" min="1" inputmode="numeric">
-      </div>
-      <button class="btn-submit" onclick="doCashOut()" style="background: #ff6b6b; color: #fff;">💸 Выдал наличные</button>
-      <div class="msg" id="msgCashOut"></div>
-    </div>
-    <div style="background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; margin-top: 18px;">
-      <h3 style="font-size: 15px; margin: 0 0 12px;">📋 История за сегодня</h3>
-      <div id="cashHistoryList" style="font-size: 13px;">
-        <div style="color: #8fa2b8; text-align: center; padding: 20px;">Пока нет операций</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ЗАДАНИЯ -->
-  <div class="tab" id="tab-tasks">
-    <h2>Ежедневные задания</h2>
-    <div class="sub">Лимит заработка — 50 ₽/день.</div>
-    <div>
-      <span id="weekBadge" style="display:inline-block; background:rgba(0,229,255,.15); color:#00e5ff; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; margin-bottom:14px;">День: —</span>
-      <span id="limitBadge" style="display:inline-block; background:rgba(241,196,15,.15); color:#f1c40f; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; margin-left:6px; margin-bottom:14px;">Заработано: 0 / 50 ₽</span>
-    </div>
-    <div id="tasksList"></div>
-    <div class="msg" id="msgTask"></div>
+    <button class="btn-submit" onclick="submitRound()">Отправить результат</button>
   </div>
 </div>
 
-<!-- МОДАЛКИ -->
-<div class="modal-overlay" id="withdrawModal">
-  <div class="modal-box">
-    <h3>Вывод средств</h3>
-    <p>Введите карту и сумму</p>
-    <label>Номер карты</label>
-    <input type="text" id="withdrawCard" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
-    <label>Сумма (₽)</label>
-    <input type="number" id="withdrawSum" placeholder="0" min="1" inputmode="numeric">
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeWithdrawModal()">Отмена</button>
-      <button class="btn-confirm" onclick="doWithdraw()">Вывести</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="infoModal">
-  <div class="modal-box" id="infoBox">
-    <div id="infoIcon" style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
-    <h3 id="infoTitle">Ошибка</h3>
-    <p id="infoText"></p>
-    <div class="modal-actions">
-      <button class="btn-confirm" onclick="closeInfo()">ОК</button>
-    </div>
-  </div>
-</div>
+<div class="toast" id="toast">Успешно!</div>
 
 <script>
 let currentDealer = null;
-let dealerBalance = 0;
-const COMMISSION = 0.07;
 
-const ROULETTE_PAYOUTS = { number: 30, zero: 30, red: 1.7, black: 1.7, even: 1.7, odd: 1.7 };
-const RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const BLACK_NUMBERS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
-let rouletteState = { type: 'red' };
+// Переключение полей в зависимости от игры
+document.getElementById('gameType').addEventListener('change', function() {
+  const type = this.value;
+  const numGroup = document.getElementById('numberGroup');
+  const playerGroup = document.getElementById('playerGroup');
+  const betGroup = document.getElementById('betGroup');
+  const winGroup = document.getElementById('winGroup');
 
-function fmt(n){ return (Math.round((n||0)*100)/100).toLocaleString('ru-RU'); }
+  if (type === 'roulette') {
+    numGroup.style.display = 'block';
+    playerGroup.style.display = 'none';
+    betGroup.style.display = 'none';
+    winGroup.style.display = 'none';
+  } else {
+    numGroup.style.display = 'none';
+    playerGroup.style.display = 'block';
+    betGroup.style.display = 'block';
+    winGroup.style.display = 'block';
+  }
+});
 
-function showInfo(title, text, type='err'){
-  const box = document.getElementById('infoBox');
-  box.className = 'modal-box ' + (type === 'ok' ? 'ok-modal' : 'err-modal');
-  document.getElementById('infoIcon').textContent = type === 'ok' ? '✅' : '⚠️';
-  document.getElementById('infoTitle').textContent = title;
-  document.getElementById('infoText').innerHTML = text;
-  document.getElementById('infoModal').classList.add('show');
-}
-function closeInfo(){ document.getElementById('infoModal').classList.remove('show'); }
-
-function switchTab(name){
-  document.querySelectorAll('.tabs > button[data-tab]').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelector(`.tabs > button[data-tab="${name}"]`).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'profile') { loadProfile(); loadBalance(); }
-  if (name === 'roulette') { renderRoulettePlayers(); loadRouletteHistory(); updateRoulettePreview(); }
-  if (name === 'tasks') loadTasks();
-  if (name === 'cash') { loadCashSafe(); loadCashHistory(); }
-}
-
-function showMsg(id, text, ok){
-  const m = document.getElementById(id);
-  if(!m) return;
-  m.textContent = text;
-  m.className = 'msg ' + (ok ? 'ok' : 'err');
-  setTimeout(()=>{ m.className = 'msg'; }, 5000);
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'var(--red)' : 'var(--accent-green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-async function doLogin(){
-  const login = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
+async function doLogin() {
+  const login = document.getElementById('loginInput').value.trim();
+  const pass = document.getElementById('passInput').value;
   const err = document.getElementById('loginErr');
-  const btn = document.querySelector('.btn-glow');
-  btn.textContent = 'Загрузка...'; btn.disabled = true;
-  try {
-    const r = await fetch('/api/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ login, pass, type: 'dealer' })
-    });
-    const data = await r.json();
-    if(!r.ok){ err.textContent = data.error || 'Ошибка'; return; }
-    currentDealer = data.dealer;
-    dealerBalance = parseFloat(data.dealer.balance) || 0;
-    err.textContent = '';
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainScreen').classList.remove('hidden');
-    document.getElementById('dealerName').textContent = currentDealer.name;
-    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
-    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
-    renderPlayersChips();
-    renderRoulettePlayers();
-    updateRoundCounter();
-    loadProfile();
-    loadBalance();
-  } catch(e){ err.textContent = 'Ошибка соединения'; }
-  finally { btn.textContent = 'Войти'; btn.disabled = false; }
-}
-document.getElementById('loginPass').addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+  err.textContent = '';
 
-function confirmLogout(){
-  currentDealer = null;
-  document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('mainScreen').classList.add('hidden');
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-}
-
-/* === СПИСОК ИГРОКОВ === */
-function playersKey(){ return 'dealer_players_' + (currentDealer?.id || '0'); }
-function loadPlayersChips(){
-  try { const raw = localStorage.getItem(playersKey()); return raw ? JSON.parse(raw) : []; } catch(e) { return []; }
-}
-function savePlayersChips(list){
-  try { localStorage.setItem(playersKey(), JSON.stringify(list)); } catch(e) {}
-}
-function renderPlayersChips(){
-  const list = loadPlayersChips();
-  const box = document.getElementById('playersChips');
-  const datalist = document.getElementById('playersDatalist');
-  if(!box) return;
-  if(list.length === 0){
-    box.innerHTML = '<span class="chips-empty">Пока никого. Добавьте игрока ↓</span>';
-  } else {
-    box.innerHTML = list.map((nick, i) => `
-      <span class="player-chip" onclick="pickPlayer('${nick.replace(/'/g,"\\'")}')">
-        ${nick}
-        <span class="del" onclick="event.stopPropagation();removePlayerChip(${i})">×</span>
-      </span>
-    `).join('');
-  }
-  if(datalist){ datalist.innerHTML = list.map(n => `<option value="${n}">`).join(''); }
-}
-function addPlayerChip(){
-  const inp = document.getElementById('newPlayerNick');
-  const nick = inp.value.trim();
-  if(!nick) return;
-  const list = loadPlayersChips();
-  if(list.includes(nick)){ inp.value = ''; return; }
-  list.push(nick); savePlayersChips(list); renderPlayersChips();
-  inp.value = ''; pickPlayer(nick);
-}
-function removePlayerChip(idx){
-  const list = loadPlayersChips();
-  list.splice(idx, 1); savePlayersChips(list); renderPlayersChips();
-}
-function pickPlayer(nick){
-  document.getElementById('playerNick').value = nick;
-  document.getElementById('betAmount').focus();
-}
-
-function renderRoulettePlayers(){
-  const list = loadPlayersChips();
-  const box = document.getElementById('roulettePlayersChips');
-  if(!box) return;
-  if(list.length === 0){
-    box.innerHTML = '<span class="chips-empty">Пока никого. Добавьте игрока ↓</span>';
-  } else {
-    box.innerHTML = list.map((nick, i) => `
-      <span class="player-chip" onclick="pickRoulettePlayer('${nick.replace(/'/g,"\\'")}')">
-        ${nick}
-        <span class="del" onclick="event.stopPropagation();removeRoulettePlayer(${i})">×</span>
-      </span>
-    `).join('');
-  }
-}
-function addRoulettePlayer(){
-  const inp = document.getElementById('rouletteNewPlayer');
-  const nick = inp.value.trim();
-  if(!nick) return;
-  const list = loadPlayersChips();
-  if(!list.includes(nick)){ list.push(nick); savePlayersChips(list); }
-  renderPlayersChips(); renderRoulettePlayers();
-  inp.value = ''; pickRoulettePlayer(nick);
-}
-function removeRoulettePlayer(idx){
-  const list = loadPlayersChips();
-  list.splice(idx, 1); savePlayersChips(list); renderPlayersChips(); renderRoulettePlayers();
-}
-function pickRoulettePlayer(nick){
-  document.getElementById('rNick').value = nick;
-  document.getElementById('rBetAmount').focus();
-}
-
-/* === СЧЁТЧИК РАУНДОВ === */
-function roundsKey(){ return 'dealer_rounds_' + (currentDealer?.id || '0') + '_' + new Date().toISOString().slice(0,10); }
-function getRoundsToday(){ try { return parseInt(localStorage.getItem(roundsKey())) || 0; } catch(e) { return 0; } }
-function incRoundsToday(){
-  const n = getRoundsToday() + 1;
-  try { localStorage.setItem(roundsKey(), String(n)); } catch(e) {}
-  return n;
-}
-function updateRoundCounter(){
-  const el = document.getElementById('roundCounter');
-  if(!el) return;
-  const n = getRoundsToday();
-  if(n > 0){ el.style.display = 'inline-block'; el.textContent = 'Сегодня: ' + n; }
-  else el.style.display = 'none';
-}
-
-/* === ПОВТОРИТЬ === */
-function lastRoundKey(){ return 'dealer_last_round_' + (currentDealer?.id || '0'); }
-function repeatLastRound(){
-  try {
-    const raw = localStorage.getItem(lastRoundKey());
-    if(!raw){ showInfo('Нет данных', 'Сначала внесите раунд'); return; }
-    const last = JSON.parse(raw);
-    document.getElementById('gameType').value = last.game || 'bj';
-    document.getElementById('playerNick').value = last.nick || '';
-    document.getElementById('betAmount').value = last.bet || '';
-    document.getElementById('winAmount').value = last.win || '';
-    document.getElementById('jackpotCheck').checked = false;
-  } catch(e) {}
-}
-
-/* === СОХРАНЕНИЕ РАУНДА === */
-async function saveRound(){
-  const gameType = document.getElementById('gameType').value;
-  const playerNick = document.getElementById('playerNick').value.trim();
-  const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-  const winAmount = parseFloat(document.getElementById('winAmount').value) || 0;
-  const jackpot = document.getElementById('jackpotCheck').checked;
-
-  if(!playerNick){ showInfo('Ошибка', 'Введите ник'); return; }
-  if(betAmount < 10 || betAmount > 10000){ showInfo('Ошибка', 'Ставка 10–10000 ₽'); return; }
-  if(winAmount < 0 || winAmount > 100000){ showInfo('Ошибка', 'Выигрыш 0–100000 ₽'); return; }
-
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; btn.textContent = 'Отправка...';
+  if (!login || !pass) { err.textContent = 'Заполните поля'; return; }
 
   try {
-    const res = await fetch('/api/sessions/round', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ dealer: currentDealer.name, game_type: gameType, nick: playerNick, bet: betAmount, win: winAmount, jackpot })
+    const res = await fetch('/api/dealer/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, pass })
     });
     const data = await res.json();
-    if(res.ok) {
-      try { localStorage.setItem(lastRoundKey(), JSON.stringify({ game: gameType, nick: playerNick, bet: betAmount, win: winAmount })); } catch(e) {}
-      incRoundsToday(); updateRoundCounter();
-      showMsg('msgData', 'Раунд сохранён!', true);
-      document.getElementById('playerNick').value = '';
-      document.getElementById('betAmount').value = '';
-      document.getElementById('winAmount').value = '';
-      document.getElementById('jackpotCheck').checked = false;
-      loadTasks();
+    
+    if (data.ok) {
+      currentDealer = data.dealer;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dealerPanel').classList.add('active');
+      showToast('Добро пожаловать, ' + data.dealer.name);
     } else {
-      showInfo('Ошибка', data.error || 'Не удалось');
+      err.textContent = data.error || 'Ошибка';
     }
-  } catch(e){ showInfo('Ошибка', 'Соединение прервано'); }
-  finally { btn.disabled = false; btn.textContent = 'Внести раунд'; }
-}
-
-/* === РУЛЕТКА === */
-function getColorOfNumber(n) {
-  if (n === 0) return 'green';
-  if (RED_NUMBERS.includes(n)) return 'red';
-  return 'black';
-}
-
-function onResultNumberChange() {
-  const input = document.getElementById('rResultNumber');
-  const hint = document.getElementById('rResultColorHint');
-  const val = parseInt(input.value, 10);
-  if (isNaN(val) || val < 0 || val > 36) {
-    hint.textContent = '—'; hint.style.color = '#8fa2b8';
-    updateRoulettePreview(); return;
+  } catch (e) {
+    err.textContent = 'Ошибка соединения с сервером';
   }
-  const color = getColorOfNumber(val);
-  const labels = { red: '🔴 Красное', black: '⚫ Чёрное', green: '🟢 Зеро' };
-  const colors = { red: '#ff4d4d', black: '#fff', green: '#3fbf7f' };
-  hint.textContent = labels[color]; hint.style.color = colors[color];
-  updateRoulettePreview();
 }
 
-function selectRouletteType(type) {
-  rouletteState.type = type;
-  document.querySelectorAll('#rBetTypes .rb-type-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-  });
-  document.getElementById('rNumberWrap').style.display = (type === 'number') ? 'block' : 'none';
-  updateRoulettePreview();
+function logout() {
+  currentDealer = null;
+  location.reload();
 }
 
-function checkWin(betType, betNumber, resultNumber) {
-  if (resultNumber === null || isNaN(resultNumber)) return false;
-  const color = getColorOfNumber(resultNumber);
-  if (betType === 'red') return color === 'red';
-  if (betType === 'black') return color === 'black';
-  if (betType === 'zero') return resultNumber === 0;
-  if (betType === 'even') return resultNumber !== 0 && resultNumber % 2 === 0;
-  if (betType === 'odd') return resultNumber % 2 === 1;
-  if (betType === 'number') return resultNumber === betNumber;
-  return false;
-}
+async function submitRound() {
+  if (!currentDealer) return;
 
-function updateRoulettePreview() {
-  const bet = parseFloat(document.getElementById('rBetAmount').value) || 0;
-  const resultVal = document.getElementById('rResultNumber').value.trim();
-  const resultNumber = resultVal === '' ? null : parseInt(resultVal, 10);
-  const type = rouletteState.type;
-  const betNumber = type === 'number' ? parseInt(document.getElementById('rNumber').value, 10) : null;
+  const gameType = document.getElementById('gameType').value;
 
-  const preview = document.getElementById('rPreview');
-  if (!preview) return;
+  // Если это Рулетка (ввод числа)
+  if (gameType === 'roulette') {
+    const num = parseInt(document.getElementById('rouletteNumber').value, 10);
+    if (isNaN(num) || num < 0 || num > 36) return showToast('Введите число от 0 до 36', true);
 
-  let won = false;
-  let mult = 0;
-  if (resultNumber !== null && !isNaN(resultNumber) && bet > 0) {
-    won = checkWin(type, betNumber, resultNumber);
-    if (won) mult = ROULETTE_PAYOUTS[type] || 0;
-  }
-  const winAmount = won ? Math.round(bet * mult * 100) / 100 : 0;
+    // Определяем цвет
+    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    let color = 'black';
+    if (num === 0) color = 'green';
+    else if (redNumbers.includes(num)) color = 'red';
 
-  let resultLabel = '—';
-  let resultColor = '#8fa2b8';
-  if (resultNumber !== null && !isNaN(resultNumber)) {
-    if (won) { resultLabel = '✅ Угадал'; resultColor = '#3fbf7f'; }
-    else { resultLabel = '❌ Не угадал'; resultColor = '#ff4d4d'; }
+    try {
+      const res = await fetch('/api/dealer/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: num, color: color })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('Число ' + num + ' записано в историю!');
+        document.getElementById('rouletteNumber').value = '';
+      } else {
+        showToast(data.error || 'Ошибка', true);
+      }
+    } catch(e) { showToast('Ошибка соединения', true); }
+    return;
   }
 
-  preview.innerHTML = `
-    <div class="pp-row"><span>Результат</span><span class="val" style="color:${resultColor}">${resultLabel}</span></div>
-    <div class="pp-row"><span>Ставка</span><span class="val">${fmt(bet)} ₽</span></div>
-    <div class="pp-row"><span>Коэффициент</span><span class="val">${won ? '×' + mult : '—'}</span></div>
-    <div class="pp-row total"><span>Выигрыш игрока</span><span class="val" style="color:${won ? '#3fbf7f' : '#8fa2b8'}">${fmt(winAmount)} ₽</span></div>
-  `;
-}
+  // Для Блэкджека и Баккары
+  const nick = document.getElementById('playerNick').value.trim();
+  const bet = parseFloat(document.getElementById('betAmount').value) || 0;
+  const win = parseFloat(document.getElementById('winAmount').value) || 0;
 
-async function saveRouletteRound() {
-  const nick = document.getElementById('rNick').value.trim();
-  const bet = parseFloat(document.getElementById('rBetAmount').value) || 0;
-  const type = rouletteState.type;
-  const resultVal = document.getElementById('rResultNumber').value.trim();
-  const resultNumber = resultVal === '' ? null : parseInt(resultVal, 10);
-  const betNumber = type === 'number' ? parseInt(document.getElementById('rNumber').value, 10) : null;
-
-  if (!nick) { showInfo('Ошибка', 'Введите ник игрока'); return; }
-  if (bet < 10 || bet > 10000) { showInfo('Ошибка', 'Ставка 10–10000 ₽'); return; }
-  if (resultNumber === null || isNaN(resultNumber) || resultNumber < 0 || resultNumber > 36) {
-    showInfo('Ошибка', 'Введите выпавшее число 0–36'); return;
-  }
-  if (type === 'number' && (isNaN(betNumber) || betNumber < 0 || betNumber > 36)) {
-    showInfo('Ошибка', 'Введите число, на которое поставил игрок'); return;
-  }
-
-  const won = checkWin(type, betNumber, resultNumber);
-  const mult = won ? (ROULETTE_PAYOUTS[type] || 0) : 0;
-  const win = won ? Math.round(bet * mult * 100) / 100 : 0;
-
-  const btn = document.getElementById('btnRouletteSubmit');
-  btn.disabled = true; btn.textContent = 'Отправка...';
+  if (!nick) return showToast('Введите ник игрока', true);
+  if (bet <= 0) return showToast('Ставка должна быть больше 0', true);
 
   try {
-    const res = await fetch('/api/sessions/roulette', {
+    const res = await fetch('/api/dealer/round', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        dealer: currentDealer.name, nick, bet_type: type, bet_number: betNumber,
-        bet, win, won, result_number: resultNumber, bet_source: 'real'
+        dealer_id: currentDealer.id,
+        game_type: gameType,
+        nick: nick,
+        bet: bet,
+        win: win
       })
     });
     const data = await res.json();
-    if (res.ok) {
-      showMsg('msgRoulette', `Раунд сохранён! ${won ? '✅ Выигрыш ' + fmt(win) + ' ₽' : '❌ Проигрыш'}. Выпало: ${resultNumber}`, true);
-      document.getElementById('rBetAmount').value = '';
-      document.getElementById('rNumber').value = '';
-      document.getElementById('rResultNumber').value = '';
-      document.getElementById('rResultColorHint').textContent = '—';
-      document.getElementById('rResultColorHint').style.color = '#8fa2b8';
-      updateRoulettePreview();
-      incRoundsToday(); updateRoundCounter();
-      loadRouletteHistory();
-      loadTasks();
+    
+    if (data.ok) {
+      showToast('Раунд записан! Новый баланс: ' + data.balance + ' ₽');
+      document.getElementById('winAmount').value = '';
     } else {
-      showInfo('Ошибка', data.error || 'Не удалось');
+      showToast(data.error || 'Ошибка', true);
     }
   } catch (e) {
-    showInfo('Ошибка', 'Соединение прервано');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Внести раунд';
+    showToast('Ошибка соединения', true);
   }
 }
-
-async function loadRouletteHistory() {
-  if (!currentDealer) return;
-  try {
-    const r = await fetch('/api/sessions/roulette?dealer=' + encodeURIComponent(currentDealer.name));
-    const list = await r.json();
-    const box = document.getElementById('rouletteHistory');
-    if (!box) return;
-    if (!Array.isArray(list) || list.length === 0) {
-      box.innerHTML = '<div style="text-align:center; padding:20px; color:#8fa2b8;">Пока нет раундов</div>';
-      return;
-    }
-    box.innerHTML = list.slice(0, 20).map(x => {
-      const t = x.created_at ? new Date(x.created_at).toLocaleString('ru-RU', {hour:'2-digit',minute:'2-digit'}) : '—';
-      const isWin = (parseFloat(x.win) || 0) > 0;
-      const typeLabel = {
-        number: 'Число ' + (x.bet_number ?? ''),
-        zero: 'Зеро', red: 'Красное', black: 'Чёрное', even: 'Чёт', odd: 'Нечет'
-      }[x.bet_type] || x.bet_type;
-      const resultNum = x.result_number != null ? x.result_number : '—';
-      const colorClass = x.result_color === 'red' ? 'background:#ff4d4d;color:#fff' : x.result_color === 'black' ? 'background:#222;color:#fff' : 'background:#3fbf7f;color:#fff';
-      return `<div class="withdraw-item" style="padding:8px 0;">
-        <div>
-          <div style="font-weight:600;">${x.nick} · ${typeLabel}</div>
-          <div style="font-size:11px;color:#8fa2b8;">${t} · ставка ${fmt(x.bet)} ₽</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;${colorClass}">${resultNum}</div>
-          <div style="font-weight:900; color:${isWin ? '#3fbf7f' : '#ff6b6b'};">
-            ${isWin ? '+' + fmt(x.win) + ' ₽' : '−' + fmt(x.bet) + ' ₽'}
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) { console.error(e); }
-}
-
-/* === ПРОФИЛЬ === */
-async function loadProfile(){
-  if(!currentDealer) return;
-  const box = document.getElementById('profileContent');
-  box.innerHTML = '<div style="text-align:center; padding:30px; color:#8fa2b8">Загрузка...</div>';
-  try {
-    const r = await fetch('/api/dealer/profile?id=' + currentDealer.id);
-    const data = await r.json();
-    if(!r.ok){ box.innerHTML = '<div style="text-align:center; color:#ff4d4d">Ошибка</div>'; return; }
-    const d = data.dealer;
-    const initials = (d.name || '?').slice(0, 2).toUpperCase();
-    const rankColor = d.rank_color || '#cd7f32';
-    box.innerHTML = `
-      <div class="profile-head">
-        <div class="profile-avatar" style="background:linear-gradient(135deg,${rankColor},#0077ff);">${initials}</div>
-        <div class="pname">${d.name}</div>
-        <div class="pid">ID: ${d.id}</div>
-        <div class="rank-badge-custom" style="border-color:${rankColor};color:${rankColor};">${d.rank_label}</div>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-lbl">Рейтинг</div><div class="stat-val" style="color:#f1c40f;">${(parseFloat(d.avg_stars) || 0).toFixed(2)} ★</div></div>
-        <div class="stat-card"><div class="stat-lbl">Баланс</div><div class="stat-val" style="color:#3fbf7f;">${fmt(d.balance)} ₽</div></div>
-      </div>
-      <div class="info-list">
-        <div class="info-line"><span>Логин</span><b>${d.login || '—'}</b></div>
-        <div class="info-line"><span>Ранг</span><b style="color:${rankColor}">${d.rank_label}</b></div>
-        <div class="info-line"><span>Процент</span><b style="color:#3fbf7f">${d.rank_percent}%</b></div>
-        <div class="info-line"><span>Сессий</span><b>${d.sessions}</b></div>
-        <div class="info-line"><span>Оборот</span><b>${fmt(d.total_turnover)} ₽</b></div>
-      </div>
-    `;
-  } catch(e){ box.innerHTML = '<div style="text-align:center; color:#ff4d4d">Ошибка</div>'; }
-}
-
-async function loadBalance(){
-  if(!currentDealer) return;
-  try {
-    const r = await fetch('/api/dealer/balance?id=' + currentDealer.id);
-    const data = await r.json();
-    if(!r.ok) return;
-    dealerBalance = parseFloat(data.dealer.balance) || 0;
-    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
-    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
-    const w = data.withdrawals || [];
-    document.getElementById('withdrawHistory').innerHTML = w.length
-      ? w.map(x => `<div class="withdraw-item"><div><div style="font-weight:600">${fmt(x.sum)} ₽</div><div style="font-size:11px;color:#8fa2b8">${x.date || ''}</div></div><span class="status ${x.status}">${x.status}</span></div>`).join('')
-      : '<div style="color:#8fa2b8;text-align:center;padding:20px;">Выводов не было</div>';
-  } catch(e){}
-}
-
-function openWithdrawModal(){
-  if(dealerBalance <= 0){ showInfo('Нет средств', 'Баланс 0 ₽'); return; }
-  document.getElementById('withdrawCard').value = '';
-  document.getElementById('withdrawSum').value = '';
-  document.getElementById('withdrawModal').classList.add('show');
-}
-function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.remove('show'); }
-
-async function doWithdraw(){
-  const card = document.getElementById('withdrawCard').value.trim();
-  const sum = parseFloat(document.getElementById('withdrawSum').value) || 0;
-  if(!card || card.replace(/\s/g, '').length < 16){ showInfo('Ошибка', 'Введите 16 цифр карты'); return; }
-  if(sum <= 0){ showInfo('Ошибка', 'Сумма > 0'); return; }
-  if(sum > dealerBalance){ showInfo('Ошибка', `Недостаточно. Баланс: ${fmt(dealerBalance)} ₽`); return; }
-  try {
-    const r = await fetch('/api/dealer/withdraw', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id: currentDealer.id, sum, card })
-    });
-    const data = await r.json();
-    if(!r.ok){ closeWithdrawModal(); showInfo('Ошибка', data.error || 'Ошибка'); return; }
-    closeWithdrawModal();
-    showInfo('Заявка создана', `Сумма: <b>${fmt(data.sum)} ₽</b><br>Комиссия: <b style="color:#ff8a8a">-${fmt(data.fee)} ₽</b><br>К зачислению: <b style="color:#3fbf7f">${fmt(data.net)} ₽</b>`, 'ok');
-    loadBalance();
-  } catch(e){ closeWithdrawModal(); showInfo('Ошибка', 'Ошибка соединения'); }
-}
-
-/* === ЗАДАНИЯ === */
-async function loadTasks(){
-  if(!currentDealer) return;
-  try {
-    const r = await fetch('/api/dealer/tasks?id=' + currentDealer.id);
-    const data = await r.json();
-    document.getElementById('weekBadge').textContent = 'День: ' + (data.day || '—');
-    const lb = document.getElementById('limitBadge');
-    const earned = parseFloat(data.earned_today) || 0;
-    const limit = parseFloat(data.daily_limit) || 50;
-    lb.textContent = `Заработано: ${fmt(earned)} / ${fmt(limit)} ₽`;
-    const list = data.tasks || [];
-    document.getElementById('tasksList').innerHTML = list.map(t => {
-      const pct = Math.round((t.progress / t.goal) * 100);
-      let action;
-      if (t.claimed) action = '<span style="color:#3fbf7f;font-weight:700;">✓ Получено</span>';
-      else if (t.blocked) action = '<span style="color:#ff8a8a;font-weight:700;">Лимит</span>';
-      else if (t.canClaim) action = `<button class="btn-submit" style="width:auto;padding:8px 14px;margin:0;font-size:12px;" onclick="claimTask('${t.id}')">Забрать ${t.reward} ₽</button>`;
-      else action = `<span>${t.progress} / ${t.goal}</span>`;
-      return `<div style="background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:14px; margin-bottom:10px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; gap:10px; flex-wrap:wrap;">
-          <div style="font-size:14px; font-weight:600; flex:1;">${t.title}</div>
-          <div style="font-size:15px; font-weight:800; color:#00e5ff;">${t.reward} ₽</div>
-        </div>
-        <div style="height:8px; background:rgba(255,255,255,.08); border-radius:4px; overflow:hidden; margin-bottom:8px;">
-          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#3fbf7f,#00e5ff);"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#8fa2b8;">${action}</div>
-      </div>`;
-    }).join('') || '<div style="text-align:center; padding:20px; color:#8fa2b8;">Заданий нет</div>';
-  } catch(e){}
-}
-
-async function claimTask(taskId){
-  try {
-    const r = await fetch('/api/dealer/tasks/claim', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ dealer_id: currentDealer.id, task_id: taskId })
-    });
-    const data = await r.json();
-    if(!r.ok){ showInfo('Ошибка', data.error || 'Ошибка'); return; }
-    showInfo('Награда', `+${data.reward} ₽`, 'ok');
-    dealerBalance += parseFloat(data.reward) || 0;
-    document.getElementById('dealerBalanceTop').textContent = fmt(dealerBalance);
-    document.getElementById('dealerBalance').textContent = fmt(dealerBalance);
-    loadTasks();
-  } catch(e){ showInfo('Ошибка', 'Ошибка соединения'); }
-}
-
-/* === СЕЙФ === */
-async function loadCashSafe(){
-  if(!currentDealer) return;
-  try {
-    const r = await fetch('/api/dealer/cash-safe?id=' + currentDealer.id);
-    const data = await r.json();
-    document.getElementById('safeTotal').textContent = fmt(data.in_safe) + ' ₽';
-    document.getElementById('safeDetails').textContent = `Принято ${fmt(data.total_in)} ₽ · Выдано ${fmt(data.total_out)} ₽`;
-  } catch(e){}
-}
-async function loadCashHistory(){
-  if(!currentDealer) return;
-  try {
-    const r = await fetch('/api/dealer/cash-history?id=' + currentDealer.id);
-    const list = await r.json();
-    const box = document.getElementById('cashHistoryList');
-    if(!list || list.length === 0){
-      box.innerHTML = '<div style="color:#8fa2b8; text-align:center; padding:20px;">Пока нет</div>';
-      return;
-    }
-    box.innerHTML = list.map(x => {
-      const isIn = x.type === 'in';
-      return `<div class="withdraw-item" style="padding:8px 0;">
-        <div><div style="font-weight:600;">${isIn ? '💰' : '💸'} ${x.guest_name || '—'}</div></div>
-        <div style="font-weight:900; color:${isIn ? '#3fbf7f' : '#ff6b6b'};">${isIn ? '+' : '−'}${fmt(x.sum)} ₽</div>
-      </div>`;
-    }).join('');
-  } catch(e){}
-}
-
-function doCashIn(){
-  const nick = document.getElementById('cashInNick').value.trim();
-  const sum = parseFloat(document.getElementById('cashInSum').value) || 0;
-  if(!nick){ showInfo('Ошибка', 'Введите ник'); return; }
-  if(sum <= 0){ showInfo('Ошибка', 'Сумма > 0'); return; }
-  const pass = prompt('Пароль дилера:');
-  if(!pass) return;
-  fetch('/api/dealer/cash-in', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum, pass })
-  }).then(r => r.json()).then(d => {
-    if(d.error){ showInfo('Ошибка', d.error); return; }
-    showMsg('msgCashIn', `✅ Принято ${fmt(sum)} ₽ от ${nick}`, true);
-    document.getElementById('cashInNick').value = '';
-    document.getElementById('cashInSum').value = '';
-    loadCashSafe(); loadCashHistory();
-  }).catch(() => showInfo('Ошибка', 'Соединение'));
-}
-
-function doCashOut(){
-  const nick = document.getElementById('cashOutNick').value.trim();
-  const sum = parseFloat(document.getElementById('cashOutSum').value) || 0;
-  if(!nick){ showInfo('Ошибка', 'Введите ник'); return; }
-  if(sum <= 0){ showInfo('Ошибка', 'Сумма > 0'); return; }
-  const pass = prompt('Пароль дилера:');
-  if(!pass) return;
-  fetch('/api/dealer/cash-out', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ dealer_id: currentDealer.id, nick, sum, pass })
-  }).then(r => r.json()).then(d => {
-    if(d.error){ showInfo('Ошибка', d.error); return; }
-    showMsg('msgCashOut', `✅ Выдано ${fmt(sum)} ₽ игроку ${nick}`, true);
-    document.getElementById('cashOutNick').value = '';
-    document.getElementById('cashOutSum').value = '';
-    loadCashSafe(); loadCashHistory();
-  }).catch(() => showInfo('Ошибка', 'Соединение'));
-}
-
-/* === INIT === */
-document.addEventListener('DOMContentLoaded', function(){
-  ['playerNick','betAmount','winAmount'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('keypress', e => { if(e.key === 'Enter'){ e.preventDefault(); saveRound(); } });
-  });
-  ['rNick','rBetAmount','rNumber','rResultNumber'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('keypress', e => { if(e.key === 'Enter'){ e.preventDefault(); saveRouletteRound(); } });
-  });
-  document.getElementById('newPlayerNick').addEventListener('keypress', e => {
-    if(e.key === 'Enter'){ e.preventDefault(); addPlayerChip(); }
-  });
-  document.getElementById('rouletteNewPlayer').addEventListener('keypress', e => {
-    if(e.key === 'Enter'){ e.preventDefault(); addRoulettePlayer(); }
-  });
-});
 </script>
 </body>
 </html>
