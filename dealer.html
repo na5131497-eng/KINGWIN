@@ -3,15 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KINGWIN — Дилер · Рулетка</title>
+<title>KINGWIN — Дилер</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main:#0b0e14; --bg-panel:#151922; --bg-card:#1a1f2b;
-    --accent:#00e5ff; --accent-green:#00e676; --accent-red:#ff4d4d;
-    --text-main:#fff; --text-muted:#8b92a5; --border:rgba(255,255,255,0.05);
-    --gold:#f1c40f;
-  }
+  :root { --bg-main:#0b0e14; --bg-panel:#151922; --bg-card:#1a1f2b; --accent:#00e5ff; --accent-green:#00e676; --accent-red:#ff4d4d; --text-main:#fff; --text-muted:#8b92a5; --border:rgba(255,255,255,0.05); --gold:#f1c40f; }
   * { box-sizing:border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; -webkit-tap-highlight-color:transparent; }
   body { background:var(--bg-main); color:var(--text-main); min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
 
@@ -22,8 +17,7 @@
   .login-box .sub { color:var(--text-muted); font-size:12px; margin-bottom:24px; text-transform:uppercase; letter-spacing:1px; }
   .login-box input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:14px; color:#fff; margin-bottom:12px; outline:none; font-size:14px; text-align:center; font-family:inherit; }
   .login-box input:focus { border-color:var(--accent); }
-  .login-box button { width:100%; padding:14px; font-size:14px; font-weight:900; text-transform:uppercase; letter-spacing:1px; background:var(--accent); color:#000; border:none; border-radius:10px; cursor:pointer; font-family:inherit; transition:0.2s; }
-  .login-box button:hover { filter:brightness(1.1); }
+  .login-box button { width:100%; padding:14px; font-size:14px; font-weight:900; text-transform:uppercase; letter-spacing:1px; background:var(--accent); color:#000; border:none; border-radius:10px; cursor:pointer; font-family:inherit; }
   .login-err { color:var(--accent-red); font-size:12px; margin-top:12px; min-height:16px; }
 
   /* === ТОПБАР === */
@@ -31,89 +25,99 @@
   .logo { font-size:18px; font-weight:900; letter-spacing:2px; background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .dealer-info { display:flex; align-items:center; gap:12px; }
   .dealer-name { font-size:13px; font-weight:700; color:var(--accent); }
-  .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
+  .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; }
   .logout-btn:hover { border-color:var(--accent-red); color:var(--accent-red); }
+
+  /* === TABS === */
+  .tabs { display:flex; background:var(--bg-panel); border-bottom:1px solid var(--border); padding:0 8px; gap:4px; overflow-x:auto; scrollbar-width:none; flex-shrink:0; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { padding:14px 20px; background:transparent; border:none; color:var(--text-muted); font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; border-bottom:3px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:6px; }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-btn:hover:not(.active) { color:#fff; }
 
   /* === MAIN === */
   main { flex:1; max-width:900px; width:100%; margin:0 auto; padding:16px; display:flex; flex-direction:column; gap:16px; }
+  .page { display:none; flex-direction:column; gap:16px; }
+  .page.active { display:flex; }
+
   h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
   .subtitle { color:var(--text-muted); font-size:13px; margin-bottom:12px; }
 
-  /* === ВЫПАВШЕЕ ЧИСЛО === */
-  .result-card {
-    background:linear-gradient(135deg,#0a1a3a 0%,#1a3a6b 50%,#0a1a3a 100%);
-    border:2px solid var(--accent); border-radius:20px; padding:28px;
-    text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.2), inset 0 0 20px rgba(0,229,255,0.05);
-    margin-bottom:16px;
-  }
+  /* === РЕЗУЛЬТАТ === */
+  .result-card { background:linear-gradient(135deg,#0a1a3a 0%,#1a3a6b 50%,#0a1a3a 100%); border:2px solid var(--accent); border-radius:20px; padding:24px; text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.2); }
   .result-card .label { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:700; margin-bottom:8px; }
-  .result-card .number { font-size:72px; font-weight:900; color:var(--accent); text-shadow:0 0 30px rgba(0,229,255,0.6); line-height:1; transition:0.3s; }
+  .result-card .number { font-size:64px; font-weight:900; color:var(--accent); text-shadow:0 0 30px rgba(0,229,255,0.6); line-height:1; }
   .result-card .number.green { color:var(--accent-green); text-shadow:0 0 30px rgba(0,230,118,0.6); }
   .result-card .number.red { color:var(--accent-red); text-shadow:0 0 30px rgba(255,77,77,0.6); }
-  .result-card .result-color { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-top:8px; }
+  .result-card .number.win { color:var(--accent-green); }
+  .result-card .number.lose { color:var(--accent-red); }
+  .result-card .number.push { color:var(--gold); }
+  .result-card .number.player { color:var(--accent); }
+  .result-card .number.banker { color:var(--accent-red); }
+  .result-card .number.tie { color:var(--gold); }
+  .result-card .result-color { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-top:8px; color:var(--text-muted); }
   .result-card .result-color.green { color:var(--accent-green); }
   .result-card .result-color.red { color:var(--accent-red); }
   .result-card .result-color.black { color:#999; }
+  .result-card .result-color.win { color:var(--accent-green); }
+  .result-card .result-color.lose { color:var(--accent-red); }
+  .result-card .result-color.push { color:var(--gold); }
+  .result-card .result-color.player { color:var(--accent); }
+  .result-card .result-color.banker { color:var(--accent-red); }
+  .result-card .result-color.tie { color:var(--gold); }
 
-  /* === ФОРМА ВВОДА === */
+  /* === ПАНЕЛИ === */
   .panel { background:var(--bg-panel); border:1px solid var(--border); border-radius:16px; padding:20px; }
   .panel h3 { font-size:16px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 
+  /* === РУЛЕТКА === */
   .number-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-bottom:16px; }
-  .num-btn {
-    aspect-ratio:1; border:2px solid transparent;
-    border-radius:10px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    font-size:15px; font-weight:900;
-    color:#fff; transition:0.15s; font-family:inherit;
-    min-height:44px;
-  }
+  .num-btn { aspect-ratio:1; border:2px solid transparent; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff; font-family:inherit; min-height:44px; }
   .num-btn:active { transform:scale(0.92); }
   .num-btn.red { background:#c8102e; }
   .num-btn.black { background:#111; border-color:rgba(255,255,255,0.1); }
   .num-btn.green { background:#0a8a3a; }
   .num-btn.selected { border-color:var(--accent); box-shadow:0 0 15px rgba(0,229,255,0.6); transform:scale(1.08); }
-  .num-btn:disabled { opacity:0.4; cursor:not-allowed; }
 
   .input-row { display:flex; gap:8px; margin-bottom:12px; }
-  .input-row input {
-    flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border);
-    border-radius:10px; padding:14px; color:#fff;
-    font-size:18px; font-weight:900; text-align:center;
-    outline:none; font-family:inherit;
-  }
+  .input-row input { flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:14px; color:#fff; font-size:18px; font-weight:900; text-align:center; outline:none; font-family:inherit; }
   .input-row input:focus { border-color:var(--accent); }
 
-  .btn-submit {
-    width:100%; padding:16px; font-size:15px; font-weight:900;
-    text-transform:uppercase; letter-spacing:1px;
-    background:linear-gradient(135deg,#00e676,#00b45a); color:#000;
-    border:none; border-radius:12px; cursor:pointer;
-    font-family:inherit; transition:0.2s;
-    box-shadow:0 4px 15px rgba(0,230,118,0.2);
-  }
-  .btn-submit:hover { filter:brightness(1.05); transform:translateY(-1px); }
-  .btn-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  /* === ФОРМА === */
+  .field { margin-bottom:14px; }
+  .field-label { font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:block; }
+  .field input, .field select { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:14px; color:#fff; font-size:16px; font-weight:700; text-align:center; outline:none; font-family:inherit; }
+  .field input:focus, .field select:focus { border-color:var(--accent); }
+
+  .btn-submit { width:100%; padding:16px; font-size:15px; font-weight:900; text-transform:uppercase; letter-spacing:1px; background:linear-gradient(135deg,#00e676,#00b45a); color:#000; border:none; border-radius:12px; cursor:pointer; font-family:inherit; box-shadow:0 4px 15px rgba(0,230,118,0.2); }
+  .btn-submit:hover { filter:brightness(1.05); }
+  .btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+
+  /* === BET TYPE BUTTONS === */
+  .bet-type-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .bet-type-btn { padding:14px 8px; border:2px solid var(--border); background:rgba(0,0,0,0.3); color:#fff; border-radius:10px; font-size:13px; font-weight:900; cursor:pointer; font-family:inherit; text-transform:uppercase; transition:0.15s; }
+  .bet-type-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(0,229,255,0.1); }
+  .bet-type-btn[data-result="win"].active,
+  .bet-type-btn[data-result="player"].active { border-color:var(--accent-green); color:var(--accent-green); background:rgba(0,230,118,0.1); }
+  .bet-type-btn[data-result="lose"].active,
+  .bet-type-btn[data-result="banker"].active { border-color:var(--accent-red); color:var(--accent-red); background:rgba(255,77,77,0.1); }
+  .bet-type-btn[data-result="push"].active,
+  .bet-type-btn[data-result="tie"].active { border-color:var(--gold); color:var(--gold); background:rgba(241,196,15,0.1); }
 
   /* === ИСТОРИЯ === */
   .history-list { display:flex; flex-wrap:wrap; gap:8px; min-height:44px; }
-  .history-item {
-    width:44px; height:44px;
-    border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:15px; font-weight:900; color:#fff;
-    animation:popIn 0.3s;
-    border:1px solid rgba(255,255,255,0.1);
-  }
+  .history-item { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff; border:1px solid rgba(255,255,255,0.1); animation:popIn 0.3s; }
   .history-item.red { background:#c8102e; }
   .history-item.black { background:#111; }
   .history-item.green { background:#0a8a3a; }
+  .history-item.win { background:rgba(0,230,118,0.3); color:#00ff99; border-color:#00e676; }
+  .history-item.lose { background:rgba(255,77,77,0.3); color:#ff8a8a; border-color:#ff4d4d; }
+  .history-item.push { background:rgba(241,196,15,0.3); color:#ffd700; border-color:#f1c40f; }
+  .history-item.player { background:#0057b7; color:#fff; }
+  .history-item.banker { background:#c8102e; color:#fff; }
+  .history-item.tie { background:#b8860b; color:#fff; }
   .history-empty { color:var(--text-muted); font-size:13px; padding:12px 0; }
-  @keyframes popIn {
-    0% { transform:scale(0.3); opacity:0; }
-    60% { transform:scale(1.1); }
-    100% { transform:scale(1); opacity:1; }
-  }
+  @keyframes popIn { 0% { transform:scale(0.3); opacity:0; } 60% { transform:scale(1.1); } 100% { transform:scale(1); opacity:1; } }
 
   /* === ТОСТ === */
   .toast { position:fixed; top:74px; right:16px; background:var(--bg-panel); border-left:4px solid var(--accent); padding:14px 20px; border-radius:10px; font-size:13px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,0.5); transform:translateX(150%); transition:0.3s; z-index:9999; max-width:320px; }
@@ -125,13 +129,13 @@
     main { padding:12px; gap:12px; }
     h1 { font-size:18px; }
     .result-card { padding:20px; }
-    .result-card .number { font-size:56px; }
-    .number-grid { grid-template-columns:repeat(6,1fr); gap:4px; }
+    .result-card .number { font-size:48px; }
+    .number-grid { gap:4px; }
     .num-btn { font-size:13px; min-height:38px; }
     .panel { padding:14px; }
     .panel h3 { font-size:14px; margin-bottom:12px; }
-    .input-row input { font-size:16px; padding:12px; }
-    .btn-submit { font-size:14px; padding:14px; }
+    .tabs { gap:0; }
+    .tab-btn { padding:12px 14px; font-size:12px; }
     .history-item { width:38px; height:38px; font-size:13px; }
   }
 </style>
@@ -142,7 +146,7 @@
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="name">KINGWIN DEALER</div>
-    <div class="sub">Панель дилера · Рулетка</div>
+    <div class="sub">Панель дилера</div>
     <input type="text" id="loginInput" placeholder="Логин" onkeydown="if(event.key==='Enter') doLogin()">
     <input type="password" id="passInput" placeholder="Пароль" onkeydown="if(event.key==='Enter') doLogin()">
     <button onclick="doLogin()">Войти</button>
@@ -159,43 +163,139 @@
   </div>
 </div>
 
+<!-- ВКЛАДКИ -->
+<div class="tabs" style="display:none" id="tabs">
+  <button class="tab-btn active" data-tab="roulette" onclick="switchTab('roulette', this)">🎡 Рулетка</button>
+  <button class="tab-btn" data-tab="blackjack" onclick="switchTab('blackjack', this)">🃏 Блекджек</button>
+  <button class="tab-btn" data-tab="baccarat" onclick="switchTab('baccarat', this)">🎴 Баккара</button>
+</div>
+
 <!-- MAIN -->
 <main style="display:none" id="mainContent">
 
-  <div>
-    <h1>🎡 Рулетка</h1>
-    <div class="subtitle">Введите выпавшее число и отправьте в игру</div>
-  </div>
-
-  <!-- Последний результат -->
-  <div class="result-card" id="resultCard">
-    <div class="label">Последний результат</div>
-    <div class="number" id="lastNumber">—</div>
-    <div class="result-color" id="lastColor">Ожидание</div>
-  </div>
-
-  <!-- Форма ввода -->
-  <div class="panel">
-    <h3>🎯 Выпавшее число</h3>
-
-    <div class="number-grid" id="numberGrid">
-      <!-- Заполнится JS -->
+  <!-- РУЛЕТКА -->
+  <div class="page active" id="page-roulette">
+    <div>
+      <h1>🎡 Рулетка</h1>
+      <div class="subtitle">Введите выпавшее число</div>
     </div>
 
-    <div class="input-row">
-      <input type="number" id="manualInput" placeholder="0-36" min="0" max="36" inputmode="numeric">
+    <div class="result-card" id="rouletteResult">
+      <div class="label">Последний результат</div>
+      <div class="number" id="rouletteLastNumber">—</div>
+      <div class="result-color" id="rouletteLastColor">Ожидание</div>
     </div>
 
-    <button class="btn-submit" id="btnSubmit" onclick="submitNumber()">
-      ✅ Отправить результат
-    </button>
+    <div class="panel">
+      <h3>🎯 Выпавшее число</h3>
+      <div class="number-grid" id="numberGrid"></div>
+      <div class="input-row">
+        <input type="number" id="manualInput" placeholder="0-36" min="0" max="36" inputmode="numeric">
+      </div>
+      <button class="btn-submit" id="btnRoulette" onclick="submitRoulette()">✅ Отправить результат</button>
+    </div>
+
+    <div class="panel">
+      <h3>📊 История выпадений</h3>
+      <div class="history-list" id="rouletteHistory"><div class="history-empty">Пока нет</div></div>
+    </div>
   </div>
 
-  <!-- История -->
-  <div class="panel">
-    <h3>📊 История выпадений</h3>
-    <div class="history-list" id="historyList">
-      <div class="history-empty">Пока нет выпадений</div>
+  <!-- БЛЕКДЖЕК -->
+  <div class="page" id="page-blackjack">
+    <div>
+      <h1>🃏 Блекджек</h1>
+      <div class="subtitle">Зафиксируйте результат партии</div>
+    </div>
+
+    <div class="result-card" id="blackjackResult">
+      <div class="label">Последний результат</div>
+      <div class="number" id="blackjackLastText">—</div>
+      <div class="result-color" id="blackjackLastColor">Ожидание</div>
+    </div>
+
+    <div class="panel">
+      <h3>🎯 Итог партии</h3>
+
+      <div class="field">
+        <label class="field-label">Игрок</label>
+        <input type="text" id="bjPlayer" placeholder="Ник игрока" value="Игрок">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Ставка (₽)</label>
+        <input type="number" id="bjBet" placeholder="100" min="0" value="100" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Результат</label>
+        <div class="bet-type-row">
+          <button class="bet-type-btn active" data-result="win" onclick="selectBJResult('win', this)">✅ Победа</button>
+          <button class="bet-type-btn" data-result="lose" onclick="selectBJResult('lose', this)">❌ Проигрыш</button>
+          <button class="bet-type-btn" data-result="push" onclick="selectBJResult('push', this)">⚖ Пуш</button>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btnBlackjack" onclick="submitBlackjack()">✅ Отправить</button>
+    </div>
+
+    <div class="panel">
+      <h3>📊 История блекджека</h3>
+      <div class="history-list" id="blackjackHistory"><div class="history-empty">Пока нет</div></div>
+    </div>
+  </div>
+
+  <!-- БАККАРА -->
+  <div class="page" id="page-baccarat">
+    <div>
+      <h1>🎴 Баккара</h1>
+      <div class="subtitle">Зафиксируйте результат раунда</div>
+    </div>
+
+    <div class="result-card" id="baccaratResult">
+      <div class="label">Последний результат</div>
+      <div class="number" id="baccaratLastText">—</div>
+      <div class="result-color" id="baccaratLastColor">Ожидание</div>
+    </div>
+
+    <div class="panel">
+      <h3>🎯 Итог раунда</h3>
+
+      <div class="field">
+        <label class="field-label">Игрок</label>
+        <input type="text" id="bacPlayer" placeholder="Ник игрока" value="Игрок">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Исход</label>
+        <div class="bet-type-row">
+          <button class="bet-type-btn active" data-result="player" onclick="selectBacResult('player', this)">👤 Игрок</button>
+          <button class="bet-type-btn" data-result="banker" onclick="selectBacResult('banker', this)">🏦 Банкир</button>
+          <button class="bet-type-btn" data-result="tie" onclick="selectBacResult('tie', this)">🤝 Ничья</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Ставка на игрока (₽)</label>
+        <input type="number" id="bacBetPlayer" placeholder="0" min="0" value="0" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Ставка на банкира (₽)</label>
+        <input type="number" id="bacBetBanker" placeholder="0" min="0" value="0" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Ставка на ничью (₽)</label>
+        <input type="number" id="bacBetTie" placeholder="0" min="0" value="0" inputmode="numeric">
+      </div>
+
+      <button class="btn-submit" id="btnBaccarat" onclick="submitBaccarat()">✅ Отправить</button>
+    </div>
+
+    <div class="panel">
+      <h3>📊 История баккара</h3>
+      <div class="history-list" id="baccaratHistory"><div class="history-empty">Пока нет</div></div>
     </div>
   </div>
 
@@ -204,29 +304,20 @@
 <div class="toast" id="toast">OK</div>
 
 <script>
-// ============================================================
-// КОНСТАНТЫ РУЛЕТКИ
-// ============================================================
-const RED_NUMBERS   = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const BLACK_NUMBERS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
-const GREEN_NUMBERS = [0];
-
-function getNumberColor(n) {
-  if (GREEN_NUMBERS.includes(n)) return 'green';
+const RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+function getRouletteColor(n) {
+  if (n === 0) return 'green';
   if (RED_NUMBERS.includes(n)) return 'red';
   return 'black';
 }
 
-// ============================================================
-// СОСТОЯНИЕ
-// ============================================================
 let dealer = null;
 let selectedNumber = null;
-let history = [];
+let selectedBJResult = 'win';
+let selectedBacResult = 'player';
+let currentTab = 'roulette';
+let pollInterval = null;
 
-// ============================================================
-// INIT
-// ============================================================
 window.addEventListener('load', async () => {
   const saved = sessionStorage.getItem('kingwin_dealer');
   if (saved) {
@@ -234,80 +325,66 @@ window.addEventListener('load', async () => {
       dealer = JSON.parse(saved);
       showMainUI();
       buildNumberGrid();
-      await loadHistory();
-      startHistoryPolling();
+      await loadAllHistories();
+      startPolling();
     } catch(e) { sessionStorage.removeItem('kingwin_dealer'); }
   }
-  document.getElementById('loginInput').addEventListener('input', () => {
-    document.getElementById('loginErr').textContent = '';
-  });
 });
 
 function showMainUI() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('tabs').style.display = 'flex';
   document.getElementById('mainContent').style.display = 'flex';
   document.getElementById('dealerName').textContent = dealer?.name || 'Дилер';
 }
 
-// ============================================================
-// ЛОГИН
-// ============================================================
 async function doLogin() {
   const login = document.getElementById('loginInput').value.trim();
   const pass = document.getElementById('passInput').value;
   const err = document.getElementById('loginErr');
-
-  if (!login || !pass) {
-    err.textContent = 'Введите логин и пароль';
-    return;
-  }
-
+  if (!login || !pass) { err.textContent = 'Введите логин и пароль'; return; }
   err.textContent = '';
-
   try {
     const res = await fetch('/api/dealer/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login, pass })
     });
-    if (!res.ok) {
-      err.textContent = 'Сервер не отвечает';
-      return;
-    }
     const data = await res.json();
-    if (!data.ok) {
-      err.textContent = data.error || 'Неверный логин или пароль';
-      return;
-    }
-
+    if (!data.ok) { err.textContent = data.error || 'Неверный логин или пароль'; return; }
     dealer = data.dealer;
     sessionStorage.setItem('kingwin_dealer', JSON.stringify(dealer));
     showMainUI();
     buildNumberGrid();
-    await loadHistory();
-    startHistoryPolling();
-    showToast('Добро пожаловать, ' + dealer.name, 'success');
-  } catch(e) {
-    err.textContent = 'Ошибка сети';
-  }
+    await loadAllHistories();
+    startPolling();
+    showToast('Добро пожаловать, ' + dealer.name);
+  } catch(e) { err.textContent = 'Ошибка сети'; }
 }
 
 function logout() {
   sessionStorage.removeItem('kingwin_dealer');
-  dealer = null;
   location.reload();
 }
 
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  loadAllHistories();
+}
+
 // ============================================================
-// СЕТКА ЧИСЕЛ
+// РУЛЕТКА
 // ============================================================
 function buildNumberGrid() {
   const grid = document.getElementById('numberGrid');
   if (!grid) return;
   grid.innerHTML = '';
   for (let i = 0; i <= 36; i++) {
-    const color = getNumberColor(i);
+    const color = getRouletteColor(i);
     const btn = document.createElement('button');
     btn.className = 'num-btn ' + color;
     btn.textContent = i;
@@ -315,157 +392,243 @@ function buildNumberGrid() {
     btn.onclick = () => selectNumber(i);
     grid.appendChild(btn);
   }
-  // Обновляем selected подсветку
-  updateSelectedHighlight();
 }
-
 function selectNumber(n) {
   selectedNumber = n;
   document.getElementById('manualInput').value = n;
-  updateSelectedHighlight();
-  // Вибро
+  document.querySelectorAll('.num-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.num) === n);
+  });
   if (navigator.vibrate) navigator.vibrate(10);
 }
-
-function updateSelectedHighlight() {
-  document.querySelectorAll('.num-btn').forEach(btn => {
-    if (parseInt(btn.dataset.num) === selectedNumber) {
-      btn.classList.add('selected');
-    } else {
-      btn.classList.remove('selected');
-    }
-  });
-}
-
 document.getElementById('manualInput')?.addEventListener('input', (e) => {
   const v = parseInt(e.target.value);
-  if (!isNaN(v) && v >= 0 && v <= 36) {
-    selectedNumber = v;
-    updateSelectedHighlight();
-  } else {
-    selectedNumber = null;
-    updateSelectedHighlight();
-  }
+  selectedNumber = (!isNaN(v) && v >= 0 && v <= 36) ? v : null;
+  document.querySelectorAll('.num-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.num) === selectedNumber);
+  });
 });
 
-// ============================================================
-// ОТПРАВКА ЧИСЛА
-// ============================================================
-async function submitNumber() {
+async function submitRoulette() {
   if (selectedNumber === null || selectedNumber < 0 || selectedNumber > 36) {
-    showToast('Выберите число от 0 до 36', 'error');
-    return;
+    showToast('Выберите число 0-36', 'error'); return;
   }
-
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true;
-  btn.textContent = '⏳ Отправка...';
-
+  const btn = document.getElementById('btnRoulette');
+  btn.disabled = true; btn.textContent = '⏳ Отправка...';
   try {
     const res = await fetch('/api/dealer/roulette/result', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        login: dealer ? undefined : null,
-        dealer_id: dealer?.id,
-        dealer_name: dealer?.name,
-        number: selectedNumber
-      })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dealer_name: dealer?.name, number: selectedNumber })
     });
-
-    if (!res.ok) {
-      showToast('Ошибка сервера', 'error');
-      btn.disabled = false;
-      btn.textContent = '✅ Отправить результат';
-      return;
-    }
-
     const data = await res.json();
     if (data.ok) {
-      showToast('Результат отправлен: ' + selectedNumber, 'success');
-      displayResult(selectedNumber);
-      await loadHistory();
-      // Сброс выбора
+      showToast('Результат: ' + selectedNumber);
+      renderRouletteResult(selectedNumber);
+      await loadRouletteHistory();
       selectedNumber = null;
       document.getElementById('manualInput').value = '';
-      updateSelectedHighlight();
-      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+      document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
     } else {
       showToast(data.error || 'Ошибка', 'error');
     }
-  } catch(e) {
-    showToast('Ошибка сети', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '✅ Отправить результат';
-  }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
+  finally { btn.disabled = false; btn.textContent = '✅ Отправить результат'; }
 }
 
-// ============================================================
-// ОТОБРАЖЕНИЕ РЕЗУЛЬТАТА
-// ============================================================
-function displayResult(n) {
-  const numEl = document.getElementById('lastNumber');
-  const colorEl = document.getElementById('lastColor');
-  const color = getNumberColor(n);
-
-  numEl.textContent = n;
-  numEl.className = 'number ' + color;
-
-  colorEl.className = 'result-color ' + color;
-  colorEl.textContent = color === 'green' ? 'ЗЕРО' : color === 'red' ? 'КРАСНОЕ' : 'ЧЁРНОЕ';
+function renderRouletteResult(n) {
+  const color = getRouletteColor(n);
+  document.getElementById('rouletteLastNumber').textContent = n;
+  document.getElementById('rouletteLastNumber').className = 'number ' + color;
+  const c = document.getElementById('rouletteLastColor');
+  c.className = 'result-color ' + color;
+  c.textContent = color === 'green' ? 'ЗЕРО' : color === 'red' ? 'КРАСНОЕ' : 'ЧЁРНОЕ';
 }
 
-// ============================================================
-// ИСТОРИЯ
-// ============================================================
-async function loadHistory() {
+async function loadRouletteHistory() {
   try {
     const res = await fetch('/api/dealer/roulette/history?limit=20&_t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) return;
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      history = data;
-    } else if (Array.isArray(data.history)) {
-      history = data.history;
-    } else {
-      history = [];
+    const list = await res.json();
+    const container = document.getElementById('rouletteHistory');
+    if (!Array.isArray(list) || list.length === 0) {
+      container.innerHTML = '<div class="history-empty">Пока нет</div>';
+      return;
     }
-    renderHistory();
-    if (history.length > 0) {
-      displayResult(history[0].number ?? history[0]);
-    }
+    container.innerHTML = '';
+    list.forEach(item => {
+      const n = item.number ?? item.result_number;
+      const color = item.color || getRouletteColor(n);
+      const el = document.createElement('div');
+      el.className = 'history-item ' + color;
+      el.textContent = n;
+      container.appendChild(el);
+    });
   } catch(e) {}
 }
 
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (!list) return;
+// ============================================================
+// БЛЕКДЖЕК
+// ============================================================
+function selectBJResult(result, btn) {
+  selectedBJResult = result;
+  document.querySelectorAll('#page-blackjack .bet-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
-  if (!history || history.length === 0) {
-    list.innerHTML = '<div class="history-empty">Пока нет выпадений</div>';
-    return;
+async function submitBlackjack() {
+  const playerNick = document.getElementById('bjPlayer').value.trim() || 'Игрок';
+  const bet = parseFloat(document.getElementById('bjBet').value) || 0;
+
+  const btn = document.getElementById('btnBlackjack');
+  btn.disabled = true; btn.textContent = '⏳ Отправка...';
+  try {
+    const res = await fetch('/api/dealer/blackjack/result', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dealer_name: dealer?.name, player_nick: playerNick, bet, result: selectedBJResult })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Результат: ' + selectedBJResult);
+      renderBlackjackResult(selectedBJResult);
+      await loadBlackjackHistory();
+    } else {
+      showToast(data.error || 'Ошибка', 'error');
+    }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
+  finally { btn.disabled = false; btn.textContent = '✅ Отправить'; }
+}
+
+function renderBlackjackResult(result) {
+  const map = {
+    win:  { text: 'ПОБЕДА',  color: 'win' },
+    lose: { text: 'ПРОИГРЫШ', color: 'lose' },
+    push: { text: 'ПУШ',      color: 'push' }
+  };
+  const m = map[result] || map.push;
+  document.getElementById('blackjackLastText').textContent = m.text;
+  document.getElementById('blackjackLastText').className = 'number ' + m.color;
+  const c = document.getElementById('blackjackLastColor');
+  c.className = 'result-color ' + m.color;
+  c.textContent = 'Партия закрыта';
+}
+
+async function loadBlackjackHistory() {
+  try {
+    const res = await fetch('/api/dealer/blackjack/history?limit=20&_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const list = await res.json();
+    const container = document.getElementById('blackjackHistory');
+    if (!Array.isArray(list) || list.length === 0) {
+      container.innerHTML = '<div class="history-empty">Пока нет</div>';
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'history-item ' + item.result;
+      el.textContent = item.result === 'win' ? '✅' : item.result === 'lose' ? '❌' : '⚖';
+      el.title = `Игрок: ${item.player_nick || '-'}, ставка: ${item.bet}₽`;
+      container.appendChild(el);
+    });
+  } catch(e) {}
+}
+
+// ============================================================
+// БАККАРА
+// ============================================================
+function selectBacResult(result, btn) {
+  selectedBacResult = result;
+  document.querySelectorAll('#page-baccarat .bet-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function submitBaccarat() {
+  const playerNick = document.getElementById('bacPlayer').value.trim() || 'Игрок';
+  const betPlayer = parseFloat(document.getElementById('bacBetPlayer').value) || 0;
+  const betBanker = parseFloat(document.getElementById('bacBetBanker').value) || 0;
+  const betTie = parseFloat(document.getElementById('bacBetTie').value) || 0;
+
+  if (betPlayer + betBanker + betTie <= 0) {
+    showToast('Укажите хотя бы одну ставку', 'error'); return;
   }
 
-  list.innerHTML = '';
-  history.slice(0, 20).forEach(item => {
-    const n = typeof item === 'number' ? item : parseInt(item.number);
-    const color = getNumberColor(n);
-    const el = document.createElement('div');
-    el.className = 'history-item ' + color;
-    el.textContent = n;
-    el.title = item.created_at ? new Date(item.created_at).toLocaleString('ru-RU') : '';
-    list.appendChild(el);
-  });
+  const btn = document.getElementById('btnBaccarat');
+  btn.disabled = true; btn.textContent = '⏳ Отправка...';
+  try {
+    const res = await fetch('/api/dealer/baccarat/result', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dealer_name: dealer?.name,
+        player_nick: playerNick,
+        bet_player: betPlayer,
+        bet_banker: betBanker,
+        bet_tie: betTie,
+        result: selectedBacResult
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Результат: ' + selectedBacResult);
+      renderBaccaratResult(selectedBacResult);
+      await loadBaccaratHistory();
+    } else {
+      showToast(data.error || 'Ошибка', 'error');
+    }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
+  finally { btn.disabled = false; btn.textContent = '✅ Отправить'; }
 }
 
-function startHistoryPolling() {
-  setInterval(loadHistory, 5000);
+function renderBaccaratResult(result) {
+  const map = {
+    player: { text: 'ИГРОК',  color: 'player' },
+    banker: { text: 'БАНКИР', color: 'banker' },
+    tie:    { text: 'НИЧЬЯ',  color: 'tie' }
+  };
+  const m = map[result] || map.tie;
+  document.getElementById('baccaratLastText').textContent = m.text;
+  document.getElementById('baccaratLastText').className = 'number ' + m.color;
+  const c = document.getElementById('baccaratLastColor');
+  c.className = 'result-color ' + m.color;
+  c.textContent = 'Раунд закрыт';
+}
+
+async function loadBaccaratHistory() {
+  try {
+    const res = await fetch('/api/dealer/baccarat/history?limit=20&_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const list = await res.json();
+    const container = document.getElementById('baccaratHistory');
+    if (!Array.isArray(list) || list.length === 0) {
+      container.innerHTML = '<div class="history-empty">Пока нет</div>';
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'history-item ' + item.result;
+      el.textContent = item.result === 'player' ? '👤' : item.result === 'banker' ? '🏦' : '🤝';
+      el.title = `Игрок: ${item.player_nick || '-'}, ставка: ${item.bet}₽`;
+      container.appendChild(el);
+    });
+  } catch(e) {}
 }
 
 // ============================================================
-// ТОСТ
+// ОБЩЕЕ
 // ============================================================
+async function loadAllHistories() {
+  await Promise.all([
+    loadRouletteHistory(),
+    loadBlackjackHistory(),
+    loadBaccaratHistory()
+  ]);
+}
+
+function startPolling() {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(loadAllHistories, 5000);
+}
+
 function showToast(text, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = text;
