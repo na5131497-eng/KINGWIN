@@ -20,9 +20,11 @@
     background: var(--bg-main); color: var(--text-main); min-height: 100dvh; 
     padding-bottom: calc(var(--nav-height) + 30px + env(safe-area-inset-bottom)); 
     position: relative; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+    padding-top: 0;
   }
 
-  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 5px; }
+  /* Убран лишний отступ сверху */
+  .main-content { padding: 0 15px; width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 0; }
   .screen { display: none; animation: fadeIn 0.3s ease; padding-bottom: 10px; }
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -43,7 +45,7 @@
   body > *:not(.bg-crowns):not(.sidebar-overlay):not(.sidebar):not(.bottom-nav):not(.payment-overlay):not(.pay-page-overlay):not(.modal-overlay):not(.waiting-overlay) { position: relative; z-index: 1; }
 
   /* === ТОП БАР === */
-  .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; }
+  .topbar { height: 60px; background: var(--bg-main); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; margin: 0; }
   .header-left { display: flex; align-items: center; gap: 12px; }
   .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
   .menu-btn:hover { background: rgba(255,255,255,0.1); }
@@ -56,7 +58,7 @@
   .btn-login { background: transparent; border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
 
   /* === КОНТЕНТ === */
-  .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-top: 5px; }
+  .banners-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-top: 0; }
   .banners-scroll::-webkit-scrollbar { display: none; }
   .banner-card { flex: 0 0 85%; scroll-snap-align: start; border-radius: 16px; position: relative; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; text-decoration: none; }
   .banner-card.deposit { background: #1c2230; }
@@ -86,6 +88,7 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
   .game-sub { font-size: 10px; color: var(--text-muted); }
 
+  /* Блок последних выигрышей (в линию) */
   .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); margin-top: 15px;}
   .wins-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .wins-scroll::-webkit-scrollbar { display: none; }
@@ -95,6 +98,17 @@
   .win-name { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
   .win-game { font-size: 10px; color: var(--text-muted); }
   .win-sum { font-size: 13px; font-weight: 900; color: var(--accent-green); margin-left: auto; white-space: nowrap; }
+
+  /* === ЮРИДИЧЕСКИЙ БЛОК (ВНИЗУ) === */
+  .legal-block { margin-top: 30px; margin-bottom: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .legal-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+  .legal-faq-item { background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.03); }
+  .legal-faq-q { padding: 15px 20px; font-size: 14px; font-weight: 700; color: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .legal-faq-q svg { width: 20px; height: 20px; fill: var(--text-muted); transition: 0.3s; }
+  .legal-faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 20px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .legal-faq-item.open .legal-faq-a { padding-bottom: 15px; }
+  .legal-faq-item.open .legal-faq-q svg { transform: rotate(180deg); fill: var(--accent); }
+  .legal-faq-a b { color: #fff; }
 
   /* === НИЖНЕЕ МЕНЮ === */
   .bottom-nav { 
@@ -157,6 +171,7 @@
   .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
   .btn-primary-full { width: 100%; padding: 15px; font-size: 16px; background: var(--accent-green); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; }
 
+  /* ... Тут идут стили для окон оплаты и прочего, я их не удалял, они остались в полном объеме ... */
   .payment-overlay { position: fixed !important; inset: 0 !important; background: var(--bg-main); z-index: 9999999 !important; display: none; flex-direction: column; overflow-y: auto; color: #fff; }
   .payment-overlay.show { display: flex !important; }
   .pay-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-main); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -319,8 +334,63 @@
       <div class="section-header" style="margin-top:0; margin-bottom:10px;"><div class="section-title">🏆 Последние выигрыши</div></div>
       <div class="wins-scroll" id="lastWinsHome"><div style="color:#8b92a5; font-size:12px; padding:10px;">Загрузка...</div></div>
     </div>
-  </div>
 
+    <!-- ЮРИДИЧЕСКИЙ БЛОК -->
+    <div class="legal-block">
+      <div class="legal-title">📜 Условия использования</div>
+      
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Общие положения
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Используя сайт KINGWIN, вы подтверждаете, что достигли совершеннолетия (18+) и не находитесь под запретом на участие в азартных играх в вашей юрисдикции.</div>
+      </div>
+
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Игровой процесс
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Все игры предоставляются «как есть». Администрация не несет ответственности за технические сбои на стороне провайдера или интернет-соединения игрока.</div>
+      </div>
+
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Выплаты и бонусы
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Вывод средств осуществляется только на реквизиты, указанные при регистрации. Бонусные средства имеют вейджер (условия отыгрыша). Вывод бонусных средств до полного отыгрыша невозможен.</div>
+      </div>
+
+      <div class="legal-title" style="margin-top: 25px;">🛡 Ответственная игра</div>
+
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Контроль
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Азартные игры — это развлечение, а не способ заработка. Устанавливайте лимиты на депозиты и время игры.</div>
+      </div>
+
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Самоисключение
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Вы можете запросить временную или постоянную блокировку аккаунта, написав в службу поддержки.</div>
+      </div>
+
+      <div class="legal-faq-item" onclick="toggleLegal(this)">
+        <div class="legal-faq-q">
+          Помните
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+        <div class="legal-faq-a">Играйте только на те средства, потерю которых вы можете себе позволить.</div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- НИЖНЕЕ МЕНЮ -->
@@ -329,17 +399,17 @@
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     Главная
   </a>
-  <a href="#" class="nav-item" onclick="switchScreen('bonuses'); return false;">
-    <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
-    Бонусы
-  </a>
-  <button class="nav-btn-plus" onclick="actionRequireLogin('openNewPaymentScreen')">
-    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-  </button>
   <a href="/tournament.html" class="nav-item">
     <span class="nav-badge">3</span>
     <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
     Турниры
+  </a>
+  <button class="nav-btn-plus" onclick="actionRequireLogin('openNewPaymentScreen')">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </button>
+  <a href="/cases.html" class="nav-item" onclick="return requireLogin(event)">
+    <svg viewBox="0 0 24 24"><path d="M21 8h-2V6c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM7 6h10v2H7V6zm14 12H3V10h18v8z"/></svg>
+    Кейсы
   </a>
   <a href="/profile.html" class="nav-item" onclick="return requireLogin(event)">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -347,9 +417,7 @@
   </a>
 </div>
 
-<!-- ======================================================== -->
 <!-- САЙДБАР -->
-<!-- ======================================================== -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sb-header">
@@ -580,11 +648,6 @@ const depositAmountParam = urlParams.get('deposit');
 function switchScreen(screenName) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + screenName).classList.add('active');
-  
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navItem = document.querySelector(`.nav-item[onclick*="'${screenName}'"]`);
-  if (navItem) navItem.classList.add('active');
-
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
@@ -601,6 +664,23 @@ function toggleSbGames() {
     arrow.style.transform = 'rotate(180deg)';
   } else {
     arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+// --- ЛОГИКА ЮРИДИЧЕСКОГО БЛОКА ---
+function toggleLegal(el) {
+  const isOpen = el.classList.contains('open');
+  // Закрываем все остальные (если нужно, чтобы открыт был только один)
+  document.querySelectorAll('.legal-faq-item').forEach(item => {
+    item.classList.remove('open');
+    const ans = item.querySelector('.legal-faq-a');
+    if (ans) ans.style.maxHeight = null;
+  });
+  
+  if (!isOpen) {
+    el.classList.add('open');
+    const ans = el.querySelector('.legal-faq-a');
+    if (ans) ans.style.maxHeight = ans.scrollHeight + "px";
   }
 }
 
@@ -713,17 +793,14 @@ function startPayTimer(seconds) {
   }, 1000);
 }
 
-// === ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАВЕРШЕНИЯ ОПЛАТЫ ===
 function finishPayment() {
   closePayPage();
   
-  // Получаем сумму и банк
   let finalSumStr = document.getElementById('ppAmountRight').textContent;
   let sumToPay = parseFloat(finalSumStr.replace(' ₽', '').replace(',', '.')) || 0;
   let bankName = document.getElementById('ppBankName').textContent || 'СБП';
 
   if (currentPlayer && sumToPay > 0) {
-    // Отправляем заявку на сервер
     fetch('/api/deposits', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -825,6 +902,40 @@ function updateUI() {
   }
 }
 
+// --- ЗАГРУЗКА ПОСЛЕДНИХ ВЫИГРЫШЕЙ ---
+async function loadLastWinsHome() {
+  try {
+    const r = await fetch('/api/last-wins?limit=10', { cache: 'no-store' });
+    const list = await r.json();
+    const box = document.getElementById('lastWinsHome');
+    
+    if (!box) return;
+    
+    if (!Array.isArray(list) || list.length === 0) {
+      box.innerHTML = '<div style="color:#8fa2b8; font-size:12px; padding:10px;">Пока нет выигрышей.</div>'; 
+      return;
+    }
+    
+    box.innerHTML = list.map(function(w) {
+      const g = { roulette:'🎡', crash:'🚀', miner:'💣', plinko:'🎯', ladder:'🪜', cases:'🎁', empire_of_gold:'👑' }[w.game] || '🎮';
+      return `
+        <div class="win-card">
+          <div class="win-icon">${g}</div>
+          <div class="win-card-body">
+            <div class="win-name">${(w.player || 'Аноним').slice(0,2)}•••</div>
+            <div class="win-game">${w.game}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="win-sum">+${Number(w.win).toFixed(2)} ₽</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) { 
+    console.error('Ошибка загрузки выигрышей:', e); 
+  }
+}
+
 window.onload = function() {
   const savedId = localStorage.getItem('kingwin_guest_id');
   const savedBalance = parseFloat(localStorage.getItem('kingwin_balance')) || 0;
@@ -842,6 +953,10 @@ window.onload = function() {
       calculateUniqueSum();
     }, 500);
   }
+  
+  // Загружаем выигрыши
+  loadLastWinsHome();
+  setInterval(loadLastWinsHome, 15000);
 };
 </script>
 </body>
