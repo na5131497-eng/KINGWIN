@@ -398,6 +398,7 @@ async function initDB() {
   }
 }
 initDB();
+
 // ============================================================
 // ======================= СЕРВЕР =============================
 // ============================================================
@@ -426,7 +427,6 @@ const server = http.createServer(async (req, res) => {
     // ========================= CRASH ============================
     // ============================================================
 
-    // Начать раунд (списываем ставку, генерим краш на сервере)
     if (url === '/api/crash/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || b.player_id || '');
@@ -464,7 +464,6 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // Кэшаут
     if (url === '/api/crash/cashout' && method === 'POST') {
       const b = await parseBody(req);
       const { bet_id, mult } = b;
@@ -517,7 +516,22 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // Результат раунда (если кэшаута не было — фиксируем проигрыш)
+    // Просмотр crash_point без фиксации проигрыша
+    if (url === '/api/crash/peek' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const betId = u.searchParams.get('bet_id');
+      if (!betId || betId === '0') {
+        const rtp = 0.80;
+        const u1 = Math.random();
+        let c = (u1 < (1 - rtp)) ? 1.00 : rtp / (1 - (u1 - (1 - rtp)) / rtp);
+        c = Math.max(1.00, Math.min(c, 100));
+        return sendJSON(res, 200, { crash_point: Math.round(c * 100) / 100 });
+      }
+      const r = await pool.query('SELECT crash_point FROM crash_bets WHERE id=$1', [betId]);
+      if (!r.rows.length) return sendJSON(res, 404, { error: 'not found' });
+      return sendJSON(res, 200, { crash_point: parseFloat(r.rows[0].crash_point) });
+    }
+
     if (url === '/api/crash/result' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const betId = u.searchParams.get('bet_id');
@@ -529,7 +543,6 @@ const server = http.createServer(async (req, res) => {
         await pool.query('UPDATE crash_bets SET cashed_out=TRUE WHERE id=$1', [betId]);
         await recordSession(bet.guest_id, parseFloat(bet.amount), 0);
         pushCrash(bet.guest_id, parseFloat(bet.crash_point));
-
         await pool.query(
           `INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`,
           [todayStr(), parseFloat(bet.amount), `Crash crash (${bet.guest_id})`]
@@ -538,7 +551,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { crash_point: parseFloat(bet.crash_point) });
     }
 
-    // Старый эндпоинт для совместимости (просто списывает)
     if (url === '/api/crash/bet' && method === 'POST') {
       const b = await parseBody(req);
       const amt = parseFloat(b.amount) || 0;
@@ -638,8 +650,7 @@ const server = http.createServer(async (req, res) => {
 
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, {
-        ok: true,
-        win,
+        ok: true, win,
         balance: bal.total,
         deposit_balance: bal.deposit,
         bonus_balance: bal.bonus,
@@ -722,8 +733,7 @@ const server = http.createServer(async (req, res) => {
 
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, {
-        ok: true,
-        prize,
+        ok: true, prize,
         balance: bal.total,
         deposit_balance: bal.deposit,
         bonus_balance: bal.bonus,
@@ -898,6 +908,84 @@ const server = http.createServer(async (req, res) => {
         }
       }
       return sendJSON(res, 200, { ok: true });
+    }
+
+    // ============================================================
+    // ==================== АДМИНКА: БОНУС ИГРОКУ =================
+    // ============================================================
+    // Выдать игроку бонусные деньги (в bonus_balance, БЕЗ депозита)
+    // POST /api/admin/guest/bonus { pass, guest_id|nick, amount, title?, wager? }
+    if (url === '/api/admin/guest/bonus' && method === 'POST') {
+      const b = await parseBody(req);
+      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+
+      const amount = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
+      if (amount <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть > 0' });
+
+      const guestKey = String(b.guest_id || b.nick || '').trim();
+      if (!guestKey) return sendJSON(res, 400, { error: 'Укажите ID или имя игрока' });
+
+      const gRes = await pool.query(
+        `SELECT * FROM guests WHERE id=$1 OR LOWER(name) = LOWER($1) LIMIT 1`,
+        [guestKey]
+      );
+      if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const guest = gRes.rows[0];
+
+      const title = String(b.title || 'Бонус от админа').slice(0, 100);
+      const wagerMult = parseFloat(b.wager) || 5;
+      const wagerReq = amount * wagerMult;
+
+      await pool.query(
+        `UPDATE guests
+         SET bonus_balance = COALESCE(bonus_balance,0) + $1,
+             wagering_required = COALESCE(wagering_required,0) + $2,
+             bonus_text = $3
+         WHERE id = $4`,
+        [amount, wagerReq, title, guest.id]
+      );
+
+      await pool.query(
+        `INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
+        [todayStr(), amount, `Admin bonus "${title}" to ${guest.id}`]
+      );
+
+      const bal = await getBalance(guest.id);
+      return sendJSON(res, 200, {
+        ok: true,
+        guest_id: guest.id,
+        guest_name: guest.name,
+        bonus_added: amount,
+        wagering_required: wagerReq,
+        new_bonus_balance: bal.bonus,
+        new_deposit_balance: bal.deposit,
+        new_total_balance: bal.total
+      });
+    }
+
+    // Посмотреть баланс игрока (для админки)
+    if (url === '/api/admin/guest/balance' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const pass = u.searchParams.get('pass');
+      if (pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      const guestKey = u.searchParams.get('guest_id') || u.searchParams.get('nick');
+      if (!guestKey) return sendJSON(res, 400, { error: 'Укажите ID или имя' });
+
+      const gRes = await pool.query(
+        `SELECT id, name, deposit_balance, bonus_balance, wagering_required, wagering_done
+         FROM guests WHERE id=$1 OR LOWER(name) = LOWER($1) LIMIT 1`,
+        [guestKey]
+      );
+      if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      const g = gRes.rows[0];
+      return sendJSON(res, 200, {
+        id: g.id,
+        name: g.name,
+        deposit: parseFloat(g.deposit_balance) || 0,
+        bonus: parseFloat(g.bonus_balance) || 0,
+        wagering_required: parseFloat(g.wagering_required) || 0,
+        wagering_done: parseFloat(g.wagering_done) || 0
+      });
     }
 
     // ============================================================
