@@ -21,14 +21,17 @@ pool.on('error', (err) => console.error('PG Pool error:', err.message));
 
 function todayStr(){ return new Date().toISOString().slice(0, 10); }
 
+function getRouletteColor(n) {
+  const red = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+  if (n === 0) return 'green';
+  if (red.includes(n)) return 'red';
+  return 'black';
+}
+
 // ============================================================
-// ===================== RTP ENGINE ===========================
+// RTP ENGINE
 // ============================================================
-const BASE_RTP   = 0.80;
-const MIN_RTP    = 0.50;
-const FEEDBACK_K = 0.5;
-const MAX_WIN    = 5000;
-const DRAIN_RTP_MAX = 0.95;
+const BASE_RTP = 0.80, MIN_RTP = 0.50, FEEDBACK_K = 0.5, MAX_WIN = 5000, DRAIN_RTP_MAX = 0.95;
 
 async function getHouseBalance() {
   try {
@@ -52,15 +55,11 @@ async function applyDrain(rtp) {
 }
 
 async function getPlayerRTP(guestId) {
-  const r = await pool.query(
-    'SELECT rtp, session_profit, session_turnover FROM guests WHERE id=$1',
-    [guestId]
-  );
+  const r = await pool.query('SELECT rtp, session_profit, session_turnover FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return BASE_RTP;
   const g = r.rows[0];
-  const profit   = parseFloat(g.session_profit)   || 0;
+  const profit = parseFloat(g.session_profit) || 0;
   const turnover = parseFloat(g.session_turnover) || 0;
-
   let rtp = BASE_RTP;
   if (turnover >= 100) {
     const realRTP = 0.5 + (profit / turnover) * 0.5;
@@ -68,31 +67,26 @@ async function getPlayerRTP(guestId) {
     rtp = Math.min(BASE_RTP, Math.max(MIN_RTP, rtp));
   }
   rtp = await applyDrain(rtp);
-  try {
-    await pool.query('UPDATE guests SET rtp=$1, last_rtp_update=NOW() WHERE id=$2', [rtp, guestId]);
-  } catch(e){}
+  try { await pool.query('UPDATE guests SET rtp=$1, last_rtp_update=NOW() WHERE id=$2', [rtp, guestId]); } catch(e){}
   return rtp;
 }
 
 async function recordSession(guestId, bet, win) {
   try {
     await pool.query(
-      `UPDATE guests
-       SET session_turnover = COALESCE(session_turnover,0) + $1,
-           session_profit   = COALESCE(session_profit,0)   + $2
-       WHERE id=$3`,
+      `UPDATE guests SET session_turnover = COALESCE(session_turnover,0) + $1,
+       session_profit = COALESCE(session_profit,0) + $2 WHERE id=$3`,
       [bet, win - bet, guestId]
     );
   } catch(e){}
 }
 
 // ============================================================
-// ========== ГЛОБАЛЬНЫЙ РАУНД КРАША ==========================
+// ГЛОБАЛЬНЫЙ РАУНД КРАША
 // ============================================================
-const CRASH_WAIT_MS    = 5000;
+const CRASH_WAIT_MS    = 7000;
 const CRASH_FLY_MAX_MS = 60000;
-const CRASH_PAUSE_MS   = 2500;
-const CRASH_GROWTH     = 1.06;
+const CRASH_PAUSE_MS   = 3000;
 
 const crashState = {
   roundId: 0,
@@ -100,9 +94,7 @@ const crashState = {
   crashPoint: 0,
   startTime: 0,
   waitStart: Date.now(),
-  history: [],
-  bets: new Map(),                // bet_id -> { guestId, amount, cashedOut, cashoutMult }
-  activeBetsByGuest: new Map()    // guestId -> bet_id
+  history: []
 };
 
 function nextRound() {
@@ -111,19 +103,11 @@ function nextRound() {
   crashState.crashPoint = 0;
   crashState.startTime = 0;
   crashState.waitStart = Date.now();
-  // ВАЖНО: bets НЕ чистим здесь — они чистятся в crashNow после расчёта.
-  // Если оставить в waiting — ставки, поставленные до этого, уже отработаны.
-  // Но чтобы при перезагрузке можно было узнать — чистим в начале полёта.
   console.log(`[CRASH] Round #${crashState.roundId} — waiting`);
   setTimeout(() => startFlying(), CRASH_WAIT_MS);
 }
 
 async function startFlying() {
-  // Ставки на этот раунд уже были зарегистрированы в waiting.
-  // Чистим карты — начинаем новый «платёжный цикл» для этого полёта.
-  crashState.bets.clear();
-  crashState.activeBetsByGuest.clear();
-
   const house = await getHouseBalance();
   let rtp = BASE_RTP;
   if (house.balance < 0) {
@@ -135,10 +119,7 @@ async function startFlying() {
   const u = Math.random();
   let crash;
   if (u < (1 - rtp)) crash = 1.00;
-  else {
-    const u2 = (u - (1 - rtp)) / rtp;
-    crash = rtp / (1 - u2);
-  }
+  else { const u2 = (u - (1 - rtp)) / rtp; crash = rtp / (1 - u2); }
   crash = Math.max(1.00, Math.min(crash, 100));
 
   crashState.crashPoint = Math.round(crash * 100) / 100;
@@ -158,81 +139,56 @@ async function crashNow() {
   if (crashState.history.length > 10) crashState.history.pop();
   console.log(`[CRASH] Round #${crashState.roundId} — CRASHED at ${v}x`);
 
-  // Все ставки из БД этого раунда, которые не cashed_out — фиксируем как проигрыш
   try {
     const active = await pool.query(
-      `SELECT * FROM crash_bets WHERE cashed_out=FALSE AND crash_point=$1`,
-      [v]
+      `SELECT * FROM crash_bets WHERE cashed_out=FALSE AND round_id=$1`,
+      [crashState.roundId]
     );
     for (const bet of active.rows) {
-      await pool.query('UPDATE crash_bets SET cashed_out=TRUE WHERE id=$1', [bet.id]);
+      await pool.query('UPDATE crash_bets SET cashed_out=TRUE, crash_point=$1 WHERE id=$2', [v, bet.id]);
       await recordSession(bet.guest_id, parseFloat(bet.amount), 0);
       await pool.query(
         `INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`,
         [todayStr(), parseFloat(bet.amount), `Crash crash r#${crashState.roundId} (${bet.guest_id})`]
       );
     }
-  } catch(e){ console.error('crashNow bets cleanup:', e.message); }
+  } catch(e){ console.error('crashNow cleanup:', e.message); }
 
   setTimeout(() => nextRound(), CRASH_PAUSE_MS);
 }
 
-// Публичное состояние для клиента. НЕ отдаёт crashPoint пока летит.
 function getPublicCrashState() {
   const now = Date.now();
   if (crashState.status === 'flying') {
     const elapsed = (now - crashState.startTime) / 1000;
-    const currentMult = Math.pow(CRASH_GROWTH, elapsed);
+    const currentMult = Math.pow(1.06, elapsed);
     if (currentMult >= crashState.crashPoint) {
       crashNow();
       return {
-        roundId: crashState.roundId,
-        status: 'crashed',
-        crashPoint: crashState.crashPoint,
-        elapsed: 0,
-        currentMult: crashState.crashPoint
+        roundId: crashState.roundId, status: 'crashed',
+        crashPoint: crashState.crashPoint, elapsed: 0, currentMult: crashState.crashPoint
       };
     }
     return {
-      roundId: crashState.roundId,
-      status: 'flying',
-      crashPoint: 0,
-      elapsed,
-      currentMult: Math.round(currentMult * 100) / 100
+      roundId: crashState.roundId, status: 'flying', crashPoint: 0,
+      elapsed, currentMult: Math.round(currentMult * 100) / 100
     };
   }
   if (crashState.status === 'crashed') {
     return {
-      roundId: crashState.roundId,
-      status: 'crashed',
-      crashPoint: crashState.crashPoint,
-      elapsed: 0,
-      currentMult: crashState.crashPoint
+      roundId: crashState.roundId, status: 'crashed',
+      crashPoint: crashState.crashPoint, elapsed: 0, currentMult: crashState.crashPoint
     };
   }
   return {
-    roundId: crashState.roundId,
-    status: 'waiting',
-    crashPoint: 0,
-    elapsed: 0,
-    currentMult: 1.00,
+    roundId: crashState.roundId, status: 'waiting', crashPoint: 0,
+    elapsed: 0, currentMult: 1.00,
     waitLeftMs: Math.max(0, CRASH_WAIT_MS - (now - crashState.waitStart))
   };
 }
 
 // ============================================================
-// ============== CRASH ANTI-BAD-STREAK (per player) ==========
-// ============================================================
-const crashHistoryMap = new Map();
-function pushCrash(guestId, value) {
-  const arr = crashHistoryMap.get(guestId) || [];
-  arr.push({ value, ts: Date.now() });
-  while (arr.length > 10) arr.shift();
-  crashHistoryMap.set(guestId, arr);
-}
-
-// ============================================================
-// ==================== GAME MATH =============================
+// GAME MATH
 // ============================================================
 const CASES = {
   'Новичок':    { price: 39.99,  prizes: [{v:10,w:42000},{v:15,w:24000},{v:25,w:13000},{v:50,w:8500},{v:100,w:5500},{v:115,w:3200},{v:200,w:1800},{v:250,w:900},{v:500,w:500},{v:650,w:300},{v:1000,w:50}]},
@@ -297,7 +253,7 @@ function spinWithRTP(rtp, bet, gameType, options = {}) {
 }
 
 // ============================================================
-// ========================= БОТЫ =============================
+// БОТЫ
 // ============================================================
 let crashBots = [];
 function initCrashBots() {
@@ -317,13 +273,13 @@ function generateBotWin() {
 }
 
 // ============================================================
-// ================== БАЛАНС И ВЕЙДЖЕР ========================
+// БАЛАНС
 // ============================================================
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
   let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
-  let dep   = parseFloat(r.rows[0].deposit_balance) || 0;
+  let dep = parseFloat(r.rows[0].deposit_balance) || 0;
   if (bonus + dep < amount) return null;
   let rem = amount, fromBonus = 0, fromDeposit = 0;
   if (bonus >= rem) { fromBonus = rem; bonus -= rem; rem = 0; }
@@ -352,7 +308,7 @@ async function creditWin(guestId, winAmount, betAmount) {
     } else {
       await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE id=$2', [winAmount, guestId]);
     }
-  } catch (e) { console.error('creditWin error:', e.message); }
+  } catch(e) { console.error('creditWin:', e.message); }
 }
 
 async function getBalance(guestId) {
@@ -367,7 +323,7 @@ async function getBalance(guestId) {
 }
 
 // ============================================================
-// ================= ИНИЦИАЛИЗАЦИЯ БАЗЫ =======================
+// INIT DB
 // ============================================================
 async function initDB() {
   try {
@@ -438,9 +394,7 @@ async function initDB() {
       );
     `);
 
-    // Добавляем round_id если колонка ещё не была (старая таблица)
     await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS round_id INT DEFAULT 0;`);
-
     await pool.query(`
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS rtp NUMERIC DEFAULT 0.80;
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_profit NUMERIC DEFAULT 0;
@@ -464,7 +418,7 @@ async function initDB() {
 initDB();
 
 // ============================================================
-// ======================= СЕРВЕР =============================
+// СЕРВЕР
 // ============================================================
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
@@ -475,7 +429,7 @@ const server = http.createServer(async (req, res) => {
       if (resObj.headersSent) return;
       resObj.writeHead(Number(code) || 200, { 'Content-Type': 'application/json' });
       resObj.end(JSON.stringify(data));
-    } catch(e) { console.error('sendJSON error:', e.message); }
+    } catch(e) {}
   };
 
   const parseBody = (req) => new Promise((resolve) => {
@@ -490,27 +444,29 @@ const server = http.createServer(async (req, res) => {
     // ============================================================
     // ========================= CRASH ============================
     // ============================================================
-
-    // Публичное состояние раунда (полярно одинаковое для всех)
-    if (url === '/api/crash/current' && method === 'GET') {
-      return sendJSON(res, 200, getPublicCrashState());
-    }
-
-    // Общая история крашей
-    if (url === '/api/crash/history' && method === 'GET') {
-      return sendJSON(res, 200, { history: crashState.history });
-    }
-
-    // КРИТИЧНО: восстановление состояния для игрока после перезагрузки
-    // Возвращает: статус раунда + текущую ставку игрока (если есть)
     if (url === '/api/crash/state' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
+
       const round = getPublicCrashState();
+
+      let bets = [];
+      try {
+        const r = await pool.query(
+          `SELECT guest_id, amount, cashed_out, cashout_mult
+           FROM crash_bets WHERE round_id=$1 ORDER BY id DESC LIMIT 20`,
+          [crashState.roundId]
+        );
+        bets = r.rows.map(b => ({
+          guest_id: b.guest_id,
+          amount: parseFloat(b.amount),
+          cashed_out: b.cashed_out,
+          cashout_mult: parseFloat(b.cashout_mult) || 0
+        }));
+      } catch(e){}
 
       let myBet = null;
       if (guestId) {
-        // Активная ставка игрока в ТЕКУЩЕМ раунде
         try {
           const r = await pool.query(
             `SELECT id, amount, cashed_out, cashout_mult FROM crash_bets
@@ -531,11 +487,19 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, {
         ...round,
         my_bet: myBet,
+        bets,
         history: crashState.history
       });
     }
 
-    // Поставить на ТЕКУЩИЙ раунд (только waiting)
+    if (url === '/api/crash/current' && method === 'GET') {
+      return sendJSON(res, 200, getPublicCrashState());
+    }
+
+    if (url === '/api/crash/history' && method === 'GET') {
+      return sendJSON(res, 200, { history: crashState.history });
+    }
+
     if (url === '/api/crash/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || b.player_id || '');
@@ -544,17 +508,16 @@ const server = http.createServer(async (req, res) => {
       if (!guestId) return sendJSON(res, 400, { error: 'Войдите' });
 
       if (crashState.status !== 'waiting') {
-        return sendJSON(res, 400, { error: 'Приём ставок закрыт. Ждите следующий раунд.' });
+        return sendJSON(res, 400, { error: 'Раунд уже начался' });
       }
 
-      // Уже была ставка в этом раунде?
       const existing = await pool.query(
-        `SELECT id, amount FROM crash_bets WHERE guest_id=$1 AND round_id=$2 LIMIT 1`,
+        `SELECT id, amount FROM crash_bets WHERE guest_id=$1 AND round_id=$2 AND cashed_out=FALSE LIMIT 1`,
         [guestId, crashState.roundId]
       );
       if (existing.rows.length) {
         return sendJSON(res, 400, {
-          error: 'У вас уже есть ставка в этом раунде',
+          error: 'У вас уже есть ставка',
           bet_id: existing.rows[0].id,
           amount: parseFloat(existing.rows[0].amount)
         });
@@ -565,8 +528,8 @@ const server = http.createServer(async (req, res) => {
 
       const r = await pool.query(
         `INSERT INTO crash_bets (guest_id, amount, crash_point, round_id)
-         VALUES ($1, $2, $3, $4) RETURNING id`,
-        [guestId, amt, 0, crashState.roundId]
+         VALUES ($1, $2, 0, $3) RETURNING id`,
+        [guestId, amt, crashState.roundId]
       );
       const betId = r.rows[0].id;
 
@@ -583,7 +546,6 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // Кэшаут по bet_id (проверка по глобальному crashPoint и round_id)
     if (url === '/api/crash/cashout' && method === 'POST') {
       const b = await parseBody(req);
       const betId = parseInt(b.bet_id) || 0;
@@ -598,7 +560,7 @@ const server = http.createServer(async (req, res) => {
         `SELECT * FROM crash_bets WHERE id=$1 AND guest_id=$2 AND cashed_out=FALSE AND round_id=$3`,
         [betId, guestId, crashState.roundId]
       );
-      if (!r.rows.length) return sendJSON(res, 400, { error: 'Ставка не найдена в этом раунде' });
+      if (!r.rows.length) return sendJSON(res, 400, { error: 'Ставка не найдена' });
 
       if (mult > crashState.crashPoint) {
         return sendJSON(res, 400, { error: 'Краш уже случился', crash_point: crashState.crashPoint });
@@ -614,7 +576,6 @@ const server = http.createServer(async (req, res) => {
       );
       await creditWin(guestId, win, parseFloat(bet.amount));
       await recordSession(guestId, parseFloat(bet.amount), win);
-      pushCrash(guestId, mult);
 
       const net = parseFloat(bet.amount) - win;
       await pool.query(
@@ -629,7 +590,6 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // Старый endpoint для совместимости
     if (url === '/api/crash/peek' && method === 'GET') {
       return sendJSON(res, 200, { crash_point: crashState.status === 'crashed' ? crashState.crashPoint : 0 });
     }
@@ -637,7 +597,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { crash_point: crashState.crashPoint });
     }
     if (url === '/api/crash/bet' && method === 'POST') {
-      // Резерв: просто списывает (на случай старых клиентов)
       const b = await parseBody(req);
       const amt = parseFloat(b.amount) || 0;
       const guestId = String(b.player_id || b.guest_id || '');
@@ -677,29 +636,24 @@ const server = http.createServer(async (req, res) => {
       const cellIndex = parseInt(b.cell_index);
       if (!gameId) return sendJSON(res, 400, { error: 'Нет game_id' });
       if (isNaN(cellIndex) || cellIndex < 0 || cellIndex > 24) return sendJSON(res, 400, { error: 'Неверная ячейка' });
-
       const r = await pool.query(
         `SELECT * FROM miner_games WHERE id=$1 AND guest_id=$2 AND alive=TRUE AND cashed_out=FALSE`,
         [gameId, guestId]
       );
       if (!r.rows.length) return sendJSON(res, 400, { error: 'Игра не найдена' });
-
       const game = r.rows[0];
       const opened = (game.opened || '').split(',').filter(x => x !== '');
       if (opened.includes(String(cellIndex))) return sendJSON(res, 400, { error: 'Ячейка уже открыта' });
-
       if (cellIndex === game.mine_pos) {
         await pool.query('UPDATE miner_games SET alive=FALSE WHERE id=$1', [gameId]);
         await recordSession(guestId, parseFloat(game.bet), 0);
         await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), parseFloat(game.bet), `Miner lose (${guestId})`]);
         return sendJSON(res, 200, { ok: true, survive: false, mine_pos: game.mine_pos, mult: 0 });
       }
-
       opened.push(String(cellIndex));
       const newStep = game.steps + 1;
       const rtp = await getPlayerRTP(guestId);
       const baseMult = Math.pow(1.2, newStep - 1);
-
       await pool.query('UPDATE miner_games SET opened=$1, steps=$2 WHERE id=$3', [opened.join(','), newStep, gameId]);
       return sendJSON(res, 200, {
         ok: true, survive: true,
@@ -714,26 +668,21 @@ const server = http.createServer(async (req, res) => {
       const guestId = String(b.guest_id || '').trim();
       const gameId = parseInt(b.game_id) || 0;
       if (!gameId) return sendJSON(res, 400, { error: 'Нет game_id' });
-
       const r = await pool.query(
         `SELECT * FROM miner_games WHERE id=$1 AND guest_id=$2 AND alive=TRUE AND cashed_out=FALSE`,
         [gameId, guestId]
       );
       if (!r.rows.length) return sendJSON(res, 400, { error: 'Игра не найдена' });
-
       const game = r.rows[0];
-      if (game.steps < 1) return sendJSON(res, 400, { error: 'Откройте хотя бы одну ячейку' });
-
+      if (game.steps < 1) return sendJSON(res, 400, { error: 'Откройте ячейку' });
       let mult = Math.pow(1.2, game.steps - 1);
       let win = Math.round(parseFloat(game.bet) * mult * 100) / 100;
       if (win > MAX_WIN) win = MAX_WIN;
-
       await creditWin(guestId, win, parseFloat(game.bet));
       await recordSession(guestId, parseFloat(game.bet), win);
       await pool.query('UPDATE miner_games SET cashed_out=TRUE WHERE id=$1', [gameId]);
       await pool.query(
-        `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
         ['miner', guestId, parseFloat(game.bet), win, Math.round(mult*100)/100, 'win', guestId]
       );
       const net = parseFloat(game.bet) - win;
@@ -757,15 +706,11 @@ const server = http.createServer(async (req, res) => {
       if (result.win > 0) await creditWin(guestId, result.win, bet);
       await recordSession(guestId, bet, result.win);
       await pool.query(
-        `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        `INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
         ['plinko', guestId, bet, result.win, result.mult, result.win > bet ? 'win' : 'lose', guestId]
       );
       const net = bet - result.win;
-      await pool.query(
-        `INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`,
-        [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Plinko bet (${guestId})`]
-      );
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Plinko bet (${guestId})`]);
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, {
         ok: true, path: result.path, slot: result.slot,
@@ -791,10 +736,7 @@ const server = http.createServer(async (req, res) => {
       await creditWin(guest_id, prize, c.price);
       await recordSession(guest_id, c.price, prize);
       const net = c.price - prize;
-      await pool.query(
-        `INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`,
-        [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]
-      );
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]);
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
@@ -830,7 +772,6 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
     }
-
     if (url === '/api/deposits' && method === 'POST') {
       const d = await parseBody(req);
       const amt = parseFloat(d.sum) || 0;
@@ -841,7 +782,6 @@ const server = http.createServer(async (req, res) => {
       );
       return sendJSON(res, 200, { ok: true, deposit: r.rows[0] });
     }
-
     if (url.startsWith('/api/deposits/') && method === 'PUT') {
       const id = url.split('/')[3];
       const d = await parseBody(req);
@@ -864,7 +804,6 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query('SELECT * FROM withdrawals ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
     }
-
     if (url === '/api/withdrawals' && method === 'POST') {
       const w = await parseBody(req);
       const sum = Math.round((parseFloat(w.sum) || 0) * 100) / 100;
@@ -884,7 +823,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), sum, `Withdraw request (${g.name})`]);
       return sendJSON(res, 200, { ok: true, withdrawal: r.rows[0] });
     }
-
     if (url.startsWith('/api/withdrawals/') && method === 'PUT') {
       const id = url.split('/')[3];
       const w = await parseBody(req);
@@ -899,30 +837,26 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ============================================================
-    // ================== АДМИНКА: КАССА (MANUAL) =================
+    // ================== АДМИНКА: КАССА ==========================
     // ============================================================
     if (url === '/api/admin/house/add' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
       const amt = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
       if (amt <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть > 0' });
-      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`,
-        [todayStr(), amt, `ADMIN MANUAL: добавление в кассу (${b.note || 'без комментария'})`]);
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `ADMIN MANUAL: добавление (${b.note || '—'})`]);
       const house = await getHouseBalance();
       return sendJSON(res, 200, { ok: true, added: amt, treasury: house.balance });
     }
-
     if (url === '/api/admin/house/remove' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
       const amt = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
       if (amt <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть > 0' });
-      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
-        [todayStr(), amt, `ADMIN MANUAL: списание с кассы (${b.note || 'без комментария'})`]);
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), amt, `ADMIN MANUAL: списание (${b.note || '—'})`]);
       const house = await getHouseBalance();
       return sendJSON(res, 200, { ok: true, removed: amt, treasury: house.balance });
     }
-
     if (url === '/api/admin/house/log' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       if (u.searchParams.get('pass') !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
@@ -937,12 +871,10 @@ const server = http.createServer(async (req, res) => {
     if (url === '/api/admin/guest/create' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
-
       const id = String(b.id || '').trim();
       if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
-      if (id.length > 50) return sendJSON(res, 400, { error: 'ID слишком длинный (макс 50)' });
+      if (id.length > 50) return sendJSON(res, 400, { error: 'ID слишком длинный' });
       if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return sendJSON(res, 400, { error: 'ID: только латиница, цифры, _ - .' });
-
       const name = String(b.name || id).trim().slice(0, 100) || id;
       const password = String(b.password || '1234').trim().slice(0, 50) || '1234';
       const rank = String(b.rank || 'Bronze').trim();
@@ -951,26 +883,18 @@ const server = http.createServer(async (req, res) => {
       const wagerMult = parseFloat(b.wager) || 5;
       const wagerReq = bonus * wagerMult;
       if (deposit < 0 || bonus < 0) return sendJSON(res, 400, { error: 'Суммы не могут быть отрицательными' });
-
       const exists = await pool.query('SELECT id FROM guests WHERE id=$1', [id]);
-      if (exists.rows.length) return sendJSON(res, 400, { error: 'Игрок с таким ID уже существует' });
-
+      if (exists.rows.length) return sendJSON(res, 400, { error: 'Игрок с таким ID уже есть' });
       try {
         await pool.query(
-          `INSERT INTO guests
-            (id, name, pass, rank, deposit_balance, bonus_balance, wagering_required, bonus_text)
+          `INSERT INTO guests (id, name, pass, rank, deposit_balance, bonus_balance, wagering_required, bonus_text)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [id, name, password, rank, deposit, bonus, wagerReq,
-           bonus > 0 ? `Бонус при создании (×${wagerMult})` : null]
+          [id, name, password, rank, deposit, bonus, wagerReq, bonus > 0 ? `Бонус при создании (×${wagerMult})` : null]
         );
-        if (deposit > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
-          [todayStr(), deposit, `Admin created guest ${id} (deposit)`]);
-        if (bonus > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
-          [todayStr(), bonus, `Admin created guest ${id} (bonus)`]);
+        if (deposit > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), deposit, `Admin created guest ${id} (deposit)`]);
+        if (bonus > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), bonus, `Admin created guest ${id} (bonus)`]);
         return sendJSON(res, 200, { ok: true, id, name, rank, deposit, bonus, wager_required: wagerReq });
-      } catch (e) {
-        return sendJSON(res, 500, { error: e.message });
-      }
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     if (url === '/api/admin/guest/update' && method === 'POST') {
@@ -982,7 +906,7 @@ const server = http.createServer(async (req, res) => {
       if (b.name !== undefined) { fields.push(`name = $${i++}`); values.push(String(b.name).slice(0, 100)); }
       if (b.password !== undefined) { fields.push(`pass = $${i++}`); values.push(String(b.password).slice(0, 50)); }
       if (b.rank !== undefined) { fields.push(`rank = $${i++}`); values.push(String(b.rank)); }
-      if (!fields.length) return sendJSON(res, 400, { error: 'Нет полей для обновления' });
+      if (!fields.length) return sendJSON(res, 400, { error: 'Нет полей' });
       values.push(id);
       const r = await pool.query(`UPDATE guests SET ${fields.join(', ')} WHERE id = $${i} RETURNING id, name, rank`, values);
       if (!r.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
@@ -996,9 +920,9 @@ const server = http.createServer(async (req, res) => {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
       const amount = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
-      if (amount <= 0) return sendJSON(res, 400, { error: 'Сумма должна быть > 0' });
+      if (amount <= 0) return sendJSON(res, 400, { error: 'Сумма > 0' });
       const guestKey = String(b.guest_id || b.nick || '').trim();
-      if (!guestKey) return sendJSON(res, 400, { error: 'Укажите ID или имя игрока' });
+      if (!guestKey) return sendJSON(res, 400, { error: 'Укажите ID или имя' });
       const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1 OR LOWER(name) = LOWER($1) LIMIT 1`, [guestKey]);
       if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
       const guest = gRes.rows[0];
@@ -1010,8 +934,7 @@ const server = http.createServer(async (req, res) => {
          wagering_required = COALESCE(wagering_required,0) + $2, bonus_text = $3 WHERE id = $4`,
         [amount, wagerReq, title, guest.id]
       );
-      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
-        [todayStr(), amount, `Admin bonus "${title}" to ${guest.id}`]);
+      await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), amount, `Admin bonus "${title}" to ${guest.id}`]);
       const bal = await getBalance(guest.id);
       return sendJSON(res, 200, {
         ok: true, guest_id: guest.id, guest_name: guest.name,
@@ -1097,14 +1020,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ============================================================
-    // ============ АКТИВАЦИЯ ПРОМОКОДА (ИГРОК) ===================
+    // ============ АКТИВАЦИЯ ПРОМОКОДА ===========================
     // ============================================================
     if (url === '/api/promo/activate' && method === 'POST') {
       const b = await parseBody(req);
       const code = String(b.code || '').trim().toUpperCase();
       const guestId = String(b.guest_id || '').trim();
       if (!code || !guestId) return sendJSON(res, 400, { error: 'Введите код' });
-
       const p = await pool.query(`SELECT * FROM promo_codes WHERE code=$1 AND active=TRUE`, [code]);
       if (!p.rows.length) return sendJSON(res, 400, { error: 'Промокод не найден' });
       const promo = p.rows[0];
@@ -1113,10 +1035,8 @@ const server = http.createServer(async (req, res) => {
       }
       const gRes = await pool.query('SELECT * FROM guests WHERE id=$1', [guestId]);
       if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
-
       const amount = parseFloat(promo.value) || 0;
       const wagerReq = amount * 5;
-
       await pool.query(
         `UPDATE guests SET bonus_balance = COALESCE(bonus_balance,0) + $1,
          wagering_required = COALESCE(wagering_required,0) + $2, bonus_text = $3 WHERE id = $4`,
@@ -1179,7 +1099,6 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query('SELECT * FROM promo_codes ORDER BY id DESC');
       return sendJSON(res, 200, r.rows);
     }
-
     if (url === '/api/admin/promo/create' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
@@ -1219,6 +1138,55 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query('SELECT * FROM dealers WHERE login=$1 AND pass=$2', [login, pass]);
       if (!r.rows.length) return sendJSON(res, 401, { error: 'Неверный логин или пароль' });
       return sendJSON(res, 200, { ok: true, dealer: { id: r.rows[0].id, name: r.rows[0].name } });
+    }
+
+    // ============================================================
+    // ============ ДИЛЕР: РУЛЕТКА — ОТПРАВКА РЕЗУЛЬТАТА ==========
+    // ============================================================
+    if (url === '/api/dealer/roulette/result' && method === 'POST') {
+      const b = await parseBody(req);
+      const num = parseInt(b.number);
+      if (isNaN(num) || num < 0 || num > 36) {
+        return sendJSON(res, 400, { error: 'Число должно быть 0-36' });
+      }
+      const dealerName = String(b.dealer_name || 'Дилер').slice(0, 100);
+      try {
+        await pool.query(
+          `INSERT INTO roulette_sessions (dealer, nick, bet_type, bet, win, won, date, result_number, result_color)
+           VALUES ($1, $2, $3, 0, 0, 0, $4, $5, $6)`,
+          [dealerName, null, 'manual', todayStr(), num, getRouletteColor(num)]
+        );
+        return sendJSON(res, 200, { ok: true, number: num, color: getRouletteColor(num) });
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
+    }
+
+    // ============================================================
+    // ============ ДИЛЕР: ИСТОРИЯ ВЫПАДЕНИЙ ======================
+    // ============================================================
+    if (url === '/api/dealer/roulette/history' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(50, parseInt(u.searchParams.get('limit'), 10) || 20);
+      try {
+        const r = await pool.query(
+          `SELECT id, result_number, result_color, dealer, date, created_at
+           FROM roulette_sessions
+           WHERE result_number IS NOT NULL
+           ORDER BY id DESC LIMIT $1`,
+          [limit]
+        );
+        const rows = r.rows.map(row => ({
+          id: row.id,
+          number: row.result_number,
+          color: row.result_color,
+          dealer: row.dealer,
+          created_at: row.created_at
+        }));
+        return sendJSON(res, 200, rows);
+      } catch (e) {
+        return sendJSON(res, 200, []);
+      }
     }
 
     // ============================================================
