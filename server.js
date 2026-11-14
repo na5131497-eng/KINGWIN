@@ -27,32 +27,13 @@ pool.on('error', (err) => console.error('PG Pool error:', err.message));
 
 function todayStr(){ return new Date().toISOString().slice(0, 10); }
 
-// --- ИГРОВАЯ МАТЕМАТИКА (RTP ~80%) ---
-
-// КЕЙСЫ: Изменены максимальные выигрыши (Новичок до 1000, Королевский до 10000)
+// --- ИГРОВАЯ МАТЕМАТИКА ---
 const CASES = {
-  'Новичок': { price: 39.99, minRank: 0, prizes: [
-    { v:10, w:42000 }, { v:15, w:24000 }, { v:25, w:13000 },
-    { v:50, w:8500 }, { v:100, w:5500 }, { v:115, w:3200 },
-    { v:200, w:1800 }, { v:250, w:900 }, { v:500, w:500 },
-    { v:650, w:300 }, { v:1000, w:50 } // Макс 1000
-  ]},
-  'Сильвер': { price: 199, minRank: 2, prizes: [
-    { v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },
-    { v:300,w:200 },{ v:500,w:100 },{ v:1000,w:50 },{ v:1500,w:30 },{ v:2000,w:15 }
-  ]},
-  'Голд': { price: 399, minRank: 3, prizes: [
-    { v:20,w:1500 },{ v:50,w:2000 },{ v:100,w:2500 },{ v:150,w:2000 },{ v:250,w:1000 },{ v:400,w:600 },
-    { v:600,w:200 },{ v:1000,w:100 },{ v:2000,w:50 },{ v:3000,w:15 }
-  ]},
-  'Платина': { price: 899, minRank: 4, prizes: [
-    { v:50,w:1500 },{ v:100,w:2000 },{ v:200,w:2500 },{ v:350,w:2000 },{ v:500,w:1000 },{ v:900,w:600 },
-    { v:1500,w:200 },{ v:2500,w:100 },{ v:4000,w:50 }
-  ]},
-  'Королевский': { price: 4999, minRank: 6, prizes: [
-    { v:200,w:1500 },{ v:500,w:2000 },{ v:1000,w:2500 },{ v:2000,w:2000 },{ v:3500,w:1000 },{ v:5000,w:600 },
-    { v:10000,w:200 } // Макс 10000
-  ]}
+  'Новичок': { price: 39.99, prizes: [{ v:10, w:42000 }, { v:15, w:24000 }, { v:25, w:13000 }, { v:50, w:8500 }, { v:100, w:5500 }, { v:115, w:3200 }, { v:200, w:1800 }, { v:250, w:900 }, { v:500, w:500 }, { v:650, w:300 }, { v:1000, w:50 }]},
+  'Сильвер': { price: 199, prizes: [{ v:10,w:1500 },{ v:20,w:2000 },{ v:50,w:2500 },{ v:80,w:2000 },{ v:120,w:1000 },{ v:200,w:600 },{ v:300,w:200 },{ v:500,w:100 },{ v:1000,w:50 },{ v:1500,w:30 },{ v:2000,w:15 }]},
+  'Голд': { price: 399, prizes: [{ v:20,w:1500 },{ v:50,w:2000 },{ v:100,w:2500 },{ v:150,w:2000 },{ v:250,w:1000 },{ v:400,w:600 },{ v:600,w:200 },{ v:1000,w:100 },{ v:2000,w:50 },{ v:3000,w:15 }]},
+  'Платина': { price: 899, prizes: [{ v:50,w:1500 },{ v:100,w:2000 },{ v:200,w:2500 },{ v:350,w:2000 },{ v:500,w:1000 },{ v:900,w:600 },{ v:1500,w:200 },{ v:2500,w:100 },{ v:4000,w:50 }]},
+  'Королевский': { price: 4999, prizes: [{ v:200,w:1500 },{ v:500,w:2000 },{ v:1000,w:2500 },{ v:2000,w:2000 },{ v:3500,w:1000 },{ v:5000,w:600 },{ v:10000,w:200 }]}
 };
 function pickPrize(prizes) {
   const total = prizes.reduce((a,p) => a + p.w, 0);
@@ -60,6 +41,13 @@ function pickPrize(prizes) {
   for (const p of prizes) { if (r < p.w) return p.v; r -= p.w; }
   return prizes[prizes.length - 1].v;
 }
+
+const PLINKO_ROWS = 8;
+const PLINKO_MULTIPLIERS = {
+  low: [1.9, 1.4, 1.1, 0.9, 0.5, 0.9, 1.1, 1.4, 1.9],
+  medium: [5.0, 2.0, 1.0, 0.5, 0.2, 0.5, 1.0, 2.0, 5.0],
+  high: [10.0, 3.0, 0.8, 0.2, 0.1, 0.2, 0.8, 3.0, 10.0]
+};
 
 const LADDER_MULTS = {
   1: [1.05, 1.10, 1.16, 1.22, 1.29, 1.36, 1.44, 1.53, 1.63, 1.74, 1.86, 2.00, 2.15],
@@ -71,15 +59,7 @@ const LADDER_MULTS = {
   7: [1.47, 2.32, 3.69, 5.96, 9.85, 16.78, 29.62, 54.58, 105.62, 216.05, 471.43, 1102.24, 2783.50]
 };
 
-// ПЛИНКО: Настроено под RTP ~80%
-const PLINKO_ROWS = 8;
-const PLINKO_MULTIPLIERS = {
-  low: [1.9, 1.4, 1.1, 0.9, 0.5, 0.9, 1.1, 1.4, 1.9], // RTP ~80%
-  medium: [5.0, 2.0, 1.0, 0.5, 0.2, 0.5, 1.0, 2.0, 5.0], // RTP ~80%
-  high: [10.0, 3.0, 0.8, 0.2, 0.1, 0.2, 0.8, 3.0, 10.0] // RTP ~80%
-};
-
-// --- ЛОГИКА БАЛАНСА И ОТЫГРЫША ---
+// --- ЛОГИКА БАЛАНСА И ВЕЙДЖЕРА ---
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
@@ -105,7 +85,6 @@ async function creditWin(guestId, winAmount, betAmount) {
     if (req_ > 0 && done < req_) {
       const newDone = done + (betAmount || 0);
       await pool.query('UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_done = $2 WHERE id=$3', [winAmount, newDone, guestId]);
-
       if (newDone >= req_) {
         const cashback = bonusBal * 2; 
         await pool.query(`UPDATE guests SET deposit_balance = deposit_balance + $1, bonus_balance = 0, wagering_required = 0, wagering_done = 0 WHERE id = $2`, [cashback, guestId]);
@@ -139,26 +118,72 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url === '/health') return sendJSON(200, { ok: true });
 
+    // === ТУРНИРЫ (Активный турнир и таблица лидеров) ===
+    if (url === '/api/tournament/active' && method === 'GET') {
+      try {
+        const t = await pool.query(`SELECT * FROM tournaments WHERE status='active' ORDER BY id DESC LIMIT 1`);
+        if (!t.rows.length) return sendJSON(res, 200, { tournament: null, top: [] });
+        const tour = t.rows[0];
+        const top = await pool.query(`
+          SELECT guest_name, score, bets_count 
+          FROM tournament_entries 
+          WHERE tournament_id=$1 
+          ORDER BY score DESC LIMIT 10
+        `, [tour.id]);
+        const cntRow = await pool.query(`SELECT COUNT(*)::int AS cnt FROM tournament_entries WHERE tournament_id=$1`, [tour.id]);
+        const participants = cntRow.rows[0].cnt || 0;
+        return sendJSON(res, 200, { tournament: tour, top: top.rows, participants: participants });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    if (url === '/api/tournament/join' && method === 'POST') {
+      const b = await parseBody(req);
+      const card = String(b.card || '').trim();
+      if (!card) return sendJSON(res, 400, { error: 'Введи номер карты' });
+      try {
+        const t = await pool.query(`SELECT * FROM tournaments WHERE status='active' ORDER BY id DESC LIMIT 1`);
+        if (!t.rows.length) return sendJSON(res, 400, { error: 'Нет активного турнира' });
+        const tour = t.rows[0];
+        const g = await pool.query(`SELECT * FROM guests WHERE id=$1`, [card]);
+        if (!g.rows.length) return sendJSON(res, 404, { error: 'Карта не найдена' });
+        const guest = g.rows[0];
+        const existing = await pool.query(`SELECT * FROM tournament_entries WHERE tournament_id=$1 AND guest_id=$2`, [tour.id, guest.id]);
+        if (existing.rows.length) return sendJSON(res, 200, { ok: true, already: true });
+        await pool.query(`INSERT INTO tournament_entries (tournament_id, guest_id, guest_name, score, bets_count) VALUES ($1,$2,$3,0,0)`, [tour.id, guest.id, guest.name]);
+        return sendJSON(res, 200, { ok: true, already: false });
+      } catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
+    // === ПОСЛЕДНИЕ ВЫИГРЫШИ ===
+    if (url === '/api/last-wins' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(50, parseInt(u.searchParams.get('limit'), 10) || 20);
+      try {
+        const r = await pool.query(`
+          SELECT 'crash' AS game, player_name AS player, amount AS bet, amount * cashout_mult AS win, ROUND(cashout_mult::numeric, 2) AS mult, created_at FROM crash_bets WHERE cashed_out = TRUE AND cashout_mult >= 2 AND player_id NOT LIKE 'BOT%'
+          UNION ALL
+          SELECT game AS game, player_name AS player, bet, result AS win, CASE WHEN bet > 0 THEN ROUND((result / bet)::numeric, 2) ELSE 0 END AS mult, created_at FROM game_history WHERE result > bet AND result >= bet * 1.5 AND game IN ('miner','plinko','ladder','cases')
+          ORDER BY created_at DESC LIMIT $1
+        `, [limit]);
+        return sendJSON(200, r.rows);
+      } catch (e) { return sendJSON(500, { error: e.message }); }
+    }
+
     // === ПРОМОКОДЫ ===
     if (url === '/api/promo/activate' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
       const code = String(b.code || '').trim().toUpperCase();
       if (!guestId || !code) return sendJSON(400, { error: 'Введите промокод' });
-
       try {
         const pRes = await pool.query('SELECT * FROM promo_codes WHERE code=$1 AND active=TRUE', [code]);
         if (!pRes.rows.length) return sendJSON(400, { error: 'Промокод не найден' });
         const promo = pRes.rows[0];
-
         if (promo.max_uses > 0 && promo.used_count >= promo.max_uses) return sendJSON(400, { error: 'Лимит активаций исчерпан' });
-
         const useCheck = await pool.query('SELECT * FROM active_bonuses WHERE promo_id=$1 AND guest_id=$2', [promo.id, guestId]);
         if (useCheck.rows.length > 0) return sendJSON(400, { error: 'Вы уже активировали этот промокод' });
-
         await pool.query(`INSERT INTO active_bonuses (guest_id, promo_id, title, amount, min_deposit, status) VALUES ($1, $2, $3, $4, $5, 'pending')`, [guestId, promo.id, 'Бонус по промокоду ' + code, promo.value, promo.min_deposit]);
         await pool.query('UPDATE promo_codes SET used_count = used_count + 1 WHERE id=$1', [promo.id]);
-
         return sendJSON(res, 200, { ok: true, message: 'Промокод активирован! Сделайте депозит для получения бонуса.' });
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
@@ -202,6 +227,11 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    if (url === '/api/admin/promos' && method === 'GET') {
+      try { const r = await pool.query('SELECT * FROM promo_codes ORDER BY id DESC'); return sendJSON(res, 200, r.rows); }
+      catch (e) { return sendJSON(res, 500, { error: e.message }); }
+    }
+
     // === ДЕПОЗИТЫ ===
     if (url === '/api/deposits' && method === 'GET') {
       const r = await pool.query('SELECT * FROM deposits ORDER BY id DESC');
@@ -231,7 +261,7 @@ const server = http.createServer(async (req, res) => {
             for (const bonus of pendingBonuses.rows) {
               if (sum >= parseFloat(bonus.min_deposit)) {
                 const bonusAmount = parseFloat(bonus.amount);
-                const wagerReq = bonusAmount * parseFloat(bonus.wager_multiplier);
+                const wagerReq = bonusAmount * 5;
                 await pool.query(`UPDATE guests SET bonus_balance = bonus_balance + $1, wagering_required = wagering_required + $2, bonus_text = $3 WHERE id = $4`, [bonusAmount, wagerReq, bonus.title, guest.id]);
                 await pool.query(`UPDATE active_bonuses SET status='active' WHERE id=$1`, [bonus.id]);
                 await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), bonusAmount, `Bonus Activated: ${bonus.title} (${guest.id})`]);
@@ -243,7 +273,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(200, { ok: true });
     }
 
-    // === ИГРА: CRASH ===
+    // === ИГРЫ ===
     if (url === '/api/crash/bet' && method === 'POST') {
       const b = await parseBody(req);
       const amt = parseFloat(b.amount) || 0;
@@ -257,7 +287,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(200, { ok: true, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
-    // === ИГРА: МИНЕР ===
     if (url === '/api/miner/start' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -270,7 +299,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(200, { ok: true, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
-    // === ИГРА: PLINKO (Обновлено под RTP 80%) ===
     if (url === '/api/plinko/drop' && method === 'POST') {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
@@ -281,10 +309,7 @@ const server = http.createServer(async (req, res) => {
       
       const pathArr = Array.from({length: 8}, () => Math.random() < 0.5 ? 0 : 1);
       const slot = pathArr.reduce((a,b)=>a+b, 0);
-      
-      // Выбираем массив множителей в зависимости от сложности, но RTP уже заложен в них
-      const risk = b.risk || 'medium';
-      const mults = PLINKO_MULTIPLIERS[risk] || PLINKO_MULTIPLIERS.medium;
+      const mults = PLINKO_MULTIPLIERS[b.risk || 'medium'] || PLINKO_MULTIPLIERS.medium;
       const mult = mults[slot];
       const win = Math.round(bet * mult * 100) / 100;
       
@@ -297,22 +322,18 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, path: pathArr, slot, multiplier: mult, win, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
-    // === ИГРА: КЕЙСЫ (Обновлено: Новичок до 1000, Королевский до 10000) ===
     if (url === '/api/cases/open' && method === 'POST') {
       const b = await parseBody(req);
       const { guest_id, case_name } = b;
-      if (!guest_id || !case_name) return sendJSON(res, 400, { error: 'no data' });
+      if (!guest_id || !case_name) return sendJSON(400, { error: 'no data' });
       const c = CASES[case_name];
-      if (!c) return sendJSON(res, 400, { error: 'Кейс не найден' });
+      if (!c) return sendJSON(400, { error: 'Кейс не найден' });
       const debited = await debitBet(guest_id, c.price);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      
+      if (!debited) return sendJSON(400, { error: 'Недостаточно средств' });
       const prize = pickPrize(c.prizes);
       await creditWin(guest_id, prize, c.price);
-      
       const net = c.price - prize;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]);
-      
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
@@ -362,7 +383,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(200, { ok: true });
     }
 
-    // === ГОСТИ И ПРОФИЛЬ ===
+    // === ГОСТИ ===
     if (url === '/api/guests' && method === 'GET') {
       const r = await pool.query('SELECT * FROM guests ORDER BY id');
       return sendJSON(200, r.rows);
@@ -396,21 +417,6 @@ const server = http.createServer(async (req, res) => {
       const g = r.rows[0];
       if (String(pass) !== String(g.pass || '1234')) return sendJSON(401, { error: 'Неверный пароль' });
       return sendJSON(200, { ok: true, guest: g });
-    }
-
-    // === ПОСЛЕДНИЕ ВЫИГРЫШИ ===
-    if (url === '/api/last-wins' && method === 'GET') {
-      const u = new URL(req.url, 'http://x');
-      const limit = Math.min(50, parseInt(u.searchParams.get('limit'), 10) || 20);
-      try {
-        const r = await pool.query(`
-          SELECT 'crash' AS game, player_name AS player, amount AS bet, amount * cashout_mult AS win, ROUND(cashout_mult::numeric, 2) AS mult, created_at FROM crash_bets WHERE cashed_out = TRUE AND cashout_mult >= 2 AND player_id NOT LIKE 'BOT%'
-          UNION ALL
-          SELECT game AS game, player_name AS player, bet, result AS win, CASE WHEN bet > 0 THEN ROUND((result / bet)::numeric, 2) ELSE 0 END AS mult, created_at FROM game_history WHERE result > bet AND result >= bet * 1.5 AND game IN ('miner','plinko','ladder','cases')
-          ORDER BY created_at DESC LIMIT $1
-        `, [limit]);
-        return sendJSON(200, r.rows);
-      } catch (e) { return sendJSON(500, { error: e.message }); }
     }
 
     // === СТАТИСТИКА ===
