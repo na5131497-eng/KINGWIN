@@ -390,7 +390,6 @@ async function initDB() {
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();
     `);
 
-    // Миграция roulette_sessions — колонки + снятие NOT NULL
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_number INTEGER;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_color TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS bet_type TEXT;`);
@@ -400,7 +399,6 @@ async function initDB() {
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS date TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS dealer TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS nick TEXT;`);
-    // Снимаем NOT NULL — критичный фикс
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN nick DROP NOT NULL;`); } catch(e){}
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN dealer DROP NOT NULL;`); } catch(e){}
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet_type DROP NOT NULL;`); } catch(e){}
@@ -646,6 +644,34 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]);
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
+    }
+
+    // ============================================================
+    // ⭐ ПУБЛИЧНАЯ ИСТОРИЯ РУЛЕТКИ (для страницы /roulette-history)
+    // ============================================================
+    if (url === '/api/roulette/history' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(20, parseInt(u.searchParams.get('limit'), 10) || 10);
+      try {
+        const r = await pool.query(
+          `SELECT id, result_number, result_color, dealer, date, created_at
+           FROM roulette_sessions
+           WHERE result_number IS NOT NULL
+           ORDER BY id DESC LIMIT $1`,
+          [limit]
+        );
+        const rows = r.rows.map(row => ({
+          id: row.id,
+          result_number: row.result_number,
+          result_color: row.result_color,
+          dealer: row.dealer,
+          created_at: row.created_at
+        }));
+        return sendJSON(res, 200, rows);
+      } catch (e) {
+        console.error('[/api/roulette/history]', e.message);
+        return sendJSON(res, 200, []);
+      }
     }
 
     // ============================================================
@@ -1001,7 +1027,6 @@ const server = http.createServer(async (req, res) => {
       const dealerName = String(b.dealer_name || 'Дилер').slice(0, 100);
       const color = getRouletteColor(num);
       try {
-        // Пустые строки вместо NULL (страховка от NOT NULL)
         const r = await pool.query(
           `INSERT INTO roulette_sessions (dealer, nick, bet_type, bet, win, won, date, result_number, result_color)
            VALUES ($1, '', 'manual', 0, 0, 0, $2, $3, $4) RETURNING id`,
