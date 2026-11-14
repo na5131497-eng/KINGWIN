@@ -390,6 +390,7 @@ async function initDB() {
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();
     `);
 
+    // Миграция roulette_sessions — колонки + снятие NOT NULL
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_number INTEGER;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_color TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS bet_type TEXT;`);
@@ -399,6 +400,13 @@ async function initDB() {
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS date TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS dealer TEXT;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS nick TEXT;`);
+    // Снимаем NOT NULL — критичный фикс
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN nick DROP NOT NULL;`); } catch(e){}
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN dealer DROP NOT NULL;`); } catch(e){}
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet_type DROP NOT NULL;`); } catch(e){}
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet DROP NOT NULL;`); } catch(e){}
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN win DROP NOT NULL;`); } catch(e){}
+    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN won DROP NOT NULL;`); } catch(e){}
 
     const dlCheck = await pool.query(`SELECT * FROM dealers WHERE login = 'dealer'`);
     if (dlCheck.rows.length === 0) {
@@ -736,7 +744,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ============================================================
-    // ADMIN: HOUSE
+    // ADMIN HOUSE
     // ============================================================
     if (url === '/api/admin/house/add' && method === 'POST') {
       const b = await parseBody(req);
@@ -765,7 +773,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ============================================================
-    // ADMIN: GUEST CREATE/UPDATE/BONUS
+    // ADMIN GUEST
     // ============================================================
     if (url === '/api/admin/guest/create' && method === 'POST') {
       const b = await parseBody(req);
@@ -993,9 +1001,10 @@ const server = http.createServer(async (req, res) => {
       const dealerName = String(b.dealer_name || 'Дилер').slice(0, 100);
       const color = getRouletteColor(num);
       try {
+        // Пустые строки вместо NULL (страховка от NOT NULL)
         const r = await pool.query(
           `INSERT INTO roulette_sessions (dealer, nick, bet_type, bet, win, won, date, result_number, result_color)
-           VALUES ($1, NULL, 'manual', 0, 0, 0, $2, $3, $4) RETURNING id`,
+           VALUES ($1, '', 'manual', 0, 0, 0, $2, $3, $4) RETURNING id`,
           [dealerName, todayStr(), num, color]
         );
         return sendJSON(res, 200, { ok: true, id: r.rows[0].id, number: num, color });
