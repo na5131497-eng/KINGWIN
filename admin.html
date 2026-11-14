@@ -6,99 +6,106 @@
 <title>KINGWIN — Админ-панель</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
-    --accent: #00e5ff; --accent-green: #00e676;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+  :root { --bg-main:#0b0e14; --bg-panel:#151922; --bg-card:#1a1f2b; --accent:#00e5ff; --accent-green:#00e676; --text-main:#fff; --text-muted:#8b92a5; --border:rgba(255,255,255,0.05); --red:#ff4d4d; --gold:#f1c40f; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; }
+  body { background:var(--bg-main); color:var(--text-main); display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
 
-  .topbar { height: 60px; background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-  .header-left { display: flex; align-items: center; gap: 15px; }
-  .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
-  .menu-btn:hover { background: rgba(255,255,255,0.1); }
-  .logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, var(--accent), #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .topbar { height:60px; background:var(--bg-panel); display:flex; justify-content:space-between; align-items:center; padding:0 15px; position:sticky; top:0; z-index:100; border-bottom:1px solid var(--border); }
+  .header-left { display:flex; align-items:center; gap:15px; }
+  .menu-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-main); width:40px; height:40px; border-radius:10px; font-size:22px; cursor:pointer; display:flex; justify-content:center; align-items:center; }
+  .logo { font-size:20px; font-weight:900; letter-spacing:1px; background:linear-gradient(135deg,var(--accent),#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .user-info { font-size:12px; color:var(--text-muted); text-align:right; }
+  .user-info b { color:var(--text-main); font-size:14px; display:block; }
+  .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-left:10px; }
+  .logout-btn:hover { border-color:var(--red); color:var(--red); }
 
-  .user-info { font-size: 12px; color: var(--text-muted); text-align: right; }
-  .user-info b { color: var(--text-main); font-size: 14px; display: block; }
-  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; margin-left: 10px; }
-  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+  .sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100000; opacity:0; pointer-events:none; transition:0.3s; }
+  .sidebar-overlay.show { opacity:1; pointer-events:auto; }
+  .sidebar { position:fixed; top:0; left:-280px; width:280px; height:100dvh; background:var(--bg-panel); z-index:100001; transition:0.3s; display:flex; flex-direction:column; overflow-y:auto; border-right:1px solid var(--border); }
+  .sidebar.show { left:0; }
+  .sidebar-header { display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border); }
+  .sidebar-header .logo { font-size:22px; }
+  .close-btn { background:transparent; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; }
+  .nav { display:flex; flex-direction:column; padding:15px; gap:5px; flex:1; }
+  .nav button { background:transparent; border:none; color:var(--text-muted); text-align:left; padding:14px 15px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:12px; }
+  .nav button svg { width:20px; height:20px; fill:currentColor; }
+  .nav button:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav button.active { background:rgba(0,229,255,0.1); color:var(--accent); }
 
-  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
-  .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+  main { flex:1; padding:20px 15px; max-width:1400px; width:100%; margin:0 auto; }
+  .page { display:none; animation:fadeIn 0.3s; }
+  .page.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
-  .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100dvh; background: var(--bg-panel); z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid var(--border); box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
-  .sidebar.show { left: 0; }
+  h1 { font-size:24px; font-weight:800; margin-bottom:5px; }
+  .sub { color:var(--text-muted); font-size:13px; margin-bottom:25px; }
 
-  .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border); }
-  .sidebar-header .logo { font-size: 22px; }
-  .close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
-  .close-btn:hover { color: #fff; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; margin-bottom:25px; }
+  .card { background:var(--bg-panel); border:1px solid var(--border); border-radius:15px; padding:20px; }
+  .card .label { font-size:12px; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:700; }
+  .card .value { font-size:22px; font-weight:900; }
+  .card .value.green { color:var(--accent-green); }
+  .card .value.red { color:var(--red); }
+  .card .value.gold { color:var(--gold); }
+  .card .value.accent { color:var(--accent); }
 
-  .nav { display: flex; flex-direction: column; padding: 15px; gap: 5px; flex: 1; }
-  .nav button { background: transparent; border: none; color: var(--text-muted); text-align: left; padding: 14px 15px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px;}
-  .nav button svg { width: 20px; height: 20px; fill: currentColor; }
-  .nav button:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-  .nav button.active { background: rgba(0,229,255,0.1); color: var(--accent); }
+  .panel { background:var(--bg-panel); border:1px solid var(--border); border-radius:15px; padding:20px; margin-bottom:20px; }
+  .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px; }
+  .panel-header h3 { font-size:18px; font-weight:700; }
 
-  main { flex: 1; padding: 20px 15px; max-width: 1400px; width: 100%; margin: 0 auto; }
-  .page { display: none; animation: fadeIn 0.3s; }
-  .page.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:12px 10px; border-bottom:1px solid var(--border); text-align:left; }
+  th { color:var(--text-muted); font-size:10px; text-transform:uppercase; font-weight:700; letter-spacing:0.5px; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
 
-  h1 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
-  .sub { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
+  .status { display:inline-block; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800; text-transform:uppercase; }
+  .status.pending { background:rgba(241,196,15,0.15); color:var(--gold); }
+  .status.approved { background:rgba(0,230,118,0.15); color:var(--accent-green); }
+  .status.rejected { background:rgba(255,77,77,0.15); color:var(--red); }
 
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
-  .card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 15px; padding: 20px; }
-  .card .label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
-  .card .value { font-size: 22px; font-weight: 900; }
-  .card .value.green { color: var(--accent-green); }
-  .card .value.red { color: var(--red); }
-  .card .value.gold { color: var(--gold); }
-  .card .value.accent { color: var(--accent); }
+  button { background:var(--accent); color:#000; border:none; border-radius:8px; padding:8px 15px; font-weight:800; font-size:12px; cursor:pointer; font-family:inherit; transition:0.2s; }
+  button:hover { filter:brightness(1.1); }
+  button.btn-sm { padding:6px 10px; font-size:11px; }
+  button.btn-green { background:var(--accent-green); }
+  button.btn-red { background:var(--red); color:#fff; }
+  button.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text-main); }
+  button.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+  button.btn-gold { background:var(--gold); color:#000; }
 
-  .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
-  .panel-header h3 { font-size: 18px; font-weight: 700; }
+  .toast { position:fixed; top:20px; right:20px; background:var(--bg-panel); border-left:4px solid var(--accent); padding:15px 25px; border-radius:8px; font-weight:600; box-shadow:0 5px 15px rgba(0,0,0,0.3); transform:translateX(150%); transition:0.3s; z-index:9999; max-width:360px; }
+  .toast.show { transform:translateX(0); }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left; }
-  th { color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
+  .form-group { margin-bottom:15px; }
+  .form-group label { display:block; font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; font-weight:700; }
+  .form-control { width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:rgba(0,0,0,0.3); color:#fff; outline:none; font-size:14px; font-family:inherit; }
+  .form-control:focus { border-color:var(--accent); }
 
-  .status { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-  .status.pending { background: rgba(241,196,15,0.15); color: var(--gold); }
-  .status.approved { background: rgba(0,230,118,0.15); color: var(--accent-green); }
-  .status.rejected { background: rgba(255,77,77,0.15); color: var(--red); }
+  .login-screen { position:fixed; inset:0; background:var(--bg-main); display:flex; align-items:center; justify-content:center; z-index:2000; }
+  .login-box { background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:380px; text-align:center; }
+  .login-box .name { font-size:28px; font-weight:900; color:var(--accent); margin-bottom:5px; }
+  .login-box input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; margin-bottom:15px; outline:none; font-size:14px; text-align:center; font-family:inherit; }
+  .login-box input:focus { border-color:var(--accent); }
+  .login-box button { width:100%; padding:14px; font-size:14px; margin-top:10px; }
 
-  button { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s; font-family: inherit; }
-  button:hover { filter: brightness(1.1); }
-  button.btn-sm { padding: 6px 10px; font-size: 11px; }
-  button.btn-green { background: var(--accent-green); }
-  button.btn-red { background: var(--red); color: #fff; }
-  button.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-  button.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-  button.btn-gold { background: var(--gold); color: #000; }
+  .empty { text-align:center; color:var(--text-muted); padding:20px; }
 
-  .toast { position: fixed; top: 20px; right: 20px; background: var(--bg-panel); border-left: 4px solid var(--accent); padding: 15px 25px; border-radius: 8px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: translateX(150%); transition: 0.3s; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px; }
+  .modal-backdrop.show { display:flex; }
+  .modal { background:linear-gradient(135deg,#111625,#0a0d14); border:1px solid rgba(241,196,15,0.35); border-radius:20px; max-width:440px; width:100%; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); max-height:calc(100dvh - 40px); overflow-y:auto; }
+  .modal h2 { font-size:20px; font-weight:900; margin-bottom:6px; background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; }
+  .modal-sub { font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:20px; }
+  .modal-close { display:block; width:100%; margin-top:16px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:10px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .modal-close:hover { border-color:var(--red); color:var(--red); }
 
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-  .form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 14px; font-family: inherit;}
-  .form-control:focus { border-color: var(--accent); }
+  .treasury-box { background:linear-gradient(135deg,#0a1a3a,#1a3a6b 50%,#0a1a3a); border:2px solid var(--accent); border-radius:20px; padding:28px; margin-bottom:20px; text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.15); }
+  .treasury-box .lbl { font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:700; margin-bottom:10px; }
+  .treasury-box .val { font-size:48px; font-weight:900; color:var(--accent); text-shadow:0 0 20px rgba(0,229,255,0.6); line-height:1; }
+  .treasury-box .val.neg { color:var(--red); text-shadow:0 0 20px rgba(255,77,77,0.6); }
 
-  .login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-  .login-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 380px; text-align: center; }
-  .login-box .name { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 5px; }
-  .login-box input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 14px; text-align: center; font-family: inherit;}
-  .login-box input:focus { border-color: var(--accent); }
-  .login-box button { width: 100%; padding: 14px; font-size: 14px; margin-top: 10px; }
-
-  .empty { text-align: center; color: var(--text-muted); padding: 20px; }
+  .treasury-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .treasury-actions button { padding:18px; font-size:14px; border-radius:14px; }
+  .btn-add-treasury { background:linear-gradient(135deg,#00e676,#00b45a); color:#000; box-shadow:0 0 20px rgba(0,230,118,0.3); }
+  .btn-remove-treasury { background:linear-gradient(135deg,#ff4d4d,#cc0000); color:#fff; box-shadow:0 0 20px rgba(255,77,77,0.3); }
 </style>
 </head>
 <body>
@@ -137,6 +144,9 @@
     <button class="active" onclick="switchTab('dash', this)">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Обзор
     </button>
+    <button onclick="switchTab('treasury', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg> Касса
+    </button>
     <button onclick="switchTab('finance', this)">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> Финансы
     </button>
@@ -152,20 +162,20 @@
   </div>
 </div>
 
-<!-- КОНТЕНТ -->
 <main>
 
+  <!-- ОБЗОР -->
   <div class="page active" id="page-dash">
     <h1>Общая статистика</h1>
     <div class="sub">Доходы казино и текущие показатели</div>
-    <div class="cards" id="dashCards">
+    <div class="cards">
       <div class="card"><div class="label">Касса</div><div class="value green" id="statTreasury">...</div></div>
       <div class="card"><div class="label">Оборот сегодня</div><div class="value accent" id="statTurnover">...</div></div>
       <div class="card"><div class="label">Выплачено</div><div class="value red" id="statPaid">...</div></div>
       <div class="card"><div class="label">Игроков</div><div class="value gold" id="statPlayers">...</div></div>
     </div>
     <div class="panel">
-      <div class="panel-header"><h3>Последние заявки</h3><button class="btn-outline btn-sm" onclick="switchTab('finance', document.querySelectorAll('.nav button')[1])">Все →</button></div>
+      <div class="panel-header"><h3>Последние заявки</h3><button class="btn-outline btn-sm" onclick="switchTab('finance', document.querySelectorAll('.nav button')[2])">Все →</button></div>
       <table>
         <thead><tr><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th></tr></thead>
         <tbody id="dashRecentDeposits"><tr><td colspan="4" class="empty">Загрузка...</td></tr></tbody>
@@ -173,6 +183,33 @@
     </div>
   </div>
 
+  <!-- КАССА -->
+  <div class="page" id="page-treasury">
+    <h1>Касса</h1>
+    <div class="sub">Прямое пополнение и списание средств казино</div>
+
+    <div class="treasury-box">
+      <div class="lbl">Текущий баланс</div>
+      <div class="val" id="treasuryVal">0.00 ₽</div>
+    </div>
+
+    <div class="treasury-actions">
+      <button class="btn-add-treasury" onclick="openTreasuryModal('add')">➕ Пополнить кассу</button>
+      <button class="btn-remove-treasury" onclick="openTreasuryModal('remove')">➖ Списать с кассы</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><h3>Последние операции</h3><button class="btn-outline btn-sm" onclick="loadTreasuryLog()">Обновить</button></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Комментарий</th></tr></thead>
+          <tbody id="treasuryLogTable"><tr><td colspan="4" class="empty">Загрузка...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ФИНАНСЫ -->
   <div class="page" id="page-finance">
     <h1>Финансы</h1>
     <div class="sub">Управление заявками</div>
@@ -196,30 +233,34 @@
     </div>
   </div>
 
+  <!-- ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
-    <div class="sub">Список всех пользователей</div>
+    <div class="sub">Список пользователей и выдача бонусов</div>
     <div class="panel">
       <div class="panel-header"><h3>База игроков</h3><button class="btn-outline btn-sm" onclick="loadPlayers()">Обновить</button></div>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Реальный</th><th>Бонусный</th></tr></thead>
-          <tbody id="playersTable"><tr><td colspan="5" class="empty">Загрузка...</td></tr></tbody>
+          <thead>
+            <tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Депозит</th><th>Бонус</th><th>Действия</th></tr>
+          </thead>
+          <tbody id="playersTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- БОНУСЫ -->
   <div class="page" id="page-bonuses">
     <h1>Бонусы и Промокоды</h1>
     <div class="sub">Создание бонусных кодов</div>
-    <div class="panel" style="max-width: 600px;">
-      <h3 style="margin-bottom: 20px;">Создать промокод</h3>
+    <div class="panel" style="max-width:600px;">
+      <h3 style="margin-bottom:20px;">Создать промокод</h3>
       <div class="form-group">
         <label>Код (латиницей)</label>
-        <input type="text" id="promoCodeInput" class="form-control" placeholder="Например: KING200" style="text-transform: uppercase;">
+        <input type="text" id="promoCodeInput" class="form-control" placeholder="Например: KING200" style="text-transform:uppercase;">
       </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
         <div class="form-group">
           <label>Сумма бонуса (₽)</label>
           <input type="number" id="promoValueInput" class="form-control" placeholder="100" min="1">
@@ -233,7 +274,7 @@
         <label>Активаций (0 = ∞)</label>
         <input type="number" id="promoMaxUsesInput" class="form-control" placeholder="1" min="0" value="1">
       </div>
-      <button class="btn-gold" style="width: 100%; padding: 14px; font-size: 14px; margin-top: 10px;" onclick="createPromo()">🎁 Создать промокод</button>
+      <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:10px;" onclick="createPromo()">🎁 Создать промокод</button>
     </div>
     <div class="panel">
       <div class="panel-header"><h3>Список промокодов</h3><button class="btn-outline btn-sm" onclick="loadPromos()">Обновить</button></div>
@@ -246,6 +287,7 @@
     </div>
   </div>
 
+  <!-- ИСТОРИЯ -->
   <div class="page" id="page-history">
     <h1>История игр</h1>
     <div class="sub">Последние ставки</div>
@@ -262,11 +304,66 @@
 
 </main>
 
+<!-- МОДАЛКА БОНУСА ИГРОКУ -->
+<div class="modal-backdrop" id="bonusModal">
+  <div class="modal">
+    <h2>💰 Выдать бонус</h2>
+    <div class="modal-sub" id="bonusModalSub">Игрок: —</div>
+
+    <div class="form-group">
+      <label>Сумма бонуса (₽)</label>
+      <input type="number" id="bonusAmountInput" class="form-control" placeholder="100" min="1" value="100">
+    </div>
+
+    <div class="form-group">
+      <label>Название бонуса</label>
+      <input type="text" id="bonusTitleInput" class="form-control" value="Подарок от админа" maxlength="100">
+    </div>
+
+    <div class="form-group">
+      <label>Вейджер (×5 = отыграть 5× суммы)</label>
+      <input type="number" id="bonusWagerInput" class="form-control" value="5" min="0" step="0.5">
+    </div>
+
+    <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; margin-top:6px; font-size:12px; color:var(--text-muted); line-height:1.5;">
+      Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> (не в депозит).<br>
+      Отыграть нужно: <b id="bonusWagerPreview" style="color:var(--accent);">500 ₽</b>
+    </div>
+
+    <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitBonus()">💰 Начислить бонус</button>
+    <button class="modal-close" onclick="closeBonusModal()">Отмена</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА КАССЫ -->
+<div class="modal-backdrop" id="treasuryModal">
+  <div class="modal">
+    <h2 id="treasuryModalTitle">➕ Пополнить кассу</h2>
+    <div class="modal-sub" id="treasuryModalSub">Сумма, которая будет добавлена в кассу</div>
+
+    <div class="form-group">
+      <label>Сумма (₽)</label>
+      <input type="number" id="treasuryAmountInput" class="form-control" placeholder="1000" min="1" value="1000">
+    </div>
+
+    <div class="form-group">
+      <label>Комментарий (опционально)</label>
+      <input type="text" id="treasuryNoteInput" class="form-control" placeholder="Например: пополнение извне" maxlength="200">
+    </div>
+
+    <button id="treasurySubmitBtn" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitTreasury()">Применить</button>
+    <button class="modal-close" onclick="closeTreasuryModal()">Отмена</button>
+  </div>
+</div>
+
 <div class="toast" id="toast">Успешно!</div>
 
 <script>
 let adminPass = "56UpahoS";
 let isAuthorized = false;
+let bonusGuestId = null;
+let bonusGuestName = null;
+let treasuryMode = 'add';
 
 window.onload = () => {
   const saved = sessionStorage.getItem('kingwin_admin_auth');
@@ -275,7 +372,17 @@ window.onload = () => {
     document.getElementById('loginScreen').style.display = 'none';
     loadDashboard();
   }
+  const amt = document.getElementById('bonusAmountInput');
+  const wag = document.getElementById('bonusWagerInput');
+  if (amt) amt.addEventListener('input', updateWagerPreview);
+  if (wag) wag.addEventListener('input', updateWagerPreview);
 };
+
+function updateWagerPreview() {
+  const amount = parseFloat(document.getElementById('bonusAmountInput').value) || 0;
+  const wager = parseFloat(document.getElementById('bonusWagerInput').value) || 0;
+  document.getElementById('bonusWagerPreview').textContent = (amount * wager).toFixed(2) + ' ₽';
+}
 
 function doLogin() {
   const pass = document.getElementById('adminPass').value;
@@ -305,10 +412,10 @@ function switchTab(tabId, btnElement) {
   document.getElementById('page-' + tabId).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
-
   if (window.innerWidth < 900) toggleSidebar();
 
   if (tabId === 'dash') loadDashboard();
+  if (tabId === 'treasury') { loadTreasury(); loadTreasuryLog(); }
   if (tabId === 'finance') { loadDeposits(); loadWithdrawals(); }
   if (tabId === 'players') loadPlayers();
   if (tabId === 'bonuses') loadPromos();
@@ -320,13 +427,12 @@ function showToast(msg, isError = false) {
   t.textContent = msg;
   t.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function fmtMoney(n) { return (parseFloat(n) || 0).toFixed(2) + ' ₽'; }
 
-// --- API ---
-
+// ================= ОБЗОР =================
 async function loadDashboard() {
   try {
     const resStats = await fetch('/api/admin/house/stats');
@@ -353,11 +459,105 @@ async function loadDashboard() {
       });
     }
     document.getElementById('dashRecentDeposits').innerHTML = html;
-  } catch (e) {
-    showToast('Ошибка загрузки', true);
-  }
+  } catch (e) { showToast('Ошибка загрузки', true); }
 }
 
+// ================= КАССА =================
+async function loadTreasury() {
+  try {
+    const res = await fetch('/api/admin/house/stats');
+    const stats = await res.json();
+    const v = document.getElementById('treasuryVal');
+    const t = parseFloat(stats.treasury) || 0;
+    v.textContent = fmtMoney(t);
+    v.className = 'val' + (t < 0 ? ' neg' : '');
+  } catch(e) { showToast('Ошибка загрузки кассы', true); }
+}
+
+async function loadTreasuryLog() {
+  try {
+    const res = await fetch('/api/admin/house/log?pass=' + encodeURIComponent(adminPass) + '&limit=50');
+    if (!res.ok) {
+      document.getElementById('treasuryLogTable').innerHTML = '<tr><td colspan="4" class="empty">Эндпоинт /api/admin/house/log не найден</td></tr>';
+      return;
+    }
+    const rows = await res.json();
+    let html = '';
+    if (!Array.isArray(rows) || rows.length === 0) {
+      html = '<tr><td colspan="4" class="empty">Нет операций</td></tr>';
+    } else {
+      rows.forEach(r => {
+        const isIn = r.type === 'доход';
+        const color = isIn ? 'var(--accent-green)' : 'var(--red)';
+        const sign = isIn ? '+' : '−';
+        const when = r.created_at ? new Date(r.created_at).toLocaleString('ru-RU') : '-';
+        html += `<tr>
+          <td>${when}</td>
+          <td style="color:${color}; font-weight:800;">${isIn ? 'ДОХОД' : 'РАСХОД'}</td>
+          <td style="color:${color}; font-weight:800;">${sign}${fmtMoney(r.sum)}</td>
+          <td style="color:var(--text-muted); font-size:12px;">${r.note || '-'}</td>
+        </tr>`;
+      });
+    }
+    document.getElementById('treasuryLogTable').innerHTML = html;
+  } catch(e) { showToast('Ошибка загрузки журнала', true); }
+}
+
+function openTreasuryModal(mode) {
+  treasuryMode = mode;
+  const title = document.getElementById('treasuryModalTitle');
+  const sub = document.getElementById('treasuryModalSub');
+  const btn = document.getElementById('treasurySubmitBtn');
+
+  if (mode === 'add') {
+    title.textContent = '➕ Пополнить кассу';
+    sub.textContent = 'Сумма будет добавлена в кассу (как доход)';
+    btn.style.background = 'linear-gradient(135deg,#00e676,#00b45a)';
+    btn.style.color = '#000';
+    btn.textContent = 'Пополнить';
+  } else {
+    title.textContent = '➖ Списать с кассы';
+    sub.textContent = 'Сумма будет списана с кассы (как расход)';
+    btn.style.background = 'linear-gradient(135deg,#ff4d4d,#cc0000)';
+    btn.style.color = '#fff';
+    btn.textContent = 'Списать';
+  }
+
+  document.getElementById('treasuryAmountInput').value = 1000;
+  document.getElementById('treasuryNoteInput').value = '';
+  document.getElementById('treasuryModal').classList.add('show');
+}
+
+function closeTreasuryModal() {
+  document.getElementById('treasuryModal').classList.remove('show');
+}
+
+async function submitTreasury() {
+  const amount = parseFloat(document.getElementById('treasuryAmountInput').value) || 0;
+  const note = document.getElementById('treasuryNoteInput').value.trim();
+  if (amount <= 0) return showToast('Сумма должна быть > 0', true);
+
+  const endpoint = treasuryMode === 'add' ? '/api/admin/house/add' : '/api/admin/house/remove';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pass: adminPass, amount, note })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ ${treasuryMode === 'add' ? 'Добавлено' : 'Списано'} ${amount}₽. Касса: ${fmtMoney(data.treasury)}`);
+      closeTreasuryModal();
+      loadTreasury();
+      loadTreasuryLog();
+    } else {
+      showToast(data.error || 'Ошибка', true);
+    }
+  } catch(e) { showToast('Ошибка сети', true); }
+}
+
+// ================= ФИНАНСЫ =================
 async function loadDeposits() {
   try {
     const res = await fetch('/api/deposits');
@@ -430,21 +630,24 @@ async function updateWithdrawal(id, status) {
   } catch(e) { showToast('Ошибка сети', true); }
 }
 
+// ================= ИГРОКИ =================
 async function loadPlayers() {
   try {
     const res = await fetch('/api/guests');
     const guests = await res.json();
     let html = '';
     if (!Array.isArray(guests) || guests.length === 0) {
-      html = '<tr><td colspan="5" class="empty">Нет игроков</td></tr>';
+      html = '<tr><td colspan="6" class="empty">Нет игроков</td></tr>';
     } else {
       guests.forEach(g => {
+        const safeName = String(g.name || g.id).replace(/'/g, '&#39;');
         html += `<tr>
           <td style="font-family:monospace;">${g.id}</td>
           <td style="font-weight:600;">${g.name || '-'}</td>
           <td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold);">${g.rank || 'Bronze'}</span></td>
           <td style="font-weight:800; color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</td>
           <td style="font-weight:800; color:var(--gold);">${fmtMoney(g.bonus_balance)}</td>
+          <td><button class="btn-gold btn-sm" onclick="openBonusModal('${g.id}', '${safeName}')">💰 Бонус</button></td>
         </tr>`;
       });
     }
@@ -452,6 +655,47 @@ async function loadPlayers() {
   } catch (e) { showToast('Ошибка загрузки игроков', true); }
 }
 
+// ================= БОНУС ИГРОКУ =================
+function openBonusModal(guestId, guestName) {
+  bonusGuestId = guestId;
+  bonusGuestName = guestName;
+  document.getElementById('bonusModalSub').textContent = `Игрок: ${guestName} (${guestId})`;
+  document.getElementById('bonusAmountInput').value = 100;
+  document.getElementById('bonusTitleInput').value = 'Подарок от админа';
+  document.getElementById('bonusWagerInput').value = 5;
+  updateWagerPreview();
+  document.getElementById('bonusModal').classList.add('show');
+}
+function closeBonusModal() {
+  document.getElementById('bonusModal').classList.remove('show');
+  bonusGuestId = null;
+  bonusGuestName = null;
+}
+async function submitBonus() {
+  if (!bonusGuestId) return;
+  const amount = parseFloat(document.getElementById('bonusAmountInput').value) || 0;
+  const title  = document.getElementById('bonusTitleInput').value.trim() || 'Подарок от админа';
+  const wager  = parseFloat(document.getElementById('bonusWagerInput').value) || 0;
+  if (amount <= 0) return showToast('Сумма должна быть > 0', true);
+
+  try {
+    const res = await fetch('/api/admin/guest/bonus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pass: adminPass, guest_id: bonusGuestId, amount, title, wager })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ +${amount}₽ бонус игроку ${bonusGuestName}. Отыграть: ${data.wagering_required.toFixed(0)}₽`);
+      closeBonusModal();
+      loadPlayers();
+    } else {
+      showToast(data.error || 'Ошибка выдачи бонуса', true);
+    }
+  } catch(e) { showToast('Ошибка сети', true); }
+}
+
+// ================= ПРОМОКОДЫ =================
 async function loadPromos() {
   try {
     const res = await fetch('/api/admin/promos');
@@ -505,6 +749,7 @@ async function createPromo() {
   } catch(e) { showToast('Ошибка сети', true); }
 }
 
+// ================= ИСТОРИЯ =================
 async function loadHistory() {
   document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
   try {
