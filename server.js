@@ -737,7 +737,6 @@ const server = http.createServer(async (req, res) => {
     // ============================================================
     // ================== АДМИНКА: КАССА (MANUAL) =================
     // ============================================================
-    // Пополнить кассу вручную (запись в online как 'доход')
     if (url === '/api/admin/house/add' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
@@ -752,7 +751,6 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, added: amt, treasury: house.balance });
     }
 
-    // Списать с кассы вручную (запись в online как 'расход')
     if (url === '/api/admin/house/remove' && method === 'POST') {
       const b = await parseBody(req);
       if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
@@ -765,6 +763,98 @@ const server = http.createServer(async (req, res) => {
       );
       const house = await getHouseBalance();
       return sendJSON(res, 200, { ok: true, removed: amt, treasury: house.balance });
+    }
+
+    // ============================================================
+    // ================ АДМИНКА: СОЗДАНИЕ ИГРОКА ==================
+    // ============================================================
+    if (url === '/api/admin/guest/create' && method === 'POST') {
+      const b = await parseBody(req);
+      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+
+      const id = String(b.id || '').trim();
+      if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
+      if (id.length > 50) return sendJSON(res, 400, { error: 'ID слишком длинный (макс 50)' });
+      if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) {
+        return sendJSON(res, 400, { error: 'ID: только латиница, цифры, _ - .' });
+      }
+
+      const name = String(b.name || id).trim().slice(0, 100) || id;
+      const password = String(b.password || '1234').trim().slice(0, 50) || '1234';
+      const rank = String(b.rank || 'Bronze').trim();
+      const deposit = Math.round((parseFloat(b.deposit) || 0) * 100) / 100;
+      const bonus = Math.round((parseFloat(b.bonus) || 0) * 100) / 100;
+      const wagerMult = parseFloat(b.wager) || 5;
+      const wagerReq = bonus * wagerMult;
+
+      if (deposit < 0 || bonus < 0) return sendJSON(res, 400, { error: 'Суммы не могут быть отрицательными' });
+
+      const exists = await pool.query('SELECT id FROM guests WHERE id=$1', [id]);
+      if (exists.rows.length) return sendJSON(res, 400, { error: 'Игрок с таким ID уже существует' });
+
+      try {
+        await pool.query(
+          `INSERT INTO guests
+            (id, name, pass, rank, deposit_balance, bonus_balance, wagering_required, bonus_text)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            id, name, password, rank,
+            deposit, bonus, wagerReq,
+            bonus > 0 ? `Бонус при создании (×${wagerMult})` : null
+          ]
+        );
+
+        if (deposit > 0) {
+          await pool.query(
+            `INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
+            [todayStr(), deposit, `Admin created guest ${id} (deposit)`]
+          );
+        }
+        if (bonus > 0) {
+          await pool.query(
+            `INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`,
+            [todayStr(), bonus, `Admin created guest ${id} (bonus)`]
+          );
+        }
+
+        return sendJSON(res, 200, {
+          ok: true, id, name, rank, deposit, bonus, wager_required: wagerReq
+        });
+      } catch (e) {
+        console.error('guest/create error:', e.message);
+        return sendJSON(res, 500, { error: e.message });
+      }
+    }
+
+    // Изменить пароль/имя/ранг игрока
+    if (url === '/api/admin/guest/update' && method === 'POST') {
+      const b = await parseBody(req);
+      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+
+      const id = String(b.id || '').trim();
+      if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
+
+      const fields = [];
+      const values = [];
+      let i = 1;
+
+      if (b.name !== undefined) { fields.push(`name = $${i++}`); values.push(String(b.name).slice(0, 100)); }
+      if (b.password !== undefined) { fields.push(`pass = $${i++}`); values.push(String(b.password).slice(0, 50)); }
+      if (b.rank !== undefined) { fields.push(`rank = $${i++}`); values.push(String(b.rank)); }
+
+      if (!fields.length) return sendJSON(res, 400, { error: 'Нет полей для обновления' });
+
+      values.push(id);
+      try {
+        const r = await pool.query(
+          `UPDATE guests SET ${fields.join(', ')} WHERE id = $${i} RETURNING id, name, rank`,
+          values
+        );
+        if (!r.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+        return sendJSON(res, 200, { ok: true, guest: r.rows[0] });
+      } catch (e) {
+        return sendJSON(res, 500, { error: e.message });
+      }
     }
 
     // ============================================================
