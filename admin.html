@@ -79,6 +79,7 @@
   .form-group label { display:block; font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; font-weight:700; }
   .form-control { width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:rgba(0,0,0,0.3); color:#fff; outline:none; font-size:14px; font-family:inherit; }
   .form-control:focus { border-color:var(--accent); }
+  select.form-control { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b92a5'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 10px center; background-size:20px; padding-right:36px; }
 
   .login-screen { position:fixed; inset:0; background:var(--bg-main); display:flex; align-items:center; justify-content:center; z-index:2000; }
   .login-box { background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:380px; text-align:center; }
@@ -91,8 +92,8 @@
 
   .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px; }
   .modal-backdrop.show { display:flex; }
-  .modal { background:linear-gradient(135deg,#111625,#0a0d14); border:1px solid rgba(241,196,15,0.35); border-radius:20px; max-width:440px; width:100%; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); max-height:calc(100dvh - 40px); overflow-y:auto; }
-  .modal h2 { font-size:20px; font-weight:900; margin-bottom:6px; background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; }
+  .modal { background:linear-gradient(135deg,#111625,#0a0d14); border:1px solid rgba(241,196,15,0.35); border-radius:20px; max-width:460px; width:100%; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); max-height:calc(100dvh - 40px); overflow-y:auto; }
+  .modal h2 { font-size:20px; font-weight:900; margin-bottom:6px; text-align:center; }
   .modal-sub { font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:20px; }
   .modal-close { display:block; width:100%; margin-top:16px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:10px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
   .modal-close:hover { border-color:var(--red); color:var(--red); }
@@ -238,7 +239,13 @@
     <h1>Игроки</h1>
     <div class="sub">Список пользователей и выдача бонусов</div>
     <div class="panel">
-      <div class="panel-header"><h3>База игроков</h3><button class="btn-outline btn-sm" onclick="loadPlayers()">Обновить</button></div>
+      <div class="panel-header">
+        <h3>База игроков</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn-gold btn-sm" onclick="openCreateGuestModal()">➕ Добавить игрока</button>
+          <button class="btn-outline btn-sm" onclick="loadPlayers()">Обновить</button>
+        </div>
+      </div>
       <div style="overflow-x:auto;">
         <table>
           <thead>
@@ -307,7 +314,7 @@
 <!-- МОДАЛКА БОНУСА ИГРОКУ -->
 <div class="modal-backdrop" id="bonusModal">
   <div class="modal">
-    <h2>💰 Выдать бонус</h2>
+    <h2 style="background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💰 Выдать бонус</h2>
     <div class="modal-sub" id="bonusModalSub">Игрок: —</div>
 
     <div class="form-group">
@@ -332,6 +339,65 @@
 
     <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitBonus()">💰 Начислить бонус</button>
     <button class="modal-close" onclick="closeBonusModal()">Отмена</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА СОЗДАНИЯ ИГРОКА -->
+<div class="modal-backdrop" id="createGuestModal">
+  <div class="modal" style="border-color:rgba(0,229,255,0.35);">
+    <h2 style="background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">➕ Новый игрок</h2>
+    <div class="modal-sub">Создание учётной записи</div>
+
+    <div class="form-group">
+      <label>ID (латиница, цифры, _ - .)</label>
+      <input type="text" id="cgId" class="form-control" placeholder="например: player001" maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label>Имя (видно в списках)</label>
+      <input type="text" id="cgName" class="form-control" placeholder="например: Вася" maxlength="100">
+    </div>
+
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="text" id="cgPassword" class="form-control" value="1234" maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label>Ранг</label>
+      <select id="cgRank" class="form-control">
+        <option value="Bronze">Bronze</option>
+        <option value="Silver">Silver</option>
+        <option value="Gold">Gold</option>
+        <option value="Platinum">Platinum</option>
+        <option value="Diamond">Diamond</option>
+        <option value="VIP">VIP</option>
+      </select>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group">
+        <label>Депозит (₽)</label>
+        <input type="number" id="cgDeposit" class="form-control" placeholder="0" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Бонус (₽)</label>
+        <input type="number" id="cgBonus" class="form-control" placeholder="0" min="0" value="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Вейджер бонуса (×)</label>
+      <input type="number" id="cgWager" class="form-control" value="5" min="0" step="0.5">
+    </div>
+
+    <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; font-size:12px; color:var(--text-muted); line-height:1.5;">
+      Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> с вейджером,<br>
+      депозит — в <b style="color:var(--accent-green);">deposit_balance</b>.
+    </div>
+
+    <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px; background:linear-gradient(135deg,#00e5ff,#0077ff); color:#000;" onclick="submitCreateGuest()">➕ Создать игрока</button>
+    <button class="modal-close" onclick="closeCreateGuestModal()">Отмена</button>
   </div>
 </div>
 
@@ -511,12 +577,18 @@ function openTreasuryModal(mode) {
 
   if (mode === 'add') {
     title.textContent = '➕ Пополнить кассу';
+    title.style.background = 'linear-gradient(135deg,#00e676,#00b45a)';
+    title.style.webkitBackgroundClip = 'text';
+    title.style.webkitTextFillColor = 'transparent';
     sub.textContent = 'Сумма будет добавлена в кассу (как доход)';
     btn.style.background = 'linear-gradient(135deg,#00e676,#00b45a)';
     btn.style.color = '#000';
     btn.textContent = 'Пополнить';
   } else {
     title.textContent = '➖ Списать с кассы';
+    title.style.background = 'linear-gradient(135deg,#ff4d4d,#cc0000)';
+    title.style.webkitBackgroundClip = 'text';
+    title.style.webkitTextFillColor = 'transparent';
     sub.textContent = 'Сумма будет списана с кассы (как расход)';
     btn.style.background = 'linear-gradient(135deg,#ff4d4d,#cc0000)';
     btn.style.color = '#fff';
@@ -693,6 +765,56 @@ async function submitBonus() {
       showToast(data.error || 'Ошибка выдачи бонуса', true);
     }
   } catch(e) { showToast('Ошибка сети', true); }
+}
+
+// ================= СОЗДАНИЕ ИГРОКА =================
+function openCreateGuestModal() {
+  document.getElementById('cgId').value = '';
+  document.getElementById('cgName').value = '';
+  document.getElementById('cgPassword').value = '1234';
+  document.getElementById('cgRank').value = 'Bronze';
+  document.getElementById('cgDeposit').value = 0;
+  document.getElementById('cgBonus').value = 0;
+  document.getElementById('cgWager').value = 5;
+  document.getElementById('createGuestModal').classList.add('show');
+}
+
+function closeCreateGuestModal() {
+  document.getElementById('createGuestModal').classList.remove('show');
+}
+
+async function submitCreateGuest() {
+  const id = document.getElementById('cgId').value.trim();
+  const name = document.getElementById('cgName').value.trim();
+  const password = document.getElementById('cgPassword').value.trim() || '1234';
+  const rank = document.getElementById('cgRank').value;
+  const deposit = parseFloat(document.getElementById('cgDeposit').value) || 0;
+  const bonus = parseFloat(document.getElementById('cgBonus').value) || 0;
+  const wager = parseFloat(document.getElementById('cgWager').value) || 5;
+
+  if (!id || id.length < 2) return showToast('ID минимум 2 символа', true);
+  if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return showToast('ID: только латиница, цифры, _ - .', true);
+
+  try {
+    const res = await fetch('/api/admin/guest/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pass: adminPass, id, name: name || id, password, rank,
+        deposit, bonus, wager
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ Игрок ${data.id} создан${data.bonus > 0 ? ` (+${data.bonus}₽ бонус)` : ''}`);
+      closeCreateGuestModal();
+      loadPlayers();
+    } else {
+      showToast(data.error || 'Ошибка создания', true);
+    }
+  } catch(e) {
+    showToast('Ошибка сети', true);
+  }
 }
 
 // ================= ПРОМОКОДЫ =================
