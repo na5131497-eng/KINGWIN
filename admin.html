@@ -15,25 +15,23 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
   body { background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
-  /* === ТОП БАР === */
   .topbar { height: 60px; background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
   .header-left { display: flex; align-items: center; gap: 15px; }
   .menu-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); width: 40px; height: 40px; border-radius: 10px; font-size: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
   .menu-btn:hover { background: rgba(255,255,255,0.1); }
   .logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, var(--accent), #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  
+
   .user-info { font-size: 12px; color: var(--text-muted); text-align: right; }
   .user-info b { color: var(--text-main); font-size: 14px; display: block; }
   .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; margin-left: 10px; }
   .logout-btn:hover { border-color: var(--red); color: var(--red); }
 
-  /* === ВЫЕЗЖАЮЩЕЕ МЕНЮ (САЙДБАР) === */
   .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-  
+
   .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100dvh; background: var(--bg-panel); z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid var(--border); box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
   .sidebar.show { left: 0; }
-  
+
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border); }
   .sidebar-header .logo { font-size: 22px; }
   .close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
@@ -45,7 +43,6 @@
   .nav button:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
   .nav button.active { background: rgba(0,229,255,0.1); color: var(--accent); }
 
-  /* === ОСНОВНОЙ КОНТЕНТ === */
   main { flex: 1; padding: 20px 15px; max-width: 1400px; width: 100%; margin: 0 auto; }
   .page { display: none; animation: fadeIn 0.3s; }
   .page.active { display: block; }
@@ -101,15 +98,12 @@
   .login-box input:focus { border-color: var(--accent); }
   .login-box button { width: 100%; padding: 14px; font-size: 14px; margin-top: 10px; }
 
-  /* Скрываем мобильную кнопку на больших экранах, но оставляем бургер */
-  @media (min-width: 900px) {
-    .user-info { display: block; }
-  }
+  .empty { text-align: center; color: var(--text-muted); padding: 20px; }
 </style>
 </head>
 <body>
 
-<!-- ЭКРАН ЛОГИНА -->
+<!-- ЛОГИН -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="name">KINGWIN ADMIN</div>
@@ -120,22 +114,19 @@
   </div>
 </div>
 
-<!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+<!-- ТОПБАР -->
 <div class="topbar">
   <div class="header-left">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <div class="logo">KINGWIN</div>
   </div>
   <div class="header-left">
-    <div class="user-info">
-      <b>Owner</b>
-      Владелец
-    </div>
+    <div class="user-info"><b>Owner</b>Владелец</div>
     <button class="logout-btn" onclick="logout()">Выйти</button>
   </div>
 </div>
 
-<!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ -->
+<!-- САЙДБАР -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -161,57 +152,50 @@
   </div>
 </div>
 
-<!-- ОСНОВНОЙ КОНТЕНТ -->
+<!-- КОНТЕНТ -->
 <main>
-  
-  <!-- ВКЛАДКА 1: ОБЗОР -->
+
   <div class="page active" id="page-dash">
     <h1>Общая статистика</h1>
     <div class="sub">Доходы казино и текущие показатели</div>
-    
     <div class="cards" id="dashCards">
       <div class="card"><div class="label">Касса</div><div class="value green" id="statTreasury">...</div></div>
       <div class="card"><div class="label">Оборот сегодня</div><div class="value accent" id="statTurnover">...</div></div>
       <div class="card"><div class="label">Выплачено</div><div class="value red" id="statPaid">...</div></div>
       <div class="card"><div class="label">Игроков</div><div class="value gold" id="statPlayers">...</div></div>
     </div>
-
     <div class="panel">
       <div class="panel-header"><h3>Последние заявки</h3><button class="btn-outline btn-sm" onclick="switchTab('finance', document.querySelectorAll('.nav button')[1])">Все →</button></div>
       <table>
         <thead><tr><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th></tr></thead>
-        <tbody id="dashRecentDeposits"><tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+        <tbody id="dashRecentDeposits"><tr><td colspan="4" class="empty">Загрузка...</td></tr></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ВКЛАДКА 2: ФИНАНСЫ -->
   <div class="page" id="page-finance">
     <h1>Финансы</h1>
     <div class="sub">Управление заявками</div>
-    
     <div class="panel">
       <div class="panel-header"><h3>Депозиты</h3><button class="btn-outline btn-sm" onclick="loadDeposits()">Обновить</button></div>
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>ID</th><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
-          <tbody id="depositsTable"><tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+          <tbody id="depositsTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
-
     <div class="panel">
       <div class="panel-header"><h3>Выводы</h3><button class="btn-outline btn-sm" onclick="loadWithdrawals()">Обновить</button></div>
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>ID</th><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
-          <tbody id="withdrawalsTable"><tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+          <tbody id="withdrawalsTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ВКЛАДКА 3: ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
     <div class="sub">Список всех пользователей</div>
@@ -220,25 +204,21 @@
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Реальный</th><th>Бонусный</th></tr></thead>
-          <tbody id="playersTable"><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+          <tbody id="playersTable"><tr><td colspan="5" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ВКЛАДКА 4: БОНУСЫ -->
   <div class="page" id="page-bonuses">
     <h1>Бонусы и Промокоды</h1>
     <div class="sub">Создание бонусных кодов</div>
-    
     <div class="panel" style="max-width: 600px;">
       <h3 style="margin-bottom: 20px;">Создать промокод</h3>
-      
       <div class="form-group">
         <label>Код (латиницей)</label>
         <input type="text" id="promoCodeInput" class="form-control" placeholder="Например: KING200" style="text-transform: uppercase;">
       </div>
-
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         <div class="form-group">
           <label>Сумма бонуса (₽)</label>
@@ -249,27 +229,23 @@
           <input type="number" id="promoMinDepInput" class="form-control" placeholder="200" min="0">
         </div>
       </div>
-
       <div class="form-group">
         <label>Активаций (0 = ∞)</label>
         <input type="number" id="promoMaxUsesInput" class="form-control" placeholder="1" min="0" value="1">
       </div>
-
       <button class="btn-gold" style="width: 100%; padding: 14px; font-size: 14px; margin-top: 10px;" onclick="createPromo()">🎁 Создать промокод</button>
     </div>
-
     <div class="panel">
       <div class="panel-header"><h3>Список промокодов</h3><button class="btn-outline btn-sm" onclick="loadPromos()">Обновить</button></div>
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>Код</th><th>Бонус</th><th>Мин. депозит</th><th>Активаций</th><th>Статус</th></tr></thead>
-          <tbody id="promosTable"><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+          <tbody id="promosTable"><tr><td colspan="5" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ВКЛАДКА 5: ИСТОРИЯ -->
   <div class="page" id="page-history">
     <h1>История игр</h1>
     <div class="sub">Последние ставки</div>
@@ -278,7 +254,7 @@
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>Игра</th><th>Игрок</th><th>Ставка</th><th>Выигрыш</th><th>Время</th></tr></thead>
-          <tbody id="historyTable"><tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Загрузка...</td></tr></tbody>
+          <tbody id="historyTable"><tr><td colspan="5" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -289,7 +265,7 @@
 <div class="toast" id="toast">Успешно!</div>
 
 <script>
-let adminPass = "56UpahoS"; 
+let adminPass = "56UpahoS";
 let isAuthorized = false;
 
 window.onload = () => {
@@ -318,39 +294,36 @@ function logout() {
   location.reload();
 }
 
-// Меню
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('show');
   document.getElementById('sidebarOverlay').classList.toggle('show');
 }
 
-// Переключение вкладок
 function switchTab(tabId, btnElement) {
   if (!isAuthorized) return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + tabId).classList.add('active');
-  
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
 
-  // Закрываем меню при выборе вкладки (на мобильных)
-  toggleSidebar();
+  if (window.innerWidth < 900) toggleSidebar();
 
   if (tabId === 'dash') loadDashboard();
   if (tabId === 'finance') { loadDeposits(); loadWithdrawals(); }
   if (tabId === 'players') loadPlayers();
-  if (tabId === 'bonuses') { loadPromos(); }
+  if (tabId === 'bonuses') loadPromos();
   if (tabId === 'history') loadHistory();
 }
 
-// Уведомления
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.borderColor = isError ? 'var(--red)' : 'var(--accent)';
+  t.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+function fmtMoney(n) { return (parseFloat(n) || 0).toFixed(2) + ' ₽'; }
 
 // --- API ---
 
@@ -358,29 +331,31 @@ async function loadDashboard() {
   try {
     const resStats = await fetch('/api/admin/house/stats');
     const stats = await resStats.json();
-    document.getElementById('statTreasury').textContent = (stats.treasury || 0).toFixed(2) + ' ₽';
-    document.getElementById('statTurnover').textContent = (stats.today?.turnover || 0).toFixed(2) + ' ₽';
-    document.getElementById('statPaid').textContent = (stats.today?.expense || 0).toFixed(2) + ' ₽';
-    
+    document.getElementById('statTreasury').textContent = fmtMoney(stats.treasury);
+    document.getElementById('statTurnover').textContent = fmtMoney(stats.today?.turnover);
+    document.getElementById('statPaid').textContent = fmtMoney(stats.today?.expense);
+
     const resGuests = await fetch('/api/guests');
     const guests = await resGuests.json();
-    document.getElementById('statPlayers').textContent = guests.length;
+    document.getElementById('statPlayers').textContent = Array.isArray(guests) ? guests.length : 0;
 
     const resDep = await fetch('/api/deposits');
     const deposits = await resDep.json();
-    const recent = deposits.slice(0, 5);
-    
+    const recent = Array.isArray(deposits) ? deposits.slice(0, 5) : [];
+
     let html = '';
-    if (recent.length === 0) html = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Нет заявок</td></tr>';
+    if (recent.length === 0) html = '<tr><td colspan="4" class="empty">Нет заявок</td></tr>';
     else {
       recent.forEach(d => {
-        let sClass = d.status === 'approved' ? 'approved' : d.status === 'rejected' ? 'rejected' : 'pending';
-        let sText = d.status === 'approved' ? 'Зачислен' : d.status === 'rejected' ? 'Отклонен' : 'Ожидает';
-        html += `<tr><td>${d.nick}</td><td style="font-weight:800; color:var(--accent-green);">${parseFloat(d.sum).toFixed(2)} ₽</td><td>${d.date}</td><td><span class="status ${sClass}">${sText}</span></td></tr>`;
+        const sClass = d.status === 'approved' ? 'approved' : d.status === 'rejected' ? 'rejected' : 'pending';
+        const sText = d.status === 'approved' ? 'Зачислен' : d.status === 'rejected' ? 'Отклонен' : 'Ожидает';
+        html += `<tr><td>${d.nick || '-'}</td><td style="font-weight:800; color:var(--accent-green);">${fmtMoney(d.sum)}</td><td>${d.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td></tr>`;
       });
     }
     document.getElementById('dashRecentDeposits').innerHTML = html;
-  } catch (e) { showToast('Ошибка загрузки', true); }
+  } catch (e) {
+    showToast('Ошибка загрузки', true);
+  }
 }
 
 async function loadDeposits() {
@@ -388,20 +363,22 @@ async function loadDeposits() {
     const res = await fetch('/api/deposits');
     const deposits = await res.json();
     let html = '';
-    if (deposits.length === 0) html = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Нет заявок</td></tr>';
-    else {
+    if (!Array.isArray(deposits) || deposits.length === 0) {
+      html = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+    } else {
       deposits.forEach(d => {
-        let sClass = d.status === 'approved' ? 'approved' : d.status === 'rejected' ? 'rejected' : 'pending';
-        let sText = d.status === 'approved' ? 'Зачислен' : d.status === 'rejected' ? 'Отклонен' : 'Ожидает';
+        const sClass = d.status === 'approved' ? 'approved' : d.status === 'rejected' ? 'rejected' : 'pending';
+        const sText = d.status === 'approved' ? 'Зачислен' : d.status === 'rejected' ? 'Отклонен' : 'Ожидает';
         let actions = '';
         if (d.status === 'pending') {
-          actions = `<button class="btn-green btn-sm" onclick="updateDeposit(${d.id}, 'approved')">✔</button> <button class="btn-red btn-sm" onclick="updateDeposit(${d.id}, 'rejected')">✖</button>`;
+          actions = `<button class="btn-green btn-sm" onclick="updateDeposit(${d.id}, 'approved')">✔</button>
+                     <button class="btn-red btn-sm" onclick="updateDeposit(${d.id}, 'rejected')">✖</button>`;
         }
-        html += `<tr><td>#${d.id}</td><td style="font-weight:600;">${d.nick}</td><td style="font-weight:800; color:var(--accent-green);">${parseFloat(d.sum).toFixed(2)} ₽</td><td>${d.date}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
+        html += `<tr><td>#${d.id}</td><td style="font-weight:600;">${d.nick || '-'}</td><td style="font-weight:800; color:var(--accent-green);">${fmtMoney(d.sum)}</td><td>${d.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
       });
     }
     document.getElementById('depositsTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка', true); }
+  } catch (e) { showToast('Ошибка загрузки депозитов', true); }
 }
 
 async function updateDeposit(id, status) {
@@ -412,7 +389,7 @@ async function updateDeposit(id, status) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     });
-    if (res.ok) { showToast('Обновлено'); loadDeposits(); loadDashboard(); }
+    if (res.ok) { showToast('Обновлено'); loadDeposits(); }
     else { showToast('Ошибка', true); }
   } catch(e) { showToast('Ошибка сети', true); }
 }
@@ -422,20 +399,22 @@ async function loadWithdrawals() {
     const res = await fetch('/api/withdrawals');
     const withdrawals = await res.json();
     let html = '';
-    if (withdrawals.length === 0) html = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Нет заявок</td></tr>';
-    else {
+    if (!Array.isArray(withdrawals) || withdrawals.length === 0) {
+      html = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+    } else {
       withdrawals.forEach(w => {
-        let sClass = w.status === 'approved' ? 'approved' : w.status === 'rejected' ? 'rejected' : 'pending';
-        let sText = w.status === 'approved' ? 'Выплачен' : w.status === 'rejected' ? 'Отклонен' : 'Ожидает';
+        const sClass = w.status === 'approved' ? 'approved' : w.status === 'rejected' ? 'rejected' : 'pending';
+        const sText = w.status === 'approved' ? 'Выплачен' : w.status === 'rejected' ? 'Отклонен' : 'Ожидает';
         let actions = '';
         if (w.status === 'pending') {
-          actions = `<button class="btn-green btn-sm" onclick="updateWithdrawal(${w.id}, 'approved')">✔</button> <button class="btn-red btn-sm" onclick="updateWithdrawal(${w.id}, 'rejected')">✖</button>`;
+          actions = `<button class="btn-green btn-sm" onclick="updateWithdrawal(${w.id}, 'approved')">✔</button>
+                     <button class="btn-red btn-sm" onclick="updateWithdrawal(${w.id}, 'rejected')">✖</button>`;
         }
-        html += `<tr><td>#${w.id}</td><td style="font-weight:600;">${w.nick}</td><td style="font-weight:800; color:var(--red);">${parseFloat(w.sum).toFixed(2)} ₽</td><td>${w.date}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
+        html += `<tr><td>#${w.id}</td><td style="font-weight:600;">${w.nick || '-'}</td><td style="font-weight:800; color:var(--red);">${fmtMoney(w.sum)}</td><td>${w.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
       });
     }
     document.getElementById('withdrawalsTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка', true); }
+  } catch (e) { showToast('Ошибка загрузки выводов', true); }
 }
 
 async function updateWithdrawal(id, status) {
@@ -456,31 +435,48 @@ async function loadPlayers() {
     const res = await fetch('/api/guests');
     const guests = await res.json();
     let html = '';
-    if (guests.length === 0) html = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Нет игроков</td></tr>';
-    else {
+    if (!Array.isArray(guests) || guests.length === 0) {
+      html = '<tr><td colspan="5" class="empty">Нет игроков</td></tr>';
+    } else {
       guests.forEach(g => {
-        html += `<tr><td style="font-family:monospace;">${g.id}</td><td style="font-weight:600;">${g.name}</td><td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold);">${g.rank || 'Bronze'}</span></td><td style="font-weight:800; color:var(--accent-green);">${(parseFloat(g.deposit_balance) || 0).toFixed(2)} ₽</td><td style="font-weight:800; color:var(--gold);">${(parseFloat(g.bonus_balance) || 0).toFixed(2)} ₽</td></tr>`;
+        html += `<tr>
+          <td style="font-family:monospace;">${g.id}</td>
+          <td style="font-weight:600;">${g.name || '-'}</td>
+          <td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold);">${g.rank || 'Bronze'}</span></td>
+          <td style="font-weight:800; color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</td>
+          <td style="font-weight:800; color:var(--gold);">${fmtMoney(g.bonus_balance)}</td>
+        </tr>`;
       });
     }
     document.getElementById('playersTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка', true); }
+  } catch (e) { showToast('Ошибка загрузки игроков', true); }
 }
 
 async function loadPromos() {
   try {
     const res = await fetch('/api/admin/promos');
+    if (!res.ok) {
+      document.getElementById('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Эндпоинт /api/admin/promos не найден</td></tr>';
+      return;
+    }
     const promos = await res.json();
     let html = '';
     if (!Array.isArray(promos) || promos.length === 0) {
-      html = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Нет промокодов</td></tr>';
+      html = '<tr><td colspan="5" class="empty">Нет промокодов</td></tr>';
     } else {
       promos.forEach(p => {
-        html += `<tr><td style="font-weight:800; font-family:monospace;">${p.code}</td><td style="color:var(--gold); font-weight:800;">${parseFloat(p.value).toFixed(2)} ₽</td><td>${parseFloat(p.min_deposit).toFixed(2)} ₽</td><td>${p.used_count} / ${p.max_uses === 0 ? '∞' : p.max_uses}</td><td><span class="status ${p.active ? 'approved' : 'rejected'}">${p.active ? 'Активен' : 'Отключен'}</span></td></tr>`;
+        html += `<tr>
+          <td style="font-weight:800; font-family:monospace;">${p.code}</td>
+          <td style="color:var(--gold); font-weight:800;">${fmtMoney(p.value)}</td>
+          <td>${fmtMoney(p.min_deposit)}</td>
+          <td>${p.used_count || 0} / ${p.max_uses === 0 ? '∞' : p.max_uses}</td>
+          <td><span class="status ${p.active ? 'approved' : 'rejected'}">${p.active ? 'Активен' : 'Отключен'}</span></td>
+        </tr>`;
       });
     }
     document.getElementById('promosTable').innerHTML = html;
-  } catch (e) { 
-    document.getElementById('promosTable').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Ошибка загрузки</td></tr>';
+  } catch (e) {
+    document.getElementById('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки промокодов</td></tr>';
   }
 }
 
@@ -510,7 +506,33 @@ async function createPromo() {
 }
 
 async function loadHistory() {
-  document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">История загружается...</td></tr>';
+  document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
+  try {
+    const res = await fetch('/api/admin/history');
+    if (!res.ok) {
+      document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Эндпоинт /api/admin/history не найден</td></tr>';
+      return;
+    }
+    const rows = await res.json();
+    let html = '';
+    if (!Array.isArray(rows) || rows.length === 0) {
+      html = '<tr><td colspan="5" class="empty">Нет истории</td></tr>';
+    } else {
+      rows.forEach(g => {
+        const win = parseFloat(g.result) || 0;
+        html += `<tr>
+          <td style="font-weight:700;">${g.game || '-'}</td>
+          <td>${g.player_name || '-'}</td>
+          <td>${fmtMoney(g.bet)}</td>
+          <td style="color:${win > 0 ? 'var(--accent-green)' : 'var(--red)'}; font-weight:800;">${fmtMoney(win)}</td>
+          <td>${g.created_at ? new Date(g.created_at).toLocaleString('ru-RU') : '-'}</td>
+        </tr>`;
+      });
+    }
+    document.getElementById('historyTable').innerHTML = html;
+  } catch (e) {
+    document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки</td></tr>';
+  }
 }
 </script>
 </body>
