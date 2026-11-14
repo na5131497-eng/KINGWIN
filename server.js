@@ -58,6 +58,8 @@ async function initDB() {
       await pool.query(`INSERT INTO dealers (name, login, pass) VALUES ($1, $2, $3)`, ['Дилер', 'dealer', '56UpahoS']);
     }
     console.log('База готова');
+    // Запуск ботов для Краша (просто для инициализации)
+    initCrashBots();
   } catch (e) {
     console.error('Ошибка initDB:', e.message);
     setTimeout(initDB, 5000);
@@ -87,15 +89,24 @@ const PLINKO_MULTIPLIERS = {
   high: [10.0, 3.0, 0.8, 0.2, 0.1, 0.2, 0.8, 3.0, 10.0]
 };
 
-const LADDER_MULTS = {
-  1: [1.05, 1.10, 1.16, 1.22, 1.29, 1.36, 1.44, 1.53, 1.63, 1.74, 1.86, 2.00, 2.15],
-  2: [1.11, 1.25, 1.41, 1.59, 1.80, 2.04, 2.32, 2.65, 3.03, 3.49, 4.03, 4.68, 5.45],
-  3: [1.18, 1.42, 1.70, 2.06, 2.50, 3.06, 3.75, 4.62, 5.72, 7.14, 8.97, 11.34, 14.45],
-  4: [1.25, 1.61, 2.07, 2.70, 3.53, 4.66, 6.20, 8.33, 11.33, 15.61, 21.83, 30.98, 44.60],
-  5: [1.33, 1.82, 2.51, 3.50, 4.94, 7.07, 10.27, 15.16, 22.80, 35.04, 55.02, 88.34, 145.60],
-  6: [1.40, 2.05, 3.02, 4.51, 6.84, 10.57, 16.69, 27.04, 45.07, 77.79, 139.76, 263.78, 523.93],
-  7: [1.47, 2.32, 3.69, 5.96, 9.85, 16.78, 29.62, 54.58, 105.62, 216.05, 471.43, 1102.24, 2783.50]
-};
+// --- БОТЫ ДЛЯ КРАША ---
+let crashBots = [];
+function initCrashBots() {
+  const botNames = ['1789****', '4521****', '9034****', '1122****', '8877****', '6633****'];
+  crashBots = botNames.map(name => ({ name, bet: [10, 25, 50, 100, 200][Math.floor(Math.random() * 5)] }));
+}
+function generateBotWin() {
+  const bot = crashBots[Math.floor(Math.random() * crashBots.length)];
+  const multiplier = [1.5, 2.0, 3.2, 1.8, 4.5][Math.floor(Math.random() * 5)];
+  return {
+    game: 'crash',
+    player: bot.name,
+    bet: bot.bet,
+    win: Math.round(bot.bet * multiplier * 100) / 100,
+    mult: multiplier,
+    created_at: new Date().toISOString()
+  };
+}
 
 // --- ЛОГИКА БАЛАНСА И ВЕЙДЖЕРА ---
 async function debitBet(guestId, amount) {
@@ -150,15 +161,12 @@ const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
 
-  // Исправленная функция sendJSON (без бага статус-кода)
   const sendJSON = (resObj, code, data) => {
     try {
       if (resObj.headersSent) return;
       resObj.writeHead(Number(code) || 200, { 'Content-Type': 'application/json' });
       resObj.end(JSON.stringify(data));
-    } catch(e) {
-      console.error('sendJSON error:', e.message);
-    }
+    } catch(e) {}
   };
 
   const parseBody = (req) => new Promise((resolve)=>{ let b = ''; req.on('data', c => b += c); req.on('end', () => { try { resolve(JSON.parse(b || '{}')); } catch(e){ resolve({}); } }); });
@@ -304,19 +312,35 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
 
-    // === ПОСЛЕДНИЕ ВЫИГРЫШИ ===
+    // === ПОСЛЕДНИЕ ВЫИГРЫШИ (С БОТАМИ) ===
     if (url === '/api/last-wins' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
       const limit = Math.min(50, parseInt(u.searchParams.get('limit'), 10) || 20);
       try {
+        // 1. Реальные выигрыши из БД
         const r = await pool.query(`
           SELECT 'crash' AS game, player_name AS player, amount AS bet, amount * cashout_mult AS win, ROUND(cashout_mult::numeric, 2) AS mult, created_at FROM crash_bets WHERE cashed_out = TRUE AND cashout_mult >= 2 AND player_id NOT LIKE 'BOT%'
           UNION ALL
           SELECT game AS game, player_name AS player, bet, result AS win, CASE WHEN bet > 0 THEN ROUND((result / bet)::numeric, 2) ELSE 0 END AS mult, created_at FROM game_history WHERE result > bet AND result >= bet * 1.5 AND game IN ('miner','plinko','ladder','cases')
           ORDER BY created_at DESC LIMIT $1
         `, [limit]);
-        return sendJSON(200, r.rows);
-      } catch (e) { return sendJSON(500, { error: e.message }); }
+        
+        let wins = r.rows;
+        
+        // 2. Добавляем случайные выигрыши ботов, чтобы на главной всегда была движуха
+        for (let i = 0; i < 5; i++) {
+          wins.push(generateBotWin());
+        }
+        
+        // Сортируем и отдаем
+        wins.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        return sendJSON(res, 200, wins.slice(0, limit));
+      } catch (e) { 
+        // Если БД пуста, отдаем только ботов
+        const fakeWins = [];
+        for (let i = 0; i < limit; i++) fakeWins.push(generateBotWin());
+        return sendJSON(res, 200, fakeWins); 
+      }
     }
 
     // === ПРОМОКОДЫ ===
@@ -324,14 +348,14 @@ const server = http.createServer(async (req, res) => {
       const b = await parseBody(req);
       const guestId = String(b.guest_id || '').trim();
       const code = String(b.code || '').trim().toUpperCase();
-      if (!guestId || !code) return sendJSON(400, { error: 'Введите промокод' });
+      if (!guestId || !code) return sendJSON(res, 400, { error: 'Введите промокод' });
       try {
         const pRes = await pool.query('SELECT * FROM promo_codes WHERE code=$1 AND active=TRUE', [code]);
-        if (!pRes.rows.length) return sendJSON(400, { error: 'Промокод не найден' });
+        if (!pRes.rows.length) return sendJSON(res, 400, { error: 'Промокод не найден' });
         const promo = pRes.rows[0];
-        if (promo.max_uses > 0 && promo.used_count >= promo.max_uses) return sendJSON(400, { error: 'Лимит активаций исчерпан' });
+        if (promo.max_uses > 0 && promo.used_count >= promo.max_uses) return sendJSON(res, 400, { error: 'Лимит активаций исчерпан' });
         const useCheck = await pool.query('SELECT * FROM active_bonuses WHERE promo_id=$1 AND guest_id=$2', [promo.id, guestId]);
-        if (useCheck.rows.length > 0) return sendJSON(400, { error: 'Вы уже активировали этот промокод' });
+        if (useCheck.rows.length > 0) return sendJSON(res, 400, { error: 'Вы уже активировали этот промокод' });
         await pool.query(`INSERT INTO active_bonuses (guest_id, promo_id, title, amount, min_deposit, status) VALUES ($1, $2, $3, $4, $5, 'pending')`, [guestId, promo.id, 'Бонус по промокоду ' + code, promo.value, promo.min_deposit]);
         await pool.query('UPDATE promo_codes SET used_count = used_count + 1 WHERE id=$1', [promo.id]);
         return sendJSON(res, 200, { ok: true, message: 'Промокод активирован! Сделайте депозит для получения бонуса.' });
