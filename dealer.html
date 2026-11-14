@@ -3,146 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KINGWIN — Дилерская панель</title>
+<title>KINGWIN — Дилер · Рулетка</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
-    --accent: #00e5ff; --accent-green: #00e676;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
+    --bg-main:#0b0e14; --bg-panel:#151922; --bg-card:#1a1f2b;
+    --accent:#00e5ff; --accent-green:#00e676; --accent-red:#ff4d4d;
+    --text-main:#fff; --text-muted:#8b92a5; --border:rgba(255,255,255,0.05);
+    --gold:#f1c40f;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; padding: 20px; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg-main); color:var(--text-main); min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
 
-  /* Логин */
-  .login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-  .login-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 380px; text-align: center; }
-  .login-box .name { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 5px; }
-  .login-box input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 14px; text-align: center; font-family: inherit;}
-  .login-box input:focus { border-color: var(--accent); }
-  .login-box button { width: 100%; padding: 14px; font-size: 14px; margin-top: 10px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: inherit;}
+  /* === ЛОГИН === */
+  .login-screen { position:fixed; inset:0; background:var(--bg-main); display:flex; align-items:center; justify-content:center; z-index:2000; padding:20px; }
+  .login-box { background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:32px 24px; width:100%; max-width:380px; text-align:center; }
+  .login-box .name { font-size:24px; font-weight:900; color:var(--accent); margin-bottom:4px; }
+  .login-box .sub { color:var(--text-muted); font-size:12px; margin-bottom:24px; text-transform:uppercase; letter-spacing:1px; }
+  .login-box input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:14px; color:#fff; margin-bottom:12px; outline:none; font-size:14px; text-align:center; font-family:inherit; }
+  .login-box input:focus { border-color:var(--accent); }
+  .login-box button { width:100%; padding:14px; font-size:14px; font-weight:900; text-transform:uppercase; letter-spacing:1px; background:var(--accent); color:#000; border:none; border-radius:10px; cursor:pointer; font-family:inherit; transition:0.2s; }
+  .login-box button:hover { filter:brightness(1.1); }
+  .login-err { color:var(--accent-red); font-size:12px; margin-top:12px; min-height:16px; }
 
-  /* Рабочий интерфейс */
-  .dealer-panel { display: none; flex-direction: column; max-width: 600px; width: 100%; margin: 0 auto; }
-  .dealer-panel.active { display: flex; }
-  
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-  .header h1 { font-size: 22px; }
-  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: inherit;}
+  /* === ТОПБАР === */
+  .topbar { height:60px; background:var(--bg-panel); display:flex; justify-content:space-between; align-items:center; padding:0 16px; position:sticky; top:0; z-index:100; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .logo { font-size:18px; font-weight:900; letter-spacing:2px; background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .dealer-info { display:flex; align-items:center; gap:12px; }
+  .dealer-name { font-size:13px; font-weight:700; color:var(--accent); }
+  .logout-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
+  .logout-btn:hover { border-color:var(--accent-red); color:var(--accent-red); }
 
-  .panel { background: var(--bg-panel); border-radius: 15px; padding: 25px; border: 1px solid var(--border); margin-bottom: 20px; }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-  .form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 14px; font-family: inherit;}
-  .form-control:focus { border-color: var(--accent); }
-  
-  .btn-submit { width: 100%; padding: 15px; border-radius: 10px; background: var(--accent-green); color: #000; font-weight: 900; font-size: 16px; border: none; cursor: pointer; margin-top: 10px; font-family: inherit;}
-  .btn-submit:hover { filter: brightness(1.1); }
+  /* === MAIN === */
+  main { flex:1; max-width:900px; width:100%; margin:0 auto; padding:16px; display:flex; flex-direction:column; gap:16px; }
+  h1 { font-size:22px; font-weight:800; margin-bottom:4px; }
+  .subtitle { color:var(--text-muted); font-size:13px; margin-bottom:12px; }
 
-  .toast { position: fixed; top: 20px; right: 20px; background: var(--bg-panel); border-left: 4px solid var(--accent); padding: 15px 25px; border-radius: 8px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: translateX(150%); transition: 0.3s; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
-  .toast.error { border-left-color: var(--red); }
+  /* === ВЫПАВШЕЕ ЧИСЛО === */
+  .result-card {
+    background:linear-gradient(135deg,#0a1a3a 0%,#1a3a6b 50%,#0a1a3a 100%);
+    border:2px solid var(--accent); border-radius:20px; padding:28px;
+    text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.2), inset 0 0 20px rgba(0,229,255,0.05);
+    margin-bottom:16px;
+  }
+  .result-card .label { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:700; margin-bottom:8px; }
+  .result-card .number { font-size:72px; font-weight:900; color:var(--accent); text-shadow:0 0 30px rgba(0,229,255,0.6); line-height:1; transition:0.3s; }
+  .result-card .number.green { color:var(--accent-green); text-shadow:0 0 30px rgba(0,230,118,0.6); }
+  .result-card .number.red { color:var(--accent-red); text-shadow:0 0 30px rgba(255,77,77,0.6); }
+  .result-card .result-color { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-top:8px; }
+  .result-card .result-color.green { color:var(--accent-green); }
+  .result-card .result-color.red { color:var(--accent-red); }
+  .result-card .result-color.black { color:#999; }
+
+  /* === ФОРМА ВВОДА === */
+  .panel { background:var(--bg-panel); border:1px solid var(--border); border-radius:16px; padding:20px; }
+  .panel h3 { font-size:16px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+  .number-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-bottom:16px; }
+  .num-btn {
+    aspect-ratio:1; border:2px solid transparent;
+    border-radius:10px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:900;
+    color:#fff; transition:0.15s; font-family:inherit;
+    min-height:44px;
+  }
+  .num-btn:active { transform:scale(0.92); }
+  .num-btn.red { background:#c8102e; }
+  .num-btn.black { background:#111; border-color:rgba(255,255,255,0.1); }
+  .num-btn.green { background:#0a8a3a; }
+  .num-btn.selected { border-color:var(--accent); box-shadow:0 0 15px rgba(0,229,255,0.6); transform:scale(1.08); }
+  .num-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .input-row { display:flex; gap:8px; margin-bottom:12px; }
+  .input-row input {
+    flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border);
+    border-radius:10px; padding:14px; color:#fff;
+    font-size:18px; font-weight:900; text-align:center;
+    outline:none; font-family:inherit;
+  }
+  .input-row input:focus { border-color:var(--accent); }
+
+  .btn-submit {
+    width:100%; padding:16px; font-size:15px; font-weight:900;
+    text-transform:uppercase; letter-spacing:1px;
+    background:linear-gradient(135deg,#00e676,#00b45a); color:#000;
+    border:none; border-radius:12px; cursor:pointer;
+    font-family:inherit; transition:0.2s;
+    box-shadow:0 4px 15px rgba(0,230,118,0.2);
+  }
+  .btn-submit:hover { filter:brightness(1.05); transform:translateY(-1px); }
+  .btn-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+  /* === ИСТОРИЯ === */
+  .history-list { display:flex; flex-wrap:wrap; gap:8px; min-height:44px; }
+  .history-item {
+    width:44px; height:44px;
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:900; color:#fff;
+    animation:popIn 0.3s;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  .history-item.red { background:#c8102e; }
+  .history-item.black { background:#111; }
+  .history-item.green { background:#0a8a3a; }
+  .history-empty { color:var(--text-muted); font-size:13px; padding:12px 0; }
+  @keyframes popIn {
+    0% { transform:scale(0.3); opacity:0; }
+    60% { transform:scale(1.1); }
+    100% { transform:scale(1); opacity:1; }
+  }
+
+  /* === ТОСТ === */
+  .toast { position:fixed; top:74px; right:16px; background:var(--bg-panel); border-left:4px solid var(--accent); padding:14px 20px; border-radius:10px; font-size:13px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,0.5); transform:translateX(150%); transition:0.3s; z-index:9999; max-width:320px; }
+  .toast.show { transform:translateX(0); }
+  .toast.success { border-left-color:var(--accent-green); }
+  .toast.error { border-left-color:var(--accent-red); }
+
+  @media (max-width: 600px) {
+    main { padding:12px; gap:12px; }
+    h1 { font-size:18px; }
+    .result-card { padding:20px; }
+    .result-card .number { font-size:56px; }
+    .number-grid { grid-template-columns:repeat(6,1fr); gap:4px; }
+    .num-btn { font-size:13px; min-height:38px; }
+    .panel { padding:14px; }
+    .panel h3 { font-size:14px; margin-bottom:12px; }
+    .input-row input { font-size:16px; padding:12px; }
+    .btn-submit { font-size:14px; padding:14px; }
+    .history-item { width:38px; height:38px; font-size:13px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ЭКРАН ЛОГИНА -->
+<!-- ЛОГИН -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="name">KINGWIN DEALER</div>
-    <p style="color:var(--text-muted); font-size:13px; margin-bottom:25px;">Введите логин и пароль дилера</p>
-    <input type="text" id="loginInput" placeholder="Логин (dealer)" value="dealer">
-    <input type="password" id="passInput" placeholder="Пароль" value="56UpahoS">
+    <div class="sub">Панель дилера · Рулетка</div>
+    <input type="text" id="loginInput" placeholder="Логин" onkeydown="if(event.key==='Enter') doLogin()">
+    <input type="password" id="passInput" placeholder="Пароль" onkeydown="if(event.key==='Enter') doLogin()">
     <button onclick="doLogin()">Войти</button>
-    <div id="loginErr" style="color:var(--red); font-size:12px; margin-top:15px; height:15px;"></div>
+    <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
-<!-- РАБОЧАЯ ПАНЕЛЬ -->
-<div class="dealer-panel" id="dealerPanel">
-  <div class="header">
-    <h1>Панель дилера</h1>
+<!-- ТОПБАР -->
+<div class="topbar" style="display:none" id="topbar">
+  <div class="logo">KINGWIN DEALER</div>
+  <div class="dealer-info">
+    <div class="dealer-name" id="dealerName">Дилер</div>
     <button class="logout-btn" onclick="logout()">Выйти</button>
   </div>
-
-  <div class="panel">
-    <h3 style="margin-bottom: 20px;">Ввод результата игры</h3>
-    
-    <div class="form-group">
-      <label>Тип игры</label>
-      <select id="gameType" class="form-control">
-        <option value="bj">Блэкджек</option>
-        <option value="bac">Баккара</option>
-        <option value="roulette">Рулетка (выпадение числа)</option>
-      </select>
-    </div>
-
-    <div class="form-group" id="numberGroup" style="display:none;">
-      <label>Выпавшее число (0-36)</label>
-      <input type="number" id="rouletteNumber" class="form-control" placeholder="Например: 17" min="0" max="36">
-    </div>
-
-    <div class="form-group" id="playerGroup">
-      <label>Ник игрока (или ID карты)</label>
-      <input type="text" id="playerNick" class="form-control" placeholder="Например: 12345678">
-    </div>
-
-    <div class="form-group" id="betGroup">
-      <label>Ставка (₽)</label>
-      <input type="number" id="betAmount" class="form-control" placeholder="100" min="1">
-    </div>
-
-    <div class="form-group" id="winGroup">
-      <label>Выигрыш игрока (₽)</label>
-      <input type="number" id="winAmount" class="form-control" placeholder="200" min="0">
-    </div>
-
-    <button class="btn-submit" onclick="submitRound()">Отправить результат</button>
-  </div>
 </div>
 
-<div class="toast" id="toast">Успешно!</div>
+<!-- MAIN -->
+<main style="display:none" id="mainContent">
+
+  <div>
+    <h1>🎡 Рулетка</h1>
+    <div class="subtitle">Введите выпавшее число и отправьте в игру</div>
+  </div>
+
+  <!-- Последний результат -->
+  <div class="result-card" id="resultCard">
+    <div class="label">Последний результат</div>
+    <div class="number" id="lastNumber">—</div>
+    <div class="result-color" id="lastColor">Ожидание</div>
+  </div>
+
+  <!-- Форма ввода -->
+  <div class="panel">
+    <h3>🎯 Выпавшее число</h3>
+
+    <div class="number-grid" id="numberGrid">
+      <!-- Заполнится JS -->
+    </div>
+
+    <div class="input-row">
+      <input type="number" id="manualInput" placeholder="0-36" min="0" max="36" inputmode="numeric">
+    </div>
+
+    <button class="btn-submit" id="btnSubmit" onclick="submitNumber()">
+      ✅ Отправить результат
+    </button>
+  </div>
+
+  <!-- История -->
+  <div class="panel">
+    <h3>📊 История выпадений</h3>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Пока нет выпадений</div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast">OK</div>
 
 <script>
-let currentDealer = null;
+// ============================================================
+// КОНСТАНТЫ РУЛЕТКИ
+// ============================================================
+const RED_NUMBERS   = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+const BLACK_NUMBERS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
+const GREEN_NUMBERS = [0];
 
-// Переключение полей в зависимости от игры
-document.getElementById('gameType').addEventListener('change', function() {
-  const type = this.value;
-  const numGroup = document.getElementById('numberGroup');
-  const playerGroup = document.getElementById('playerGroup');
-  const betGroup = document.getElementById('betGroup');
-  const winGroup = document.getElementById('winGroup');
-
-  if (type === 'roulette') {
-    numGroup.style.display = 'block';
-    playerGroup.style.display = 'none';
-    betGroup.style.display = 'none';
-    winGroup.style.display = 'none';
-  } else {
-    numGroup.style.display = 'none';
-    playerGroup.style.display = 'block';
-    betGroup.style.display = 'block';
-    winGroup.style.display = 'block';
-  }
-});
-
-function showToast(msg, isError = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = isError ? 'var(--red)' : 'var(--accent-green)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+function getNumberColor(n) {
+  if (GREEN_NUMBERS.includes(n)) return 'green';
+  if (RED_NUMBERS.includes(n)) return 'red';
+  return 'black';
 }
 
+// ============================================================
+// СОСТОЯНИЕ
+// ============================================================
+let dealer = null;
+let selectedNumber = null;
+let history = [];
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', async () => {
+  const saved = sessionStorage.getItem('kingwin_dealer');
+  if (saved) {
+    try {
+      dealer = JSON.parse(saved);
+      showMainUI();
+      buildNumberGrid();
+      await loadHistory();
+      startHistoryPolling();
+    } catch(e) { sessionStorage.removeItem('kingwin_dealer'); }
+  }
+  document.getElementById('loginInput').addEventListener('input', () => {
+    document.getElementById('loginErr').textContent = '';
+  });
+});
+
+function showMainUI() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('mainContent').style.display = 'flex';
+  document.getElementById('dealerName').textContent = dealer?.name || 'Дилер';
+}
+
+// ============================================================
+// ЛОГИН
+// ============================================================
 async function doLogin() {
   const login = document.getElementById('loginInput').value.trim();
   const pass = document.getElementById('passInput').value;
   const err = document.getElementById('loginErr');
-  err.textContent = '';
 
-  if (!login || !pass) { err.textContent = 'Заполните поля'; return; }
+  if (!login || !pass) {
+    err.textContent = 'Введите логин и пароль';
+    return;
+  }
+
+  err.textContent = '';
 
   try {
     const res = await fetch('/api/dealer/login', {
@@ -150,90 +271,206 @@ async function doLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login, pass })
     });
-    const data = await res.json();
-    
-    if (data.ok) {
-      currentDealer = data.dealer;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dealerPanel').classList.add('active');
-      showToast('Добро пожаловать, ' + data.dealer.name);
-    } else {
-      err.textContent = data.error || 'Ошибка';
+    if (!res.ok) {
+      err.textContent = 'Сервер не отвечает';
+      return;
     }
-  } catch (e) {
-    err.textContent = 'Ошибка соединения с сервером';
+    const data = await res.json();
+    if (!data.ok) {
+      err.textContent = data.error || 'Неверный логин или пароль';
+      return;
+    }
+
+    dealer = data.dealer;
+    sessionStorage.setItem('kingwin_dealer', JSON.stringify(dealer));
+    showMainUI();
+    buildNumberGrid();
+    await loadHistory();
+    startHistoryPolling();
+    showToast('Добро пожаловать, ' + dealer.name, 'success');
+  } catch(e) {
+    err.textContent = 'Ошибка сети';
   }
 }
 
 function logout() {
-  currentDealer = null;
+  sessionStorage.removeItem('kingwin_dealer');
+  dealer = null;
   location.reload();
 }
 
-async function submitRound() {
-  if (!currentDealer) return;
+// ============================================================
+// СЕТКА ЧИСЕЛ
+// ============================================================
+function buildNumberGrid() {
+  const grid = document.getElementById('numberGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 0; i <= 36; i++) {
+    const color = getNumberColor(i);
+    const btn = document.createElement('button');
+    btn.className = 'num-btn ' + color;
+    btn.textContent = i;
+    btn.dataset.num = i;
+    btn.onclick = () => selectNumber(i);
+    grid.appendChild(btn);
+  }
+  // Обновляем selected подсветку
+  updateSelectedHighlight();
+}
 
-  const gameType = document.getElementById('gameType').value;
+function selectNumber(n) {
+  selectedNumber = n;
+  document.getElementById('manualInput').value = n;
+  updateSelectedHighlight();
+  // Вибро
+  if (navigator.vibrate) navigator.vibrate(10);
+}
 
-  // Если это Рулетка (ввод числа)
-  if (gameType === 'roulette') {
-    const num = parseInt(document.getElementById('rouletteNumber').value, 10);
-    if (isNaN(num) || num < 0 || num > 36) return showToast('Введите число от 0 до 36', true);
+function updateSelectedHighlight() {
+  document.querySelectorAll('.num-btn').forEach(btn => {
+    if (parseInt(btn.dataset.num) === selectedNumber) {
+      btn.classList.add('selected');
+    } else {
+      btn.classList.remove('selected');
+    }
+  });
+}
 
-    // Определяем цвет
-    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-    let color = 'black';
-    if (num === 0) color = 'green';
-    else if (redNumbers.includes(num)) color = 'red';
+document.getElementById('manualInput')?.addEventListener('input', (e) => {
+  const v = parseInt(e.target.value);
+  if (!isNaN(v) && v >= 0 && v <= 36) {
+    selectedNumber = v;
+    updateSelectedHighlight();
+  } else {
+    selectedNumber = null;
+    updateSelectedHighlight();
+  }
+});
 
-    try {
-      const res = await fetch('/api/dealer/result', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: num, color: color })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        showToast('Число ' + num + ' записано в историю!');
-        document.getElementById('rouletteNumber').value = '';
-      } else {
-        showToast(data.error || 'Ошибка', true);
-      }
-    } catch(e) { showToast('Ошибка соединения', true); }
+// ============================================================
+// ОТПРАВКА ЧИСЛА
+// ============================================================
+async function submitNumber() {
+  if (selectedNumber === null || selectedNumber < 0 || selectedNumber > 36) {
+    showToast('Выберите число от 0 до 36', 'error');
     return;
   }
 
-  // Для Блэкджека и Баккары
-  const nick = document.getElementById('playerNick').value.trim();
-  const bet = parseFloat(document.getElementById('betAmount').value) || 0;
-  const win = parseFloat(document.getElementById('winAmount').value) || 0;
-
-  if (!nick) return showToast('Введите ник игрока', true);
-  if (bet <= 0) return showToast('Ставка должна быть больше 0', true);
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправка...';
 
   try {
-    const res = await fetch('/api/dealer/round', {
+    const res = await fetch('/api/dealer/roulette/result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        dealer_id: currentDealer.id,
-        game_type: gameType,
-        nick: nick,
-        bet: bet,
-        win: win
+        login: dealer ? undefined : null,
+        dealer_id: dealer?.id,
+        dealer_name: dealer?.name,
+        number: selectedNumber
       })
     });
-    const data = await res.json();
-    
-    if (data.ok) {
-      showToast('Раунд записан! Новый баланс: ' + data.balance + ' ₽');
-      document.getElementById('winAmount').value = '';
-    } else {
-      showToast(data.error || 'Ошибка', true);
+
+    if (!res.ok) {
+      showToast('Ошибка сервера', 'error');
+      btn.disabled = false;
+      btn.textContent = '✅ Отправить результат';
+      return;
     }
-  } catch (e) {
-    showToast('Ошибка соединения', true);
+
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Результат отправлен: ' + selectedNumber, 'success');
+      displayResult(selectedNumber);
+      await loadHistory();
+      // Сброс выбора
+      selectedNumber = null;
+      document.getElementById('manualInput').value = '';
+      updateSelectedHighlight();
+      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+    } else {
+      showToast(data.error || 'Ошибка', 'error');
+    }
+  } catch(e) {
+    showToast('Ошибка сети', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Отправить результат';
   }
+}
+
+// ============================================================
+// ОТОБРАЖЕНИЕ РЕЗУЛЬТАТА
+// ============================================================
+function displayResult(n) {
+  const numEl = document.getElementById('lastNumber');
+  const colorEl = document.getElementById('lastColor');
+  const color = getNumberColor(n);
+
+  numEl.textContent = n;
+  numEl.className = 'number ' + color;
+
+  colorEl.className = 'result-color ' + color;
+  colorEl.textContent = color === 'green' ? 'ЗЕРО' : color === 'red' ? 'КРАСНОЕ' : 'ЧЁРНОЕ';
+}
+
+// ============================================================
+// ИСТОРИЯ
+// ============================================================
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/dealer/roulette/history?limit=20&_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      history = data;
+    } else if (Array.isArray(data.history)) {
+      history = data.history;
+    } else {
+      history = [];
+    }
+    renderHistory();
+    if (history.length > 0) {
+      displayResult(history[0].number ?? history[0]);
+    }
+  } catch(e) {}
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!list) return;
+
+  if (!history || history.length === 0) {
+    list.innerHTML = '<div class="history-empty">Пока нет выпадений</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  history.slice(0, 20).forEach(item => {
+    const n = typeof item === 'number' ? item : parseInt(item.number);
+    const color = getNumberColor(n);
+    const el = document.createElement('div');
+    el.className = 'history-item ' + color;
+    el.textContent = n;
+    el.title = item.created_at ? new Date(item.created_at).toLocaleString('ru-RU') : '';
+    list.appendChild(el);
+  });
+}
+
+function startHistoryPolling() {
+  setInterval(loadHistory, 5000);
+}
+
+// ============================================================
+// ТОСТ
+// ============================================================
+function showToast(text, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
