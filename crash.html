@@ -9,7 +9,7 @@
 <style>
   :root { 
     --bg-main:#090a10; --bg-panel:#151922; --bg-input:#0e121b; 
-    --accent:#0077ff; --accent-light:#00b4d8;
+    --accent:#0077ff; --accent-light:#00b4d8; --logo-color:#0a84ff;
     --accent-green:#00e676; 
     --text-main:#fff; --text-muted:#8b92a5; 
     --border:rgba(255,255,255,0.05); --red:#ff4d4d; 
@@ -43,25 +43,26 @@
   /* === ТОПБАР === */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 8px; flex-shrink: 0; }
   .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #fff; text-transform: uppercase; font-style: italic; display: flex; }
-  .logo span { color: var(--accent); font-style: normal; font-weight: 900; }
+  .logo span { color: var(--logo-color); font-style: normal; font-weight: 900; } /* Темно-голубой */
   
   .header-right { display: flex; align-items: center; gap: 10px; }
   .balance-pill { background: rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 14px; }
   .menu-btn { background: rgba(255,255,255,0.08); border: none; width: 38px; height: 38px; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; }
   .menu-btn span { width: 18px; height: 2px; background: #fff; border-radius: 2px; transition: 0.2s; }
 
-  /* === ИСТОРИЯ === */
-  .history-bar { display: flex; gap: 6px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  /* === ИСТОРИЯ (УМЕНЬШЕНА) === */
+  .history-bar { display: flex; gap: 5px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-item { 
-    position: relative; min-width: 58px; height: 32px; border-radius: 8px; 
+    position: relative; min-width: 46px; height: 24px; border-radius: 6px; 
     display: flex; align-items: center; justify-content: center; 
-    font-size: 12px; font-weight: 900; flex-shrink: 0; color: #fff; 
-    box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.4);
+    font-size: 11px; font-weight: 900; flex-shrink: 0; color: #fff; 
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 3px 6px rgba(0,0,0,0.4);
     overflow: hidden;
   }
-  .history-item::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%); border-radius: 8px 8px 0 0; pointer-events: none; }
+  .history-item::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%); border-radius: 6px 6px 0 0; pointer-events: none; }
   
+  /* 0x и 1.50x — КРАСНЫЕ */
   .history-item.red { background: linear-gradient(135deg, #e53935, #b71c1c); border: 1px solid #ef5350; }
   .history-item.blue { background: linear-gradient(135deg, #1e88e5, #0d47a1); border: 1px solid #42a5f5; }
   .history-item.purple { background: linear-gradient(135deg, #8e24aa, #4a148c); border: 1px solid #ab47bc; }
@@ -139,7 +140,7 @@
   .sidebar.show { right: 0; }
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .sidebar-logo { font-size: 20px; font-weight: 900; font-style: italic; }
-  .sidebar-logo span { color: var(--accent); font-style: normal; }
+  .sidebar-logo span { color: var(--logo-color); font-style: normal; }
   .close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
   .sidebar-menu { flex: 1; overflow-y: auto; padding: 16px 10px; display: flex; flex-direction: column; gap: 4px; }
   .sidebar-menu::-webkit-scrollbar { width: 4px; }
@@ -280,9 +281,7 @@ let explosionParticles = [];
 let isExploding = false;
 let isAutoStopEnabled = false;
 
-// Точное время начала полета на клиенте
 let flightStartTime = 0;
-// Финальная точка краша, чтобы клиент знал, когда останавливаться
 let knownCrashPoint = 100;
 
 const canvas = document.getElementById('gameCanvas');
@@ -333,7 +332,7 @@ window.onload = async () => {
   
   await loadBalance();
   startPolling();
-  startRenderLoop(); // Запускаем плавную отрисовку
+  startRenderLoop();
 
   const betInput = document.getElementById('betInput');
   betInput.addEventListener('input', function() {
@@ -381,15 +380,12 @@ function startPolling() {
   pollCrash();
 }
 
-// ПЛАВНЫЙ ЦИКЛ ОТРИСОВКИ (60 fps)
 function startRenderLoop() {
   const loop = () => {
     if (currentStatus === 'flying' && flightStartTime > 0) {
-      // Считаем текущий икс ИСХОДЯ ИЗ ВРЕМЕНИ КЛИЕНТА
       const elapsed = (Date.now() - flightStartTime) / 1000;
       let calcMult = Math.pow(1.06, elapsed);
       
-      // Ограничиваем финальной точкой краша, чтобы не улететь дальше
       if (calcMult >= knownCrashPoint) {
         calcMult = knownCrashPoint;
       }
@@ -425,7 +421,6 @@ async function pollCrash() {
     currentStatus = state.status;
     currentRoundId = state.roundId;
 
-    // Обновляем активную ставку
     if (state.my_bet && !state.my_bet.cashed_out) {
       activeBetId = state.my_bet.bet_id;
     } else {
@@ -456,10 +451,9 @@ async function pollCrash() {
       }
       
     } else if (state.status === 'flying') {
-      // Если только что взлетели — фиксируем старт
       if (prevStatus !== 'flying') {
-        flightStartTime = Date.now(); // Старт отсчета ТЕПЕРЬ НА КЛИЕНТЕ
-        knownCrashPoint = 999; // Не знаем, где крашнет (узнаем постфактум)
+        flightStartTime = Date.now();
+        knownCrashPoint = 999;
       }
       
       isFlying = true;
@@ -529,7 +523,6 @@ function drawScene(mult) {
   const x0 = pad, y0 = h - pad;
   const x1 = w - pad, y1 = pad;
 
-  // Прогресс по логарифму
   const progress = Math.min(1, Math.log(Math.max(mult, 1.01)) / Math.log(15));
   const x = x0 + (x1 - x0) * progress;
   const y = y0 + (y1 - y0) * progress;
@@ -626,7 +619,8 @@ function renderHistory(history) {
     const val = parseFloat(v);
     let cls = 'blue';
     
-    if (val >= 1.00 && val <= 1.50) cls = 'red';
+    // От 0 до 1.50 (включительно) - КРАСНЫЙ
+    if (val <= 1.50) cls = 'red';
     else if (val > 1.50 && val <= 3.99) cls = 'blue';
     else if (val >= 4.00 && val <= 9.99) cls = 'purple';
     else if (val >= 10.00) cls = 'gold';
