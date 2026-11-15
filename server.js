@@ -106,6 +106,7 @@ async function getJackpotAmount() {
 // ГЛОБАЛЬНЫЙ РАУНД КРАША
 // ============================================================
 const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
+const MIN_CRASH = 1.00, MAX_CONSEC_ZERO = 2, MAX_CONSEC_LOW = 2;
 
 const crashState = {
   roundId: 0, status: 'waiting', crashPoint: 0,
@@ -113,25 +114,27 @@ const crashState = {
   bets: new Map()
 };
 
+let lowCrashStreak = 0;
+
 function nextRound() {
   crashState.roundId++;
   crashState.status = 'waiting';
   crashState.crashPoint = 0;
   crashState.startTime = 0;
   crashState.waitStart = Date.now();
-  
+
   crashState.bets.clear();
-  
-  const numBots = Math.floor(Math.random() * 6) + 5; 
+
+  const numBots = Math.floor(Math.random() * 6) + 5;
   for (let i = 0; i < numBots; i++) {
-    const digits = Math.floor(1000 + Math.random() * 9000); 
-    const botId = `${digits}***`; 
-    const amount = Math.floor(Math.random() * 49) * 10 + 10; 
-    const betId = -Math.floor(Math.random() * 1000000); 
+    const digits = Math.floor(1000 + Math.random() * 9000);
+    const botId = `${digits}***`;
+    const amount = Math.floor(Math.random() * 49) * 10 + 10;
+    const betId = -Math.floor(Math.random() * 1000000);
     const botTarget = 1.1 + Math.random() * 6.9;
 
-    crashState.bets.set(betId, { 
-      guestId: botId, amount: amount, cashed_out: false, cashout_mult: 0, botTarget: botTarget
+    crashState.bets.set(betId, {
+      guestId: botId, amount, cashed_out: false, cashout_mult: 0, botTarget
     });
   }
 
@@ -147,29 +150,51 @@ async function startFlying() {
     const boost = Math.min(0.15, deficit / 1000 * 0.15);
     rtp = Math.min(DRAIN_RTP_MAX, BASE_RTP + boost);
   }
-  
-  const u = Math.random();
-  let crash;
-  if (u < (1 - rtp)) {
-    crash = 0.00;
-  } else {
-    const u2 = (u - (1 - rtp)) / rtp;
-    crash = rtp / (1 - u2);
-  }
-  crash = Math.max(0.00, Math.min(crash, 100));
 
+  // усредняем индивидуальный RTP игроков раунда
+  let avgPlayerRtp = rtp;
+  try {
+    const ids = [];
+    crashState.bets.forEach(b => {
+      if (!b.guestId.includes('***')) ids.push(b.guestId);
+    });
+    if (ids.length) {
+      const rr = await pool.query('SELECT rtp FROM guests WHERE id = ANY($1)', [ids]);
+      if (rr.rows.length) {
+        const sum = rr.rows.reduce((s, x) => s + (parseFloat(x.rtp) || BASE_RTP), 0);
+        avgPlayerRtp = sum / rr.rows.length;
+      }
+    }
+  } catch(e) {}
+  const targetRtp = Math.min(DRAIN_RTP_MAX, Math.max(0.5, rtp * 0.5 + avgPlayerRtp * 0.5));
+
+  // Генерация краша БЕЗ 0.00, с защитой от серии
+  const u = Math.max(Math.random(), 1e-9);
+  let crash = targetRtp / u;
+
+  if (crash < 1.2) {
+    if (lowCrashStreak >= MAX_CONSEC_ZERO) {
+      crash = 1.2 + Math.random() * 0.8;
+    } else {
+      lowCrashStreak++;
+    }
+  } else {
+    lowCrashStreak = 0;
+  }
+
+  crash = Math.max(MIN_CRASH, Math.min(crash, 100));
   crashState.crashPoint = Math.round(crash * 100) / 100;
   crashState.status = 'flying';
   crashState.startTime = Date.now();
-  
-  console.log(`[CRASH] Round #${crashState.roundId} — flying, crashPoint=${crashState.crashPoint}`);
+
+  console.log(`[CRASH] Round #${crashState.roundId} — flying, crashPoint=${crashState.crashPoint}, rtp=${targetRtp.toFixed(2)}`);
   setTimeout(() => { if (crashState.status === 'flying') crashNow(); }, CRASH_FLY_MAX_MS);
 }
 
 async function crashNow() {
   if (crashState.status !== 'flying') return;
   crashState.status = 'crashed';
-  
+
   const v = crashState.crashPoint;
   crashState.history.unshift(v);
   if (crashState.history.length > 10) crashState.history.pop();
@@ -190,6 +215,7 @@ async function crashNow() {
     }
   } catch(e){ console.error('crashNow:', e.message); }
 
+  crashState.bets.clear();
   setTimeout(() => nextRound(), CRASH_PAUSE_MS);
 }
 
@@ -197,7 +223,7 @@ function getPublicCrashState() {
   const now = Date.now();
   if (crashState.status === 'flying') {
     const elapsed = (now - crashState.startTime) / 1000;
-    const currentMult = Math.pow(1.06, elapsed);
+    const currentMult = Math.max(1, Math.pow(1.06, elapsed));
 
     crashState.bets.forEach((bet) => {
       if (!bet.cashed_out && bet.botTarget && currentMult >= bet.botTarget) {
@@ -298,30 +324,30 @@ function generateBotWin() {
 }
 
 // ============================================================
-// БАЛАНС
+// БАЛАНС — СНАЧАЛА РЕАЛЬНЫЙ, ПОТОМ БОНУС
 // ============================================================
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
-  
+
   let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
   let dep = parseFloat(r.rows[0].deposit_balance) || 0;
-  
+
   if (bonus + dep < amount) return null;
-  
+
   let rem = amount, fromBonus = 0, fromDeposit = 0;
-  if (bonus >= rem) { 
-    fromBonus = rem; 
-    bonus -= rem; 
-    rem = 0; 
-  } else { 
-    fromBonus = bonus; 
-    rem -= bonus; 
-    bonus = 0; 
-    fromDeposit = rem; 
-    dep -= rem; 
+  if (dep >= rem) {
+    fromDeposit = rem;
+    dep -= rem;
+    rem = 0;
+  } else {
+    fromDeposit = dep;
+    rem -= dep;
+    dep = 0;
+    fromBonus = rem;
+    bonus -= rem;
   }
-  
+
   await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
   return { fromBonus, fromDeposit };
 }
@@ -522,21 +548,34 @@ const server = http.createServer(async (req, res) => {
       const guestId = u.searchParams.get('guest_id');
       const round = getPublicCrashState();
       const jackpot = await getJackpotAmount();
-      
+
       let bets = [];
       let totalBank = 0;
       let totalPlayers = 0;
+      let totalBotsBets = 0;
+      let botsCount = 0;
+      let myBet = null;
 
-      // Боты НЕ суммируются в общий банк
       crashState.bets.forEach((b) => {
-        bets.push({ guest_id: b.guestId, amount: b.amount, cashed_out: b.cashed_out, cashout_mult: b.cashout_mult });
-        if (!b.guestId.includes('***')) {
+        const isBot = b.guestId.includes('***');
+        bets.push({
+          guest_id: b.guestId,
+          display_name: (isBot ? '' : '⭐ ') + b.guestId,
+          is_bot: isBot,
+          amount: b.amount,
+          cashed_out: b.cashed_out,
+          cashout_mult: b.cashout_mult,
+          win: b.cashed_out ? Math.round(b.amount * b.cashout_mult) : 0,
+        });
+        if (isBot) {
+          totalBotsBets += b.amount;
+          botsCount++;
+        } else {
           totalBank += b.amount;
           totalPlayers++;
         }
       });
 
-      let myBet = null;
       if (guestId) {
         try {
           const r = await pool.query(
@@ -545,9 +584,17 @@ const server = http.createServer(async (req, res) => {
           );
           if (r.rows.length) {
             myBet = { bet_id: r.rows[0].id, amount: parseFloat(r.rows[0].amount), cashed_out: r.rows[0].cashed_out, cashout_mult: parseFloat(r.rows[0].cashout_mult) || 0 };
-            
+
             if (!bets.find(b => b.guest_id === guestId)) {
-              bets.push({ guest_id: guestId, amount: myBet.amount, cashed_out: myBet.cashed_out, cashout_mult: myBet.cashout_mult });
+              bets.push({
+                guest_id: guestId,
+                display_name: '⭐ ' + guestId,
+                is_bot: false,
+                amount: myBet.amount,
+                cashed_out: myBet.cashed_out,
+                cashout_mult: myBet.cashout_mult,
+                win: myBet.cashed_out ? Math.round(myBet.amount * myBet.cashout_mult) : 0,
+              });
               totalBank += myBet.amount;
               totalPlayers++;
             }
@@ -555,7 +602,12 @@ const server = http.createServer(async (req, res) => {
         } catch(e){}
       }
 
-      return sendJSON(res, 200, { ...round, my_bet: myBet, bets, total_bank: totalBank, total_players: totalPlayers, history: crashState.history, jackpot });
+      return sendJSON(res, 200, {
+        ...round, my_bet: myBet, bets,
+        total_bank: totalBank, total_players: totalPlayers,
+        total_bots_bets: totalBotsBets, bots_count: botsCount,
+        history: crashState.history, jackpot
+      });
     }
 
     if (url === '/api/crash/current' && method === 'GET') return sendJSON(res, 200, getPublicCrashState());
@@ -570,15 +622,14 @@ const server = http.createServer(async (req, res) => {
       if (crashState.status !== 'waiting') return sendJSON(res, 400, { error: 'Раунд уже начался' });
       const existing = await pool.query(`SELECT id, amount FROM crash_bets WHERE guest_id=$1 AND round_id=$2 AND cashed_out=FALSE LIMIT 1`, [guestId, crashState.roundId]);
       if (existing.rows.length) return sendJSON(res, 400, { error: 'У вас уже есть ставка', bet_id: existing.rows[0].id, amount: parseFloat(existing.rows[0].amount) });
-      
+
       const debited = await debitBet(guestId, amt);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
-      
+
       const r = await pool.query(`INSERT INTO crash_bets (guest_id, amount, crash_point, round_id) VALUES ($1, $2, 0, $3) RETURNING id`, [guestId, amt, crashState.roundId]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `Crash bet r#${crashState.roundId} (${guestId})`]);
-      
       await addToJackpot(amt);
-      
+
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, bet_id: r.rows[0].id, amount: amt, round_id: crashState.roundId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
