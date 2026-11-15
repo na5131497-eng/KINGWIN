@@ -40,7 +40,6 @@
 
   .app { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 16px; }
 
-  /* === ТОПБАР === */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 8px; flex-shrink: 0; }
   .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #fff; text-transform: uppercase; font-style: italic; display: flex; }
   .logo span { color: var(--logo-color); font-style: normal; font-weight: 900; }
@@ -50,7 +49,6 @@
   .menu-btn { background: rgba(255,255,255,0.08); border: none; width: 38px; height: 38px; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; }
   .menu-btn span { width: 18px; height: 2px; background: #fff; border-radius: 2px; transition: 0.2s; }
 
-  /* === ИСТОРИЯ === */
   .history-bar { display: flex; gap: 5px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-item { 
@@ -67,7 +65,6 @@
   .history-item.purple { background: linear-gradient(135deg, #8e24aa, #4a148c); border: 1px solid #ab47bc; }
   .history-item.gold { background: linear-gradient(135deg, #ffd700, #b8860b); border: 1px solid #ffeb3b; color: #000; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
 
-  /* === ИГРОВОЕ ПОЛЕ === */
   .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 0; }
   .canvas-wrap { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
@@ -94,7 +91,6 @@
   .explosion.active { animation: bang 0.6s ease-out forwards; }
   @keyframes bang { 0% { opacity: 0; transform: scale(0.8); } 20% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.3); } }
 
-  /* === ПАНЕЛЬ УПРАВЛЕНИЯ === */
   .controls-area { flex-shrink: 0; padding-bottom: 8px; width: 100%; position: relative; }
   
   .queue-badge { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: var(--accent-light); color: #000; font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 10px; display: none; white-space: nowrap; box-shadow: 0 0 10px rgba(0,180,216,0.5); letter-spacing: 1px; }
@@ -125,14 +121,12 @@
   .quick-bets button { background: #1a1f2b; color: #fff; border: none; border-radius: 8px; padding: 10px 0; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.1s; }
   .quick-bets button:active { background: #2a3444; transform: scale(0.95); }
 
-  /* === ИНФО === */
   .round-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; width: 100%; }
   .info-box { background: rgba(21, 25, 34, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
   .info-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
   .info-value { font-size: 16px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 6px; }
   .coin { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #00b4d8, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 8px; font-weight: 900; color: #fff; }
 
-  /* === СПИСОК СТАВОК === */
   .bets-list-wrap { height: 52px; overflow-y: auto; scrollbar-width: none; margin-bottom: 8px; background: rgba(21,25,34,0.4); border-radius: 8px; padding: 4px; }
   .bets-list-wrap::-webkit-scrollbar { display: none; }
   .bet-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 11px; font-weight: 700; color: #8b92a5; }
@@ -143,7 +137,6 @@
 
   .footer-round { text-align: center; font-size: 11px; font-weight: 800; color: #4b5563; padding-bottom: env(safe-area-inset-bottom); width: 100%; }
 
-  /* === БОКОВОЕ МЕНЮ === */
   .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
   .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #151922; z-index: 1000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-left: 1px solid rgba(255,255,255,0.05); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
@@ -238,7 +231,6 @@
   </div>
 </div>
 
-<!-- САЙДБАР -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -290,9 +282,9 @@ let animFrame = null;
 let explosionParticles = [];
 let isExploding = false;
 let isAutoStopEnabled = false;
-
 let flightStartTime = 0;
 let knownCrashPoint = 100;
+let lastKnownBalance = 0;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -314,11 +306,21 @@ function playSound(type) {
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
   } else if (type === 'crash') {
-    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(15, audioCtx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+    
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(200, audioCtx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+    gain2.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc2.connect(gain2); gain2.connect(audioCtx.destination);
+    osc2.start(); osc2.stop(audioCtx.currentTime + 0.3);
   } else if (type === 'win') {
     osc.type = 'triangle'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
     osc.frequency.setValueAtTime(1000, audioCtx.currentTime + 0.1);
@@ -362,7 +364,7 @@ function toggleSubmenu(el, id) {
 }
 
 function toggleAuto() {
-  if (currentStatus !== 'waiting') return; // Блокировка смены автостопа
+  if (currentStatus !== 'waiting') return;
   isAutoStopEnabled = !isAutoStopEnabled;
   const el = document.getElementById('autoToggle');
   if (isAutoStopEnabled) el.classList.add('on');
@@ -381,7 +383,10 @@ async function loadBalance() {
   try {
     const res = await fetch('/api/guest/me?id=' + currentPlayer.id + '&_t=' + Date.now());
     const data = await res.json();
-    if (data.balance) document.getElementById('balanceVal').textContent = data.balance.total.toFixed(2);
+    if (data.balance) {
+      lastKnownBalance = data.balance.total || 0;
+      document.getElementById('balanceVal').textContent = lastKnownBalance.toFixed(2);
+    }
   } catch(e){}
 }
 
@@ -396,7 +401,6 @@ function startRenderLoop() {
     if (currentStatus === 'flying' && flightStartTime > 0) {
       const elapsed = (Date.now() - flightStartTime) / 1000;
       let calcMult = Math.pow(1.06, elapsed);
-      
       if (calcMult >= knownCrashPoint) calcMult = knownCrashPoint;
 
       if (calcMult > currentMult) {
@@ -436,7 +440,6 @@ async function pollCrash() {
       activeBetId = null;
     }
 
-    // Блокировка автостопа в полете
     if (currentStatus === 'flying') {
       document.getElementById('autoLabel').classList.add('disabled');
       document.getElementById('autoInput').disabled = true;
@@ -527,7 +530,7 @@ async function pollCrash() {
       }
     }
 
-  } catch(e) {}
+  } catch(e) { console.error('pollCrash error:', e); }
 }
 
 function drawScene(mult) {
@@ -636,7 +639,6 @@ function renderHistory(history) {
   history.slice(0, 10).forEach(v => {
     const val = parseFloat(v);
     let cls = 'blue';
-    
     if (val <= 1.50) cls = 'red';
     else if (val > 1.50 && val <= 3.99) cls = 'blue';
     else if (val >= 4.00 && val <= 9.99) cls = 'purple';
@@ -655,16 +657,11 @@ function renderBets(bets) {
     container.innerHTML = '<div class="bet-row"><span class="b-name">Ожидание ставок...</span></div>';
     return;
   }
-
   bets.sort((a, b) => b.cashed_out - a.cashed_out || b.amount - a.amount);
-
   container.innerHTML = bets.map(b => {
     const wonClass = b.cashed_out ? 'won' : '';
     const multText = b.cashed_out ? ` (x${b.cashout_mult.toFixed(2)})` : '';
-    return `<div class="bet-row ${wonClass}">
-      <span class="b-name">${b.guest_id}</span>
-      <span class="b-amt">${b.amount} ₽${multText}</span>
-    </div>`;
+    return `<div class="bet-row ${wonClass}"><span class="b-name">${b.guest_id}</span><span class="b-amt">${b.amount} ₽${multText}</span></div>`;
   }).join('');
 }
 
@@ -677,17 +674,28 @@ function addBet(amount) {
 }
 
 async function placeBetOnServer(amt) {
+  console.log('[BET] Отправка ставки:', amt);
   try {
     const res = await fetch('/api/crash/start', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ guest_id: currentPlayer.id, amount: amt })
     });
     const data = await res.json();
+    console.log('[BET] Ответ сервера:', data);
+    
     if (data.ok) {
       activeBetId = data.bet_id;
-      loadBalance();
+      await loadBalance();
+      return true;
+    } else {
+      alert('❌ Ошибка ставки:\n' + (data.error || 'Неизвестная ошибка'));
+      return false;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('[BET] Ошибка сети:', e);
+    alert('❌ Ошибка сети: ' + e.message);
+    return false;
+  }
 }
 
 async function onActionClick(isAuto = false) {
@@ -705,15 +713,17 @@ async function onActionClick(isAuto = false) {
         if (!isAuto) playSound('win');
         loadBalance();
         activeBetId = null;
+      } else {
+        alert('❌ Ошибка кэшаута: ' + (data.error || ''));
       }
-    } catch(e){}
+    } catch(e) { alert('Ошибка сети'); }
     return;
   }
 
   if (queuedBetAmount > 0) {
     queuedBetAmount = 0;
     document.getElementById('queueBadge').classList.remove('show');
-    document.getElementById('actionBtn').textContent = currentStatus === 'flying' ? 'ПОСТАВИТЬ' : 'ПОСТАВИТЬ';
+    document.getElementById('actionBtn').textContent = 'ПОСТАВИТЬ';
     document.getElementById('actionBtn').className = 'btn-main';
     return;
   }
@@ -722,9 +732,13 @@ async function onActionClick(isAuto = false) {
   if (amt < 1) return alert('Мин 1 ₽');
   if (amt > 500) return alert('Макс 500 ₽');
 
+  if (lastKnownBalance < amt) {
+    return alert('❌ Недостаточно средств.\nВаш баланс: ' + lastKnownBalance.toFixed(2) + ' ₽\nСтавка: ' + amt + ' ₽');
+  }
+
   if (currentStatus === 'waiting' && !activeBetId) {
-    await placeBetOnServer(amt);
-    if (activeBetId) {
+    const ok = await placeBetOnServer(amt);
+    if (ok) {
       document.getElementById('actionBtn').textContent = 'ОЖИДАНИЕ...';
       document.getElementById('actionBtn').disabled = true;
     }
