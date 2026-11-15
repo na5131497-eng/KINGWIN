@@ -107,6 +107,8 @@
   .treasury-actions button { padding:18px; font-size:14px; border-radius:14px; }
   .btn-add-treasury { background:linear-gradient(135deg,#00e676,#00b45a); color:#000; box-shadow:0 0 20px rgba(0,230,118,0.3); }
   .btn-remove-treasury { background:linear-gradient(135deg,#ff4d4d,#cc0000); color:#fff; box-shadow:0 0 20px rgba(255,77,77,0.3); }
+
+  .crash-history-badge { display:inline-block; padding:6px 12px; border-radius:8px; font-weight:900; font-size:12px; margin:3px; }
 </style>
 </head>
 <body>
@@ -160,6 +162,9 @@
     <button onclick="switchTab('history', this)">
       <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> История игр
     </button>
+    <button onclick="switchTab('crash-monitor', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Краш-монитор
+    </button>
   </div>
 </div>
 
@@ -188,17 +193,14 @@
   <div class="page" id="page-treasury">
     <h1>Касса</h1>
     <div class="sub">Прямое пополнение и списание средств казино</div>
-
     <div class="treasury-box">
       <div class="lbl">Текущий баланс</div>
       <div class="val" id="treasuryVal">0.00 ₽</div>
     </div>
-
     <div class="treasury-actions">
       <button class="btn-add-treasury" onclick="openTreasuryModal('add')">➕ Пополнить кассу</button>
       <button class="btn-remove-treasury" onclick="openTreasuryModal('remove')">➖ Списать с кассы</button>
     </div>
-
     <div class="panel">
       <div class="panel-header"><h3>Последние операции</h3><button class="btn-outline btn-sm" onclick="loadTreasuryLog()">Обновить</button></div>
       <div style="overflow-x:auto;">
@@ -237,7 +239,7 @@
   <!-- ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
-    <div class="sub">Список пользователей и выдача бонусов</div>
+    <div class="sub">Список пользователей, RTP и выдача бонусов</div>
     <div class="panel">
       <div class="panel-header">
         <h3>База игроков</h3>
@@ -249,9 +251,9 @@
       <div style="overflow-x:auto;">
         <table>
           <thead>
-            <tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Депозит</th><th>Бонус</th><th>Действия</th></tr>
+            <tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Депозит</th><th>Бонус</th><th>RTP</th><th>Оборот / Профит</th><th>Действия</th></tr>
           </thead>
-          <tbody id="playersTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
+          <tbody id="playersTable"><tr><td colspan="8" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -309,6 +311,44 @@
     </div>
   </div>
 
+  <!-- КРАШ-МОНИТОР -->
+  <div class="page" id="page-crash-monitor">
+    <h1>Краш-монитор</h1>
+    <div class="sub">Текущий раунд, боты, RTP, касса</div>
+
+    <div class="cards">
+      <div class="card"><div class="label">Раунд</div><div class="value accent" id="cmRound">—</div></div>
+      <div class="card"><div class="label">Статус</div><div class="value gold" id="cmStatus">—</div></div>
+      <div class="card"><div class="label">Множитель</div><div class="value green" id="cmMult">1.00x</div></div>
+      <div class="card"><div class="label">Краш на</div><div class="value red" id="cmCrash">—</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="label">Игроков</div><div class="value" id="cmPlayers">0</div></div>
+      <div class="card"><div class="label">Ботов</div><div class="value" id="cmBots">0</div></div>
+      <div class="card"><div class="label">Банк игроков</div><div class="value green" id="cmBank">0 ₽</div></div>
+      <div class="card"><div class="label">Ставки ботов</div><div class="value gold" id="cmBotsBets">0 ₽</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Ставки раунда</h3>
+        <button class="btn-outline btn-sm" onclick="loadCrashMonitor()">Обновить</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Игрок</th><th>Тип</th><th>Ставка</th><th>Кэшаут</th><th>Выигрыш</th></tr></thead>
+          <tbody id="cmBetsTable"><tr><td colspan="5" class="empty">Загрузка...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><h3>Последние краши</h3></div>
+      <div id="cmHistory" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
 </main>
 
 <!-- МОДАЛКА БОНУСА ИГРОКУ -->
@@ -316,27 +356,22 @@
   <div class="modal">
     <h2 style="background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💰 Выдать бонус</h2>
     <div class="modal-sub" id="bonusModalSub">Игрок: —</div>
-
     <div class="form-group">
       <label>Сумма бонуса (₽)</label>
       <input type="number" id="bonusAmountInput" class="form-control" placeholder="100" min="1" value="100">
     </div>
-
     <div class="form-group">
       <label>Название бонуса</label>
       <input type="text" id="bonusTitleInput" class="form-control" value="Подарок от админа" maxlength="100">
     </div>
-
     <div class="form-group">
       <label>Вейджер (×5 = отыграть 5× суммы)</label>
       <input type="number" id="bonusWagerInput" class="form-control" value="5" min="0" step="0.5">
     </div>
-
     <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; margin-top:6px; font-size:12px; color:var(--text-muted); line-height:1.5;">
       Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> (не в депозит).<br>
       Отыграть нужно: <b id="bonusWagerPreview" style="color:var(--accent);">500 ₽</b>
     </div>
-
     <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitBonus()">💰 Начислить бонус</button>
     <button class="modal-close" onclick="closeBonusModal()">Отмена</button>
   </div>
@@ -347,22 +382,18 @@
   <div class="modal" style="border-color:rgba(0,229,255,0.35);">
     <h2 style="background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">➕ Новый игрок</h2>
     <div class="modal-sub">Создание учётной записи</div>
-
     <div class="form-group">
       <label>ID (латиница, цифры, _ - .)</label>
       <input type="text" id="cgId" class="form-control" placeholder="например: player001" maxlength="50">
     </div>
-
     <div class="form-group">
       <label>Имя (видно в списках)</label>
       <input type="text" id="cgName" class="form-control" placeholder="например: Вася" maxlength="100">
     </div>
-
     <div class="form-group">
       <label>Пароль</label>
       <input type="text" id="cgPassword" class="form-control" value="1234" maxlength="50">
     </div>
-
     <div class="form-group">
       <label>Ранг</label>
       <select id="cgRank" class="form-control">
@@ -374,7 +405,6 @@
         <option value="VIP">VIP</option>
       </select>
     </div>
-
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <div class="form-group">
         <label>Депозит (₽)</label>
@@ -385,17 +415,14 @@
         <input type="number" id="cgBonus" class="form-control" placeholder="0" min="0" value="0">
       </div>
     </div>
-
     <div class="form-group">
       <label>Вейджер бонуса (×)</label>
       <input type="number" id="cgWager" class="form-control" value="5" min="0" step="0.5">
     </div>
-
     <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; font-size:12px; color:var(--text-muted); line-height:1.5;">
       Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> с вейджером,<br>
       депозит — в <b style="color:var(--accent-green);">deposit_balance</b>.
     </div>
-
     <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px; background:linear-gradient(135deg,#00e5ff,#0077ff); color:#000;" onclick="submitCreateGuest()">➕ Создать игрока</button>
     <button class="modal-close" onclick="closeCreateGuestModal()">Отмена</button>
   </div>
@@ -406,17 +433,14 @@
   <div class="modal">
     <h2 id="treasuryModalTitle">➕ Пополнить кассу</h2>
     <div class="modal-sub" id="treasuryModalSub">Сумма, которая будет добавлена в кассу</div>
-
     <div class="form-group">
       <label>Сумма (₽)</label>
       <input type="number" id="treasuryAmountInput" class="form-control" placeholder="1000" min="1" value="1000">
     </div>
-
     <div class="form-group">
       <label>Комментарий (опционально)</label>
       <input type="text" id="treasuryNoteInput" class="form-control" placeholder="Например: пополнение извне" maxlength="200">
     </div>
-
     <button id="treasurySubmitBtn" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitTreasury()">Применить</button>
     <button class="modal-close" onclick="closeTreasuryModal()">Отмена</button>
   </div>
@@ -430,6 +454,7 @@ let isAuthorized = false;
 let bonusGuestId = null;
 let bonusGuestName = null;
 let treasuryMode = 'add';
+let crashMonitorTimer = null;
 
 window.onload = () => {
   const saved = sessionStorage.getItem('kingwin_admin_auth');
@@ -480,12 +505,18 @@ function switchTab(tabId, btnElement) {
   if (btnElement) btnElement.classList.add('active');
   if (window.innerWidth < 900) toggleSidebar();
 
+  if (crashMonitorTimer) { clearInterval(crashMonitorTimer); crashMonitorTimer = null; }
+
   if (tabId === 'dash') loadDashboard();
   if (tabId === 'treasury') { loadTreasury(); loadTreasuryLog(); }
   if (tabId === 'finance') { loadDeposits(); loadWithdrawals(); }
   if (tabId === 'players') loadPlayers();
   if (tabId === 'bonuses') loadPromos();
   if (tabId === 'history') loadHistory();
+  if (tabId === 'crash-monitor') {
+    loadCrashMonitor();
+    crashMonitorTimer = setInterval(loadCrashMonitor, 2000);
+  }
 }
 
 function showToast(msg, isError = false) {
@@ -608,9 +639,7 @@ async function submitTreasury() {
   const amount = parseFloat(document.getElementById('treasuryAmountInput').value) || 0;
   const note = document.getElementById('treasuryNoteInput').value.trim();
   if (amount <= 0) return showToast('Сумма должна быть > 0', true);
-
   const endpoint = treasuryMode === 'add' ? '/api/admin/house/add' : '/api/admin/house/remove';
-
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
@@ -702,23 +731,29 @@ async function updateWithdrawal(id, status) {
   } catch(e) { showToast('Ошибка сети', true); }
 }
 
-// ================= ИГРОКИ =================
+// ================= ИГРОКИ (с RTP) =================
 async function loadPlayers() {
   try {
     const res = await fetch('/api/guests');
     const guests = await res.json();
     let html = '';
     if (!Array.isArray(guests) || guests.length === 0) {
-      html = '<tr><td colspan="6" class="empty">Нет игроков</td></tr>';
+      html = '<tr><td colspan="8" class="empty">Нет игроков</td></tr>';
     } else {
       guests.forEach(g => {
         const safeName = String(g.name || g.id).replace(/'/g, '&#39;');
+        const rtp = parseFloat(g.rtp) || 0.80;
+        const turnover = parseFloat(g.session_turnover) || 0;
+        const profit = parseFloat(g.session_profit) || 0;
+        const rtpColor = rtp >= 0.85 ? 'var(--accent-green)' : rtp >= 0.7 ? 'var(--gold)' : 'var(--red)';
         html += `<tr>
           <td style="font-family:monospace;">${g.id}</td>
           <td style="font-weight:600;">${g.name || '-'}</td>
           <td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold);">${g.rank || 'Bronze'}</span></td>
           <td style="font-weight:800; color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</td>
           <td style="font-weight:800; color:var(--gold);">${fmtMoney(g.bonus_balance)}</td>
+          <td style="font-weight:800; color:${rtpColor};">${(rtp*100).toFixed(0)}%</td>
+          <td style="font-size:11px; color:var(--text-muted);">${fmtMoney(turnover)}<br><span style="color:${profit>=0?'var(--accent-green)':'var(--red)'}">${profit>=0?'+':''}${fmtMoney(profit)}</span></td>
           <td><button class="btn-gold btn-sm" onclick="openBonusModal('${g.id}', '${safeName}')">💰 Бонус</button></td>
         </tr>`;
       });
@@ -749,7 +784,6 @@ async function submitBonus() {
   const title  = document.getElementById('bonusTitleInput').value.trim() || 'Подарок от админа';
   const wager  = parseFloat(document.getElementById('bonusWagerInput').value) || 0;
   if (amount <= 0) return showToast('Сумма должна быть > 0', true);
-
   try {
     const res = await fetch('/api/admin/guest/bonus', {
       method: 'POST',
@@ -778,11 +812,9 @@ function openCreateGuestModal() {
   document.getElementById('cgWager').value = 5;
   document.getElementById('createGuestModal').classList.add('show');
 }
-
 function closeCreateGuestModal() {
   document.getElementById('createGuestModal').classList.remove('show');
 }
-
 async function submitCreateGuest() {
   const id = document.getElementById('cgId').value.trim();
   const name = document.getElementById('cgName').value.trim();
@@ -791,18 +823,13 @@ async function submitCreateGuest() {
   const deposit = parseFloat(document.getElementById('cgDeposit').value) || 0;
   const bonus = parseFloat(document.getElementById('cgBonus').value) || 0;
   const wager = parseFloat(document.getElementById('cgWager').value) || 5;
-
   if (!id || id.length < 2) return showToast('ID минимум 2 символа', true);
   if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return showToast('ID: только латиница, цифры, _ - .', true);
-
   try {
     const res = await fetch('/api/admin/guest/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pass: adminPass, id, name: name || id, password, rank,
-        deposit, bonus, wager
-      })
+      body: JSON.stringify({ pass: adminPass, id, name: name || id, password, rank, deposit, bonus, wager })
     });
     const data = await res.json();
     if (data.ok) {
@@ -812,9 +839,7 @@ async function submitCreateGuest() {
     } else {
       showToast(data.error || 'Ошибка создания', true);
     }
-  } catch(e) {
-    showToast('Ошибка сети', true);
-  }
+  } catch(e) { showToast('Ошибка сети', true); }
 }
 
 // ================= ПРОМОКОДЫ =================
@@ -851,10 +876,8 @@ async function createPromo() {
   const value = parseFloat(document.getElementById('promoValueInput').value);
   const minDeposit = parseFloat(document.getElementById('promoMinDepInput').value) || 0;
   const maxUses = parseInt(document.getElementById('promoMaxUsesInput').value) || 0;
-
   if (!code || code.length < 3) return showToast('Введите код', true);
   if (!value || value <= 0) return showToast('Введите сумму', true);
-
   try {
     const res = await fetch('/api/admin/promo/create', {
       method: 'POST',
@@ -900,6 +923,54 @@ async function loadHistory() {
   } catch (e) {
     document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки</td></tr>';
   }
+}
+
+// ================= КРАШ-МОНИТОР =================
+async function loadCrashMonitor() {
+  try {
+    const res = await fetch('/api/crash/state?_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const s = await res.json();
+
+    document.getElementById('cmRound').textContent = '#' + s.roundId;
+    document.getElementById('cmStatus').textContent = s.status;
+    document.getElementById('cmMult').textContent = (s.currentMult || 1).toFixed(2) + 'x';
+    document.getElementById('cmCrash').textContent = s.status === 'crashed' ? (s.crashPoint || 0).toFixed(2) + 'x' : '—';
+    document.getElementById('cmPlayers').textContent = s.total_players || 0;
+    document.getElementById('cmBots').textContent = s.bots_count || 0;
+    document.getElementById('cmBank').textContent = fmtMoney(s.total_bank || 0);
+    document.getElementById('cmBotsBets').textContent = fmtMoney(s.total_bots_bets || 0);
+
+    const bets = s.bets || [];
+    const tb = document.getElementById('cmBetsTable');
+    if (!bets.length) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty">Нет ставок</td></tr>';
+    } else {
+      tb.innerHTML = bets.map(b => {
+        const isBot = b.is_bot || String(b.guest_id).includes('***');
+        // Боты БЕЗ значка, игроки со ⭐
+        const name = b.display_name || ((isBot ? '' : '⭐ ') + b.guest_id);
+        const type = isBot ? 'Бот' : 'Игрок';
+        const typeColor = isBot ? 'var(--gold)' : 'var(--accent)';
+        const cashout = b.cashed_out ? Number(b.cashout_mult).toFixed(2) + 'x' : '—';
+        const win = b.cashed_out ? fmtMoney(b.win) : '—';
+        return `<tr>
+          <td style="font-weight:700;">${name}</td>
+          <td style="color:${typeColor}; font-weight:800; font-size:11px;">${type}</td>
+          <td>${fmtMoney(b.amount)}</td>
+          <td>${cashout}</td>
+          <td style="color:${b.cashed_out ? 'var(--accent-green)' : 'var(--text-muted)'}; font-weight:800;">${win}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    const hist = document.getElementById('cmHistory');
+    hist.innerHTML = (s.history || []).map(v => {
+      const val = Math.max(1, parseFloat(v) || 1);
+      const color = val < 1.5 ? '#ff4d4d' : val < 4 ? '#00e5ff' : val < 10 ? '#8e24aa' : '#f1c40f';
+      return `<span class="crash-history-badge" style="background:${color}33; border:1px solid ${color}; color:${color};">${val.toFixed(2)}x</span>`;
+    }).join('');
+  } catch(e) { /* silent */ }
 }
 </script>
 </body>
