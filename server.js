@@ -303,12 +303,25 @@ function generateBotWin() {
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
   if (!r.rows.length) return null;
+  
   let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
   let dep = parseFloat(r.rows[0].deposit_balance) || 0;
+  
   if (bonus + dep < amount) return null;
+  
   let rem = amount, fromBonus = 0, fromDeposit = 0;
-  if (bonus >= rem) { fromBonus = rem; bonus -= rem; rem = 0; }
-  else { fromBonus = bonus; rem -= bonus; bonus = 0; fromDeposit = rem; dep -= rem; }
+  if (bonus >= rem) { 
+    fromBonus = rem; 
+    bonus -= rem; 
+    rem = 0; 
+  } else { 
+    fromBonus = bonus; 
+    rem -= bonus; 
+    bonus = 0; 
+    fromDeposit = rem; 
+    dep -= rem; 
+  }
+  
   await pool.query('UPDATE guests SET bonus_balance=$1, deposit_balance=$2 WHERE id=$3', [bonus, dep, guestId]);
   return { fromBonus, fromDeposit };
 }
@@ -421,8 +434,7 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS jackpot (
-        id INT PRIMARY KEY,
-        amount NUMERIC DEFAULT 1000
+        id INT PRIMARY KEY, amount NUMERIC DEFAULT 1000
       );
       CREATE TABLE IF NOT EXISTS daily_claims (
         id SERIAL PRIMARY KEY, guest_id TEXT NOT NULL, date TEXT, amount NUMERIC DEFAULT 0,
@@ -515,7 +527,7 @@ const server = http.createServer(async (req, res) => {
       let totalBank = 0;
       let totalPlayers = 0;
 
-      // Считаем банк ТОЛЬКО по реальным игрокам (боты не суммируются)
+      // Боты НЕ суммируются в общий банк
       crashState.bets.forEach((b) => {
         bets.push({ guest_id: b.guestId, amount: b.amount, cashed_out: b.cashed_out, cashout_mult: b.cashout_mult });
         if (!b.guestId.includes('***')) {
