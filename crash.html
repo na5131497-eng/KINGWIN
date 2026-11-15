@@ -17,7 +17,6 @@
   }
   * { box-sizing:border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; -webkit-tap-highlight-color:transparent; user-select:none; }
   
-  /* Жестко фиксируем экран, чтобы ничего не скроллилось и не вылетало */
   html, body { height: 100%; height: 100dvh; overflow: hidden; background: #050510; }
   
   body { 
@@ -42,56 +41,53 @@
   .app { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 16px; }
 
   /* === ТОПБАР === */
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 10px; flex-shrink: 0; }
-  .logo { font-size: 26px; font-weight: 900; letter-spacing: 1px; color: #fff; text-transform: uppercase; font-style: italic; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 8px; flex-shrink: 0; }
+  .logo { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: #fff; text-transform: uppercase; font-style: italic; }
   .logo span { color: var(--accent); }
-  .balance-pill { background: rgba(255,255,255,0.08); padding: 10px 16px; border-radius: 12px; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .balance-pill { background: rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 14px; }
 
-  /* === ИСТОРИЯ (сверху) === */
-  .history-bar { display: flex; gap: 8px; padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  /* === ИСТОРИЯ === */
+  .history-bar { display: flex; gap: 6px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
   .history-bar::-webkit-scrollbar { display: none; }
   .history-item { 
-    min-width: 70px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; 
-    font-size: 14px; font-weight: 800; flex-shrink: 0; color: #fff; background: #1e2330;
+    min-width: 62px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; 
+    font-size: 13px; font-weight: 800; flex-shrink: 0; color: #fff; background: #1e2330;
   }
   .history-item.blue { background: #1e3a8a; }
   .history-item.purple { background: #4c1d95; }
   .history-item.red { background: #7f1d1d; }
 
   /* === ИГРОВОЕ ПОЛЕ === */
-  .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 0; margin-top: 10px; }
-  .round-id-top { font-size: 12px; font-weight: 800; color: #6b7280; margin-bottom: auto; }
+  .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 0; }
   
   .canvas-wrap { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
   
-  /* Круг ожидания */
   .waiting-circle {
-    width: 160px; height: 160px;
-    border-radius: 50%; border: 6px solid rgba(255,255,255,0.05);
+    width: 140px; height: 140px;
+    border-radius: 50%; border: 5px solid rgba(255,255,255,0.05);
     border-top-color: var(--accent); border-right-color: var(--accent);
     animation: spin 1.2s linear infinite;
     z-index: 1; position: absolute;
-    box-shadow: 0 0 30px rgba(0,180,216,0.2);
+    box-shadow: 0 0 20px rgba(0,180,216,0.2);
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
 
   .multiplier-text {
-    font-size: 72px; font-weight: 900; color: #fff; 
-    text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    font-size: 64px; font-weight: 900; color: #fff; 
+    text-shadow: 0 0 25px rgba(255,255,255,0.5);
     z-index: 10; display: none; font-style: italic;
   }
-  .multiplier-text.crashed { color: var(--red); text-shadow: 0 0 40px rgba(255,77,77,0.8); }
+  .multiplier-text.crashed { color: var(--red); text-shadow: 0 0 30px rgba(255,77,77,0.8); }
   
   .status-text { 
-    font-size: 18px; font-weight: 900; letter-spacing: 2px; 
-    text-transform: uppercase; color: #fff; z-index: 10; margin-top: auto; margin-bottom: 20px;
+    font-size: 16px; font-weight: 900; letter-spacing: 2px; 
+    text-transform: uppercase; color: #fff; z-index: 10; margin-top: auto; margin-bottom: 12px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
   }
   @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   .pulse { animation: pulseText 1.5s infinite; }
 
-  /* Взрыв */
   .explosion {
     position: absolute; inset: 0; z-index: 5; pointer-events: none;
     background: radial-gradient(circle at center, rgba(255,200,50,0.6) 0%, rgba(255,50,50,0.3) 40%, transparent 70%);
@@ -101,42 +97,51 @@
   @keyframes bang { 0% { opacity: 0; transform: scale(0.8); } 20% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.3); } }
 
   /* === ПАНЕЛЬ УПРАВЛЕНИЯ === */
-  .controls-area { flex-shrink: 0; padding-bottom: 10px; }
+  .controls-area { flex-shrink: 0; padding-bottom: 8px; width: 100%; }
   
-  .auto-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .auto-label { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .toggle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; background: transparent; display: flex; justify-content: center; align-items: center; }
+  .auto-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .auto-label { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .toggle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #555; background: transparent; display: flex; justify-content: center; align-items: center; }
   .toggle.on { border-color: var(--accent); background: var(--accent); }
   .toggle.on::after { content: ''; width: 8px; height: 8px; background: #000; border-radius: 50%; }
-  .auto-input { background: var(--bg-input); border: 1px solid #1f2937; color: #6b7280; padding: 10px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; width: 110px; text-align: center; outline: none; }
+  .auto-input { background: var(--bg-input); border: 1px solid #1f2937; color: #6b7280; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 800; width: 100px; text-align: center; outline: none; }
   
-  .input-row { display: flex; gap: 8px; height: 58px; margin-bottom: 12px; }
-  .amount-input { flex: 1; background: var(--bg-input); border: 1px solid #1f2937; color: #fff; padding: 0 16px; border-radius: 12px; font-size: 24px; font-weight: 900; outline: none; }
+  .input-row { display: flex; gap: 8px; height: 52px; margin-bottom: 10px; width: 100%; overflow: hidden; }
+  
+  .amount-input { 
+    flex: 1; min-width: 0;
+    background: var(--bg-input); border: 1px solid #1f2937; color: #fff; 
+    padding: 0 12px; border-radius: 10px; font-size: 22px; font-weight: 900; outline: none; 
+  }
+  
   .btn-main { 
-    flex: 1.6; background: linear-gradient(135deg, #00b4d8, #0077ff); color: #fff; 
-    border: none; border-radius: 12px; font-size: 18px; font-weight: 900; text-transform: uppercase; 
-    cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,119,255,0.3); 
+    flex: 1.4; min-width: 0;
+    background: linear-gradient(135deg, #00b4d8, #0077ff); color: #fff; 
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 900; text-transform: uppercase; 
+    cursor: pointer; box-shadow: 0 4px 15px rgba(0,119,255,0.3); 
+    display: flex; align-items: center; justify-content: center;
   }
   .btn-main:active { transform: scale(0.98); }
-  .btn-main.cashout { background: linear-gradient(135deg, #ff8c00, #ff4d4d); }
-  .btn-main:disabled { opacity: 0.5; }
+  .btn-main.cashout { background: linear-gradient(135deg, #ff8c00, #ff4d4d); box-shadow: 0 4px 15px rgba(255,77,77,0.4); }
+  .btn-main:disabled { opacity: 0.5; box-shadow: none; }
 
-  .quick-bets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 16px; }
+  /* КОМПАКТНЫЕ БЫСТРЫЕ СТАВКИ */
+  .quick-bets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 12px; width: 100%; }
   .quick-bets button { 
-    background: #1a1f2b; color: #fff; border: none; border-radius: 8px; padding: 12px 0; 
-    font-size: 12px; font-weight: 800; cursor: pointer;
+    background: #1a1f2b; color: #fff; border: none; border-radius: 8px; padding: 10px 0; 
+    font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.1s;
   }
-  .quick-bets button:active { background: #2a3444; }
+  .quick-bets button:active { background: #2a3444; transform: scale(0.95); }
 
-  /* === ИНФО О РАУНДЕ (внизу как на скрине) === */
-  .round-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .info-box { background: rgba(21, 25, 34, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-  .info-label { font-size: 11px; color: var(--text-muted); font-weight: 700; }
-  .info-value { font-size: 18px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 6px; }
+  /* === ИНФО === */
+  .round-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; width: 100%; }
+  .info-box { background: rgba(21, 25, 34, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .info-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+  .info-value { font-size: 16px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 6px; }
   
-  .coin { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #00b4d8, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 9px; font-weight: 900; color: #fff; }
+  .coin { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #00b4d8, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 8px; font-weight: 900; color: #fff; }
 
-  .footer-round { text-align: center; font-size: 13px; font-weight: 800; color: #4b5563; padding-bottom: env(safe-area-inset-bottom); }
+  .footer-round { text-align: center; font-size: 11px; font-weight: 800; color: #4b5563; padding-bottom: env(safe-area-inset-bottom); width: 100%; }
 </style>
 </head>
 <body>
@@ -144,16 +149,13 @@
 <div class="space-bg"></div>
 
 <div class="app">
-  <!-- ТОПБАР -->
   <div class="topbar">
     <div class="logo">KING<span>WIN</span></div>
     <div class="balance-pill"><span id="balanceVal">0.00</span> ₽</div>
   </div>
 
-  <!-- ИСТОРИЯ -->
   <div class="history-bar" id="historyBar"></div>
 
-  <!-- ИГРОВОЕ ПОЛЕ -->
   <div class="game-area">
     <div class="canvas-wrap">
       <div class="waiting-circle" id="waitingCircle"></div>
@@ -164,31 +166,26 @@
     <div class="status-text pulse" id="statusText">ЗАПРАВЛЯЕМ ШАТТЛ...</div>
   </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
   <div class="controls-area">
-    <!-- Автостоп (визуал) -->
     <div class="auto-row">
       <div class="auto-label"><div class="toggle"></div> АВТОСТОП</div>
       <input type="text" class="auto-input" value="x2.00" readonly>
     </div>
 
-    <!-- Инпут и кнопка -->
     <div class="input-row">
       <input type="number" id="betInput" class="amount-input" value="100" min="1">
       <button class="btn-main" id="actionBtn" onclick="onActionClick()">ПОСТАВИТЬ</button>
     </div>
 
-    <!-- Быстрые ставки -->
     <div class="quick-bets">
       <button onclick="setBet(10)">Мин</button>
-      <button onclick="setBet(100)">+100 ₽</button>
-      <button onclick="setBet(500)">+500 ₽</button>
-      <button onclick="setBet(1000)">+1000 ₽</button>
-      <button onclick="setBet(5000)">+5000 ₽</button>
-      <button onclick="setBet(10000)">+10000 ₽</button>
+      <button onclick="setBet(100)">+100</button>
+      <button onclick="setBet(500)">+500</button>
+      <button onclick="setBet(1000)">+1000</button>
+      <button onclick="setBet(5000)">+5000</button>
+      <button onclick="setBet(10000)">+10к</button>
     </div>
 
-    <!-- Инфо блоки -->
     <div class="round-info">
       <div class="info-box">
         <div class="info-label">Ставок</div>
@@ -200,8 +197,7 @@
       </div>
     </div>
 
-    <!-- Номер раунда (внизу) -->
-    <div class="footer-round" id="roundIdText">UP-X CRASH #000000</div>
+    <div class="footer-round" id="roundIdText">KINGWIN CRASH #000000</div>
   </div>
 </div>
 
@@ -223,7 +219,6 @@ const ctx = canvas.getContext('2d');
 const rocketImg = new Image();
 rocketImg.src = '/rocket.png';
 
-// Звуки (Web Audio API)
 let audioCtx = null;
 function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function playSound(type) {
@@ -381,7 +376,7 @@ function animateFlight() {
 function drawScene(mult) {
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
-  const pad = 40;
+  const pad = 30;
   ctx.clearRect(0, 0, w, h);
 
   if (!isFlying && !isExploding) return;
@@ -389,7 +384,6 @@ function drawScene(mult) {
   const x0 = pad, y0 = h - pad;
   const x1 = w - pad, y1 = pad;
 
-  // Прогресс полета по логарифму
   const progress = Math.min(1, Math.log(Math.max(mult, 1.01)) / Math.log(15));
   const x = x0 + (x1 - x0) * progress;
   const y = y0 + (y1 - y0) * progress;
@@ -420,7 +414,7 @@ function drawScene(mult) {
     ctx.shadowBlur = 0;
 
     if (rocketImg.complete && mult > 1.0) {
-      const size = 48;
+      const size = 42;
       const angle = Math.atan2(y1 - y0, x1 - x0);
       ctx.save();
       ctx.translate(x, y);
@@ -452,7 +446,7 @@ function triggerExplosion() {
   isExploding = true;
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
-  const pad = 40;
+  const pad = 30;
   const x1 = w - pad, y1 = pad;
 
   const progress = Math.min(1, Math.log(Math.max(currentMult, 1.01)) / Math.log(15));
