@@ -316,38 +316,54 @@ function playSound(type) {
   }
 }
 
+async function initPlayer() {
+  // 1. Пробуем localStorage
+  let id = localStorage.getItem('kingwin_guest_id');
+  
+  // 2. Проверяем, существует ли он в базе
+  if (id) {
+    try {
+      const check = await fetch('/api/guest/me?id=' + encodeURIComponent(id) + '&_t=' + Date.now());
+      if (check.ok) {
+        const data = await check.json();
+        if (data.guest) {
+          currentPlayer = { id: data.guest.id };
+          lastKnownBalance = data.balance?.total || 0;
+          document.getElementById('balanceVal').textContent = lastKnownBalance.toFixed(2);
+          return true;
+        }
+      }
+    } catch(e) {}
+  }
+  
+  // 3. Если ID нет или он битый — ищем ЛЮБОГО существующего игрока через /api/guests
+  try {
+    const res = await fetch('/api/guests?_t=' + Date.now());
+    const guests = await res.json();
+    if (Array.isArray(guests) && guests.length > 0) {
+      // Берём последнего созданного (или первого с балансом)
+      const validGuest = guests.find(g => (parseFloat(g.deposit_balance) || 0) + (parseFloat(g.bonus_balance) || 0) > 0) || guests[0];
+      currentPlayer = { id: validGuest.id };
+      lastKnownBalance = (parseFloat(validGuest.deposit_balance) || 0) + (parseFloat(validGuest.bonus_balance) || 0);
+      localStorage.setItem('kingwin_guest_id', validGuest.id);
+      document.getElementById('balanceVal').textContent = lastKnownBalance.toFixed(2);
+      console.log('[INIT] Автоматически выбран игрок:', validGuest.id);
+      return true;
+    }
+  } catch(e) {}
+  
+  // 4. Совсем ничего не нашли
+  alert('❌ Нет доступных игроков в базе.\n\nСоздайте игрока в админке и попробуйте снова.');
+  window.location.href = '/profile.html';
+  return false;
+}
+
 window.onload = async () => {
   document.body.addEventListener('touchstart', initAudio, { once: true });
   document.body.addEventListener('click', initAudio, { once: true });
 
-  // Получаем ID из localStorage
-  let id = localStorage.getItem('kingwin_guest_id');
-  if (!id) { window.location.href = '/'; return; }
-  
-  // КРИТИЧЕСКАЯ ПРОВЕРКА: есть ли игрок в базе?
-  try {
-    const check = await fetch('/api/guest/me?id=' + encodeURIComponent(id) + '&_t=' + Date.now());
-    if (check.status === 404) {
-      // ID не найден — отправляем в профиль для перелогина
-      alert('❌ Ваш ID (' + id + ') не найден в базе.\n\nПожалуйста, войдите заново через профиль.');
-      window.location.href = '/profile.html';
-      return;
-    }
-    const data = await check.json();
-    if (!data.guest) {
-      alert('❌ Ошибка загрузки профиля. Войдите заново.');
-      window.location.href = '/profile.html';
-      return;
-    }
-    // Если OK — обновляем localStorage на всякий случай
-    localStorage.setItem('kingwin_guest_id', data.guest.id);
-    currentPlayer = { id: data.guest.id };
-    lastKnownBalance = data.balance?.total || 0;
-    document.getElementById('balanceVal').textContent = lastKnownBalance.toFixed(2);
-  } catch(e) {
-    alert('Ошибка сети: ' + e.message);
-    return;
-  }
+  const ok = await initPlayer();
+  if (!ok) return;
   
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -683,31 +699,24 @@ function addBet(amount) {
 }
 
 async function placeBetOnServer(amt) {
-  console.log('[BET] Отправка ставки:', amt, 'guest_id:', currentPlayer.id);
+  console.log('[BET] Отправка:', { guest_id: currentPlayer.id, amount: amt });
   try {
     const res = await fetch('/api/crash/start', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ guest_id: currentPlayer.id, amount: amt })
     });
     const data = await res.json();
-    console.log('[BET] Ответ сервера:', data);
+    console.log('[BET] Ответ:', data);
     
     if (data.ok) {
       activeBetId = data.bet_id;
       await loadBalance();
       return true;
     } else {
-      // Если сервер говорит "guest_id does not exist" — игрока нет в базе
-      if (data.error && data.error.toLowerCase().includes('guest')) {
-        alert('❌ Ваш аккаунт не найден в базе.\n\nID: ' + currentPlayer.id + '\n\nПожалуйста, войдите заново через профиль или создайте нового игрока в админке.');
-        window.location.href = '/profile.html';
-        return false;
-      }
-      alert('❌ Ошибка ставки:\n' + (data.error || 'Неизвестная ошибка'));
+      alert('❌ Ошибка: ' + (data.error || 'Неизвестная') + '\nID: ' + currentPlayer.id);
       return false;
     }
   } catch(e) {
-    console.error('[BET] Ошибка сети:', e);
     alert('❌ Ошибка сети: ' + e.message);
     return false;
   }
@@ -748,7 +757,7 @@ async function onActionClick(isAuto = false) {
   if (amt > 500) return alert('Макс 500 ₽');
 
   if (lastKnownBalance < amt) {
-    return alert('❌ Недостаточно средств.\nВаш баланс: ' + lastKnownBalance.toFixed(2) + ' ₽\nСтавка: ' + amt + ' ₽');
+    return alert('❌ Недостаточно средств.\nБаланс: ' + lastKnownBalance.toFixed(2) + ' ₽\nСтавка: ' + amt + ' ₽');
   }
 
   if (currentStatus === 'waiting' && !activeBetId) {
