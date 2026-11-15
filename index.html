@@ -85,6 +85,28 @@
   .game-title { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
   .game-sub { font-size: 10px; color: var(--text-muted); }
 
+  /* === БЕЙДЖ "СКОРО" === */
+  .game-card.coming-soon { position: relative; cursor: not-allowed; }
+  .game-card.coming-soon .game-img-wrap { filter: grayscale(0.7) brightness(0.5); }
+  .game-card.coming-soon .game-info { opacity: 0.5; }
+  .coming-soon-badge {
+    position: absolute; top: 8px; right: 8px; z-index: 5;
+    background: linear-gradient(135deg, #ff8c00, #ff4d4d);
+    color: #fff; font-size: 9px; font-weight: 900; letter-spacing: 1px;
+    padding: 4px 8px; border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(255,77,77,0.4);
+    text-transform: uppercase;
+  }
+  .coming-soon-overlay {
+    position: absolute; inset: 0; z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(1px);
+  }
+  .coming-soon-overlay::before {
+    content: '🔒'; font-size: 32px; opacity: 0.9;
+  }
+
   .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); margin-top: 15px;}
   .wins-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .wins-scroll::-webkit-scrollbar { display: none; }
@@ -327,11 +349,45 @@
 
     <div class="section-header"><div class="section-title">⭐ Игры KINGWIN</div></div>
     <div class="games-scroll">
-      <a href="/crash.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div><div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div></a>
-      <a href="/cases.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div></a>
-      <a href="/miner.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div></a>
-      <a href="/ladder.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div><div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div></a>
-      <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)"><div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div><div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div></a>
+      <!-- КРАШ — СКОРО -->
+      <div class="game-card coming-soon" onclick="showComingSoon('Краш')">
+        <div class="coming-soon-badge">Скоро</div>
+        <div class="coming-soon-overlay"></div>
+        <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div>
+        <div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div>
+      </div>
+
+      <!-- КЕЙСЫ — СКОРО -->
+      <div class="game-card coming-soon" onclick="showComingSoon('Кейсы')">
+        <div class="coming-soon-badge">Скоро</div>
+        <div class="coming-soon-overlay"></div>
+        <div class="game-img-wrap"><img src="/cases_card.jpg" onerror="this.style.display='none'"></div>
+        <div class="game-info"><div class="game-title">Кейсы</div><div class="game-sub">Открывай</div></div>
+      </div>
+
+      <!-- МИНЁР — СКОРО -->
+      <div class="game-card coming-soon" onclick="showComingSoon('Минёр')">
+        <div class="coming-soon-badge">Скоро</div>
+        <div class="coming-soon-overlay"></div>
+        <div class="game-img-wrap"><img src="/miner_card.jpg" onerror="this.style.display='none'"></div>
+        <div class="game-info"><div class="game-title">Минёр</div><div class="game-sub">Минное поле</div></div>
+      </div>
+
+      <!-- ЛЕСЕНКА — СКОРО -->
+      <div class="game-card coming-soon" onclick="showComingSoon('Лесенка')">
+        <div class="coming-soon-badge">Скоро</div>
+        <div class="coming-soon-overlay"></div>
+        <div class="game-img-wrap"><img src="/ladder_card.jpg" onerror="this.style.display='none'"></div>
+        <div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div>
+      </div>
+
+      <!-- ПЛИНКО — СКОРО -->
+      <div class="game-card coming-soon" onclick="showComingSoon('Плинко')">
+        <div class="coming-soon-badge">Скоро</div>
+        <div class="coming-soon-overlay"></div>
+        <div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div>
+        <div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div>
+      </div>
     </div>
 
     <div class="wins-block">
@@ -463,10 +519,10 @@
     </div>
     
     <div class="sb-games-list" id="sbGamesList">
-      <a href="/crash.html" class="sb-game-item">🚀 Краш</a>
-      <a href="/miner.html" class="sb-game-item">💣 Минёр</a>
-      <a href="/ladder.html" class="sb-game-item">🪜 Лесенка</a>
-      <a href="/plinko.html" class="sb-game-item">🟣 Plinko</a>
+      <a href="#" class="sb-game-item" onclick="showComingSoon('Краш'); return false;" style="opacity:0.5; cursor:not-allowed;">🚀 Краш <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
+      <a href="#" class="sb-game-item" onclick="showComingSoon('Минёр'); return false;" style="opacity:0.5; cursor:not-allowed;">💣 Минёр <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
+      <a href="#" class="sb-game-item" onclick="showComingSoon('Лесенка'); return false;" style="opacity:0.5; cursor:not-allowed;">🪜 Лесенка <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
+      <a href="#" class="sb-game-item" onclick="showComingSoon('Плинко'); return false;" style="opacity:0.5; cursor:not-allowed;">🟣 Plinko <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
     </div>
 
     <div class="sb-divider"></div>
@@ -715,6 +771,11 @@ function toggleSbGames() {
   } else {
     arrow.style.transform = 'rotate(0deg)';
   }
+}
+
+// --- ЗАГЛУШКА "СКОРО" ---
+function showComingSoon(gameName) {
+  showToast('🚧 ' + gameName + ' — скоро в KINGWIN!', 'error');
 }
 
 // --- МОДАЛКА БАЛАНСА ---
@@ -993,7 +1054,6 @@ async function activatePromo() {
       showToast('✅ Промокод активирован! +' + (data.amount || 0) + ' ₽', 'success');
       closeModal('bonusesModal');
       codeInput.value = '';
-      // обновим баланс
       refreshBalance();
     } else {
       errEl.textContent = data.error || 'Ошибка активации';
@@ -1089,7 +1149,6 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// Также обновляем при фокусе окна (для десктопа)
 window.addEventListener('focus', () => {
   if (currentPlayer) refreshBalance();
 });
