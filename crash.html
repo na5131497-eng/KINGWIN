@@ -75,10 +75,9 @@
   .waiting-circle { width: 130px; height: 130px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.05); border-top-color: var(--accent-light); border-right-color: var(--accent-light); animation: spin 1.2s linear infinite; z-index: 1; position: absolute; box-shadow: 0 0 20px rgba(0,180,216,0.2); }
   @keyframes spin { 100% { transform: rotate(360deg); } }
 
-  /* Цвет множителя: Темно-синий при полете, красный при краше */
   .multiplier-text { 
     font-size: 64px; font-weight: 900; 
-    color: var(--logo-color); /* Темно-синий */
+    color: var(--logo-color); 
     text-shadow: 0 0 25px rgba(10, 132, 255, 0.6); 
     z-index: 10; display: none; font-style: italic; 
   }
@@ -103,12 +102,15 @@
   @keyframes popIn { 0% { transform: translateX(-50%) scale(0.8); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
 
   .auto-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .auto-label { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .auto-label { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; }
+  .auto-label.disabled { opacity: 0.4; cursor: not-allowed; }
+  
   .toggle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #555; background: transparent; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
   .toggle.on { border-color: var(--accent-light); background: var(--accent-light); }
   .toggle.on::after { content: ''; width: 8px; height: 8px; background: #000; border-radius: 50%; }
   
   .auto-input { background: var(--bg-input); border: 1px solid #1f2937; color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 800; width: 90px; text-align: center; outline: none; transition: 0.2s; }
+  .auto-input:disabled { color: #555; border-color: #111; }
   
   .input-row { display: flex; gap: 8px; height: 52px; margin-bottom: 10px; width: 100%; overflow: hidden; }
   .amount-input { flex: 1; min-width: 0; background: var(--bg-input); border: 1px solid #1f2937; color: #fff; padding: 0 12px; border-radius: 10px; font-size: 22px; font-weight: 900; outline: none; }
@@ -197,7 +199,7 @@
     <div class="queue-badge" id="queueBadge">СТАВКА НА СЛЕД. РАУНД</div>
 
     <div class="auto-row">
-      <div class="auto-label" onclick="toggleAuto()">
+      <div class="auto-label" id="autoLabel" onclick="toggleAuto()">
         <div class="toggle" id="autoToggle"></div> АВТОСТОП
       </div>
       <input type="number" id="autoInput" class="auto-input" value="2.00" step="0.1" min="1.01">
@@ -360,6 +362,7 @@ function toggleSubmenu(el, id) {
 }
 
 function toggleAuto() {
+  if (currentStatus !== 'waiting') return; // Блокировка смены автостопа
   isAutoStopEnabled = !isAutoStopEnabled;
   const el = document.getElementById('autoToggle');
   if (isAutoStopEnabled) el.classList.add('on');
@@ -394,9 +397,7 @@ function startRenderLoop() {
       const elapsed = (Date.now() - flightStartTime) / 1000;
       let calcMult = Math.pow(1.06, elapsed);
       
-      if (calcMult >= knownCrashPoint) {
-        calcMult = knownCrashPoint;
-      }
+      if (calcMult >= knownCrashPoint) calcMult = knownCrashPoint;
 
       if (calcMult > currentMult) {
         currentMult = calcMult;
@@ -433,6 +434,15 @@ async function pollCrash() {
       activeBetId = state.my_bet.bet_id;
     } else {
       activeBetId = null;
+    }
+
+    // Блокировка автостопа в полете
+    if (currentStatus === 'flying') {
+      document.getElementById('autoLabel').classList.add('disabled');
+      document.getElementById('autoInput').disabled = true;
+    } else {
+      document.getElementById('autoLabel').classList.remove('disabled');
+      document.getElementById('autoInput').disabled = false;
     }
 
     if (state.status === 'waiting') {
