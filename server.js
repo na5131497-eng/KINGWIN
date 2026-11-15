@@ -106,7 +106,7 @@ async function getJackpotAmount() {
 // ГЛОБАЛЬНЫЙ РАУНД КРАША
 // ============================================================
 const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
-const MIN_CRASH = 1.00, MAX_CONSEC_ZERO = 2, MAX_CONSEC_LOW = 2;
+const MIN_CRASH = 1.00, MAX_CONSEC_ZERO = 2;
 
 const crashState = {
   roundId: 0, status: 'waiting', crashPoint: 0,
@@ -151,7 +151,6 @@ async function startFlying() {
     rtp = Math.min(DRAIN_RTP_MAX, BASE_RTP + boost);
   }
 
-  // усредняем индивидуальный RTP игроков раунда
   let avgPlayerRtp = rtp;
   try {
     const ids = [];
@@ -168,7 +167,6 @@ async function startFlying() {
   } catch(e) {}
   const targetRtp = Math.min(DRAIN_RTP_MAX, Math.max(0.5, rtp * 0.5 + avgPlayerRtp * 0.5));
 
-  // Генерация краша БЕЗ 0.00, с защитой от серии
   const u = Math.max(Math.random(), 1e-9);
   let crash = targetRtp / u;
 
@@ -328,12 +326,12 @@ function generateBotWin() {
 // ============================================================
 async function debitBet(guestId, amount) {
   const r = await pool.query('SELECT bonus_balance, deposit_balance FROM guests WHERE id=$1', [guestId]);
-  if (!r.rows.length) return null;
+  if (!r.rows.length) return { error: 'not_found' };
 
   let bonus = parseFloat(r.rows[0].bonus_balance) || 0;
   let dep = parseFloat(r.rows[0].deposit_balance) || 0;
 
-  if (bonus + dep < amount) return null;
+  if (bonus + dep < amount) return { error: 'insufficient' };
 
   let rem = amount, fromBonus = 0, fromDeposit = 0;
   if (dep >= rem) {
@@ -387,7 +385,7 @@ async function getBalance(guestId) {
 }
 
 // ============================================================
-// INIT DB
+// INIT DB — с гарантией что есть хотя бы один гость
 // ============================================================
 async function initDB() {
   try {
@@ -475,18 +473,28 @@ async function initDB() {
       );
     `);
 
+    await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS guest_id TEXT;`);
+    await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS amount NUMERIC DEFAULT 0;`);
+    await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS crash_point NUMERIC DEFAULT 0;`);
+    await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS cashed_out BOOLEAN DEFAULT FALSE;`);
+    await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS cashout_mult NUMERIC DEFAULT 0;`);
     await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS round_id INT DEFAULT 0;`);
-    await pool.query(`
-      ALTER TABLE guests ADD COLUMN IF NOT EXISTS rtp NUMERIC DEFAULT 0.80;
-      ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_profit NUMERIC DEFAULT 0;
-      ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_turnover NUMERIC DEFAULT 0;
-      ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();
-    `);
 
-    const jpCheck = await pool.query(`SELECT * FROM jackpot WHERE id = 1`);
-    if (jpCheck.rows.length === 0) {
-      await pool.query(`INSERT INTO jackpot (id, amount) VALUES (1, $1)`, [JACKPOT_BASE]);
-    }
+    await pool.query(`ALTER TABLE game_history ADD COLUMN IF NOT EXISTS guest_id TEXT;`);
+    await pool.query(`ALTER TABLE game_history ADD COLUMN IF NOT EXISTS multiplier NUMERIC DEFAULT 0;`);
+    await pool.query(`ALTER TABLE game_history ADD COLUMN IF NOT EXISTS status TEXT;`);
+
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS guest_id TEXT;`);
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS mine_pos INT DEFAULT 0;`);
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS opened TEXT DEFAULT '';`);
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS steps INT DEFAULT 0;`);
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS alive BOOLEAN DEFAULT TRUE;`);
+    await pool.query(`ALTER TABLE miner_games ADD COLUMN IF NOT EXISTS cashed_out BOOLEAN DEFAULT FALSE;`);
+
+    await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS rtp NUMERIC DEFAULT 0.80;`);
+    await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_profit NUMERIC DEFAULT 0;`);
+    await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_turnover NUMERIC DEFAULT 0;`);
+    await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();`);
 
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_number INTEGER;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_color TEXT;`);
@@ -501,9 +509,27 @@ async function initDB() {
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN dealer DROP NOT NULL;`); } catch(e){}
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet_type DROP NOT NULL;`); } catch(e){}
 
+    const jpCheck = await pool.query(`SELECT * FROM jackpot WHERE id = 1`);
+    if (jpCheck.rows.length === 0) {
+      await pool.query(`INSERT INTO jackpot (id, amount) VALUES (1, $1)`, [JACKPOT_BASE]);
+    }
+
     const dlCheck = await pool.query(`SELECT * FROM dealers WHERE login = 'dealer'`);
     if (dlCheck.rows.length === 0) {
       await pool.query(`INSERT INTO dealers (name, login, pass) VALUES ($1, $2, $3)`, ['Дилер', 'dealer', '56UpahoS']);
+    }
+
+    // === ГЛАВНОЕ: гарантируем что есть хотя бы один гость ===
+    const guestCount = await pool.query('SELECT COUNT(*)::int AS c FROM guests');
+    if (guestCount.rows[0].c === 0) {
+      await pool.query(
+        `INSERT INTO guests (id, name, pass, rank, deposit_balance, bonus_balance)
+         VALUES ('player001', 'Игрок 1', '1234', 'Bronze', 1000, 500)
+         ON CONFLICT (id) DO NOTHING`
+      );
+      console.log('✅ Создан тестовый гость: player001 / 1234 (депозит 1000, бонус 500)');
+    } else {
+      console.log(`✅ В БД ${guestCount.rows[0].c} гость(ей) — уже есть`);
     }
 
     console.log('✅ База данных готова!');
@@ -550,10 +576,7 @@ const server = http.createServer(async (req, res) => {
       const jackpot = await getJackpotAmount();
 
       let bets = [];
-      let totalBank = 0;
-      let totalPlayers = 0;
-      let totalBotsBets = 0;
-      let botsCount = 0;
+      let totalBank = 0, totalPlayers = 0, totalBotsBets = 0, botsCount = 0;
       let myBet = null;
 
       crashState.bets.forEach((b) => {
@@ -567,13 +590,8 @@ const server = http.createServer(async (req, res) => {
           cashout_mult: b.cashout_mult,
           win: b.cashed_out ? Math.round(b.amount * b.cashout_mult) : 0,
         });
-        if (isBot) {
-          totalBotsBets += b.amount;
-          botsCount++;
-        } else {
-          totalBank += b.amount;
-          totalPlayers++;
-        }
+        if (isBot) { totalBotsBets += b.amount; botsCount++; }
+        else { totalBank += b.amount; totalPlayers++; }
       });
 
       if (guestId) {
@@ -584,22 +602,16 @@ const server = http.createServer(async (req, res) => {
           );
           if (r.rows.length) {
             myBet = { bet_id: r.rows[0].id, amount: parseFloat(r.rows[0].amount), cashed_out: r.rows[0].cashed_out, cashout_mult: parseFloat(r.rows[0].cashout_mult) || 0 };
-
             if (!bets.find(b => b.guest_id === guestId)) {
               bets.push({
-                guest_id: guestId,
-                display_name: '⭐ ' + guestId,
-                is_bot: false,
-                amount: myBet.amount,
-                cashed_out: myBet.cashed_out,
-                cashout_mult: myBet.cashout_mult,
+                guest_id: guestId, display_name: '⭐ ' + guestId, is_bot: false,
+                amount: myBet.amount, cashed_out: myBet.cashed_out, cashout_mult: myBet.cashout_mult,
                 win: myBet.cashed_out ? Math.round(myBet.amount * myBet.cashout_mult) : 0,
               });
-              totalBank += myBet.amount;
-              totalPlayers++;
+              totalBank += myBet.amount; totalPlayers++;
             }
           }
-        } catch(e){}
+        } catch(e){ console.error('crash/state myBet:', e.message); }
       }
 
       return sendJSON(res, 200, {
@@ -624,7 +636,10 @@ const server = http.createServer(async (req, res) => {
       if (existing.rows.length) return sendJSON(res, 400, { error: 'У вас уже есть ставка', bet_id: existing.rows[0].id, amount: parseFloat(existing.rows[0].amount) });
 
       const debited = await debitBet(guestId, amt);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      if (!debited || debited.error) {
+        if (debited && debited.error === 'not_found') return sendJSON(res, 404, { error: 'Гость не найден. Перезайдите в аккаунт.' });
+        return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      }
 
       const r = await pool.query(`INSERT INTO crash_bets (guest_id, amount, crash_point, round_id) VALUES ($1, $2, 0, $3) RETURNING id`, [guestId, amt, crashState.roundId]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `Crash bet r#${crashState.roundId} (${guestId})`]);
@@ -667,7 +682,10 @@ const server = http.createServer(async (req, res) => {
       const bet = parseFloat(b.bet) || 0;
       if (bet < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
       const debited = await debitBet(guestId, bet);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      if (!debited || debited.error) {
+        if (debited && debited.error === 'not_found') return sendJSON(res, 404, { error: 'Гость не найден' });
+        return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      }
       const minePos = Math.floor(Math.random() * 25);
       const r = await pool.query(`INSERT INTO miner_games (guest_id, bet, mine_pos, steps) VALUES ($1, $2, $3, 0) RETURNING id`, [guestId, bet, minePos]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), bet, `Miner bet (${guestId})`]);
@@ -733,7 +751,10 @@ const server = http.createServer(async (req, res) => {
       const bet = Math.round((parseFloat(b.bet) || 0) * 100) / 100;
       if (bet < 1) return sendJSON(res, 400, { error: 'Мин 1 ₽' });
       const debited = await debitBet(guestId, bet);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      if (!debited || debited.error) {
+        if (debited && debited.error === 'not_found') return sendJSON(res, 404, { error: 'Гость не найден' });
+        return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      }
       const rtp = await getPlayerRTP(guestId);
       const result = spinWithRTP(rtp, bet, 'plinko', { risk: b.risk || 'medium' });
       if (result.win > 0) await creditWin(guestId, result.win, bet);
@@ -756,7 +777,10 @@ const server = http.createServer(async (req, res) => {
       const c = CASES[case_name];
       if (!c) return sendJSON(res, 400, { error: 'Кейс не найден' });
       const debited = await debitBet(guest_id, c.price);
-      if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      if (!debited || debited.error) {
+        if (debited && debited.error === 'not_found') return sendJSON(res, 404, { error: 'Гость не найден' });
+        return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      }
       const rtp = await getPlayerRTP(guest_id);
       const result = spinWithRTP(rtp, c.price, 'case', { caseName: case_name });
       const prize = result.prize;
@@ -787,6 +811,7 @@ const server = http.createServer(async (req, res) => {
         wins.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
         return sendJSON(res, 200, wins.slice(0, limit));
       } catch (e) {
+        console.error('last-wins:', e.message);
         const fakeWins = [];
         for (let i = 0; i < limit; i++) fakeWins.push(generateBotWin());
         return sendJSON(res, 200, fakeWins);
