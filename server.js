@@ -82,13 +82,14 @@ async function recordSession(guestId, bet, win) {
 }
 
 // ============================================================
-// ГЛОБАЛЬНЫЙ РАУНД КРАША
+// ГЛОБАЛЬНЫЙ РАУНД КРАША (С БОТАМИ)
 // ============================================================
 const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
 
 const crashState = {
   roundId: 0, status: 'waiting', crashPoint: 0,
-  startTime: 0, waitStart: Date.now(), history: []
+  startTime: 0, waitStart: Date.now(), history: [],
+  bets: new Map() // bet_id -> { guestId, amount, cashed_out, cashout_mult, botTarget }
 };
 
 function nextRound() {
@@ -97,7 +98,30 @@ function nextRound() {
   crashState.crashPoint = 0;
   crashState.startTime = 0;
   crashState.waitStart = Date.now();
-  console.log(`[CRASH] Round #${crashState.roundId} — waiting`);
+  
+  // Очистка и генерация ботов
+  crashState.bets.clear();
+  
+  const numBots = Math.floor(Math.random() * 8) + 4; // от 4 до 11 ботов
+  for (let i = 0; i < numBots; i++) {
+    const digits = Math.floor(1000 + Math.random() * 9000); 
+    const botId = `${digits}***`; 
+    const amount = Math.floor(Math.random() * 49) * 10 + 10; // 10..500
+    const betId = -Math.floor(Math.random() * 1000000); // отрицательные ID
+    
+    // Каждый бот решает, на каком иксе он выйдет (от 1.1 до 8.0)
+    const botTarget = 1.1 + Math.random() * 6.9;
+
+    crashState.bets.set(betId, { 
+      guestId: botId, 
+      amount: amount,
+      cashed_out: false,
+      cashout_mult: 0,
+      botTarget: botTarget
+    });
+  }
+
+  console.log(`[CRASH] Round #${crashState.roundId} — waiting (${numBots} bots)`);
   setTimeout(() => startFlying(), CRASH_WAIT_MS);
 }
 
@@ -114,9 +138,11 @@ async function startFlying() {
   if (u < (1 - rtp)) crash = 1.00;
   else { const u2 = (u - (1 - rtp)) / rtp; crash = rtp / (1 - u2); }
   crash = Math.max(1.00, Math.min(crash, 100));
+
   crashState.crashPoint = Math.round(crash * 100) / 100;
   crashState.status = 'flying';
   crashState.startTime = Date.now();
+  
   console.log(`[CRASH] Round #${crashState.roundId} — flying, crashPoint=${crashState.crashPoint}`);
   setTimeout(() => { if (crashState.status === 'flying') crashNow(); }, CRASH_FLY_MAX_MS);
 }
@@ -124,10 +150,12 @@ async function startFlying() {
 async function crashNow() {
   if (crashState.status !== 'flying') return;
   crashState.status = 'crashed';
+  
   const v = crashState.crashPoint;
   crashState.history.unshift(v);
   if (crashState.history.length > 10) crashState.history.pop();
   console.log(`[CRASH] Round #${crashState.roundId} — CRASHED at ${v}x`);
+
   try {
     const active = await pool.query(
       `SELECT * FROM crash_bets WHERE cashed_out=FALSE AND round_id=$1`,
@@ -142,6 +170,7 @@ async function crashNow() {
       );
     }
   } catch(e){ console.error('crashNow:', e.message); }
+
   setTimeout(() => nextRound(), CRASH_PAUSE_MS);
 }
 
@@ -150,6 +179,15 @@ function getPublicCrashState() {
   if (crashState.status === 'flying') {
     const elapsed = (now - crashState.startTime) / 1000;
     const currentMult = Math.pow(1.06, elapsed);
+
+    // Проверяем, не достиг ли кто-то из ботов своего таргета
+    crashState.bets.forEach((bet) => {
+      if (!bet.cashed_out && bet.botTarget && currentMult >= bet.botTarget) {
+        bet.cashed_out = true;
+        bet.cashout_mult = Math.round(currentMult * 100) / 100;
+      }
+    });
+
     if (currentMult >= crashState.crashPoint) {
       crashNow();
       return { roundId: crashState.roundId, status: 'crashed', crashPoint: crashState.crashPoint, elapsed: 0, currentMult: crashState.crashPoint };
@@ -228,11 +266,11 @@ function spinWithRTP(rtp, bet, gameType, options = {}) {
 }
 
 // ============================================================
-// БОТЫ
+// БОТЫ (ДЛЯ LAST-WINS)
 // ============================================================
 let crashBots = [];
 function initCrashBots() {
-  const botNames = ['1789****','4521****','9034****','1122****','8877****','6633****'];
+  const botNames = ['1789***','4521***','9034***','1122***','8877***','6633***'];
   crashBots = botNames.map(name => ({ name, bet: [10,25,50,100,200][Math.floor(Math.random()*5)] }));
 }
 function generateBotWin() {
@@ -345,23 +383,12 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS blackjack_sessions (
-        id SERIAL PRIMARY KEY,
-        dealer TEXT,
-        player_nick TEXT,
-        bet NUMERIC DEFAULT 0,
-        win NUMERIC DEFAULT 0,
-        result TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
+        id SERIAL PRIMARY KEY, dealer TEXT, player_nick TEXT, bet NUMERIC DEFAULT 0,
+        win NUMERIC DEFAULT 0, result TEXT, created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS baccarat_sessions (
-        id SERIAL PRIMARY KEY,
-        dealer TEXT,
-        player_nick TEXT,
-        bet NUMERIC DEFAULT 0,
-        win NUMERIC DEFAULT 0,
-        result TEXT,
-        bet_type TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
+        id SERIAL PRIMARY KEY, dealer TEXT, player_nick TEXT, bet NUMERIC DEFAULT 0,
+        win NUMERIC DEFAULT 0, result TEXT, bet_type TEXT, created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS crash_bets (
         id SERIAL PRIMARY KEY, guest_id TEXT NOT NULL, amount NUMERIC DEFAULT 0,
@@ -370,14 +397,9 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS miner_games (
-        id SERIAL PRIMARY KEY,
-        guest_id TEXT NOT NULL,
-        bet NUMERIC DEFAULT 0,
-        mine_pos INT NOT NULL,
-        opened TEXT DEFAULT '',
-        steps INT DEFAULT 0,
-        alive BOOLEAN DEFAULT TRUE,
-        cashed_out BOOLEAN DEFAULT FALSE,
+        id SERIAL PRIMARY KEY, guest_id TEXT NOT NULL, bet NUMERIC DEFAULT 0,
+        mine_pos INT NOT NULL, opened TEXT DEFAULT '', steps INT DEFAULT 0,
+        alive BOOLEAN DEFAULT TRUE, cashed_out BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
@@ -402,9 +424,6 @@ async function initDB() {
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN nick DROP NOT NULL;`); } catch(e){}
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN dealer DROP NOT NULL;`); } catch(e){}
     try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet_type DROP NOT NULL;`); } catch(e){}
-    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN bet DROP NOT NULL;`); } catch(e){}
-    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN win DROP NOT NULL;`); } catch(e){}
-    try { await pool.query(`ALTER TABLE roulette_sessions ALTER COLUMN won DROP NOT NULL;`); } catch(e){}
 
     const dlCheck = await pool.query(`SELECT * FROM dealers WHERE login = 'dealer'`);
     if (dlCheck.rows.length === 0) {
@@ -452,14 +471,24 @@ const server = http.createServer(async (req, res) => {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
       const round = getPublicCrashState();
+      
       let bets = [];
-      try {
-        const r = await pool.query(
-          `SELECT guest_id, amount, cashed_out, cashout_mult FROM crash_bets WHERE round_id=$1 ORDER BY id DESC LIMIT 20`,
-          [crashState.roundId]
-        );
-        bets = r.rows.map(b => ({ guest_id: b.guest_id, amount: parseFloat(b.amount), cashed_out: b.cashed_out, cashout_mult: parseFloat(b.cashout_mult) || 0 }));
-      } catch(e){}
+      let totalBank = 0;
+      let totalPlayers = 0;
+
+      // Собираем ставки из памяти (включая ботов)
+      crashState.bets.forEach((b) => {
+        bets.push({ 
+          guest_id: b.guestId, 
+          amount: b.amount, 
+          cashed_out: b.cashed_out, 
+          cashout_mult: b.cashout_mult 
+        });
+        totalBank += b.amount;
+        totalPlayers++;
+      });
+
+      // Добавляем ставку реального игрока, если он поставил
       let myBet = null;
       if (guestId) {
         try {
@@ -467,10 +496,36 @@ const server = http.createServer(async (req, res) => {
             `SELECT id, amount, cashed_out, cashout_mult FROM crash_bets WHERE guest_id=$1 AND round_id=$2 ORDER BY id DESC LIMIT 1`,
             [guestId, crashState.roundId]
           );
-          if (r.rows.length) myBet = { bet_id: r.rows[0].id, amount: parseFloat(r.rows[0].amount), cashed_out: r.rows[0].cashed_out, cashout_mult: parseFloat(r.rows[0].cashout_mult) || 0 };
+          if (r.rows.length) {
+            myBet = { 
+              bet_id: r.rows[0].id, 
+              amount: parseFloat(r.rows[0].amount), 
+              cashed_out: r.rows[0].cashed_out, 
+              cashout_mult: parseFloat(r.rows[0].cashout_mult) || 0 
+            };
+            
+            if (!bets.find(b => b.guest_id === guestId)) {
+              bets.push({
+                guest_id: guestId,
+                amount: myBet.amount,
+                cashed_out: myBet.cashed_out,
+                cashout_mult: myBet.cashout_mult
+              });
+              totalBank += myBet.amount;
+              totalPlayers++;
+            }
+          }
         } catch(e){}
       }
-      return sendJSON(res, 200, { ...round, my_bet: myBet, bets, history: crashState.history });
+
+      return sendJSON(res, 200, { 
+        ...round, 
+        my_bet: myBet, 
+        bets, 
+        total_bank: totalBank,
+        total_players: totalPlayers,
+        history: crashState.history 
+      });
     }
 
     if (url === '/api/crash/current' && method === 'GET') return sendJSON(res, 200, getPublicCrashState());
@@ -644,34 +699,6 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]);
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
-    }
-
-    // ============================================================
-    // ⭐ ПУБЛИЧНАЯ ИСТОРИЯ РУЛЕТКИ (для страницы /roulette-history)
-    // ============================================================
-    if (url === '/api/roulette/history' && method === 'GET') {
-      const u = new URL(req.url, 'http://x');
-      const limit = Math.min(20, parseInt(u.searchParams.get('limit'), 10) || 10);
-      try {
-        const r = await pool.query(
-          `SELECT id, result_number, result_color, dealer, date, created_at
-           FROM roulette_sessions
-           WHERE result_number IS NOT NULL
-           ORDER BY id DESC LIMIT $1`,
-          [limit]
-        );
-        const rows = r.rows.map(row => ({
-          id: row.id,
-          result_number: row.result_number,
-          result_color: row.result_color,
-          dealer: row.dealer,
-          created_at: row.created_at
-        }));
-        return sendJSON(res, 200, rows);
-      } catch (e) {
-        console.error('[/api/roulette/history]', e.message);
-        return sendJSON(res, 200, []);
-      }
     }
 
     // ============================================================
@@ -1149,3 +1176,4 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Сервер на порту ${PORT}`);
 });
+```
