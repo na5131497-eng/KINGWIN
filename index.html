@@ -105,7 +105,6 @@
   .legal-faq-item.open .legal-faq-q svg { transform: rotate(180deg); fill: var(--accent); }
   .legal-faq-a b { color: #fff; }
 
-  /* === НИЖНЕЕ МЕНЮ === */
   .bottom-nav { 
     position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: var(--nav-height); 
     background: #11141d; display: flex; justify-content: space-around; align-items: center; 
@@ -120,7 +119,6 @@
   .nav-btn-plus svg { fill: #000; width: 28px; height: 28px; }
   .nav-badge { position: absolute; top: -5px; right: -10px; background: #ff4d4d; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; }
 
-  /* САЙДБАР */
   .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
   .sidebar { position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100dvh; background: var(--bg-main); z-index: 100001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.05); }
@@ -154,7 +152,6 @@
   .sb-social-tg { background: #2AABEE; }
   .sb-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
 
-  /* МОДАЛКИ */
   .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85); display: none !important; align-items: center !important; justify-content: center !important; z-index: 999999 !important; padding: 20px !important; overflow-y: auto !important; }
   .modal-overlay.show { display: flex !important; }
   .modal-box { background: var(--bg-panel); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 30px; width: 100%; max-width: 420px; text-align: center; position: relative; margin: auto; max-height: calc(100dvh - 40px); overflow-y: auto; }
@@ -254,6 +251,21 @@
   .toast.success { border-left-color: var(--accent-green); }
   .toast.error { border-left-color: var(--red); }
 
+  /* === МОДАЛКА БАЛАНСА === */
+  .balance-details-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .balance-details-row:last-child { border-bottom: none; }
+  .balance-details-row .bd-label { font-size: 13px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .balance-details-row .bd-value { font-size: 22px; font-weight: 900; }
+  .balance-details-row .bd-value.real { color: var(--accent-green); }
+  .balance-details-row .bd-value.bonus { color: var(--gold); }
+  .balance-details-row .bd-value.total { color: #fff; font-size: 26px; }
+  .balance-icon { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 8px; margin-right: 10px; font-size: 14px; vertical-align: middle; }
+  .balance-icon.real { background: rgba(0,230,118,0.15); color: var(--accent-green); }
+  .balance-icon.bonus { background: rgba(241,196,15,0.15); color: var(--gold); }
+
   @media (min-width: 768px) {
     .banner-card { flex: 0 0 45%; }
     .main-content { padding: 0 30px; }
@@ -275,7 +287,7 @@
     <a href="#" class="logo" onclick="switchScreen('main'); return false;">KINGWIN</a>
   </div>
   <div class="header-right" id="userArea" style="display:none">
-    <div class="balance-pill" onclick="goToProfile()"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
+    <div class="balance-pill" onclick="openBalanceDetails()"><span id="topBalance">0.00</span> ₽ <span style="font-size:10px; color:#888;">▼</span></div>
     <button class="btn-plus" onclick="openNewPaymentScreen()">+</button>
     <div class="profile-avatar" onclick="goToProfile()" title="Профиль">KW</div>
   </div>
@@ -486,6 +498,39 @@
   </div>
 </div>
 
+<!-- МОДАЛКА РАЗБИВКИ БАЛАНСА -->
+<div class="modal-overlay" id="balanceDetailsModal">
+  <div class="modal-box" style="border-color:rgba(0,230,118,0.3);">
+    <button class="modal-close" onclick="closeModal('balanceDetailsModal')">✕</button>
+    <h2 style="background:linear-gradient(135deg,#00e676,#00b45a); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💰 Баланс</h2>
+    <p style="margin-bottom:10px;">Ваши средства в KINGWIN</p>
+
+    <div style="background:rgba(0,230,118,0.06); border:1px solid rgba(0,230,118,0.2); border-radius:12px; padding:6px 16px; margin-bottom:12px;">
+      <div class="balance-details-row">
+        <span class="bd-label"><span class="balance-icon real">₽</span> Реальный</span>
+        <span class="bd-value real" id="bdDeposit">0.00 ₽</span>
+      </div>
+      <div class="balance-details-row">
+        <span class="bd-label"><span class="balance-icon bonus">🎁</span> Бонусный</span>
+        <span class="bd-value bonus" id="bdBonus">0.00 ₽</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:6px 16px; margin-bottom:16px;">
+      <div class="balance-details-row">
+        <span class="bd-label">Общий баланс</span>
+        <span class="bd-value total" id="bdTotal">0.00 ₽</span>
+      </div>
+    </div>
+
+    <div style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:16px; text-align:left;">
+      ℹ️ Ставки сначала списываются с <b style="color:var(--accent-green);">реального</b> баланса, затем с <b style="color:var(--gold);">бонусного</b>.
+    </div>
+
+    <button class="btn-primary-full" onclick="closeModal('balanceDetailsModal'); openNewPaymentScreen();">Пополнить</button>
+  </div>
+</div>
+
 <!-- ПЛАШКА ОЖИДАНИЯ -->
 <div class="waiting-overlay" id="waitingOverlay">
   <div class="waiting-box">
@@ -670,6 +715,17 @@ function toggleSbGames() {
   } else {
     arrow.style.transform = 'rotate(0deg)';
   }
+}
+
+// --- МОДАЛКА БАЛАНСА ---
+function openBalanceDetails() {
+  if (!currentPlayer) { openModal('loginModal'); return; }
+  const dep = parseFloat(currentPlayer.deposit_balance) || 0;
+  const bon = parseFloat(currentPlayer.bonus_balance) || 0;
+  document.getElementById('bdDeposit').textContent = dep.toFixed(2) + ' ₽';
+  document.getElementById('bdBonus').textContent = bon.toFixed(2) + ' ₽';
+  document.getElementById('bdTotal').textContent = (dep + bon).toFixed(2) + ' ₽';
+  openModal('balanceDetailsModal');
 }
 
 // --- ЛОГИКА ЮРИДИЧЕСКОГО БЛОКА ---
@@ -937,6 +993,8 @@ async function activatePromo() {
       showToast('✅ Промокод активирован! +' + (data.amount || 0) + ' ₽', 'success');
       closeModal('bonusesModal');
       codeInput.value = '';
+      // обновим баланс
+      refreshBalance();
     } else {
       errEl.textContent = data.error || 'Ошибка активации';
       errEl.style.display = 'block';
@@ -945,6 +1003,19 @@ async function activatePromo() {
     errEl.textContent = 'Ошибка сети';
     errEl.style.display = 'block';
   }
+}
+
+// --- ОБНОВЛЕНИЕ БАЛАНСА ---
+async function refreshBalance() {
+  if (!currentPlayer) return;
+  try {
+    const r = await fetch('/api/guest/me?id=' + encodeURIComponent(currentPlayer.id) + '&_t=' + Date.now());
+    const data = await r.json();
+    if (data.guest) {
+      currentPlayer = data.guest;
+      updateUI();
+    }
+  } catch(e) {}
 }
 
 // --- ЗАГРУЗКА ПОСЛЕДНИХ ВЫИГРЫШЕЙ ---
@@ -1010,6 +1081,18 @@ window.onload = function() {
   loadLastWinsHome();
   setInterval(loadLastWinsHome, 15000);
 };
+
+// --- ОБНОВЛЕНИЕ БАЛАНСА ПРИ ВОЗВРАТЕ НА ВКЛАДКУ ---
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && currentPlayer) {
+    refreshBalance();
+  }
+});
+
+// Также обновляем при фокусе окна (для десктопа)
+window.addEventListener('focus', () => {
+  if (currentPlayer) refreshBalance();
+});
 </script>
 </body>
 </html>
