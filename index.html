@@ -103,9 +103,7 @@
     background: rgba(0,0,0,0.35);
     backdrop-filter: blur(1px);
   }
-  .coming-soon-overlay::before {
-    content: '🔒'; font-size: 32px; opacity: 0.9;
-  }
+  .coming-soon-overlay::before { content: '🔒'; font-size: 32px; opacity: 0.9; }
 
   .wins-block { background: var(--bg-panel); border-radius: 16px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); margin-top: 15px;}
   .wins-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -349,13 +347,11 @@
 
     <div class="section-header"><div class="section-title">⭐ Игры KINGWIN</div></div>
     <div class="games-scroll">
-      <!-- КРАШ — СКОРО -->
-      <div class="game-card coming-soon" onclick="showComingSoon('Краш')">
-        <div class="coming-soon-badge">Скоро</div>
-        <div class="coming-soon-overlay"></div>
+      <!-- КРАШ — РАБОЧИЙ -->
+      <a href="/crash.html" class="game-card" onclick="return requireLogin(event)">
         <div class="game-img-wrap"><img src="/crash_card.webp" onerror="this.src='/crash_card.jpg'"></div>
         <div class="game-info"><div class="game-title">Краш</div><div class="game-sub">Успей забрать</div></div>
-      </div>
+      </a>
 
       <!-- КЕЙСЫ — СКОРО -->
       <div class="game-card coming-soon" onclick="showComingSoon('Кейсы')">
@@ -381,13 +377,11 @@
         <div class="game-info"><div class="game-title">Лесенка</div><div class="game-sub">Испытай удачу</div></div>
       </div>
 
-      <!-- ПЛИНКО — СКОРО -->
-      <div class="game-card coming-soon" onclick="showComingSoon('Плинко')">
-        <div class="coming-soon-badge">Скоро</div>
-        <div class="coming-soon-overlay"></div>
+      <!-- ПЛИНКО — РАБОЧИЙ -->
+      <a href="/plinko.html" class="game-card" onclick="return requireLogin(event)">
         <div class="game-img-wrap"><img src="/plinko_card.webp" onerror="this.src='/plinko_card.jpg'"></div>
         <div class="game-info"><div class="game-title">Плинко</div><div class="game-sub">Лови шарик</div></div>
-      </div>
+      </a>
     </div>
 
     <div class="wins-block">
@@ -519,10 +513,10 @@
     </div>
     
     <div class="sb-games-list" id="sbGamesList">
-      <a href="#" class="sb-game-item" onclick="showComingSoon('Краш'); return false;" style="opacity:0.5; cursor:not-allowed;">🚀 Краш <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
+      <a href="/crash.html" class="sb-game-item" onclick="return requireLogin(event);">🚀 Краш</a>
       <a href="#" class="sb-game-item" onclick="showComingSoon('Минёр'); return false;" style="opacity:0.5; cursor:not-allowed;">💣 Минёр <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
       <a href="#" class="sb-game-item" onclick="showComingSoon('Лесенка'); return false;" style="opacity:0.5; cursor:not-allowed;">🪜 Лесенка <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
-      <a href="#" class="sb-game-item" onclick="showComingSoon('Плинко'); return false;" style="opacity:0.5; cursor:not-allowed;">🟣 Plinko <span style="margin-left:auto; font-size:9px; background:#ff4d4d; color:#fff; padding:2px 6px; border-radius:4px; font-weight:900;">СКОРО</span></a>
+      <a href="/plinko.html" class="sb-game-item" onclick="return requireLogin(event);">🟣 Plinko</a>
     </div>
 
     <div class="sb-divider"></div>
