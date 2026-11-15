@@ -89,7 +89,7 @@ const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
 const crashState = {
   roundId: 0, status: 'waiting', crashPoint: 0,
   startTime: 0, waitStart: Date.now(), history: [],
-  bets: new Map() 
+  bets: new Map() // Здесь только боты для визуала
 };
 
 function nextRound() {
@@ -99,6 +99,7 @@ function nextRound() {
   crashState.startTime = 0;
   crashState.waitStart = Date.now();
   
+  // Очистка перед новым раундом
   crashState.bets.clear();
   
   const numBots = Math.floor(Math.random() * 6) + 5; 
@@ -513,10 +514,13 @@ const server = http.createServer(async (req, res) => {
       if (crashState.status !== 'waiting') return sendJSON(res, 400, { error: 'Раунд уже начался' });
       const existing = await pool.query(`SELECT id, amount FROM crash_bets WHERE guest_id=$1 AND round_id=$2 AND cashed_out=FALSE LIMIT 1`, [guestId, crashState.roundId]);
       if (existing.rows.length) return sendJSON(res, 400, { error: 'У вас уже есть ставка', bet_id: existing.rows[0].id, amount: parseFloat(existing.rows[0].amount) });
+      
       const debited = await debitBet(guestId, amt);
       if (!debited) return sendJSON(res, 400, { error: 'Недостаточно средств' });
+      
       const r = await pool.query(`INSERT INTO crash_bets (guest_id, amount, crash_point, round_id) VALUES ($1, $2, 0, $3) RETURNING id`, [guestId, amt, crashState.roundId]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `Crash bet r#${crashState.roundId} (${guestId})`]);
+      
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, bet_id: r.rows[0].id, amount: amt, round_id: crashState.roundId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
