@@ -9,7 +9,9 @@
 <style>
   :root { 
     --bg-main:#090a10; --bg-panel:#151922; --bg-input:#0e121b; 
-    --accent:#00b4d8; --accent-green:#00e676; 
+    --accent:#0077ff; /* Темно-голубой */
+    --accent-light:#00b4d8;
+    --accent-green:#00e676; 
     --text-main:#fff; --text-muted:#8b92a5; 
     --border:rgba(255,255,255,0.05); --red:#ff4d4d; 
     --safe-top: env(safe-area-inset-top, 0px);
@@ -42,6 +44,7 @@
 
   /* === ТОПБАР === */
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 8px; flex-shrink: 0; }
+  /* Логотип темно-голубой */
   .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #fff; text-transform: uppercase; font-style: italic; display: flex; }
   .logo span { color: var(--accent); font-style: normal; font-weight: 900; }
   
@@ -55,10 +58,9 @@
   .menu-btn span { width: 18px; height: 2px; background: #fff; border-radius: 2px; transition: 0.2s; }
   .menu-btn:active { background: rgba(255,255,255,0.15); }
 
-  /* === ИСТОРИЯ (ЛАМИНИРОВАННАЯ) === */
-  .history-bar { display: flex; gap: 8px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  /* === ИСТОРИЯ === */
+  .history-bar { display: flex; gap: 6px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
   .history-bar::-webkit-scrollbar { display: none; }
-  
   .history-item { 
     position: relative; min-width: 58px; height: 32px; border-radius: 8px; 
     display: flex; align-items: center; justify-content: center; 
@@ -66,13 +68,11 @@
     box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.4);
     overflow: hidden;
   }
-  /* Блик для ламинирования */
   .history-item::after {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%;
     background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
     border-radius: 8px 8px 0 0; pointer-events: none;
   }
-
   .history-item.red { background: linear-gradient(135deg, #e53935, #b71c1c); border: 1px solid #ef5350; }
   .history-item.blue { background: linear-gradient(135deg, #1e88e5, #0d47a1); border: 1px solid #42a5f5; }
   .history-item.purple { background: linear-gradient(135deg, #8e24aa, #4a148c); border: 1px solid #ab47bc; }
@@ -86,7 +86,7 @@
   .waiting-circle {
     width: 130px; height: 130px;
     border-radius: 50%; border: 5px solid rgba(255,255,255,0.05);
-    border-top-color: var(--accent); border-right-color: var(--accent);
+    border-top-color: var(--accent-light); border-right-color: var(--accent-light);
     animation: spin 1.2s linear infinite;
     z-index: 1; position: absolute;
     box-shadow: 0 0 20px rgba(0,180,216,0.2);
@@ -117,11 +117,22 @@
   @keyframes bang { 0% { opacity: 0; transform: scale(0.8); } 20% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.3); } }
 
   /* === ПАНЕЛЬ УПРАВЛЕНИЯ === */
-  .controls-area { flex-shrink: 0; padding-bottom: 8px; width: 100%; }
+  .controls-area { flex-shrink: 0; padding-bottom: 8px; width: 100%; position: relative; }
+  
+  /* Бейдж очереди */
+  .queue-badge {
+    position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+    background: var(--accent-light); color: #000; font-size: 10px; font-weight: 900;
+    padding: 3px 10px; border-radius: 10px; display: none; white-space: nowrap;
+    box-shadow: 0 0 10px rgba(0,180,216,0.5); letter-spacing: 1px;
+  }
+  .queue-badge.show { display: block; animation: popIn 0.3s ease-out; }
+  @keyframes popIn { 0% { transform: translateX(-50%) scale(0.8); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+
   .auto-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .auto-label { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; }
   .toggle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #555; background: transparent; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
-  .toggle.on { border-color: var(--accent); background: var(--accent); }
+  .toggle.on { border-color: var(--accent-light); background: var(--accent-light); }
   .toggle.on::after { content: ''; width: 8px; height: 8px; background: #000; border-radius: 50%; }
   
   .auto-input { 
@@ -129,20 +140,22 @@
     padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 800; 
     width: 90px; text-align: center; outline: none; transition: 0.2s;
   }
-  .auto-input:focus { border-color: var(--accent); }
+  .auto-input:focus { border-color: var(--accent-light); }
   
   .input-row { display: flex; gap: 8px; height: 52px; margin-bottom: 10px; width: 100%; overflow: hidden; }
   .amount-input { flex: 1; min-width: 0; background: var(--bg-input); border: 1px solid #1f2937; color: #fff; padding: 0 12px; border-radius: 10px; font-size: 22px; font-weight: 900; outline: none; }
   
   .btn-main { 
     flex: 1.4; min-width: 0;
-    background: linear-gradient(135deg, #00b4d8, #0077ff); color: #fff; 
+    background: linear-gradient(135deg, var(--accent-light), var(--accent)); color: #fff; 
     border: none; border-radius: 10px; font-size: 15px; font-weight: 900; text-transform: uppercase; 
     cursor: pointer; box-shadow: 0 4px 15px rgba(0,119,255,0.3); 
     display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
   }
   .btn-main:active { transform: scale(0.98); }
   .btn-main.cashout { background: linear-gradient(135deg, #ff8c00, #ff4d4d); box-shadow: 0 4px 15px rgba(255,77,77,0.4); }
+  .btn-main.queued { background: #1f2937; box-shadow: none; opacity: 0.7; cursor: default; }
   .btn-main:disabled { opacity: 0.5; box-shadow: none; }
 
   .quick-bets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 12px; width: 100%; }
@@ -169,7 +182,7 @@
   }
   .bet-row:last-child { border-bottom: none; }
   .bet-row .b-name { color: #fff; }
-  .bet-row .b-amt { color: var(--accent); }
+  .bet-row .b-amt { color: var(--accent-light); }
   .bet-row.won .b-amt { color: var(--accent-green); }
 
   .footer-round { text-align: center; font-size: 11px; font-weight: 800; color: #4b5563; padding-bottom: env(safe-area-inset-bottom); width: 100%; }
@@ -187,7 +200,7 @@
   .sidebar-menu::-webkit-scrollbar { width: 4px; }
   .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
   .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.05); color: var(--accent); }
+  .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.05); color: var(--accent-light); }
   .menu-item svg { width: 20px; height: 20px; fill: currentColor; margin-right: 12px; }
   .menu-item .left { display: flex; align-items: center; }
   .menu-item .arrow { width: 12px; height: 12px; fill: var(--text-muted); transition: 0.3s; }
@@ -196,7 +209,7 @@
   .submenu.open { max-height: 300px; }
   .submenu a { padding: 12px 16px; color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
   .submenu a:hover { color: #fff; background: rgba(255,255,255,0.05); }
-  .submenu a .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+  .submenu a .dot { width: 4px; height: 4px; background: var(--accent-light); border-radius: 50%; }
 </style>
 </head>
 <body>
@@ -227,6 +240,8 @@
   </div>
 
   <div class="controls-area">
+    <div class="queue-badge" id="queueBadge">СТАВКА НА СЛЕД. РАУНД</div>
+
     <div class="auto-row">
       <div class="auto-label" onclick="toggleAuto()">
         <div class="toggle" id="autoToggle"></div> АВТОСТОП
@@ -312,6 +327,7 @@ let currentMult = 1.0;
 let currentRoundId = 0;
 let currentStatus = 'waiting';
 let activeBetId = null;
+let queuedBetAmount = 0; // Ставка в очередь (на след. раунд)
 let points = [];
 let pollTimer = null;
 let animFrame = null;
@@ -319,7 +335,6 @@ let explosionParticles = [];
 let isExploding = false;
 let isAutoStopEnabled = false;
 
-// Время старта полета для плавной анимации
 let flightStartTime = 0;
 
 const canvas = document.getElementById('gameCanvas');
@@ -434,6 +449,7 @@ async function pollCrash() {
     currentStatus = state.status;
     currentRoundId = state.roundId;
 
+    // Обновляем активную ставку (только если она уже в базе)
     if (state.my_bet && !state.my_bet.cashed_out) {
       activeBetId = state.my_bet.bet_id;
     } else {
@@ -451,20 +467,26 @@ async function pollCrash() {
       document.getElementById('statusText').textContent = 'ЗАПРАВЛЯЕМ ШАТТЛ...';
       document.getElementById('statusText').classList.add('pulse');
       
-      document.getElementById('actionBtn').className = 'btn-main';
-      document.getElementById('actionBtn').textContent = 'ПОСТАВИТЬ';
-      document.getElementById('actionBtn').disabled = false;
+      if (queuedBetAmount > 0 && !activeBetId) {
+        // Переносим ставку из очереди в текущий раунд
+        const amt = queuedBetAmount;
+        queuedBetAmount = 0;
+        document.getElementById('queueBadge').classList.remove('show');
+        // Автоматически ставим ставку на сервере
+        await placeBetOnServer(amt);
+      } else {
+        document.getElementById('actionBtn').className = 'btn-main';
+        document.getElementById('actionBtn').textContent = 'ПОСТАВИТЬ';
+        document.getElementById('actionBtn').disabled = false;
+      }
       
       drawScene(0);
     } else if (state.status === 'flying') {
-      // Если только что взлетели — фиксируем время старта
       if (prevStatus !== 'flying') {
         flightStartTime = Date.now() - (state.elapsed * 1000); 
       }
       
-      // На клиенте считаем плавно каждый кадр
       currentMult = Math.pow(1.06, (Date.now() - flightStartTime) / 1000);
-      
       isFlying = true;
       
       document.getElementById('waitingCircle').style.display = 'none';
@@ -475,6 +497,7 @@ async function pollCrash() {
       document.getElementById('statusText').textContent = '';
       document.getElementById('statusText').classList.remove('pulse');
       
+      // Если есть активная ставка — показываем "ЗАБРАТЬ"
       if (activeBetId) {
         document.getElementById('actionBtn').className = 'btn-main cashout';
         document.getElementById('actionBtn').textContent = 'ЗАБРАТЬ ' + (currentMult * parseFloat(document.getElementById('betInput').value)).toFixed(0) + ' ₽';
@@ -484,10 +507,17 @@ async function pollCrash() {
           const autoTarget = parseFloat(document.getElementById('autoInput').value) || 2.0;
           if (currentMult >= autoTarget) onActionClick(true);
         }
-      } else {
-        document.getElementById('actionBtn').className = 'btn-main';
-        document.getElementById('actionBtn').textContent = 'ОЖИДАНИЕ...';
+      } else if (queuedBetAmount > 0) {
+        // Ставка в очереди
+        document.getElementById('actionBtn').className = 'btn-main queued';
+        document.getElementById('actionBtn').textContent = 'В ОЧЕРЕДИ';
         document.getElementById('actionBtn').disabled = true;
+        document.getElementById('queueBadge').classList.add('show');
+      } else {
+        // Нет ставки, летит. Можно поставить на след. раунд.
+        document.getElementById('actionBtn').className = 'btn-main';
+        document.getElementById('actionBtn').textContent = 'ПОСТАВИТЬ';
+        document.getElementById('actionBtn').disabled = false;
       }
       
       if (!animFrame) animateFlight();
@@ -505,9 +535,16 @@ async function pollCrash() {
       document.getElementById('statusText').textContent = '';
       document.getElementById('statusText').classList.remove('pulse');
       
-      document.getElementById('actionBtn').className = 'btn-main';
-      document.getElementById('actionBtn').textContent = 'ПОДОЖДИТЕ...';
-      document.getElementById('actionBtn').disabled = true;
+      if (queuedBetAmount > 0) {
+        document.getElementById('actionBtn').className = 'btn-main queued';
+        document.getElementById('actionBtn').textContent = 'В ОЧЕРЕДИ';
+        document.getElementById('actionBtn').disabled = true;
+        document.getElementById('queueBadge').classList.add('show');
+      } else {
+        document.getElementById('actionBtn').className = 'btn-main';
+        document.getElementById('actionBtn').textContent = 'ПОДОЖДИТЕ...';
+        document.getElementById('actionBtn').disabled = true;
+      }
     }
 
   } catch(e) {}
@@ -638,13 +675,12 @@ function triggerExplosion() {
   }, 1500);
 }
 
-// ОТРИСОВКА ИСТОРИИ С ПРАВИЛЬНЫМИ ЦВЕТАМИ
 function renderHistory(history) {
   const bar = document.getElementById('historyBar');
   bar.innerHTML = '';
   history.slice(0, 10).forEach(v => {
     const val = parseFloat(v);
-    let cls = 'blue'; // По умолчанию синий (1.51 - 3.99)
+    let cls = 'blue';
     
     if (val >= 1.00 && val <= 1.50) cls = 'red';
     else if (val >= 1.51 && val <= 3.99) cls = 'blue';
@@ -685,10 +721,26 @@ function addBet(amount) {
   document.getElementById('betInput').value = val; 
 }
 
+// Вынесено в отдельную функцию для автоматической постановки в очередь
+async function placeBetOnServer(amt) {
+  try {
+    const res = await fetch('/api/crash/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guest_id: currentPlayer.id, amount: amt })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      activeBetId = data.bet_id;
+      loadBalance();
+    }
+  } catch(e) {}
+}
+
 async function onActionClick(isAuto = false) {
   if (!currentPlayer) return;
   if (!isAuto) playSound('bet');
 
+  // Если летит и есть активная ставка — забираем
   if (currentStatus === 'flying' && activeBetId) {
     try {
       const res = await fetch('/api/crash/cashout', {
@@ -705,26 +757,34 @@ async function onActionClick(isAuto = false) {
     return;
   }
 
-  if (currentStatus === 'waiting' && !activeBetId) {
-    const amt = parseFloat(document.getElementById('betInput').value) || 0;
-    if (amt < 1) return alert('Мин 1 ₽');
-    if (amt > 500) return alert('Макс 500 ₽');
+  // Если нажали ПОСТАВИТЬ
+  if (queuedBetAmount > 0) {
+    // Отмена очереди
+    queuedBetAmount = 0;
+    document.getElementById('queueBadge').classList.remove('show');
+    document.getElementById('actionBtn').textContent = currentStatus === 'flying' ? 'ПОСТАВИТЬ' : 'ПОСТАВИТЬ';
+    document.getElementById('actionBtn').className = 'btn-main';
+    return;
+  }
 
-    try {
-      const res = await fetch('/api/crash/start', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guest_id: currentPlayer.id, amount: amt })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        activeBetId = data.bet_id;
-        loadBalance();
-        document.getElementById('actionBtn').textContent = 'ОЖИДАНИЕ...';
-        document.getElementById('actionBtn').disabled = true;
-      } else {
-        alert(data.error);
-      }
-    } catch(e){}
+  const amt = parseFloat(document.getElementById('betInput').value) || 0;
+  if (amt < 1) return alert('Мин 1 ₽');
+  if (amt > 500) return alert('Макс 500 ₽');
+
+  if (currentStatus === 'waiting' && !activeBetId) {
+    // Ставим сразу в текущий раунд
+    await placeBetOnServer(amt);
+    if (activeBetId) {
+      document.getElementById('actionBtn').textContent = 'ОЖИДАНИЕ...';
+      document.getElementById('actionBtn').disabled = true;
+    }
+  } else if (currentStatus === 'flying' && !activeBetId) {
+    // В очередь на следующий раунд
+    queuedBetAmount = amt;
+    document.getElementById('queueBadge').classList.add('show');
+    document.getElementById('actionBtn').className = 'btn-main queued';
+    document.getElementById('actionBtn').textContent = 'В ОЧЕРЕДИ';
+    document.getElementById('actionBtn').disabled = true;
   }
 }
 </script>
