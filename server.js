@@ -82,6 +82,27 @@ async function recordSession(guestId, bet, win) {
 }
 
 // ============================================================
+// ДЖЕКПОТ
+// ============================================================
+const JACKPOT_BASE = 1000;
+const JACKPOT_CONTRIBUTION = 0.01; // 1% от ставки
+
+async function addToJackpot(amount) {
+  try {
+    const contribute = Math.round(amount * JACKPOT_CONTRIBUTION * 100) / 100;
+    if (contribute <= 0) return;
+    await pool.query(`UPDATE jackpot SET amount = amount + $1 WHERE id = 1`, [contribute]);
+  } catch(e) { console.error('jackpot add error:', e.message); }
+}
+
+async function getJackpotAmount() {
+  try {
+    const r = await pool.query('SELECT amount FROM jackpot WHERE id = 1');
+    return parseFloat(r.rows[0].amount) || JACKPOT_BASE;
+  } catch(e) { return JACKPOT_BASE; }
+}
+
+// ============================================================
 // ГЛОБАЛЬНЫЙ РАУНД КРАША
 // ============================================================
 const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
@@ -89,7 +110,7 @@ const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
 const crashState = {
   roundId: 0, status: 'waiting', crashPoint: 0,
   startTime: 0, waitStart: Date.now(), history: [],
-  bets: new Map() // Здесь только боты для визуала
+  bets: new Map()
 };
 
 function nextRound() {
@@ -99,7 +120,6 @@ function nextRound() {
   crashState.startTime = 0;
   crashState.waitStart = Date.now();
   
-  // Очистка перед новым раундом
   crashState.bets.clear();
   
   const numBots = Math.floor(Math.random() * 6) + 5; 
@@ -400,6 +420,10 @@ async function initDB() {
         alive BOOLEAN DEFAULT TRUE, cashed_out BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS jackpot (
+        id INT PRIMARY KEY,
+        amount NUMERIC DEFAULT 1000
+      );
     `);
 
     await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS round_id INT DEFAULT 0;`);
@@ -409,6 +433,11 @@ async function initDB() {
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_turnover NUMERIC DEFAULT 0;
       ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();
     `);
+
+    const jpCheck = await pool.query(`SELECT * FROM jackpot WHERE id = 1`);
+    if (jpCheck.rows.length === 0) {
+      await pool.query(`INSERT INTO jackpot (id, amount) VALUES (1, $1)`, [JACKPOT_BASE]);
+    }
 
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_number INTEGER;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_color TEXT;`);
@@ -469,6 +498,7 @@ const server = http.createServer(async (req, res) => {
       const u = new URL(req.url, 'http://x');
       const guestId = u.searchParams.get('guest_id');
       const round = getPublicCrashState();
+      const jackpot = await getJackpotAmount();
       
       let bets = [];
       let totalBank = 0;
@@ -499,7 +529,7 @@ const server = http.createServer(async (req, res) => {
         } catch(e){}
       }
 
-      return sendJSON(res, 200, { ...round, my_bet: myBet, bets, total_bank: totalBank, total_players: totalPlayers, history: crashState.history });
+      return sendJSON(res, 200, { ...round, my_bet: myBet, bets, total_bank: totalBank, total_players: totalPlayers, history: crashState.history, jackpot });
     }
 
     if (url === '/api/crash/current' && method === 'GET') return sendJSON(res, 200, getPublicCrashState());
@@ -520,6 +550,8 @@ const server = http.createServer(async (req, res) => {
       
       const r = await pool.query(`INSERT INTO crash_bets (guest_id, amount, crash_point, round_id) VALUES ($1, $2, 0, $3) RETURNING id`, [guestId, amt, crashState.roundId]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `Crash bet r#${crashState.roundId} (${guestId})`]);
+      
+      await addToJackpot(amt);
       
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, bet_id: r.rows[0].id, amount: amt, round_id: crashState.roundId, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
@@ -562,6 +594,7 @@ const server = http.createServer(async (req, res) => {
       const minePos = Math.floor(Math.random() * 25);
       const r = await pool.query(`INSERT INTO miner_games (guest_id, bet, mine_pos, steps) VALUES ($1, $2, $3, 0) RETURNING id`, [guestId, bet, minePos]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), bet, `Miner bet (${guestId})`]);
+      await addToJackpot(bet);
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, game_id: r.rows[0].id, balance: bal.total });
     }
@@ -631,6 +664,7 @@ const server = http.createServer(async (req, res) => {
       await pool.query(`INSERT INTO game_history (game, player_name, bet, result, multiplier, status, guest_id) VALUES ($1,$2,$3,$4,$5,$6,$7)`, ['plinko', guestId, bet, result.win, result.mult, result.win > bet ? 'win' : 'lose', guestId]);
       const net = bet - result.win;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, $2, $3, $4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Plinko bet (${guestId})`]);
+      await addToJackpot(bet);
       const bal = await getBalance(guestId);
       return sendJSON(res, 200, { ok: true, path: result.path, slot: result.slot, multiplier: result.mult, win: result.win, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
@@ -653,6 +687,7 @@ const server = http.createServer(async (req, res) => {
       await recordSession(guest_id, c.price, prize);
       const net = c.price - prize;
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1,$2,$3,$4)`, [todayStr(), net >= 0 ? 'доход' : 'расход', Math.abs(net), `Case ${case_name} (${guest_id})`]);
+      await addToJackpot(c.price);
       const bal = await getBalance(guest_id);
       return sendJSON(res, 200, { ok: true, prize, balance: bal.total, deposit_balance: bal.deposit, bonus_balance: bal.bonus, wagering: bal.wagering });
     }
@@ -1001,6 +1036,31 @@ const server = http.createServer(async (req, res) => {
         const r = await pool.query(`SELECT id, result_number, result_color, dealer, date, created_at FROM roulette_sessions WHERE result_number IS NOT NULL ORDER BY id DESC LIMIT $1`, [limit]);
         return sendJSON(res, 200, r.rows.map(row => ({ id: row.id, number: row.result_number, color: row.result_color, dealer: row.dealer, created_at: row.created_at })));
       } catch (e) { return sendJSON(res, 200, []); }
+    }
+
+    if (url === '/api/roulette/history' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      const limit = Math.min(20, parseInt(u.searchParams.get('limit'), 10) || 10);
+      try {
+        const r = await pool.query(
+          `SELECT id, result_number, result_color, dealer, date, created_at
+           FROM roulette_sessions
+           WHERE result_number IS NOT NULL
+           ORDER BY id DESC LIMIT $1`,
+          [limit]
+        );
+        const rows = r.rows.map(row => ({
+          id: row.id,
+          result_number: row.result_number,
+          result_color: row.result_color,
+          dealer: row.dealer,
+          created_at: row.created_at
+        }));
+        return sendJSON(res, 200, rows);
+      } catch (e) {
+        console.error('[/api/roulette/history]', e.message);
+        return sendJSON(res, 200, []);
+      }
     }
 
     // ============================================================
