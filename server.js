@@ -82,7 +82,7 @@ async function recordSession(guestId, bet, win) {
 }
 
 // ============================================================
-// ГЛОБАЛЬНЫЙ РАУНД КРАША (С БОТАМИ)
+// ГЛОБАЛЬНЫЙ РАУНД КРАША
 // ============================================================
 const CRASH_WAIT_MS = 7000, CRASH_FLY_MAX_MS = 60000, CRASH_PAUSE_MS = 3000;
 
@@ -126,11 +126,16 @@ async function startFlying() {
     const boost = Math.min(0.15, deficit / 1000 * 0.15);
     rtp = Math.min(DRAIN_RTP_MAX, BASE_RTP + boost);
   }
+  
   const u = Math.random();
   let crash;
-  if (u < (1 - rtp)) crash = 1.00;
-  else { const u2 = (u - (1 - rtp)) / rtp; crash = rtp / (1 - u2); }
-  crash = Math.max(1.00, Math.min(crash, 100));
+  if (u < (1 - rtp)) {
+    crash = 0.00;
+  } else {
+    const u2 = (u - (1 - rtp)) / rtp;
+    crash = rtp / (1 - u2);
+  }
+  crash = Math.max(0.00, Math.min(crash, 100));
 
   crashState.crashPoint = Math.round(crash * 100) / 100;
   crashState.status = 'flying';
