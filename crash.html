@@ -55,16 +55,28 @@
   .menu-btn span { width: 18px; height: 2px; background: #fff; border-radius: 2px; transition: 0.2s; }
   .menu-btn:active { background: rgba(255,255,255,0.15); }
 
-  /* === ИСТОРИЯ === */
-  .history-bar { display: flex; gap: 6px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  /* === ИСТОРИЯ (ЛАМИНИРОВАННАЯ) === */
+  .history-bar { display: flex; gap: 8px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
   .history-bar::-webkit-scrollbar { display: none; }
+  
   .history-item { 
-    min-width: 54px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; 
-    font-size: 11px; font-weight: 800; flex-shrink: 0; color: #fff; background: #1e2330;
+    position: relative; min-width: 58px; height: 32px; border-radius: 8px; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 12px; font-weight: 900; flex-shrink: 0; color: #fff; 
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.4);
+    overflow: hidden;
   }
-  .history-item.blue { background: #1e3a8a; }
-  .history-item.purple { background: #4c1d95; }
-  .history-item.red { background: #7f1d1d; }
+  /* Блик для ламинирования */
+  .history-item::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 8px 8px 0 0; pointer-events: none;
+  }
+
+  .history-item.red { background: linear-gradient(135deg, #e53935, #b71c1c); border: 1px solid #ef5350; }
+  .history-item.blue { background: linear-gradient(135deg, #1e88e5, #0d47a1); border: 1px solid #42a5f5; }
+  .history-item.purple { background: linear-gradient(135deg, #8e24aa, #4a148c); border: 1px solid #ab47bc; }
+  .history-item.gold { background: linear-gradient(135deg, #ffd700, #b8860b); border: 1px solid #ffeb3b; color: #000; text-shadow: 0 1px 1px rgba(255,255,255,0.5); }
 
   /* === ИГРОВОЕ ПОЛЕ === */
   .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 0; }
@@ -144,53 +156,45 @@
   .info-value { font-size: 16px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 6px; }
   .coin { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #00b4d8, #0077ff); display: flex; justify-content: center; align-items: center; font-size: 8px; font-weight: 900; color: #fff; }
 
+  /* === СПИСОК СТАВОК === */
+  .bets-list-wrap { 
+    height: 52px; overflow-y: auto; scrollbar-width: none; 
+    margin-bottom: 8px; background: rgba(21,25,34,0.4); border-radius: 8px; padding: 4px; 
+  }
+  .bets-list-wrap::-webkit-scrollbar { display: none; }
+  .bet-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); 
+    font-size: 11px; font-weight: 700; color: #8b92a5;
+  }
+  .bet-row:last-child { border-bottom: none; }
+  .bet-row .b-name { color: #fff; }
+  .bet-row .b-amt { color: var(--accent); }
+  .bet-row.won .b-amt { color: var(--accent-green); }
+
   .footer-round { text-align: center; font-size: 11px; font-weight: 800; color: #4b5563; padding-bottom: env(safe-area-inset-bottom); width: 100%; }
 
-  /* === БОКОВОЕ МЕНЮ (САЙДБАР) === */
-  .sidebar-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px);
-    z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s;
-  }
+  /* === БОКОВОЕ МЕНЮ === */
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
   .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
-
-  .sidebar {
-    position: fixed; top: 0; right: -280px; width: 280px; height: 100%; 
-    background: #151922; z-index: 1000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex; flex-direction: column; border-left: 1px solid rgba(255,255,255,0.05);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-  }
+  .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #151922; z-index: 1000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-left: 1px solid rgba(255,255,255,0.05); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
   .sidebar.show { right: 0; }
-
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .sidebar-logo { font-size: 20px; font-weight: 900; font-style: italic; }
   .sidebar-logo span { color: var(--accent); font-style: normal; }
   .close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
-
   .sidebar-menu { flex: 1; overflow-y: auto; padding: 16px 10px; display: flex; flex-direction: column; gap: 4px; }
   .sidebar-menu::-webkit-scrollbar { width: 4px; }
   .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-  .menu-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; border-radius: 12px; text-decoration: none; color: #fff; 
-    font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
-  }
+  .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; text-decoration: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
   .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.05); color: var(--accent); }
   .menu-item svg { width: 20px; height: 20px; fill: currentColor; margin-right: 12px; }
   .menu-item .left { display: flex; align-items: center; }
   .menu-item .arrow { width: 12px; height: 12px; fill: var(--text-muted); transition: 0.3s; }
   .menu-item.open .arrow { transform: rotate(180deg); }
-
-  .submenu {
-    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
-    padding-left: 20px; display: flex; flex-direction: column;
-  }
+  .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 20px; display: flex; flex-direction: column; }
   .submenu.open { max-height: 300px; }
-  .submenu a {
-    padding: 12px 16px; color: var(--text-muted); text-decoration: none; 
-    font-size: 13px; font-weight: 600; border-radius: 8px;
-    display: flex; align-items: center; gap: 10px;
-  }
+  .submenu a { padding: 12px 16px; color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
   .submenu a:hover { color: #fff; background: rgba(255,255,255,0.05); }
   .submenu a .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
 </style>
@@ -255,6 +259,10 @@
       </div>
     </div>
 
+    <div class="bets-list-wrap" id="betsList">
+      <div class="bet-row"><span class="b-name">Ожидание ставок...</span></div>
+    </div>
+
     <div class="footer-round" id="roundIdText">KINGWIN CRASH #000000</div>
   </div>
 </div>
@@ -310,6 +318,9 @@ let animFrame = null;
 let explosionParticles = [];
 let isExploding = false;
 let isAutoStopEnabled = false;
+
+// Время старта полета для плавной анимации
+let flightStartTime = 0;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -367,21 +378,16 @@ window.onload = async () => {
   });
 };
 
-// === SIDEBAR LOGIC ===
 function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  const ov = document.getElementById('sidebarOverlay');
-  sb.classList.toggle('show');
-  ov.classList.toggle('show');
+  document.getElementById('sidebar').classList.toggle('show');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
 }
 
 function toggleSubmenu(el, id) {
   el.classList.toggle('open');
-  const submenu = document.getElementById(id);
-  submenu.classList.toggle('open');
+  document.getElementById(id).classList.toggle('open');
 }
 
-// === CRASH GAME LOGIC ===
 function toggleAuto() {
   isAutoStopEnabled = !isAutoStopEnabled;
   const el = document.getElementById('autoToggle');
@@ -422,6 +428,7 @@ async function pollCrash() {
     document.getElementById('playersCount').textContent = state.total_players || 0;
     
     renderHistory(state.history || []);
+    renderBets(state.bets || []);
 
     const prevStatus = currentStatus;
     currentStatus = state.status;
@@ -450,14 +457,22 @@ async function pollCrash() {
       
       drawScene(0);
     } else if (state.status === 'flying') {
+      // Если только что взлетели — фиксируем время старта
+      if (prevStatus !== 'flying') {
+        flightStartTime = Date.now() - (state.elapsed * 1000); 
+      }
+      
+      // На клиенте считаем плавно каждый кадр
+      currentMult = Math.pow(1.06, (Date.now() - flightStartTime) / 1000);
+      
       isFlying = true;
-      currentMult = state.currentMult;
       
       document.getElementById('waitingCircle').style.display = 'none';
       document.getElementById('multText').style.display = 'block';
       document.getElementById('multText').textContent = currentMult.toFixed(2) + 'x';
       document.getElementById('multText').className = 'multiplier-text';
-      document.getElementById('statusText').textContent = 'В ПОЛЁТЕ!';
+      
+      document.getElementById('statusText').textContent = '';
       document.getElementById('statusText').classList.remove('pulse');
       
       if (activeBetId) {
@@ -486,7 +501,8 @@ async function pollCrash() {
       document.getElementById('multText').style.display = 'block';
       document.getElementById('multText').textContent = state.crashPoint.toFixed(2) + 'x';
       document.getElementById('multText').className = 'multiplier-text crashed';
-      document.getElementById('statusText').textContent = 'КРАШ!';
+      
+      document.getElementById('statusText').textContent = '';
       document.getElementById('statusText').classList.remove('pulse');
       
       document.getElementById('actionBtn').className = 'btn-main';
@@ -499,6 +515,18 @@ async function pollCrash() {
 
 function animateFlight() {
   if (!isFlying) { animFrame = null; return; }
+  
+  if (currentStatus === 'flying') {
+    const calcMult = Math.pow(1.06, (Date.now() - flightStartTime) / 1000);
+    if (calcMult > currentMult) {
+      currentMult = calcMult;
+      document.getElementById('multText').textContent = currentMult.toFixed(2) + 'x';
+      if (activeBetId) {
+        document.getElementById('actionBtn').textContent = 'ЗАБРАТЬ ' + (currentMult * parseFloat(document.getElementById('betInput').value)).toFixed(0) + ' ₽';
+      }
+    }
+  }
+  
   drawScene(currentMult);
   animFrame = requestAnimationFrame(animateFlight);
 }
@@ -544,12 +572,12 @@ function drawScene(mult) {
     ctx.shadowBlur = 0;
 
     if (rocketImg.complete && mult > 1.0) {
-      const size = 42;
+      const size = 64; 
       const angle = Math.atan2(y1 - y0, x1 - x0);
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle);
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 25;
       ctx.shadowColor = 'rgba(0,180,216,0.8)';
       ctx.drawImage(rocketImg, -size/2, -size/2, size, size);
       ctx.restore();
@@ -610,20 +638,43 @@ function triggerExplosion() {
   }, 1500);
 }
 
+// ОТРИСОВКА ИСТОРИИ С ПРАВИЛЬНЫМИ ЦВЕТАМИ
 function renderHistory(history) {
   const bar = document.getElementById('historyBar');
   bar.innerHTML = '';
   history.slice(0, 10).forEach(v => {
     const val = parseFloat(v);
-    let cls = 'blue';
-    if (val >= 10) cls = 'purple';
-    else if (val < 2) cls = 'red';
+    let cls = 'blue'; // По умолчанию синий (1.51 - 3.99)
+    
+    if (val >= 1.00 && val <= 1.50) cls = 'red';
+    else if (val >= 1.51 && val <= 3.99) cls = 'blue';
+    else if (val >= 4.00 && val <= 9.99) cls = 'purple';
+    else if (val >= 10.00) cls = 'gold';
     
     const el = document.createElement('div');
     el.className = 'history-item ' + cls;
     el.textContent = val.toFixed(2) + 'x';
     bar.appendChild(el);
   });
+}
+
+function renderBets(bets) {
+  const container = document.getElementById('betsList');
+  if (!bets || bets.length === 0) {
+    container.innerHTML = '<div class="bet-row"><span class="b-name">Ожидание ставок...</span></div>';
+    return;
+  }
+
+  bets.sort((a, b) => b.cashed_out - a.cashed_out || b.amount - a.amount);
+
+  container.innerHTML = bets.map(b => {
+    const wonClass = b.cashed_out ? 'won' : '';
+    const multText = b.cashed_out ? ` (x${b.cashout_mult.toFixed(2)})` : '';
+    return `<div class="bet-row ${wonClass}">
+      <span class="b-name">${b.guest_id}</span>
+      <span class="b-amt">${b.amount} ₽${multText}</span>
+    </div>`;
+  }).join('');
 }
 
 function addBet(amount) { 
