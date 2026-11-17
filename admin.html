@@ -26,11 +26,14 @@
   .sidebar-header { display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid var(--border); }
   .sidebar-header .logo { font-size:22px; }
   .close-btn { background:transparent; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; }
-  .nav { display:flex; flex-direction:column; padding:15px; gap:5px; flex:1; }
-  .nav button { background:transparent; border:none; color:var(--text-muted); text-align:left; padding:14px 15px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:12px; }
-  .nav button svg { width:20px; height:20px; fill:currentColor; }
+  .nav { display:flex; flex-direction:column; padding:15px; gap:4px; flex:1; }
+  .nav-section { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); font-weight:800; padding:12px 15px 6px; opacity:0.6; }
+  .nav button { background:transparent; border:none; color:var(--text-muted); text-align:left; padding:12px 15px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:12px; position:relative; }
+  .nav button svg { width:18px; height:18px; fill:currentColor; flex-shrink:0; }
   .nav button:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
   .nav button.active { background:rgba(0,229,255,0.1); color:var(--accent); }
+  .nav-badge { background:var(--red); color:#fff; font-size:9px; font-weight:900; padding:2px 7px; border-radius:10px; margin-left:auto; display:none; }
+  .nav-badge.show { display:inline-block; }
 
   main { flex:1; padding:20px 15px; max-width:1400px; width:100%; margin:0 auto; }
   .page { display:none; animation:fadeIn 0.3s; }
@@ -57,6 +60,8 @@
   th, td { padding:12px 10px; border-bottom:1px solid var(--border); text-align:left; }
   th { color:var(--text-muted); font-size:10px; text-transform:uppercase; font-weight:700; letter-spacing:0.5px; }
   tr:hover td { background:rgba(255,255,255,0.02); }
+  tr.clickable { cursor:pointer; }
+  tr.clickable:hover td { background:rgba(0,229,255,0.05); }
 
   .status { display:inline-block; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800; text-transform:uppercase; }
   .status.pending { background:rgba(241,196,15,0.15); color:var(--gold); }
@@ -72,8 +77,11 @@
   button.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
   button.btn-gold { background:var(--gold); color:#000; }
 
-  .toast { position:fixed; top:20px; right:20px; background:var(--bg-panel); border-left:4px solid var(--accent); padding:15px 25px; border-radius:8px; font-weight:600; box-shadow:0 5px 15px rgba(0,0,0,0.3); transform:translateX(150%); transition:0.3s; z-index:9999; max-width:360px; }
+  .toast-container { position:fixed; top:80px; right:20px; z-index:999999; display:flex; flex-direction:column; gap:10px; }
+  .toast { background:rgba(24,26,36,0.95); border-left:4px solid var(--accent); padding:16px 20px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); transform:translateX(120%); transition:0.3s; font-size:14px; font-weight:600; color:#fff; max-width:340px; }
   .toast.show { transform:translateX(0); }
+  .toast.error { border-left-color:var(--red); }
+  .toast.success { border-left-color:var(--accent-green); }
 
   .form-group { margin-bottom:15px; }
   .form-group label { display:block; font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; font-weight:700; }
@@ -81,7 +89,7 @@
   .form-control:focus { border-color:var(--accent); }
   select.form-control { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b92a5'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 10px center; background-size:20px; padding-right:36px; }
 
-  .login-screen { position:fixed; inset:0; background:var(--bg-main); display:flex; align-items:center; justify-content:center; z-index:2000; }
+  .login-screen { position:fixed; inset:0; background:var(--bg-main); display:flex; align-items:center; justify-content:center; z-index:2000; padding:20px; }
   .login-box { background:var(--bg-panel); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:380px; text-align:center; }
   .login-box .name { font-size:28px; font-weight:900; color:var(--accent); margin-bottom:5px; }
   .login-box input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; margin-bottom:15px; outline:none; font-size:14px; text-align:center; font-family:inherit; }
@@ -90,25 +98,49 @@
 
   .empty { text-align:center; color:var(--text-muted); padding:20px; }
 
-  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px; }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px; overflow-y:auto; }
   .modal-backdrop.show { display:flex; }
-  .modal { background:linear-gradient(135deg,#111625,#0a0d14); border:1px solid rgba(241,196,15,0.35); border-radius:20px; max-width:460px; width:100%; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); max-height:calc(100dvh - 40px); overflow-y:auto; }
+  .modal { background:linear-gradient(135deg,#111625,#0a0d14); border:1px solid rgba(241,196,15,0.35); border-radius:20px; max-width:460px; width:100%; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.8); max-height:calc(100dvh - 40px); overflow-y:auto; margin:auto; }
+  .modal.wide { max-width:640px; }
   .modal h2 { font-size:20px; font-weight:900; margin-bottom:6px; text-align:center; }
   .modal-sub { font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:20px; }
   .modal-close { display:block; width:100%; margin-top:16px; background:transparent; border:1px solid var(--border); color:var(--text-muted); border-radius:10px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
   .modal-close:hover { border-color:var(--red); color:var(--red); }
 
-  .treasury-box { background:linear-gradient(135deg,#0a1a3a,#1a3a6b 50%,#0a1a3a); border:2px solid var(--accent); border-radius:20px; padding:28px; margin-bottom:20px; text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.15); }
-  .treasury-box .lbl { font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:700; margin-bottom:10px; }
-  .treasury-box .val { font-size:48px; font-weight:900; color:var(--accent); text-shadow:0 0 20px rgba(0,229,255,0.6); line-height:1; }
-  .treasury-box .val.neg { color:var(--red); text-shadow:0 0 20px rgba(255,77,77,0.6); }
+  .search-row { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; }
+  .search-row input { flex:1; min-width:200px; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:rgba(0,0,0,0.3); color:#fff; outline:none; font-size:14px; font-family:inherit; }
+  .search-row input:focus { border-color:var(--accent); }
 
-  .treasury-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
-  .treasury-actions button { padding:18px; font-size:14px; border-radius:14px; }
-  .btn-add-treasury { background:linear-gradient(135deg,#00e676,#00b45a); color:#000; box-shadow:0 0 20px rgba(0,230,118,0.3); }
-  .btn-remove-treasury { background:linear-gradient(135deg,#ff4d4d,#cc0000); color:#fff; box-shadow:0 0 20px rgba(255,77,77,0.3); }
+  .rank-badge { font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold); }
+  .card-code { font-family:'Courier New',monospace; font-weight:900; letter-spacing:1px; color:var(--accent); }
 
-  .crash-history-badge { display:inline-block; padding:6px 12px; border-radius:8px; font-weight:900; font-size:12px; margin:3px; }
+  /* Досье */
+  .dossier-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px; }
+  .dossier-item { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:12px; }
+  .dossier-item .lbl { font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:6px; letter-spacing:0.5px; }
+  .dossier-item .val { font-size:16px; font-weight:900; }
+  .dossier-section { margin-top:16px; }
+  .dossier-section h4 { font-size:12px; text-transform:uppercase; color:var(--text-muted); font-weight:800; letter-spacing:0.5px; margin-bottom:8px; }
+  .dossier-list { display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; }
+  .dossier-row { display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:8px 12px; border-radius:8px; font-size:12px; }
+  .dossier-row .left { color:var(--text-muted); }
+  .dossier-row .right { font-weight:800; }
+
+  /* Мобильные карточки */
+  .mobile-list { display:none; flex-direction:column; gap:10px; }
+  .mobile-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .mobile-card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .mobile-card-title { font-weight:800; font-size:14px; }
+  .mobile-card-rows { display:flex; flex-direction:column; gap:6px; font-size:12px; }
+  .mobile-card-row { display:flex; justify-content:space-between; }
+  .mobile-card-row .lbl { color:var(--text-muted); }
+  .mobile-card-actions { display:flex; gap:8px; margin-top:10px; }
+
+  @media (max-width: 900px) {
+    .dossier-grid { grid-template-columns:1fr; }
+    .desktop-table { display:none; }
+    .mobile-list { display:flex; }
+  }
 </style>
 </head>
 <body>
@@ -144,25 +176,31 @@
     <button class="close-btn" onclick="toggleSidebar()">✕</button>
   </div>
   <div class="nav">
-    <button class="active" onclick="switchTab('dash', this)">
+    <div class="nav-section">Обзор</div>
+    <button class="active" data-page="dash" onclick="switchTab('dash', this)">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Обзор
     </button>
-    <button onclick="switchTab('treasury', this)">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg> Касса
+    <button data-page="treasury" onclick="switchTab('treasury', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg> Касса
     </button>
-    <button onclick="switchTab('finance', this)">
+    <button data-page="finance" onclick="switchTab('finance', this)">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> Финансы
+      <span class="nav-badge" id="financeBadge">0</span>
     </button>
-    <button onclick="switchTab('players', this)">
+
+    <div class="nav-section">Игроки</div>
+    <button data-page="players" onclick="switchTab('players', this)">
       <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Игроки
     </button>
-    <button onclick="switchTab('bonuses', this)">
+    <button data-page="bonuses" onclick="switchTab('bonuses', this)">
       <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg> Бонусы и Промокоды
     </button>
-    <button onclick="switchTab('history', this)">
+    <button data-page="history" onclick="switchTab('history', this)">
       <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> История игр
     </button>
-    <button onclick="switchTab('crash-monitor', this)">
+
+    <div class="nav-section">Лайв</div>
+    <button data-page="crash-monitor" onclick="switchTab('crash-monitor', this)">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Краш-монитор
     </button>
   </div>
@@ -181,7 +219,7 @@
       <div class="card"><div class="label">Игроков</div><div class="value gold" id="statPlayers">...</div></div>
     </div>
     <div class="panel">
-      <div class="panel-header"><h3>Последние заявки</h3><button class="btn-outline btn-sm" onclick="switchTab('finance', document.querySelectorAll('.nav button')[2])">Все →</button></div>
+      <div class="panel-header"><h3>Последние заявки</h3><button class="btn-outline btn-sm" onclick="switchTab('finance', document.querySelector('.nav button[data-page=finance]'))">Все →</button></div>
       <table>
         <thead><tr><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th></tr></thead>
         <tbody id="dashRecentDeposits"><tr><td colspan="4" class="empty">Загрузка...</td></tr></tbody>
@@ -193,13 +231,13 @@
   <div class="page" id="page-treasury">
     <h1>Касса</h1>
     <div class="sub">Прямое пополнение и списание средств казино</div>
-    <div class="treasury-box">
-      <div class="lbl">Текущий баланс</div>
-      <div class="val" id="treasuryVal">0.00 ₽</div>
+    <div class="treasury-box" style="background:linear-gradient(135deg,#0a1a3a,#1a3a6b 50%,#0a1a3a); border:2px solid var(--accent); border-radius:20px; padding:28px; margin-bottom:20px; text-align:center; box-shadow:0 0 30px rgba(0,229,255,0.15);">
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); font-weight:700; margin-bottom:10px;">Текущий баланс</div>
+      <div style="font-size:48px; font-weight:900; color:var(--accent); text-shadow:0 0 20px rgba(0,229,255,0.6); line-height:1;" id="treasuryVal">0.00 ₽</div>
     </div>
-    <div class="treasury-actions">
-      <button class="btn-add-treasury" onclick="openTreasuryModal('add')">➕ Пополнить кассу</button>
-      <button class="btn-remove-treasury" onclick="openTreasuryModal('remove')">➖ Списать с кассы</button>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+      <button style="padding:18px; font-size:14px; border-radius:14px; background:linear-gradient(135deg,#00e676,#00b45a); color:#000; box-shadow:0 0 20px rgba(0,230,118,0.3);" onclick="openTreasuryModal('add')">➕ Пополнить кассу</button>
+      <button style="padding:18px; font-size:14px; border-radius:14px; background:linear-gradient(135deg,#ff4d4d,#cc0000); color:#fff; box-shadow:0 0 20px rgba(255,77,77,0.3);" onclick="openTreasuryModal('remove')">➖ Списать с кассы</button>
     </div>
     <div class="panel">
       <div class="panel-header"><h3>Последние операции</h3><button class="btn-outline btn-sm" onclick="loadTreasuryLog()">Обновить</button></div>
@@ -218,28 +256,30 @@
     <div class="sub">Управление заявками</div>
     <div class="panel">
       <div class="panel-header"><h3>Депозиты</h3><button class="btn-outline btn-sm" onclick="loadDeposits()">Обновить</button></div>
-      <div style="overflow-x:auto;">
+      <div class="desktop-table" style="overflow-x:auto;">
         <table>
           <thead><tr><th>ID</th><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody id="depositsTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
+      <div class="mobile-list" id="depositsMobile"></div>
     </div>
     <div class="panel">
       <div class="panel-header"><h3>Выводы</h3><button class="btn-outline btn-sm" onclick="loadWithdrawals()">Обновить</button></div>
-      <div style="overflow-x:auto;">
+      <div class="desktop-table" style="overflow-x:auto;">
         <table>
           <thead><tr><th>ID</th><th>Игрок</th><th>Сумма</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody id="withdrawalsTable"><tr><td colspan="6" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
+      <div class="mobile-list" id="withdrawalsMobile"></div>
     </div>
   </div>
 
   <!-- ИГРОКИ -->
   <div class="page" id="page-players">
     <h1>Игроки</h1>
-    <div class="sub">Список пользователей, RTP и выдача бонусов</div>
+    <div class="sub">База игроков, досье, бонусы</div>
     <div class="panel">
       <div class="panel-header">
         <h3>База игроков</h3>
@@ -248,14 +288,18 @@
           <button class="btn-outline btn-sm" onclick="loadPlayers()">Обновить</button>
         </div>
       </div>
-      <div style="overflow-x:auto;">
+      <div class="search-row">
+        <input type="text" id="playersSearch" placeholder="🔍 Поиск по ID / имени / коду карты" oninput="filterPlayers()">
+      </div>
+      <div class="desktop-table" style="overflow-x:auto;">
         <table>
           <thead>
-            <tr><th>ID</th><th>Имя</th><th>Ранг</th><th>Депозит</th><th>Бонус</th><th>RTP</th><th>Оборот / Профит</th><th>Действия</th></tr>
+            <tr><th>ID</th><th>Карта</th><th>Имя</th><th>Ранг</th><th>Депозит</th><th>Бонус</th><th>RTP</th><th>Оборот / Профит</th><th>Действия</th></tr>
           </thead>
-          <tbody id="playersTable"><tr><td colspan="8" class="empty">Загрузка...</td></tr></tbody>
+          <tbody id="playersTable"><tr><td colspan="9" class="empty">Загрузка...</td></tr></tbody>
         </table>
       </div>
+      <div class="mobile-list" id="playersMobile"></div>
     </div>
   </div>
 
@@ -315,26 +359,20 @@
   <div class="page" id="page-crash-monitor">
     <h1>Краш-монитор</h1>
     <div class="sub">Текущий раунд, боты, RTP, касса</div>
-
     <div class="cards">
       <div class="card"><div class="label">Раунд</div><div class="value accent" id="cmRound">—</div></div>
       <div class="card"><div class="label">Статус</div><div class="value gold" id="cmStatus">—</div></div>
       <div class="card"><div class="label">Множитель</div><div class="value green" id="cmMult">1.00x</div></div>
       <div class="card"><div class="label">Краш на</div><div class="value red" id="cmCrash">—</div></div>
     </div>
-
     <div class="cards">
       <div class="card"><div class="label">Игроков</div><div class="value" id="cmPlayers">0</div></div>
       <div class="card"><div class="label">Ботов</div><div class="value" id="cmBots">0</div></div>
       <div class="card"><div class="label">Банк игроков</div><div class="value green" id="cmBank">0 ₽</div></div>
       <div class="card"><div class="label">Ставки ботов</div><div class="value gold" id="cmBotsBets">0 ₽</div></div>
     </div>
-
     <div class="panel">
-      <div class="panel-header">
-        <h3>Ставки раунда</h3>
-        <button class="btn-outline btn-sm" onclick="loadCrashMonitor()">Обновить</button>
-      </div>
+      <div class="panel-header"><h3>Ставки раунда</h3><button class="btn-outline btn-sm" onclick="loadCrashMonitor()">Обновить</button></div>
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>Игрок</th><th>Тип</th><th>Ставка</th><th>Кэшаут</th><th>Выигрыш</th></tr></thead>
@@ -342,7 +380,6 @@
         </table>
       </div>
     </div>
-
     <div class="panel">
       <div class="panel-header"><h3>Последние краши</h3></div>
       <div id="cmHistory" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
@@ -351,39 +388,30 @@
 
 </main>
 
-<!-- МОДАЛКА БОНУСА ИГРОКУ -->
-<div class="modal-backdrop" id="bonusModal">
-  <div class="modal">
-    <h2 style="background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💰 Выдать бонус</h2>
-    <div class="modal-sub" id="bonusModalSub">Игрок: —</div>
-    <div class="form-group">
-      <label>Сумма бонуса (₽)</label>
-      <input type="number" id="bonusAmountInput" class="form-control" placeholder="100" min="1" value="100">
-    </div>
-    <div class="form-group">
-      <label>Название бонуса</label>
-      <input type="text" id="bonusTitleInput" class="form-control" value="Подарок от админа" maxlength="100">
-    </div>
-    <div class="form-group">
-      <label>Вейджер (×5 = отыграть 5× суммы)</label>
-      <input type="number" id="bonusWagerInput" class="form-control" value="5" min="0" step="0.5">
-    </div>
-    <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; margin-top:6px; font-size:12px; color:var(--text-muted); line-height:1.5;">
-      Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> (не в депозит).<br>
-      Отыграть нужно: <b id="bonusWagerPreview" style="color:var(--accent);">500 ₽</b>
-    </div>
-    <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitBonus()">💰 Начислить бонус</button>
-    <button class="modal-close" onclick="closeBonusModal()">Отмена</button>
+<!-- МОДАЛКА: ДОСЬЕ -->
+<div class="modal-backdrop" id="dossierModal">
+  <div class="modal wide" style="border-color:rgba(0,229,255,0.35);">
+    <button class="modal-close" style="position:absolute; top:12px; right:12px; width:36px; height:36px; margin:0; border-radius:50%; padding:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:18px; cursor:pointer;" onclick="closeModal('dossierModal')">✕</button>
+    <h2 style="background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Досье игрока</h2>
+    <div class="modal-sub" id="dossierSub">—</div>
+    <div id="dossierBody"><div class="empty">Загрузка...</div></div>
   </div>
 </div>
 
-<!-- МОДАЛКА СОЗДАНИЯ ИГРОКА -->
+<!-- МОДАЛКА: СОЗДАНИЕ ИГРОКА -->
 <div class="modal-backdrop" id="createGuestModal">
   <div class="modal" style="border-color:rgba(0,229,255,0.35);">
     <h2 style="background:linear-gradient(135deg,#00e5ff,#0077ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">➕ Новый игрок</h2>
     <div class="modal-sub">Создание учётной записи</div>
     <div class="form-group">
-      <label>ID (латиница, цифры, _ - .)</label>
+      <label>Код карты (логин)</label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="cgCard" class="form-control" placeholder="Пусто = сгенерировать" maxlength="25" style="font-family:'Courier New',monospace;">
+        <button class="btn-outline" style="white-space:nowrap;" onclick="genCardCode()">🎲</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ID (внутренний, латиница/цифры)</label>
       <input type="text" id="cgId" class="form-control" placeholder="например: player001" maxlength="50">
     </div>
     <div class="form-group">
@@ -420,19 +448,45 @@
       <input type="number" id="cgWager" class="form-control" value="5" min="0" step="0.5">
     </div>
     <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; font-size:12px; color:var(--text-muted); line-height:1.5;">
-      Бонус идёт в <b style="color:var(--gold);">bonus_balance</b> с вейджером,<br>
-      депозит — в <b style="color:var(--accent-green);">deposit_balance</b>.
+      Если код карты пустой — сервер сгенерирует автоматически.<br>
+      Пароль по умолчанию <b style="color:var(--accent);">1234</b>.
     </div>
     <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px; background:linear-gradient(135deg,#00e5ff,#0077ff); color:#000;" onclick="submitCreateGuest()">➕ Создать игрока</button>
-    <button class="modal-close" onclick="closeCreateGuestModal()">Отмена</button>
+    <button class="modal-close" onclick="closeModal('createGuestModal')">Отмена</button>
   </div>
 </div>
 
-<!-- МОДАЛКА КАССЫ -->
+<!-- МОДАЛКА: БОНУС -->
+<div class="modal-backdrop" id="bonusModal">
+  <div class="modal">
+    <h2 style="background:linear-gradient(135deg,#f1c40f,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💰 Выдать бонус</h2>
+    <div class="modal-sub" id="bonusModalSub">Игрок: —</div>
+    <div class="form-group">
+      <label>Сумма бонуса (₽)</label>
+      <input type="number" id="bonusAmountInput" class="form-control" placeholder="100" min="1" value="100">
+    </div>
+    <div class="form-group">
+      <label>Название бонуса</label>
+      <input type="text" id="bonusTitleInput" class="form-control" value="Подарок от админа" maxlength="100">
+    </div>
+    <div class="form-group">
+      <label>Вейджер (×5 = отыграть 5× суммы)</label>
+      <input type="number" id="bonusWagerInput" class="form-control" value="5" min="0" step="0.5">
+    </div>
+    <div style="background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.2); border-radius:10px; padding:12px; margin-top:6px; font-size:12px; color:var(--text-muted); line-height:1.5;">
+      Бонус идёт в <b style="color:var(--gold);">bonus_balance</b>.<br>
+      Отыграть: <b id="bonusWagerPreview" style="color:var(--accent);">500 ₽</b>
+    </div>
+    <button class="btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitBonus()">💰 Начислить бонус</button>
+    <button class="modal-close" onclick="closeModal('bonusModal')">Отмена</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА: КАССА -->
 <div class="modal-backdrop" id="treasuryModal">
   <div class="modal">
     <h2 id="treasuryModalTitle">➕ Пополнить кассу</h2>
-    <div class="modal-sub" id="treasuryModalSub">Сумма, которая будет добавлена в кассу</div>
+    <div class="modal-sub" id="treasuryModalSub">Сумма будет добавлена в кассу</div>
     <div class="form-group">
       <label>Сумма (₽)</label>
       <input type="number" id="treasuryAmountInput" class="form-control" placeholder="1000" min="1" value="1000">
@@ -442,65 +496,93 @@
       <input type="text" id="treasuryNoteInput" class="form-control" placeholder="Например: пополнение извне" maxlength="200">
     </div>
     <button id="treasurySubmitBtn" style="width:100%; padding:14px; font-size:14px; margin-top:16px;" onclick="submitTreasury()">Применить</button>
-    <button class="modal-close" onclick="closeTreasuryModal()">Отмена</button>
+    <button class="modal-close" onclick="closeModal('treasuryModal')">Отмена</button>
   </div>
 </div>
 
-<div class="toast" id="toast">Успешно!</div>
+<!-- МОДАЛКА: ПОДТВЕРЖДЕНИЕ -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal" id="confirmModalBox">
+    <h2 id="confirmTitle">Подтвердить?</h2>
+    <p id="confirmText" style="color:var(--text-muted); font-size:14px; text-align:center; margin-bottom:20px; line-height:1.5;"></p>
+    <button id="confirmYesBtn" style="width:100%; padding:14px; font-size:14px; margin-bottom:10px;" onclick="confirmYes()">Да</button>
+    <button class="modal-close" style="margin-top:0;" onclick="closeModal('confirmModal')">Отмена</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
-let adminPass = "56UpahoS";
+const $ = (id) => document.getElementById(id);
+const ADMIN_PASS_STORAGE = 'kingwin_admin_pass';
 let isAuthorized = false;
 let bonusGuestId = null;
 let bonusGuestName = null;
 let treasuryMode = 'add';
 let crashMonitorTimer = null;
+let allPlayers = [];
+let confirmCallback = null;
+
+function getAdminPass() { return sessionStorage.getItem(ADMIN_PASS_STORAGE) || ''; }
 
 window.onload = () => {
   const saved = sessionStorage.getItem('kingwin_admin_auth');
   if (saved === 'true') {
     isAuthorized = true;
-    document.getElementById('loginScreen').style.display = 'none';
+    $('loginScreen').style.display = 'none';
     loadDashboard();
+    refreshPendingBadge();
   }
-  const amt = document.getElementById('bonusAmountInput');
-  const wag = document.getElementById('bonusWagerInput');
+  const amt = $('bonusAmountInput');
+  const wag = $('bonusWagerInput');
   if (amt) amt.addEventListener('input', updateWagerPreview);
   if (wag) wag.addEventListener('input', updateWagerPreview);
 };
 
-function updateWagerPreview() {
-  const amount = parseFloat(document.getElementById('bonusAmountInput').value) || 0;
-  const wager = parseFloat(document.getElementById('bonusWagerInput').value) || 0;
-  document.getElementById('bonusWagerPreview').textContent = (amount * wager).toFixed(2) + ' ₽';
-}
-
+/* ============ AUTH ============ */
 function doLogin() {
-  const pass = document.getElementById('adminPass').value;
-  if (pass === adminPass) {
-    isAuthorized = true;
-    sessionStorage.setItem('kingwin_admin_auth', 'true');
-    document.getElementById('loginScreen').style.display = 'none';
-    loadDashboard();
-  } else {
-    document.getElementById('loginErr').textContent = 'Неверный пароль';
-  }
+  const pass = $('adminPass').value;
+  if (!pass) { $('loginErr').textContent = 'Введите пароль'; return; }
+  // Пробуем запросом (проверим на сервере)
+  fetch('/api/admin/house/stats').then(() => {
+    // сервер stats открыт, но проверять будем по факту — при первом защищённом запросе
+    // Здесь делаем "мягкий" вход: сохраняем пароль и делаем защищённый запрос
+    sessionStorage.setItem(ADMIN_PASS_STORAGE, pass);
+    fetch('/api/admin/house/log?pass=' + encodeURIComponent(pass) + '&limit=1')
+      .then(r => {
+        if (r.status === 401) {
+          sessionStorage.removeItem(ADMIN_PASS_STORAGE);
+          $('loginErr').textContent = 'Неверный пароль';
+          return;
+        }
+        isAuthorized = true;
+        sessionStorage.setItem('kingwin_admin_auth', 'true');
+        $('loginScreen').style.display = 'none';
+        loadDashboard();
+        refreshPendingBadge();
+      })
+      .catch(() => {
+        sessionStorage.removeItem(ADMIN_PASS_STORAGE);
+        $('loginErr').textContent = 'Ошибка соединения';
+      });
+  });
 }
 
 function logout() {
   sessionStorage.removeItem('kingwin_admin_auth');
+  sessionStorage.removeItem(ADMIN_PASS_STORAGE);
   location.reload();
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('show');
-  document.getElementById('sidebarOverlay').classList.toggle('show');
+  $('sidebar').classList.toggle('show');
+  $('sidebarOverlay').classList.toggle('show');
 }
 
 function switchTab(tabId, btnElement) {
   if (!isAuthorized) return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + tabId).classList.add('active');
+  $('page-' + tabId).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
   if (window.innerWidth < 900) toggleSidebar();
@@ -519,28 +601,69 @@ function switchTab(tabId, btnElement) {
   }
 }
 
-function showToast(msg, isError = false) {
-  const t = document.getElementById('toast');
+/* ============ UTIL ============ */
+function showToast(msg, type = 'success') {
+  const c = $('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
   t.textContent = msg;
-  t.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+}
+function openModal(id) { $(id).classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) {
+  $(id).classList.remove('show');
+  if (!document.querySelector('.modal-backdrop.show')) document.body.style.overflow = '';
+}
+function fmtMoney(n) { return (parseFloat(n) || 0).toFixed(2) + ' ₽'; }
+function fmtDate(d) { return d ? new Date(d).toLocaleString('ru-RU') : '—'; }
+
+function askConfirm(title, text, yesLabel, cb, isDanger = false) {
+  $('confirmTitle').textContent = title;
+  $('confirmText').textContent = text;
+  const btn = $('confirmYesBtn');
+  btn.textContent = yesLabel || 'Да';
+  btn.className = '';
+  btn.style.background = isDanger ? 'var(--red)' : 'var(--accent)';
+  btn.style.color = isDanger ? '#fff' : '#000';
+  confirmCallback = cb;
+  openModal('confirmModal');
+}
+function confirmYes() {
+  const cb = confirmCallback;
+  confirmCallback = null;
+  closeModal('confirmModal');
+  if (typeof cb === 'function') cb();
 }
 
-function fmtMoney(n) { return (parseFloat(n) || 0).toFixed(2) + ' ₽'; }
+/* ============ БЕЙДЖ PENDING ============ */
+async function refreshPendingBadge() {
+  try {
+    const r = await fetch('/api/admin/pending-count');
+    const data = await r.json();
+    const badge = $('financeBadge');
+    if (data.total > 0) {
+      badge.textContent = data.total;
+      badge.classList.add('show');
+    } else {
+      badge.classList.remove('show');
+    }
+  } catch (e) {}
+}
 
-// ================= ОБЗОР =================
+/* ============ ОБЗОР ============ */
 async function loadDashboard() {
   try {
     const resStats = await fetch('/api/admin/house/stats');
     const stats = await resStats.json();
-    document.getElementById('statTreasury').textContent = fmtMoney(stats.treasury);
-    document.getElementById('statTurnover').textContent = fmtMoney(stats.today?.turnover);
-    document.getElementById('statPaid').textContent = fmtMoney(stats.today?.expense);
+    $('statTreasury').textContent = fmtMoney(stats.treasury);
+    $('statTurnover').textContent = fmtMoney(stats.today?.turnover);
+    $('statPaid').textContent = fmtMoney(stats.today?.expense);
 
     const resGuests = await fetch('/api/guests');
     const guests = await resGuests.json();
-    document.getElementById('statPlayers').textContent = Array.isArray(guests) ? guests.length : 0;
+    $('statPlayers').textContent = Array.isArray(guests) ? guests.length : 0;
 
     const resDep = await fetch('/api/deposits');
     const deposits = await resDep.json();
@@ -555,27 +678,27 @@ async function loadDashboard() {
         html += `<tr><td>${d.nick || '-'}</td><td style="font-weight:800; color:var(--accent-green);">${fmtMoney(d.sum)}</td><td>${d.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td></tr>`;
       });
     }
-    document.getElementById('dashRecentDeposits').innerHTML = html;
-  } catch (e) { showToast('Ошибка загрузки', true); }
+    $('dashRecentDeposits').innerHTML = html;
+  } catch (e) { showToast('Ошибка загрузки', 'error'); }
 }
 
-// ================= КАССА =================
+/* ============ КАССА ============ */
 async function loadTreasury() {
   try {
     const res = await fetch('/api/admin/house/stats');
     const stats = await res.json();
-    const v = document.getElementById('treasuryVal');
+    const v = $('treasuryVal');
     const t = parseFloat(stats.treasury) || 0;
     v.textContent = fmtMoney(t);
-    v.className = 'val' + (t < 0 ? ' neg' : '');
-  } catch(e) { showToast('Ошибка загрузки кассы', true); }
+    v.style.color = t < 0 ? 'var(--red)' : 'var(--accent)';
+  } catch(e) { showToast('Ошибка загрузки кассы', 'error'); }
 }
 
 async function loadTreasuryLog() {
   try {
-    const res = await fetch('/api/admin/house/log?pass=' + encodeURIComponent(adminPass) + '&limit=50');
+    const res = await fetch('/api/admin/house/log?pass=' + encodeURIComponent(getAdminPass()) + '&limit=50');
     if (!res.ok) {
-      document.getElementById('treasuryLogTable').innerHTML = '<tr><td colspan="4" class="empty">Эндпоинт /api/admin/house/log не найден</td></tr>';
+      $('treasuryLogTable').innerHTML = '<tr><td colspan="4" class="empty">Ошибка доступа</td></tr>';
       return;
     }
     const rows = await res.json();
@@ -587,25 +710,23 @@ async function loadTreasuryLog() {
         const isIn = r.type === 'доход';
         const color = isIn ? 'var(--accent-green)' : 'var(--red)';
         const sign = isIn ? '+' : '−';
-        const when = r.created_at ? new Date(r.created_at).toLocaleString('ru-RU') : '-';
         html += `<tr>
-          <td>${when}</td>
+          <td>${fmtDate(r.created_at)}</td>
           <td style="color:${color}; font-weight:800;">${isIn ? 'ДОХОД' : 'РАСХОД'}</td>
           <td style="color:${color}; font-weight:800;">${sign}${fmtMoney(r.sum)}</td>
           <td style="color:var(--text-muted); font-size:12px;">${r.note || '-'}</td>
         </tr>`;
       });
     }
-    document.getElementById('treasuryLogTable').innerHTML = html;
-  } catch(e) { showToast('Ошибка загрузки журнала', true); }
+    $('treasuryLogTable').innerHTML = html;
+  } catch(e) { showToast('Ошибка загрузки журнала', 'error'); }
 }
 
 function openTreasuryModal(mode) {
   treasuryMode = mode;
-  const title = document.getElementById('treasuryModalTitle');
-  const sub = document.getElementById('treasuryModalSub');
-  const btn = document.getElementById('treasurySubmitBtn');
-
+  const title = $('treasuryModalTitle');
+  const sub = $('treasuryModalSub');
+  const btn = $('treasurySubmitBtn');
   if (mode === 'add') {
     title.textContent = '➕ Пополнить кассу';
     title.style.background = 'linear-gradient(135deg,#00e676,#00b45a)';
@@ -625,229 +746,461 @@ function openTreasuryModal(mode) {
     btn.style.color = '#fff';
     btn.textContent = 'Списать';
   }
-
-  document.getElementById('treasuryAmountInput').value = 1000;
-  document.getElementById('treasuryNoteInput').value = '';
-  document.getElementById('treasuryModal').classList.add('show');
-}
-
-function closeTreasuryModal() {
-  document.getElementById('treasuryModal').classList.remove('show');
+  $('treasuryAmountInput').value = 1000;
+  $('treasuryNoteInput').value = '';
+  openModal('treasuryModal');
 }
 
 async function submitTreasury() {
-  const amount = parseFloat(document.getElementById('treasuryAmountInput').value) || 0;
-  const note = document.getElementById('treasuryNoteInput').value.trim();
-  if (amount <= 0) return showToast('Сумма должна быть > 0', true);
+  const amount = parseFloat($('treasuryAmountInput').value) || 0;
+  const note = $('treasuryNoteInput').value.trim();
+  if (amount <= 0) return showToast('Сумма должна быть > 0', 'error');
   const endpoint = treasuryMode === 'add' ? '/api/admin/house/add' : '/api/admin/house/remove';
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pass: adminPass, amount, note })
+      body: JSON.stringify({ pass: getAdminPass(), amount, note })
     });
     const data = await res.json();
     if (data.ok) {
       showToast(`✅ ${treasuryMode === 'add' ? 'Добавлено' : 'Списано'} ${amount}₽. Касса: ${fmtMoney(data.treasury)}`);
-      closeTreasuryModal();
+      closeModal('treasuryModal');
       loadTreasury();
       loadTreasuryLog();
     } else {
-      showToast(data.error || 'Ошибка', true);
+      showToast(data.error || 'Ошибка', 'error');
     }
-  } catch(e) { showToast('Ошибка сети', true); }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
 }
 
-// ================= ФИНАНСЫ =================
+/* ============ ФИНАНСЫ ============ */
+function statusRu(s) {
+  return s === 'approved' ? 'Зачислен' : s === 'rejected' ? 'Отклонен' : 'Ожидает';
+}
+function statusClass(s) {
+  return s === 'approved' ? 'approved' : s === 'rejected' ? 'rejected' : 'pending';
+}
+
 async function loadDeposits() {
   try {
     const res = await fetch('/api/deposits');
     const deposits = await res.json();
-    let html = '';
+    let htmlTable = '', htmlMobile = '';
     if (!Array.isArray(deposits) || deposits.length === 0) {
-      html = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+      htmlTable = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+      htmlMobile = '<div class="empty">Нет заявок</div>';
     } else {
       deposits.forEach(d => {
-        const sClass = d.status === 'approved' ? 'approved' : d.status === 'rejected' ? 'rejected' : 'pending';
-        const sText = d.status === 'approved' ? 'Зачислен' : d.status === 'rejected' ? 'Отклонен' : 'Ожидает';
+        const sc = statusClass(d.status);
         let actions = '';
+        let actionsMobile = '';
         if (d.status === 'pending') {
           actions = `<button class="btn-green btn-sm" onclick="updateDeposit(${d.id}, 'approved')">✔</button>
                      <button class="btn-red btn-sm" onclick="updateDeposit(${d.id}, 'rejected')">✖</button>`;
+          actionsMobile = `<button class="btn-green btn-sm" style="flex:1;" onclick="updateDeposit(${d.id}, 'approved')">✔ Зачислить</button>
+                           <button class="btn-red btn-sm" style="flex:1;" onclick="updateDeposit(${d.id}, 'rejected')">✖ Отклонить</button>`;
         }
-        html += `<tr><td>#${d.id}</td><td style="font-weight:600;">${d.nick || '-'}</td><td style="font-weight:800; color:var(--accent-green);">${fmtMoney(d.sum)}</td><td>${d.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
+        htmlTable += `<tr><td>#${d.id}</td><td style="font-weight:600;">${d.nick || '-'}</td><td style="font-weight:800; color:var(--accent-green);">${fmtMoney(d.sum)}</td><td>${d.date || '-'}</td><td><span class="status ${sc}">${statusRu(d.status)}</span></td><td>${actions}</td></tr>`;
+        htmlMobile += `<div class="mobile-card">
+          <div class="mobile-card-head"><div class="mobile-card-title">#${d.id} · ${d.nick || '-'}</div><span class="status ${sc}">${statusRu(d.status)}</span></div>
+          <div class="mobile-card-rows">
+            <div class="mobile-card-row"><span class="lbl">Сумма</span><span style="color:var(--accent-green); font-weight:800;">${fmtMoney(d.sum)}</span></div>
+            <div class="mobile-card-row"><span class="lbl">Дата</span><span>${d.date || '-'}</span></div>
+          </div>
+          ${actionsMobile ? `<div class="mobile-card-actions">${actionsMobile}</div>` : ''}
+        </div>`;
       });
     }
-    document.getElementById('depositsTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка загрузки депозитов', true); }
+    $('depositsTable').innerHTML = htmlTable;
+    $('depositsMobile').innerHTML = htmlMobile;
+  } catch (e) { showToast('Ошибка загрузки депозитов', 'error'); }
 }
 
-async function updateDeposit(id, status) {
-  if (!confirm(`Изменить статус на "${status === 'approved' ? 'Одобрить' : 'Отклонить'}"?`)) return;
-  try {
-    const res = await fetch('/api/deposits/' + id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    if (res.ok) { showToast('Обновлено'); loadDeposits(); }
-    else { showToast('Ошибка', true); }
-  } catch(e) { showToast('Ошибка сети', true); }
+function updateDeposit(id, status) {
+  askConfirm(
+    status === 'approved' ? 'Зачислить депозит?' : 'Отклонить депозит?',
+    status === 'approved' ? `Заявка #${id} будет зачислена игроку.` : `Заявка #${id} будет отклонена.`,
+    status === 'approved' ? 'Зачислить' : 'Отклонить',
+    async () => {
+      try {
+        const res = await fetch('/api/deposits/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (res.ok) { showToast('Обновлено'); loadDeposits(); refreshPendingBadge(); }
+        else { showToast('Ошибка', 'error'); }
+      } catch(e) { showToast('Ошибка сети', 'error'); }
+    },
+    status === 'rejected'
+  );
 }
 
 async function loadWithdrawals() {
   try {
     const res = await fetch('/api/withdrawals');
     const withdrawals = await res.json();
-    let html = '';
+    let htmlTable = '', htmlMobile = '';
     if (!Array.isArray(withdrawals) || withdrawals.length === 0) {
-      html = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+      htmlTable = '<tr><td colspan="6" class="empty">Нет заявок</td></tr>';
+      htmlMobile = '<div class="empty">Нет заявок</div>';
     } else {
       withdrawals.forEach(w => {
-        const sClass = w.status === 'approved' ? 'approved' : w.status === 'rejected' ? 'rejected' : 'pending';
-        const sText = w.status === 'approved' ? 'Выплачен' : w.status === 'rejected' ? 'Отклонен' : 'Ожидает';
-        let actions = '';
+        const sc = statusClass(w.status);
+        let actions = '', actionsMobile = '';
         if (w.status === 'pending') {
           actions = `<button class="btn-green btn-sm" onclick="updateWithdrawal(${w.id}, 'approved')">✔</button>
                      <button class="btn-red btn-sm" onclick="updateWithdrawal(${w.id}, 'rejected')">✖</button>`;
+          actionsMobile = `<button class="btn-green btn-sm" style="flex:1;" onclick="updateWithdrawal(${w.id}, 'approved')">✔ Выплатить</button>
+                           <button class="btn-red btn-sm" style="flex:1;" onclick="updateWithdrawal(${w.id}, 'rejected')">✖ Отклонить</button>`;
         }
-        html += `<tr><td>#${w.id}</td><td style="font-weight:600;">${w.nick || '-'}</td><td style="font-weight:800; color:var(--red);">${fmtMoney(w.sum)}</td><td>${w.date || '-'}</td><td><span class="status ${sClass}">${sText}</span></td><td>${actions}</td></tr>`;
+        htmlTable += `<tr><td>#${w.id}</td><td style="font-weight:600;">${w.nick || '-'}</td><td style="font-weight:800; color:var(--red);">${fmtMoney(w.sum)}</td><td>${w.date || '-'}</td><td><span class="status ${sc}">${statusRu(w.status)}</span></td><td>${actions}</td></tr>`;
+        htmlMobile += `<div class="mobile-card">
+          <div class="mobile-card-head"><div class="mobile-card-title">#${w.id} · ${w.nick || '-'}</div><span class="status ${sc}">${statusRu(w.status)}</span></div>
+          <div class="mobile-card-rows">
+            <div class="mobile-card-row"><span class="lbl">Сумма</span><span style="color:var(--red); font-weight:800;">${fmtMoney(w.sum)}</span></div>
+            <div class="mobile-card-row"><span class="lbl">К выплате</span><span style="color:var(--accent-green); font-weight:800;">${fmtMoney(w.net)}</span></div>
+            <div class="mobile-card-row"><span class="lbl">Дата</span><span>${w.date || '-'}</span></div>
+          </div>
+          ${actionsMobile ? `<div class="mobile-card-actions">${actionsMobile}</div>` : ''}
+        </div>`;
       });
     }
-    document.getElementById('withdrawalsTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка загрузки выводов', true); }
+    $('withdrawalsTable').innerHTML = htmlTable;
+    $('withdrawalsMobile').innerHTML = htmlMobile;
+  } catch (e) { showToast('Ошибка загрузки выводов', 'error'); }
 }
 
-async function updateWithdrawal(id, status) {
-  if (!confirm(`Изменить статус на "${status === 'approved' ? 'Выплатить' : 'Отклонить'}"?`)) return;
-  try {
-    const res = await fetch('/api/withdrawals/' + id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    if (res.ok) { showToast('Обновлено'); loadWithdrawals(); }
-    else { showToast('Ошибка', true); }
-  } catch(e) { showToast('Ошибка сети', true); }
+function updateWithdrawal(id, status) {
+  askConfirm(
+    status === 'approved' ? 'Выплатить вывод?' : 'Отклонить вывод?',
+    status === 'approved' ? `Заявка #${id} будет помечена как выплаченная.` : `Заявка #${id} будет отклонена, деньги вернутся игроку.`,
+    status === 'approved' ? 'Выплатить' : 'Отклонить',
+    async () => {
+      try {
+        const res = await fetch('/api/withdrawals/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (res.ok) { showToast('Обновлено'); loadWithdrawals(); refreshPendingBadge(); }
+        else { showToast('Ошибка', 'error'); }
+      } catch(e) { showToast('Ошибка сети', 'error'); }
+    },
+    status === 'rejected'
+  );
 }
 
-// ================= ИГРОКИ (с RTP) =================
+/* ============ ИГРОКИ ============ */
 async function loadPlayers() {
   try {
     const res = await fetch('/api/guests');
     const guests = await res.json();
-    let html = '';
-    if (!Array.isArray(guests) || guests.length === 0) {
-      html = '<tr><td colspan="8" class="empty">Нет игроков</td></tr>';
-    } else {
-      guests.forEach(g => {
-        const safeName = String(g.name || g.id).replace(/'/g, '&#39;');
+    allPlayers = Array.isArray(guests) ? guests : [];
+    renderPlayers(allPlayers);
+  } catch (e) { showToast('Ошибка загрузки игроков', 'error'); }
+}
+
+function filterPlayers() {
+  const q = ($('playersSearch').value || '').trim().toLowerCase();
+  if (!q) { renderPlayers(allPlayers); return; }
+  const filtered = allPlayers.filter(g =>
+    String(g.id || '').toLowerCase().includes(q) ||
+    String(g.name || '').toLowerCase().includes(q) ||
+    String(g.card_code || '').toLowerCase().includes(q)
+  );
+  renderPlayers(filtered);
+}
+
+function renderPlayers(guests) {
+  let htmlTable = '', htmlMobile = '';
+  if (!guests.length) {
+    htmlTable = '<tr><td colspan="9" class="empty">Нет игроков</td></tr>';
+    htmlMobile = '<div class="empty">Нет игроков</div>';
+  } else {
+    guests.forEach(g => {
+      const safeId = String(g.id || '').replace(/'/g, '&#39;');
+      const safeName = String(g.name || g.id).replace(/'/g, '&#39;');
+      const turnover = parseFloat(g.session_turnover) || 0;
+      const profit = parseFloat(g.session_profit) || 0;
+      // RTP показываем только если есть оборот >= 100
+      let rtpText = '—', rtpColor = 'var(--text-muted)';
+      if (turnover >= 100) {
         const rtp = parseFloat(g.rtp) || 0.80;
-        const turnover = parseFloat(g.session_turnover) || 0;
-        const profit = parseFloat(g.session_profit) || 0;
-        const rtpColor = rtp >= 0.85 ? 'var(--accent-green)' : rtp >= 0.7 ? 'var(--gold)' : 'var(--red)';
-        html += `<tr>
-          <td style="font-family:monospace;">${g.id}</td>
-          <td style="font-weight:600;">${g.name || '-'}</td>
-          <td><span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(241,196,15,0.15); color:var(--gold);">${g.rank || 'Bronze'}</span></td>
-          <td style="font-weight:800; color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</td>
-          <td style="font-weight:800; color:var(--gold);">${fmtMoney(g.bonus_balance)}</td>
-          <td style="font-weight:800; color:${rtpColor};">${(rtp*100).toFixed(0)}%</td>
-          <td style="font-size:11px; color:var(--text-muted);">${fmtMoney(turnover)}<br><span style="color:${profit>=0?'var(--accent-green)':'var(--red)'}">${profit>=0?'+':''}${fmtMoney(profit)}</span></td>
-          <td><button class="btn-gold btn-sm" onclick="openBonusModal('${g.id}', '${safeName}')">💰 Бонус</button></td>
-        </tr>`;
-      });
-    }
-    document.getElementById('playersTable').innerHTML = html;
-  } catch (e) { showToast('Ошибка загрузки игроков', true); }
-}
+        rtpText = (rtp * 100).toFixed(0) + '%';
+        rtpColor = rtp >= 0.85 ? 'var(--accent-green)' : rtp >= 0.7 ? 'var(--gold)' : 'var(--red)';
+      }
+      htmlTable += `<tr class="clickable" onclick="openDossier('${safeId}')">
+        <td style="font-family:monospace;">${g.id}</td>
+        <td><span class="card-code">${g.card_code || '—'}</span></td>
+        <td style="font-weight:600;">${g.name || '-'}</td>
+        <td><span class="rank-badge">${g.rank || 'Bronze'}</span></td>
+        <td style="font-weight:800; color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</td>
+        <td style="font-weight:800; color:var(--gold);">${fmtMoney(g.bonus_balance)}</td>
+        <td style="font-weight:800; color:${rtpColor};">${rtpText}</td>
+        <td style="font-size:11px; color:var(--text-muted);">${fmtMoney(turnover)}<br><span style="color:${profit>=0?'var(--accent-green)':'var(--red)'}">${profit>=0?'+':''}${fmtMoney(profit)}</span></td>
+        <td onclick="event.stopPropagation()"><button class="btn-gold btn-sm" onclick="openBonusModal('${safeId}', '${safeName}')">💰 Бонус</button></td>
+      </tr>`;
 
-// ================= БОНУС ИГРОКУ =================
-function openBonusModal(guestId, guestName) {
-  bonusGuestId = guestId;
-  bonusGuestName = guestName;
-  document.getElementById('bonusModalSub').textContent = `Игрок: ${guestName} (${guestId})`;
-  document.getElementById('bonusAmountInput').value = 100;
-  document.getElementById('bonusTitleInput').value = 'Подарок от админа';
-  document.getElementById('bonusWagerInput').value = 5;
-  updateWagerPreview();
-  document.getElementById('bonusModal').classList.add('show');
-}
-function closeBonusModal() {
-  document.getElementById('bonusModal').classList.remove('show');
-  bonusGuestId = null;
-  bonusGuestName = null;
-}
-async function submitBonus() {
-  if (!bonusGuestId) return;
-  const amount = parseFloat(document.getElementById('bonusAmountInput').value) || 0;
-  const title  = document.getElementById('bonusTitleInput').value.trim() || 'Подарок от админа';
-  const wager  = parseFloat(document.getElementById('bonusWagerInput').value) || 0;
-  if (amount <= 0) return showToast('Сумма должна быть > 0', true);
-  try {
-    const res = await fetch('/api/admin/guest/bonus', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pass: adminPass, guest_id: bonusGuestId, amount, title, wager })
+      htmlMobile += `<div class="mobile-card" onclick="openDossier('${safeId}')">
+        <div class="mobile-card-head">
+          <div class="mobile-card-title">${g.name || g.id}</div>
+          <span class="rank-badge">${g.rank || 'Bronze'}</span>
+        </div>
+        <div class="mobile-card-rows">
+          <div class="mobile-card-row"><span class="lbl">ID</span><span style="font-family:monospace;">${g.id}</span></div>
+          <div class="mobile-card-row"><span class="lbl">Карта</span><span class="card-code">${g.card_code || '—'}</span></div>
+          <div class="mobile-card-row"><span class="lbl">Депозит</span><span style="color:var(--accent-green); font-weight:800;">${fmtMoney(g.deposit_balance)}</span></div>
+          <div class="mobile-card-row"><span class="lbl">Бонус</span><span style="color:var(--gold); font-weight:800;">${fmtMoney(g.bonus_balance)}</span></div>
+          <div class="mobile-card-row"><span class="lbl">RTP</span><span style="color:${rtpColor}; font-weight:800;">${rtpText}</span></div>
+        </div>
+        <div class="mobile-card-actions" onclick="event.stopPropagation()">
+          <button class="btn-gold btn-sm" style="flex:1;" onclick="openBonusModal('${safeId}', '${safeName}')">💰 Бонус</button>
+          <button class="btn-outline btn-sm" style="flex:1;" onclick="openDossier('${safeId}')">📋 Досье</button>
+        </div>
+      </div>`;
     });
-    const data = await res.json();
-    if (data.ok) {
-      showToast(`✅ +${amount}₽ бонус игроку ${bonusGuestName}. Отыграть: ${data.wagering_required.toFixed(0)}₽`);
-      closeBonusModal();
-      loadPlayers();
-    } else {
-      showToast(data.error || 'Ошибка выдачи бонуса', true);
-    }
-  } catch(e) { showToast('Ошибка сети', true); }
+  }
+  $('playersTable').innerHTML = htmlTable;
+  $('playersMobile').innerHTML = htmlMobile;
 }
 
-// ================= СОЗДАНИЕ ИГРОКА =================
+/* ============ ДОСЬЕ ============ */
+async function openDossier(id) {
+  $('dossierSub').textContent = 'Загрузка...';
+  $('dossierBody').innerHTML = '<div class="empty">Загрузка...</div>';
+  openModal('dossierModal');
+  try {
+    const res = await fetch(`/api/admin/guest/dossier?id=${encodeURIComponent(id)}&pass=${encodeURIComponent(getAdminPass())}`);
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      $('dossierBody').innerHTML = `<div class="empty" style="color:var(--red);">${e.error || 'Ошибка загрузки'}</div>`;
+      return;
+    }
+    const d = await res.json();
+    const g = d.guest;
+    const f = d.finance;
+    $('dossierSub').textContent = `${g.name || g.id} · ${g.id}`;
+
+    const expectedLossColor = f.expected_loss >= 0 ? 'var(--accent-green)' : 'var(--red)';
+    const realRtpText = f.real_rtp === null ? '—' : (f.real_rtp * 100).toFixed(1) + '%';
+
+    let html = `
+      <div class="dossier-grid">
+        <div class="dossier-item">
+          <div class="lbl">Код карты</div>
+          <div class="val card-code" style="font-size:14px;">${g.card_code || '—'}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Ранг</div>
+          <div class="val"><span class="rank-badge" style="font-size:13px; padding:4px 10px;">${g.rank}</span></div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Депозит</div>
+          <div class="val" style="color:var(--accent-green);">${fmtMoney(g.deposit_balance)}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Бонус</div>
+          <div class="val" style="color:var(--gold);">${fmtMoney(g.bonus_balance)}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Ожидаемый проигрыш</div>
+          <div class="val" style="color:${expectedLossColor};">${fmtMoney(f.expected_loss)}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Real RTP</div>
+          <div class="val">${realRtpText}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Оборот (всего)</div>
+          <div class="val" style="font-size:14px;">${fmtMoney(f.turnover)}</div>
+        </div>
+        <div class="dossier-item">
+          <div class="lbl">Ставок</div>
+          <div class="val">${d.stats.bets_count}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+        <button class="btn-outline btn-sm" style="flex:1;" onclick="resetPass('${g.id}')">🔑 Сбросить пароль на 1234</button>
+        <button class="btn-gold btn-sm" style="flex:1;" onclick="closeModal('dossierModal'); openBonusModal('${g.id}', '${(g.name||g.id).replace(/'/g,'')}')">💰 Выдать бонус</button>
+      </div>
+
+      <div class="dossier-section">
+        <h4>Последние ставки (${d.last_bets.length})</h4>
+        <div class="dossier-list">
+          ${d.last_bets.length === 0 ? '<div class="empty" style="padding:10px;">Нет ставок</div>' :
+            d.last_bets.map(b => `<div class="dossier-row">
+              <span class="left">${b.game} · ${fmtDate(b.created_at)}</span>
+              <span class="right" style="color:${parseFloat(b.result) > parseFloat(b.bet) ? 'var(--accent-green)' : 'var(--red)'};">${fmtMoney(b.bet)} → ${fmtMoney(b.result)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="dossier-section">
+        <h4>Депозиты (${d.deposits.length})</h4>
+        <div class="dossier-list">
+          ${d.deposits.length === 0 ? '<div class="empty" style="padding:10px;">Нет депозитов</div>' :
+            d.deposits.map(x => `<div class="dossier-row">
+              <span class="left">#${x.id} · ${x.date || '-'} · ${statusRu(x.status)}</span>
+              <span class="right" style="color:var(--accent-green);">${fmtMoney(x.sum)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="dossier-section">
+        <h4>Выводы (${d.withdrawals.length})</h4>
+        <div class="dossier-list">
+          ${d.withdrawals.length === 0 ? '<div class="empty" style="padding:10px;">Нет выводов</div>' :
+            d.withdrawals.map(x => `<div class="dossier-row">
+              <span class="left">#${x.id} · ${x.date || '-'} · ${statusRu(x.status)}</span>
+              <span class="right" style="color:var(--red);">${fmtMoney(x.sum)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="dossier-section">
+        <h4>Выданные бонусы (${d.bonuses.length})</h4>
+        <div class="dossier-list">
+          ${d.bonuses.length === 0 ? '<div class="empty" style="padding:10px;">Нет бонусов</div>' :
+            d.bonuses.map(x => {
+              let det = {};
+              try { det = JSON.parse(x.details || '{}'); } catch(e){}
+              return `<div class="dossier-row">
+                <span class="left">${fmtDate(x.created_at)} · ${det.title || 'Бонус'}</span>
+                <span class="right" style="color:var(--gold);">${fmtMoney(det.amount || 0)}</span>
+              </div>`;
+            }).join('')}
+        </div>
+      </div>
+    `;
+    $('dossierBody').innerHTML = html;
+  } catch (e) {
+    $('dossierBody').innerHTML = '<div class="empty" style="color:var(--red);">Ошибка соединения</div>';
+  }
+}
+
+async function resetPass(id) {
+  askConfirm(
+    'Сбросить пароль?',
+    `Пароль игрока ${id} будет сброшен на 1234.`,
+    'Сбросить',
+    async () => {
+      try {
+        const res = await fetch('/api/admin/guest/reset-pass', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pass: getAdminPass(), id })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(`✅ Пароль игрока ${id} сброшен на 1234`);
+          closeModal('dossierModal');
+        } else {
+          showToast(data.error || 'Ошибка', 'error');
+        }
+      } catch(e) { showToast('Ошибка сети', 'error'); }
+    }
+  );
+}
+
+/* ============ СОЗДАНИЕ ИГРОКА ============ */
+function genCardCode() {
+  const seg = () => Math.floor(1000 + Math.random() * 9000);
+  $('cgCard').value = `${seg()}-${seg()}-${seg()}-${seg()}`;
+}
+
 function openCreateGuestModal() {
-  document.getElementById('cgId').value = '';
-  document.getElementById('cgName').value = '';
-  document.getElementById('cgPassword').value = '1234';
-  document.getElementById('cgRank').value = 'Bronze';
-  document.getElementById('cgDeposit').value = 0;
-  document.getElementById('cgBonus').value = 0;
-  document.getElementById('cgWager').value = 5;
-  document.getElementById('createGuestModal').classList.add('show');
+  $('cgCard').value = '';
+  $('cgId').value = '';
+  $('cgName').value = '';
+  $('cgPassword').value = '1234';
+  $('cgRank').value = 'Bronze';
+  $('cgDeposit').value = 0;
+  $('cgBonus').value = 0;
+  $('cgWager').value = 5;
+  openModal('createGuestModal');
 }
-function closeCreateGuestModal() {
-  document.getElementById('createGuestModal').classList.remove('show');
-}
+
 async function submitCreateGuest() {
-  const id = document.getElementById('cgId').value.trim();
-  const name = document.getElementById('cgName').value.trim();
-  const password = document.getElementById('cgPassword').value.trim() || '1234';
-  const rank = document.getElementById('cgRank').value;
-  const deposit = parseFloat(document.getElementById('cgDeposit').value) || 0;
-  const bonus = parseFloat(document.getElementById('cgBonus').value) || 0;
-  const wager = parseFloat(document.getElementById('cgWager').value) || 5;
-  if (!id || id.length < 2) return showToast('ID минимум 2 символа', true);
-  if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return showToast('ID: только латиница, цифры, _ - .', true);
+  const id = $('cgId').value.trim();
+  const name = $('cgName').value.trim();
+  const cardCode = $('cgCard').value.trim();
+  const password = $('cgPassword').value.trim() || '1234';
+  const rank = $('cgRank').value;
+  const deposit = parseFloat($('cgDeposit').value) || 0;
+  const bonus = parseFloat($('cgBonus').value) || 0;
+  const wager = parseFloat($('cgWager').value) || 5;
+  if (!id || id.length < 2) return showToast('ID минимум 2 символа', 'error');
+  if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return showToast('ID: только латиница, цифры, _ - .', 'error');
   try {
     const res = await fetch('/api/admin/guest/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pass: adminPass, id, name: name || id, password, rank, deposit, bonus, wager })
+      body: JSON.stringify({
+        pass: getAdminPass(), id, name: name || id, password,
+        card_code: cardCode || undefined, rank, deposit, bonus, wager
+      })
     });
     const data = await res.json();
     if (data.ok) {
-      showToast(`✅ Игрок ${data.id} создан${data.bonus > 0 ? ` (+${data.bonus}₽ бонус)` : ''}`);
-      closeCreateGuestModal();
+      showToast(`✅ Игрок ${data.id} создан. Карта: ${data.card_code}`);
+      closeModal('createGuestModal');
       loadPlayers();
+      refreshPendingBadge();
     } else {
-      showToast(data.error || 'Ошибка создания', true);
+      showToast(data.error || 'Ошибка создания', 'error');
     }
-  } catch(e) { showToast('Ошибка сети', true); }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
 }
 
-// ================= ПРОМОКОДЫ =================
+/* ============ БОНУС ============ */
+function openBonusModal(guestId, guestName) {
+  bonusGuestId = guestId;
+  bonusGuestName = guestName;
+  $('bonusModalSub').textContent = `Игрок: ${guestName} (${guestId})`;
+  $('bonusAmountInput').value = 100;
+  $('bonusTitleInput').value = 'Подарок от админа';
+  $('bonusWagerInput').value = 5;
+  updateWagerPreview();
+  openModal('bonusModal');
+}
+function updateWagerPreview() {
+  const amount = parseFloat($('bonusAmountInput').value) || 0;
+  const wager = parseFloat($('bonusWagerInput').value) || 0;
+  $('bonusWagerPreview').textContent = (amount * wager).toFixed(2) + ' ₽';
+}
+
+async function submitBonus() {
+  if (!bonusGuestId) return;
+  const amount = parseFloat($('bonusAmountInput').value) || 0;
+  const title = $('bonusTitleInput').value.trim() || 'Подарок от админа';
+  const wager = parseFloat($('bonusWagerInput').value) || 0;
+  if (amount <= 0) return showToast('Сумма должна быть > 0', 'error');
+  try {
+    const res = await fetch('/api/admin/guest/bonus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pass: getAdminPass(), guest_id: bonusGuestId, amount, title, wager })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ +${amount}₽ бонус игроку ${bonusGuestName}. Отыграть: ${data.wagering_required.toFixed(0)}₽`);
+      closeModal('bonusModal');
+      loadPlayers();
+    } else {
+      showToast(data.error || 'Ошибка выдачи бонуса', 'error');
+    }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
+}
+
+/* ============ ПРОМОКОДЫ ============ */
 async function loadPromos() {
   try {
     const res = await fetch('/api/admin/promos');
     if (!res.ok) {
-      document.getElementById('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Эндпоинт /api/admin/promos не найден</td></tr>';
+      $('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка доступа</td></tr>';
       return;
     }
     const promos = await res.json();
@@ -865,42 +1218,42 @@ async function loadPromos() {
         </tr>`;
       });
     }
-    document.getElementById('promosTable').innerHTML = html;
+    $('promosTable').innerHTML = html;
   } catch (e) {
-    document.getElementById('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки промокодов</td></tr>';
+    $('promosTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки</td></tr>';
   }
 }
 
 async function createPromo() {
-  const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
-  const value = parseFloat(document.getElementById('promoValueInput').value);
-  const minDeposit = parseFloat(document.getElementById('promoMinDepInput').value) || 0;
-  const maxUses = parseInt(document.getElementById('promoMaxUsesInput').value) || 0;
-  if (!code || code.length < 3) return showToast('Введите код', true);
-  if (!value || value <= 0) return showToast('Введите сумму', true);
+  const code = $('promoCodeInput').value.trim().toUpperCase();
+  const value = parseFloat($('promoValueInput').value);
+  const minDeposit = parseFloat($('promoMinDepInput').value) || 0;
+  const maxUses = parseInt($('promoMaxUsesInput').value) || 0;
+  if (!code || code.length < 3) return showToast('Введите код', 'error');
+  if (!value || value <= 0) return showToast('Введите сумму', 'error');
   try {
     const res = await fetch('/api/admin/promo/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pass: adminPass, code, value, min_deposit: minDeposit, max_uses: maxUses })
+      body: JSON.stringify({ pass: getAdminPass(), code, value, min_deposit: minDeposit, max_uses: maxUses })
     });
     const data = await res.json();
     if (data.ok) {
       showToast('Промокод создан!');
-      document.getElementById('promoCodeInput').value = '';
-      document.getElementById('promoValueInput').value = '';
+      $('promoCodeInput').value = '';
+      $('promoValueInput').value = '';
       loadPromos();
-    } else { showToast(data.error || 'Ошибка', true); }
-  } catch(e) { showToast('Ошибка сети', true); }
+    } else { showToast(data.error || 'Ошибка', 'error'); }
+  } catch(e) { showToast('Ошибка сети', 'error'); }
 }
 
-// ================= ИСТОРИЯ =================
+/* ============ ИСТОРИЯ ============ */
 async function loadHistory() {
-  document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
+  $('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Загрузка...</td></tr>';
   try {
     const res = await fetch('/api/admin/history');
     if (!res.ok) {
-      document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Эндпоинт /api/admin/history не найден</td></tr>';
+      $('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка доступа</td></tr>';
       return;
     }
     const rows = await res.json();
@@ -915,43 +1268,42 @@ async function loadHistory() {
           <td>${g.player_name || '-'}</td>
           <td>${fmtMoney(g.bet)}</td>
           <td style="color:${win > 0 ? 'var(--accent-green)' : 'var(--red)'}; font-weight:800;">${fmtMoney(win)}</td>
-          <td>${g.created_at ? new Date(g.created_at).toLocaleString('ru-RU') : '-'}</td>
+          <td>${fmtDate(g.created_at)}</td>
         </tr>`;
       });
     }
-    document.getElementById('historyTable').innerHTML = html;
+    $('historyTable').innerHTML = html;
   } catch (e) {
-    document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки</td></tr>';
+    $('historyTable').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки</td></tr>';
   }
 }
 
-// ================= КРАШ-МОНИТОР =================
+/* ============ КРАШ-МОНИТОР ============ */
 async function loadCrashMonitor() {
   try {
     const res = await fetch('/api/crash/state?_t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) return;
     const s = await res.json();
 
-    document.getElementById('cmRound').textContent = '#' + s.roundId;
-    document.getElementById('cmStatus').textContent = s.status;
-    document.getElementById('cmMult').textContent = (s.currentMult || 1).toFixed(2) + 'x';
-    document.getElementById('cmCrash').textContent = s.status === 'crashed' ? (s.crashPoint || 0).toFixed(2) + 'x' : '—';
-    document.getElementById('cmPlayers').textContent = s.total_players || 0;
-    document.getElementById('cmBots').textContent = s.bots_count || 0;
-    document.getElementById('cmBank').textContent = fmtMoney(s.total_bank || 0);
-    document.getElementById('cmBotsBets').textContent = fmtMoney(s.total_bots_bets || 0);
+    $('cmRound').textContent = '#' + s.roundId;
+    $('cmStatus').textContent = s.status;
+    $('cmMult').textContent = (s.currentMult || 1).toFixed(2) + 'x';
+    $('cmCrash').textContent = s.status === 'crashed' ? (s.crashPoint || 0).toFixed(2) + 'x' : '—';
+    $('cmPlayers').textContent = s.total_players || 0;
+    $('cmBots').textContent = s.bots_count || 0;
+    $('cmBank').textContent = fmtMoney(s.total_bank || 0);
+    $('cmBotsBets').textContent = fmtMoney(s.total_bots_bets || 0);
 
     const bets = s.bets || [];
-    const tb = document.getElementById('cmBetsTable');
+    const tb = $('cmBetsTable');
     if (!bets.length) {
       tb.innerHTML = '<tr><td colspan="5" class="empty">Нет ставок</td></tr>';
     } else {
       tb.innerHTML = bets.map(b => {
-        const isBot = b.is_bot || String(b.guest_id).includes('***');
-        // Боты БЕЗ значка, игроки со ⭐
+        const isBot = b.is_bot;
         const name = b.display_name || ((isBot ? '' : '⭐ ') + b.guest_id);
         const type = isBot ? 'Бот' : 'Игрок';
-        const typeColor = isBot ? 'var(--gold)' : 'var(--accent)';
+        const typeColor = isBot ? 'var(--text-muted)' : 'var(--accent)';
         const cashout = b.cashed_out ? Number(b.cashout_mult).toFixed(2) + 'x' : '—';
         const win = b.cashed_out ? fmtMoney(b.win) : '—';
         return `<tr>
@@ -964,11 +1316,11 @@ async function loadCrashMonitor() {
       }).join('');
     }
 
-    const hist = document.getElementById('cmHistory');
+    const hist = $('cmHistory');
     hist.innerHTML = (s.history || []).map(v => {
       const val = Math.max(1, parseFloat(v) || 1);
       const color = val < 1.5 ? '#ff4d4d' : val < 4 ? '#00e5ff' : val < 10 ? '#8e24aa' : '#f1c40f';
-      return `<span class="crash-history-badge" style="background:${color}33; border:1px solid ${color}; color:${color};">${val.toFixed(2)}x</span>`;
+      return `<span style="display:inline-block; padding:6px 12px; border-radius:8px; font-weight:900; font-size:12px; margin:3px; background:${color}33; border:1px solid ${color}; color:${color};">${val.toFixed(2)}x</span>`;
     }).join('');
   } catch(e) { /* silent */ }
 }
