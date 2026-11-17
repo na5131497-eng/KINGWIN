@@ -4,6 +4,7 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
+const ADMIN_PASS = process.env.ADMIN_PASS || '56UpahoS';
 
 let DATABASE_URL = process.env.DATABASE_URL
   || 'postgresql://neondb_owner:npg_ClW25VuNgUSc@ep-delicate-sea-beqrez4i.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require';
@@ -26,6 +27,36 @@ function getRouletteColor(n) {
   if (n === 0) return 'green';
   if (red.includes(n)) return 'red';
   return 'black';
+}
+
+// ============================================================
+// КОД КАРТЫ — генератор
+// ============================================================
+function generateCardCode() {
+  const seg = () => Math.floor(1000 + Math.random() * 9000);
+  return `${seg()}-${seg()}-${seg()}-${seg()}`;
+}
+
+async function generateUniqueCardCode() {
+  for (let i = 0; i < 20; i++) {
+    const code = generateCardCode();
+    const r = await pool.query('SELECT 1 FROM guests WHERE card_code=$1 LIMIT 1', [code]);
+    if (!r.rows.length) return code;
+  }
+  // fallback с таймстампом
+  return `KW-${Date.now().toString().slice(-8)}`;
+}
+
+// ============================================================
+// АУДИТ ДЕЙСТВИЙ АДМИНА
+// ============================================================
+async function logAdminAction(action, target, details) {
+  try {
+    await pool.query(
+      `INSERT INTO admin_actions (action, target, details) VALUES ($1,$2,$3)`,
+      [action, target || null, details || null]
+    );
+  } catch(e) { /* silent */ }
 }
 
 // ============================================================
@@ -385,7 +416,7 @@ async function getBalance(guestId) {
 }
 
 // ============================================================
-// INIT DB — с гарантией что есть хотя бы один гость
+// INIT DB
 // ============================================================
 async function initDB() {
   try {
@@ -471,6 +502,10 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS news (
         id SERIAL PRIMARY KEY, title TEXT, body TEXT, date TEXT, created_at TIMESTAMP DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS admin_actions (
+        id SERIAL PRIMARY KEY, action TEXT, target TEXT, details TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
 
     await pool.query(`ALTER TABLE crash_bets ADD COLUMN IF NOT EXISTS guest_id TEXT;`);
@@ -495,6 +530,9 @@ async function initDB() {
     await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_profit NUMERIC DEFAULT 0;`);
     await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS session_turnover NUMERIC DEFAULT 0;`);
     await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS last_rtp_update TIMESTAMP DEFAULT NOW();`);
+    // НОВОЕ: код карты
+    await pool.query(`ALTER TABLE guests ADD COLUMN IF NOT EXISTS card_code TEXT;`);
+    try { await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS guests_card_code_idx ON guests (card_code) WHERE card_code IS NOT NULL;`); } catch(e){}
 
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_number INTEGER;`);
     await pool.query(`ALTER TABLE roulette_sessions ADD COLUMN IF NOT EXISTS result_color TEXT;`);
@@ -516,20 +554,27 @@ async function initDB() {
 
     const dlCheck = await pool.query(`SELECT * FROM dealers WHERE login = 'dealer'`);
     if (dlCheck.rows.length === 0) {
-      await pool.query(`INSERT INTO dealers (name, login, pass) VALUES ($1, $2, $3)`, ['Дилер', 'dealer', '56UpahoS']);
+      await pool.query(`INSERT INTO dealers (name, login, pass) VALUES ($1, $2, $3)`, ['Дилер', 'dealer', ADMIN_PASS]);
     }
 
-    // === ГЛАВНОЕ: гарантируем что есть хотя бы один гость ===
+    // Тестовый гость с кодом карты
     const guestCount = await pool.query('SELECT COUNT(*)::int AS c FROM guests');
     if (guestCount.rows[0].c === 0) {
+      const code = await generateUniqueCardCode();
       await pool.query(
-        `INSERT INTO guests (id, name, pass, rank, deposit_balance, bonus_balance)
-         VALUES ('player001', 'Игрок 1', '1234', 'Bronze', 1000, 500)
-         ON CONFLICT (id) DO NOTHING`
+        `INSERT INTO guests (id, name, pass, rank, deposit_balance, bonus_balance, card_code)
+         VALUES ('player001', 'Игрок 1', '1234', 'Bronze', 1000, 500, $1)
+         ON CONFLICT (id) DO NOTHING`, [code]
       );
-      console.log('✅ Создан тестовый гость: player001 / 1234 (депозит 1000, бонус 500)');
+      console.log(`✅ Создан тестовый гость: player001 / 1234, карта: ${code}`);
     } else {
-      console.log(`✅ В БД ${guestCount.rows[0].c} гость(ей) — уже есть`);
+      // Гость есть, но без кода карты — выдадим всем
+      const noCard = await pool.query(`SELECT id FROM guests WHERE card_code IS NULL OR card_code=''`);
+      for (const g of noCard.rows) {
+        const code = await generateUniqueCardCode();
+        await pool.query(`UPDATE guests SET card_code=$1 WHERE id=$2`, [code, g.id]);
+      }
+      console.log(`✅ В БД ${guestCount.rows[0].c} гость(ей), выдано карт: ${noCard.rows.length}`);
     }
 
     console.log('✅ База данных готова!');
@@ -844,6 +889,7 @@ const server = http.createServer(async (req, res) => {
           await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE LOWER(name) = LOWER($2) OR id=$2', [sum, nick]);
         }
       }
+      await logAdminAction('deposit_' + d.status, 'deposit#' + id, JSON.stringify({ status: d.status }));
       return sendJSON(res, 200, { ok: true });
     }
 
@@ -880,6 +926,7 @@ const server = http.createServer(async (req, res) => {
           await pool.query('UPDATE guests SET deposit_balance = deposit_balance + $1 WHERE LOWER(name) = LOWER($2) OR id=$2', [parseFloat(wd.rows[0].sum), wd.rows[0].nick]);
         }
       }
+      await logAdminAction('withdrawal_' + w.status, 'withdrawal#' + id, JSON.stringify({ status: w.status }));
       return sendJSON(res, 200, { ok: true });
     }
 
@@ -972,13 +1019,15 @@ const server = http.createServer(async (req, res) => {
 
     if (url === '/api/guest/change-password' && method === 'POST') {
       const b = await parseBody(req);
-      const { id, old_pass, new_pass } = b;
-      if (!id || !old_pass || !new_pass) return sendJSON(res, 400, { error: 'Введите все данные' });
-      if (new_pass.length < 4) return sendJSON(res, 400, { error: 'Минимум 4 символа' });
+      const id = b.id;
+      const oldP = b.old_pass ?? b.old_password;
+      const newP = b.new_pass ?? b.new_password;
+      if (!id || !oldP || !newP) return sendJSON(res, 400, { error: 'Введите все данные' });
+      if (String(newP).length < 4) return sendJSON(res, 400, { error: 'Минимум 4 символа' });
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
       if (!r.rows.length) return sendJSON(res, 404, { error: 'not found' });
-      if (String(old_pass) !== String(r.rows[0].pass || '1234')) return sendJSON(res, 400, { error: 'Неверный текущий пароль' });
-      await pool.query('UPDATE guests SET pass=$1 WHERE id=$2', [new_pass, id]);
+      if (String(oldP) !== String(r.rows[0].pass || '1234')) return sendJSON(res, 400, { error: 'Неверный текущий пароль' });
+      await pool.query('UPDATE guests SET pass=$1 WHERE id=$2', [newP, id]);
       return sendJSON(res, 200, { ok: true });
     }
 
@@ -1020,82 +1069,121 @@ const server = http.createServer(async (req, res) => {
     // ============================================================
     if (url === '/api/admin/house/add' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const amt = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
       if (amt <= 0) return sendJSON(res, 400, { error: 'Сумма > 0' });
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'доход', $2, $3)`, [todayStr(), amt, `ADMIN MANUAL: добавление (${b.note || '—'})`]);
+      await logAdminAction('treasury_add', null, JSON.stringify({ amount: amt, note: b.note || '' }));
       const house = await getHouseBalance();
       return sendJSON(res, 200, { ok: true, added: amt, treasury: house.balance });
     }
     if (url === '/api/admin/house/remove' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const amt = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
       if (amt <= 0) return sendJSON(res, 400, { error: 'Сумма > 0' });
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), amt, `ADMIN MANUAL: списание (${b.note || '—'})`]);
+      await logAdminAction('treasury_remove', null, JSON.stringify({ amount: amt, note: b.note || '' }));
       const house = await getHouseBalance();
       return sendJSON(res, 200, { ok: true, removed: amt, treasury: house.balance });
     }
     if (url === '/api/admin/house/log' && method === 'GET') {
       const u = new URL(req.url, 'http://x');
-      if (u.searchParams.get('pass') !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (u.searchParams.get('pass') !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const limit = Math.min(200, parseInt(u.searchParams.get('limit'), 10) || 50);
       const r = await pool.query(`SELECT id, date, type, sum, note, created_at FROM online ORDER BY id DESC LIMIT $1`, [limit]);
       return sendJSON(res, 200, r.rows);
     }
 
     // ============================================================
-    // ADMIN GUEST
+    // ADMIN GUEST — CREATE / UPDATE / BONUS / RESET PASS / DOSSIER
     // ============================================================
     if (url === '/api/admin/guest/create' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
+
       const id = String(b.id || '').trim();
       if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
       if (id.length > 50) return sendJSON(res, 400, { error: 'ID слишком длинный' });
       if (!/^[A-Za-z0-9_\-\.]+$/.test(id)) return sendJSON(res, 400, { error: 'ID: только латиница, цифры, _ - .' });
+
       const name = String(b.name || id).trim().slice(0, 100) || id;
       const password = String(b.password || '1234').trim().slice(0, 50) || '1234';
       const rank = String(b.rank || 'Bronze').trim();
+
+      // Код карты: если передан — используем, иначе генерируем
+      let cardCode = String(b.card_code || '').trim().toUpperCase();
+      if (cardCode) {
+        const dup = await pool.query('SELECT 1 FROM guests WHERE card_code=$1 LIMIT 1', [cardCode]);
+        if (dup.rows.length) return sendJSON(res, 400, { error: 'Этот код карты уже занят' });
+      } else {
+        cardCode = await generateUniqueCardCode();
+      }
+
       const deposit = Math.round((parseFloat(b.deposit) || 0) * 100) / 100;
       const bonus = Math.round((parseFloat(b.bonus) || 0) * 100) / 100;
       const wagerMult = parseFloat(b.wager) || 5;
       const wagerReq = bonus * wagerMult;
       if (deposit < 0 || bonus < 0) return sendJSON(res, 400, { error: 'Суммы не могут быть отрицательными' });
+
       const exists = await pool.query('SELECT id FROM guests WHERE id=$1', [id]);
       if (exists.rows.length) return sendJSON(res, 400, { error: 'Игрок с таким ID уже есть' });
+
       try {
-        await pool.query(`INSERT INTO guests (id, name, pass, rank, deposit_balance, bonus_balance, wagering_required, bonus_text) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [id, name, password, rank, deposit, bonus, wagerReq, bonus > 0 ? `Бонус при создании (×${wagerMult})` : null]);
+        await pool.query(
+          `INSERT INTO guests (id, name, pass, rank, card_code, deposit_balance, bonus_balance, wagering_required, bonus_text)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [id, name, password, rank, cardCode, deposit, bonus, wagerReq, bonus > 0 ? `Бонус при создании (×${wagerMult})` : null]
+        );
         if (deposit > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), deposit, `Admin created guest ${id} (deposit)`]);
         if (bonus > 0) await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), bonus, `Admin created guest ${id} (bonus)`]);
-        return sendJSON(res, 200, { ok: true, id, name, rank, deposit, bonus, wager_required: wagerReq });
+        await logAdminAction('guest_create', id, JSON.stringify({ card_code: cardCode, rank, deposit, bonus }));
+        return sendJSON(res, 200, { ok: true, id, name, rank, card_code: cardCode, password, deposit, bonus, wager_required: wagerReq });
       } catch (e) { return sendJSON(res, 500, { error: e.message }); }
     }
 
     if (url === '/api/admin/guest/update' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const id = String(b.id || '').trim();
       if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
       const fields = []; const values = []; let i = 1;
       if (b.name !== undefined) { fields.push(`name = $${i++}`); values.push(String(b.name).slice(0, 100)); }
       if (b.password !== undefined) { fields.push(`pass = $${i++}`); values.push(String(b.password).slice(0, 50)); }
       if (b.rank !== undefined) { fields.push(`rank = $${i++}`); values.push(String(b.rank)); }
+      if (b.card_code !== undefined) {
+        const cc = String(b.card_code).trim().toUpperCase();
+        const dup = await pool.query('SELECT 1 FROM guests WHERE card_code=$1 AND id<>$2 LIMIT 1', [cc, id]);
+        if (dup.rows.length) return sendJSON(res, 400, { error: 'Код карты уже занят' });
+        fields.push(`card_code = $${i++}`); values.push(cc);
+      }
       if (!fields.length) return sendJSON(res, 400, { error: 'Нет полей' });
       values.push(id);
-      const r = await pool.query(`UPDATE guests SET ${fields.join(', ')} WHERE id = $${i} RETURNING id, name, rank`, values);
+      const r = await pool.query(`UPDATE guests SET ${fields.join(', ')} WHERE id = $${i} RETURNING id, name, rank, card_code`, values);
       if (!r.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      await logAdminAction('guest_update', id, JSON.stringify(b));
       return sendJSON(res, 200, { ok: true, guest: r.rows[0] });
+    }
+
+    if (url === '/api/admin/guest/reset-pass' && method === 'POST') {
+      const b = await parseBody(req);
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
+      const id = String(b.id || '').trim();
+      if (!id) return sendJSON(res, 400, { error: 'Укажите ID' });
+      const r = await pool.query(`UPDATE guests SET pass='1234' WHERE id=$1 RETURNING id, card_code`, [id]);
+      if (!r.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
+      await logAdminAction('guest_reset_pass', id, null);
+      return sendJSON(res, 200, { ok: true, id, card_code: r.rows[0].card_code, new_pass: '1234' });
     }
 
     if (url === '/api/admin/guest/bonus' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const amount = Math.round((parseFloat(b.amount) || 0) * 100) / 100;
       if (amount <= 0) return sendJSON(res, 400, { error: 'Сумма > 0' });
       const guestKey = String(b.guest_id || b.nick || '').trim();
       if (!guestKey) return sendJSON(res, 400, { error: 'Укажите ID или имя' });
-      const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1 OR LOWER(name) = LOWER($1) LIMIT 1`, [guestKey]);
+      const gRes = await pool.query(`SELECT * FROM guests WHERE id=$1 OR LOWER(name) = LOWER($1) OR card_code=$1 LIMIT 1`, [guestKey]);
       if (!gRes.rows.length) return sendJSON(res, 404, { error: 'Игрок не найден' });
       const guest = gRes.rows[0];
       const title = String(b.title || 'Бонус от админа').slice(0, 100);
@@ -1103,15 +1191,85 @@ const server = http.createServer(async (req, res) => {
       const wagerReq = amount * wagerMult;
       await pool.query(`UPDATE guests SET bonus_balance = COALESCE(bonus_balance,0) + $1, wagering_required = COALESCE(wagering_required,0) + $2, bonus_text = $3 WHERE id = $4`, [amount, wagerReq, title, guest.id]);
       await pool.query(`INSERT INTO online (date, type, sum, note) VALUES ($1, 'расход', $2, $3)`, [todayStr(), amount, `Admin bonus "${title}" to ${guest.id}`]);
+      await logAdminAction('guest_bonus', guest.id, JSON.stringify({ amount, title, wager: wagerMult }));
       const bal = await getBalance(guest.id);
       return sendJSON(res, 200, { ok: true, guest_id: guest.id, guest_name: guest.name, bonus_added: amount, wagering_required: wagerReq, new_bonus_balance: bal.bonus, new_deposit_balance: bal.deposit, new_total_balance: bal.total });
     }
 
+    // ДОСЬЕ ИГРОКА (для админки)
+    if (url === '/api/admin/guest/dossier' && method === 'GET') {
+      const u = new URL(req.url, 'http://x');
+      if (u.searchParams.get('pass') !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
+      const id = u.searchParams.get('id');
+      if (!id) return sendJSON(res, 400, { error: 'no id' });
+
+      const gq = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
+      if (!gq.rows.length) return sendJSON(res, 404, { error: 'not found' });
+      const g = gq.rows[0];
+
+      // Финансы по игроку (парсим online по note, где в скобках ID)
+      const fin = (await pool.query(`
+        SELECT
+          COALESCE(SUM(CASE WHEN type='доход' THEN sum ELSE 0 END),0)::numeric AS income,
+          COALESCE(SUM(CASE WHEN type='расход' THEN sum ELSE 0 END),0)::numeric AS expense
+        FROM online WHERE note LIKE $1
+      `, [`%(${id})%`])).rows[0];
+      const income = parseFloat(fin.income) || 0;
+      const expense = parseFloat(fin.expense) || 0;
+      const net = income - expense;
+      const turnover = income + expense;
+      const realRtp = turnover > 0 ? expense / turnover : null;
+
+      // Ставки
+      const betsCount = (await pool.query(`SELECT COUNT(*)::int AS c FROM game_history WHERE guest_id=$1`, [id])).rows[0].c;
+      const lastBets = (await pool.query(`SELECT game, bet, result, multiplier, status, created_at FROM game_history WHERE guest_id=$1 ORDER BY created_at DESC LIMIT 20`, [id])).rows;
+
+      // Депозиты / выводы
+      const deposits = (await pool.query(`SELECT * FROM deposits WHERE LOWER(nick)=LOWER($1) ORDER BY id DESC LIMIT 10`, [g.name])).rows;
+      const withdrawals = (await pool.query(`SELECT * FROM withdrawals WHERE LOWER(nick)=LOWER($1) ORDER BY id DESC LIMIT 10`, [g.name])).rows;
+
+      // Бонусы (из admin_actions, чтобы видеть историю)
+      const bonuses = (await pool.query(`SELECT * FROM admin_actions WHERE action='guest_bonus' AND target=$1 ORDER BY created_at DESC LIMIT 10`, [id])).rows;
+
+      return sendJSON(res, 200, {
+        guest: {
+          id: g.id, name: g.name, rank: g.rank, points: g.points,
+          card_code: g.card_code, deposit_balance: parseFloat(g.deposit_balance) || 0,
+          bonus_balance: parseFloat(g.bonus_balance) || 0,
+          wagering_required: parseFloat(g.wagering_required) || 0,
+          wagering_done: parseFloat(g.wagering_done) || 0,
+          rtp: parseFloat(g.rtp) || null,
+          session_turnover: parseFloat(g.session_turnover) || 0,
+          session_profit: parseFloat(g.session_profit) || 0,
+          created_at: g.created_at
+        },
+        finance: { income, expense, net, turnover, real_rtp: realRtp, expected_loss: net },
+        stats: { bets_count: betsCount },
+        last_bets: lastBets,
+        deposits, withdrawals, bonuses
+      });
+    }
+
     // ============================================================
-    // GUESTS
+    // ADMIN PENDING COUNT (для бейджа в сайдбаре)
+    // ============================================================
+    if (url === '/api/admin/pending-count' && method === 'GET') {
+      const d = (await pool.query(`SELECT COUNT(*)::int AS c FROM deposits WHERE status='pending'`)).rows[0].c;
+      const w = (await pool.query(`SELECT COUNT(*)::int AS c FROM withdrawals WHERE status='pending'`)).rows[0].c;
+      return sendJSON(res, 200, { deposits: d, withdrawals: w, total: d + w });
+    }
+
+    // ============================================================
+    // GUESTS (без pass!)
     // ============================================================
     if (url === '/api/guests' && method === 'GET') {
-      const r = await pool.query('SELECT * FROM guests ORDER BY id');
+      const r = await pool.query(`
+        SELECT id, name, rank, points, visits, bonus_text, bonus_code,
+               card_code, bonus_balance, deposit_balance,
+               wagering_required, wagering_done, rtp,
+               session_turnover, session_profit, last_rtp_update, created_at
+        FROM guests ORDER BY id
+      `);
       return sendJSON(res, 200, r.rows);
     }
 
@@ -1122,6 +1280,7 @@ const server = http.createServer(async (req, res) => {
       const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
       if (!r.rows.length) return sendJSON(res, 404, { error: 'not found' });
       const guest = r.rows[0];
+      delete guest.pass; // не отдаём хэш/пароль
       return sendJSON(res, 200, {
         guest,
         balance: { total: (parseFloat(guest.deposit_balance) || 0) + (parseFloat(guest.bonus_balance) || 0), deposit: parseFloat(guest.deposit_balance) || 0, bonus: parseFloat(guest.bonus_balance) || 0 },
@@ -1138,17 +1297,23 @@ const server = http.createServer(async (req, res) => {
       if (!id) return sendJSON(res, 400, { error: 'Введите ID' });
       const exists = await pool.query('SELECT id FROM guests WHERE id=$1', [id]);
       if (exists.rows.length) return sendJSON(res, 400, { error: 'Такой ID уже есть' });
-      await pool.query(`INSERT INTO guests (id, name, pass, rank, bonus_balance, deposit_balance) VALUES ($1, $2, $3, 'Bronze', 0, 0)`, [id, name, pass]);
-      return sendJSON(res, 200, { ok: true, id, name });
+      const cardCode = await generateUniqueCardCode();
+      await pool.query(`INSERT INTO guests (id, name, pass, rank, card_code, bonus_balance, deposit_balance) VALUES ($1, $2, $3, 'Bronze', $4, 0, 0)`, [id, name, pass, cardCode]);
+      return sendJSON(res, 200, { ok: true, id, name, card_code: cardCode });
     }
 
+    // ВХОД — по коду карты ИЛИ по id (совместимость)
     if (url === '/api/guest/login' && method === 'POST') {
-      const { id, pass } = await parseBody(req);
-      if (!id || !pass) return sendJSON(res, 400, { error: 'Введите данные' });
-      const r = await pool.query('SELECT * FROM guests WHERE id=$1', [id]);
+      const b = await parseBody(req);
+      const code = b.card_code || b.id;
+      const pwd  = b.password ?? b.pass;
+      if (!code || !pwd) return sendJSON(res, 400, { error: 'Введите код карты и пароль' });
+
+      const r = await pool.query('SELECT * FROM guests WHERE card_code=$1 OR id=$1 LIMIT 1', [String(code).trim()]);
       if (!r.rows.length) return sendJSON(res, 401, { error: 'Карта не найдена' });
       const g = r.rows[0];
-      if (String(pass) !== String(g.pass || '1234')) return sendJSON(res, 401, { error: 'Неверный пароль' });
+      if (String(pwd) !== String(g.pass || '1234')) return sendJSON(res, 401, { error: 'Неверный пароль' });
+      delete g.pass;
       return sendJSON(res, 200, { ok: true, guest: g });
     }
 
@@ -1208,13 +1373,14 @@ const server = http.createServer(async (req, res) => {
     }
     if (url === '/api/admin/promo/create' && method === 'POST') {
       const b = await parseBody(req);
-      if (b.pass !== '56UpahoS') return sendJSON(res, 401, { error: 'Нет доступа' });
+      if (b.pass !== ADMIN_PASS) return sendJSON(res, 401, { error: 'Нет доступа' });
       const code = String(b.code || '').trim().toUpperCase();
       const value = parseFloat(b.value) || 0;
       if (code.length < 3) return sendJSON(res, 400, { error: 'Короткий код' });
       if (value <= 0) return sendJSON(res, 400, { error: 'Сумма > 0' });
       try {
         const r = await pool.query(`INSERT INTO promo_codes (code, type, value, min_deposit, max_uses, used_count, active) VALUES ($1, 'deposit_bonus', $2, $3, $4, 0, TRUE) RETURNING *`, [code, value, parseFloat(b.min_deposit) || 0, parseInt(b.max_uses) || 0]);
+        await logAdminAction('promo_create', code, JSON.stringify({ value }));
         return sendJSON(res, 200, { ok: true, promo: r.rows[0] });
       } catch (e) {
         if (e.code === '23505') return sendJSON(res, 400, { error: 'Такой код уже есть' });
