@@ -2,122 +2,233 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<title>KINGWIN — Рулетка (Скоро)</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KINGWIN — Рулетка</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-main: #0b0e14; --bg-panel: #151922; --bg-card: #1a1f2b;
-    --accent: #00e5ff; --accent-green: #00e676;
-    --text-main: #fff; --text-muted: #8b92a5;
-    --border: rgba(255,255,255,0.05); --red: #ff4d4d; --gold: #f1c40f;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
-  
-  body { 
-    background: var(--bg-main); color: var(--text-main); min-height: 100dvh; 
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    overflow-x: hidden; text-align: center; padding: 20px;
-  }
-
-  .bg-crowns { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .floating-crown { position: absolute; opacity: 0.12; animation: floatCrown linear infinite; filter: drop-shadow(0 0 6px rgba(241,196,15,.3)); will-change: transform; }
-  .floating-crown svg { width: 100%; height: 100%; display: block; }
-  @keyframes floatCrown {
-    0% { transform: translateY(0) translateX(0) rotate(0deg); }
-    25% { transform: translateY(-30px) translateX(20px) rotate(8deg); }
-    50% { transform: translateY(-50px) translateX(-10px) rotate(-5deg); }
-    75% { transform: translateY(-20px) translateX(15px) rotate(6deg); }
-    100% { transform: translateY(0) translateX(0) rotate(0deg); }
-  }
-
-  .content {
-    position: relative;
-    z-index: 1;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 40px 30px;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  }
-
-  .icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-    display: inline-block;
-    animation: pulseIcon 2s infinite;
-  }
-  @keyframes pulseIcon {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-
-  h1 {
-    font-size: 26px;
-    font-weight: 900;
-    margin-bottom: 10px;
-    color: var(--text-main);
-  }
-  p {
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: 30px;
-  }
-
-  .btn-back {
-    display: inline-block;
-    background: var(--accent-green);
-    color: #000;
-    text-decoration: none;
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-weight: 900;
-    font-size: 16px;
-    transition: 0.2s;
-    box-shadow: 0 4px 15px rgba(0,230,118,0.2);
-  }
-  .btn-back:active {
-    transform: scale(0.95);
-  }
-
+  :root { --bg:#0b0e14; --panel:#151922; --card:#1a1f2b; --accent:#00e5ff; --green:#00e676; --red:#ff4d4d; --gold:#f1c40f; --muted:#8b92a5; --border:rgba(255,255,255,0.05); }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:#fff; min-height:100dvh; padding:12px; max-width:700px; margin:0 auto; }
+  h1 { font-size:20px; font-weight:900; margin-bottom:4px; }
+  .sub { color:var(--muted); font-size:12px; margin-bottom:12px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px; }
+  .status { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .badge { padding:6px 12px; border-radius:8px; font-size:12px; font-weight:900; text-transform:uppercase; }
+  .badge.open { background:rgba(0,230,118,0.15); color:var(--green); border:1px solid var(--green); }
+  .badge.closed { background:rgba(241,196,15,0.15); color:var(--gold); border:1px solid var(--gold); }
+  .badge.settled { background:rgba(0,229,255,0.15); color:var(--accent); border:1px solid var(--accent); }
+  .balance { font-size:14px; font-weight:800; color:var(--green); }
+  .result-box { text-align:center; padding:16px; background:var(--card); border-radius:12px; margin-bottom:12px; }
+  .result-num { font-size:56px; font-weight:900; line-height:1; }
+  .result-num.red { color:var(--red); } .result-num.black { color:#ccc; } .result-num.green { color:var(--green); }
+  .result-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-top:6px; }
+  .grid { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-bottom:12px; }
+  .num { aspect-ratio:1; border-radius:8px; border:2px solid transparent; color:#fff; font-weight:900; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .num.red { background:#c8102e; } .num.black { background:#111; border-color:rgba(255,255,255,0.1); } .num.green { background:#0a8a3a; }
+  .num.active { border-color:var(--accent); box-shadow:0 0 12px var(--accent); transform:scale(1.05); }
+  .outside { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:12px; }
+  .out-btn { padding:12px 6px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:#fff; font-weight:900; font-size:12px; cursor:pointer; }
+  .out-btn.red { background:#c8102e; } .out-btn.black { background:#111; border-color:#333; }
+  .out-btn.active { border-color:var(--accent); box-shadow:0 0 12px var(--accent); }
+  .amount-row { display:flex; gap:6px; margin-bottom:10px; }
+  .amount-row input { flex:1; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; font-size:16px; font-weight:800; text-align:center; outline:none; font-family:inherit; }
+  .chips { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-bottom:10px; }
+  .chip { padding:8px 0; border-radius:6px; background:var(--card); border:1px solid var(--border); color:#fff; font-weight:800; font-size:11px; cursor:pointer; }
+  .chip:hover { border-color:var(--accent); }
+  .btn { width:100%; padding:14px; border:none; border-radius:10px; font-weight:900; font-size:14px; text-transform:uppercase; cursor:pointer; font-family:inherit; }
+  .btn.primary { background:linear-gradient(135deg,#00e676,#00b45a); color:#000; }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; }
+  .my-bets { font-size:12px; color:var(--muted); }
+  .my-bets div { padding:6px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+  .hist { display:flex; gap:5px; flex-wrap:wrap; }
+  .hist span { width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; }
+  .hist span.red { background:#c8102e; } .hist span.black { background:#111; border:1px solid #333; } .hist span.green { background:#0a8a3a; }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-120%); background:var(--panel); border-left:4px solid var(--accent); padding:12px 20px; border-radius:8px; font-weight:800; font-size:13px; transition:0.3s; z-index:999; max-width:90%; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+  .toast.error { border-left-color:var(--red); }
 </style>
 </head>
 <body>
+<h1>🎡 Рулетка</h1>
+<div class="sub">Европейская рулетка · 0–36 · выплаты 35:1 / 1:1 / 2:1</div>
 
-<!-- ФОН (Короны) -->
-<div class="bg-crowns" id="bgCrowns"></div>
-
-<div class="content">
-  <div class="icon">🎡</div>
-  <h1>Рулетка на реконструкции</h1>
-  <p>Мы улучшаем этот режим, чтобы он был ещё интереснее. Скоро всё заработает!</p>
-  <a href="/" class="btn-back">← Вернуться на главную</a>
+<div class="card">
+  <div class="status">
+    <span class="badge" id="roundBadge">—</span>
+    <span class="balance" id="balance">— ₽</span>
+  </div>
+  <div class="result-box">
+    <div class="result-num" id="resultNum">—</div>
+    <div class="result-lbl" id="resultLbl">Ожидание раунда</div>
+  </div>
 </div>
 
+<div class="card">
+  <div class="grid" id="numberGrid"></div>
+  <div class="outside">
+    <button class="out-btn red" data-type="red">КРАСНОЕ</button>
+    <button class="out-btn black" data-type="black">ЧЁРНОЕ</button>
+    <button class="out-btn" data-type="even">ЧЁТ</button>
+    <button class="out-btn" data-type="odd">НЕЧЕТ</button>
+    <button class="out-btn" data-type="low">1–12</button>
+    <button class="out-btn" data-type="mid">13–24</button>
+    <button class="out-btn" data-type="high">25–36</button>
+  </div>
+  <div class="chips">
+    <button class="chip" data-amt="10">10₽</button>
+    <button class="chip" data-amt="50">50₽</button>
+    <button class="chip" data-amt="100">100₽</button>
+    <button class="chip" data-amt="500">500₽</button>
+    <button class="chip" data-amt="1000">1K</button>
+    <button class="chip" data-amt="5000">5K</button>
+  </div>
+  <div class="amount-row">
+    <input type="number" id="amount" value="100" min="1" inputmode="numeric">
+  </div>
+  <button class="btn primary" id="btnBet" onclick="placeBet()" disabled>Сделать ставку</button>
+</div>
+
+<div class="card">
+  <div style="font-size:13px;font-weight:800;margin-bottom:8px;">Мои ставки в раунде</div>
+  <div class="my-bets" id="myBets"><div>Пока нет</div></div>
+</div>
+
+<div class="card">
+  <div style="font-size:13px;font-weight:800;margin-bottom:8px;">История</div>
+  <div class="hist" id="hist"><span style="background:var(--card);color:var(--muted);width:auto;padding:0 10px;">Пока нет</span></div>
+</div>
+
+<div class="toast" id="toast">OK</div>
+
 <script>
-  // Простой генератор фоновых корон (как на главной)
-  window.onload = function() {
-    const bg = document.getElementById('bgCrowns');
-    for (let i = 0; i < 15; i++) {
-      const crown = document.createElement('div');
-      crown.className = 'floating-crown';
-      if (Math.random() > 0.5) crown.classList.add('broken');
-      
-      crown.style.left = Math.random() * 100 + '%';
-      crown.style.top = Math.random() * 100 + '%';
-      crown.style.width = (20 + Math.random() * 40) + 'px';
-      crown.style.height = crown.style.width;
-      crown.style.animationDuration = (5 + Math.random() * 10) + 's';
-      crown.style.animationDelay = (Math.random() * -10) + 's';
-      
-      crown.innerHTML = `<svg viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>`;
-      bg.appendChild(crown);
-    }
-  };
+let guestId = localStorage.getItem('guest_id') || '';
+let selectedType = null, selectedValue = null;
+let pollTimer = null;
+
+const RED = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+function color(n){ return n===0 ? 'green' : RED.has(n) ? 'red' : 'black'; }
+
+function toast(msg, err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(err?' error':'');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+async function ensureLogin(){
+  if (!guestId){
+    guestId = 'player001';
+    localStorage.setItem('guest_id', guestId);
+  }
+  const r = await fetch('/api/guest/summary?id='+encodeURIComponent(guestId));
+  if (!r.ok) { toast('Войдите в аккаунт', true); return false; }
+  return true;
+}
+
+function buildGrid(){
+  const g=document.getElementById('numberGrid');
+  for (let i=0;i<=36;i++){
+    const b=document.createElement('button');
+    b.className='num '+color(i); b.textContent=i; b.dataset.num=i;
+    b.onclick=()=>selectNumber(i,b);
+    g.appendChild(b);
+  }
+  document.querySelectorAll('.out-btn').forEach(btn=>{
+    btn.onclick=()=>selectOutside(btn);
+  });
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.onclick=()=>document.getElementById('amount').value=c.dataset.amt;
+  });
+}
+
+function selectNumber(n, el){
+  selectedType='straight'; selectedValue=n;
+  document.querySelectorAll('.num,.out-btn').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+}
+function selectOutside(btn){
+  selectedType=btn.dataset.type; selectedValue=null;
+  document.querySelectorAll('.num,.out-btn').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function placeBet(){
+  if (!selectedType) return toast('Выберите ставку', true);
+  if (!await ensureLogin()) return;
+  const amount = Math.round((parseFloat(document.getElementById('amount').value)||0)*100)/100;
+  if (amount < 1) return toast('Мин 1 ₽', true);
+
+  const body = { guest_id: guestId, bet_type: selectedType, amount };
+  if (selectedType==='straight') body.bet_value = String(selectedValue);
+
+  const r = await fetch('/api/roulette/bet', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (!d.ok) return toast(d.error||'Ошибка', true);
+  toast(`Ставка ${amount}₽ принята`);
+  updateBalance(d.balance);
+  await refresh();
+}
+
+function updateBalance(v){
+  document.getElementById('balance').textContent = (v||0).toFixed(2)+' ₽';
+}
+
+async function refresh(){
+  const r = await fetch('/api/roulette/state?guest_id='+encodeURIComponent(guestId));
+  if (!r.ok) return;
+  const d = await r.json();
+  const round = d.round;
+
+  const badge = document.getElementById('roundBadge');
+  const btn = document.getElementById('btnBet');
+  if (!round){ badge.textContent='Нет раунда'; badge.className='badge'; btn.disabled=true; }
+  else if (round.status==='open'){
+    badge.textContent='Ставки открыты'; badge.className='badge open'; btn.disabled=false;
+  } else if (round.status==='closed'){
+    badge.textContent='Ставки закрыты'; badge.className='badge closed'; btn.disabled=true;
+  } else {
+    badge.textContent='Результат: '+round.result_number; badge.className='badge settled'; btn.disabled=true;
+  }
+
+  const rn = document.getElementById('resultNum');
+  const rl = document.getElementById('resultLbl');
+  if (round && round.status==='settled' && round.result_number!=null){
+    rn.textContent = round.result_number;
+    rn.className = 'result-num '+round.result_color;
+    rl.textContent = round.result_color==='green'?'ЗЕРО':round.result_color==='red'?'КРАСНОЕ':'ЧЁРНОЕ';
+  } else if (round && round.status==='open'){
+    rn.textContent='—'; rn.className='result-num';
+    rl.textContent='Крутите и введите число в панели дилера';
+  }
+
+  const mb = document.getElementById('myBets');
+  if (d.my_bets && d.my_bets.length){
+    mb.innerHTML = d.my_bets.map(b=>{
+      const label = b.bet_type==='straight' ? 'Число '+b.bet_value : ({
+        red:'Красное', black:'Чёрное', even:'Чёт', odd:'Нечет',
+        low:'1–12', mid:'13–24', high:'25–36'
+      })[b.bet_type] || b.bet_type;
+      const st = b.status==='won' ? `+${parseFloat(b.win).toFixed(2)}₽ ✅` : b.status==='lost' ? '❌' : '⏳';
+      return `<div><span>${label}</span><span>${parseFloat(b.amount).toFixed(2)}₽ → ${st}</span></div>`;
+    }).join('');
+  } else mb.innerHTML='<div>Пока нет</div>';
+
+  const h = document.getElementById('hist');
+  if (d.history && d.history.length){
+    h.innerHTML = d.history.map(x=>`<span class="${x.result_color}">${x.result_number}</span>`).join('');
+  } else h.innerHTML='<span style="background:var(--card);color:var(--muted);width:auto;padding:0 10px;">Пока нет</span>';
+
+  if (guestId){
+    const s = await fetch('/api/guest/summary?id='+encodeURIComponent(guestId));
+    if (s.ok){ const sd=await s.json(); updateBalance((parseFloat(sd.deposit_balance)||0)+(parseFloat(sd.bonus_balance)||0)); }
+  }
+}
+
+buildGrid();
+ensureLogin().then(refresh);
+pollTimer = setInterval(refresh, 2000);
 </script>
 </body>
 </html>
